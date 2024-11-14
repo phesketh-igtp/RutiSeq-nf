@@ -1,1 +1,1 @@
-# TBSEQ.cat-nf
+# tbseq-nf
