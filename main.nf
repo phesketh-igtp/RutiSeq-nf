@@ -19,6 +19,7 @@ params.unambig = 0.1
 params.window = 10
 
 workflow {
+    
     // Create channel from sample sheet
     samples_ch = Channel
         .fromPath(params.sample_sheet)
