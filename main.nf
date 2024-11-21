@@ -1,5 +1,7 @@
 #!/usr/bin/env nextflow
+
 nextflow.enable.dsl = 2
+nextflow.preview.output = true
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -30,54 +32,55 @@ include     { VIEW_HEAD }               from './modules/utilities/view.head.nf'
 workflow {
 
     log.info """
-        
-        =========================================
-        Your Workflow Name
-        =========================================
-        Input samples: ${params.sample_sheet}
-        Output directory: ${params.outdir}
-        
-        =========================================
-        """
+    ====================================================================================================
+    RutiSeq-nf:
+        A reference based analysis of Illumina generated lineage Mycobacterium 
+        tuberculosis genome and identified MTB lineage and genomes into transmission clusters
+    ====================================================================================================
+              Input samples:    ${params.sample_sheet}
+    BBDD/database directory:    ${params.outdir}
+                Contig file:    ${params.config}
+    ====================================================================================================
+    """
 
-    // Create channel from sample sheet/define input channel:
-
-    def header
-    Channel
+    // Create channel from sample sheet
+    samples_ch = Channel
         .fromPath(params.sample_sheet)
-        .splitCsv(sep: ';', header: true)
+        .splitCsv(sep: ',', header: true)
         .map { row -> 
-            if (header == null) {
-                header = row.keySet().collect()
-                println "Header: ${header}"
-            }
             [row.old_name, row.sampleID, file(row.forward_path), file(row.reverse_path)]
         }
-        .set { samples_ch }
 
-    // Run TBPROFILER_PROFILE process
+    // Run processes
     TBPROFILER_PROFILE(samples_ch)
+    MTBSEQ_SINGLE(samples_ch, samples_ch.map { it[1] })
 
-    // You can access the outputs like this:
-    TBPROFILER_PROFILE.out.csv.view()
-    TBPROFILER_PROFILE.out.json.view()
-    TBPROFILER_PROFILE.out.txt.view()
-    TBPROFILER_PROFILE.out.vcf.view()
-
-    // Run MTBSEQ_SINGLE process
-    MTBSEQ_SINGLE(
-        samples_ch,
-        samples_ch.map { it[1] },  // This creates the sampleID directory
-    )
-
-    // View the outputs
-    MTBSEQ_SINGLE.out.called.view()
-    MTBSEQ_SINGLE.out.position_tables_dir.view()
-    MTBSEQ_SINGLE.out.classification_dir.view()
-    MTBSEQ_SINGLE.out.statistics_dir.view()
-    MTBSEQ_SINGLE.out.statistics.view()
-    MTBSEQ_SINGLE.out.classification.view()
+    // View outputs
     VIEW_HEAD(MTBSEQ_SINGLE.out.position_variants)
     VIEW_HEAD(MTBSEQ_SINGLE.out.position_tables)
-    MTBSEQ_SINGLE.out.versions.view()
+
+    // Publish outputs
+    publish:
+    TBPROFILER_PROFILE.out.csv >> 'tbprofiler'
+    TBPROFILER_PROFILE.out.json >> 'tbprofiler'
+    TBPROFILER_PROFILE.out.txt >> 'tbprofiler'
+    TBPROFILER_PROFILE.out.vcf >> 'tbprofiler'
+    MTBSEQ_SINGLE.out.called >> 'mtbseq'
+    MTBSEQ_SINGLE.out.position_tables_dir >> 'mtbseq'
+    MTBSEQ_SINGLE.out.classification_dir >> 'mtbseq'
+    MTBSEQ_SINGLE.out.statistics_dir >> 'mtbseq'
+    MTBSEQ_SINGLE.out.statistics >> 'mtbseq'
+    MTBSEQ_SINGLE.out.classification >> 'mtbseq'
+    MTBSEQ_SINGLE.out.position_variants >> 'mtbseq'
+    MTBSEQ_SINGLE.out.position_tables >> 'mtbseq'
+    }
+
+// Output configuration
+output {
+    'tbprofiler' {
+        path 'tbprofiler_results'
+    }
+    'mtbseq' {
+        path 'mtbseq_results'
+    }
 }
