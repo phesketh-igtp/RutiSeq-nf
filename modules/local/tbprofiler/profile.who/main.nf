@@ -3,7 +3,10 @@ process TBPROFILER_PROFILE_WHO {
     label 'process_medium'
 
     conda "bioconda::tb-profiler=6.3.0"
-    container 'community.wave.seqera.io/library/tb-profiler:6.3.0--35b5c369eb6e0d52'
+
+    container 'oras://community.wave.seqera.io/library/tb-profiler:6.3.0--4f362e6be5d39a05'
+
+    publishDir "${params.outdir}/bbdd/tbprofiler/who-only", mode: 'copy'
 
     input:
     tuple val(sampleID), path(vcf)

@@ -1,4 +1,5 @@
 old_name,sampleID,forward_path,reverse_path
-Daisy-MT_L22_S138_L001,Daisy-MT_L22_L01,./test/Daisy-MT_L22_S138_L001_R1_001.fastq.gz,./test/Daisy-MT_L22_S138_L001_R2_001.fastq.gz
-X-001-L10_S1_L001,X-001-L10_L01,./test/X-001-L10_S1_L001_R1_001.fastq.gz,./test/X-001-L10_S1_L001_R2_001.fastq.gz
-X-002-L10_S1_L001,X-002-L10_L01,./test/X-002-L10_S2_L001_R1_001.fastq.gz,./test/X-002-L10_S2_L001_R2_001.fastq.gz
+Daisy-MT_L22_S138_L001,Daisy-MT_L22,/home/phesketh/Documents/projects/TBSeq/TBSEQ.cat-nf/test/Daisy-MT_L22_S138_L001_R1_001.fastq.gz,/home/phesketh/Documents/projects/TBSeq/TBSEQ.cat-nf/test/Daisy-MT_L22_S138_L001_R2_001.fastq.gz
+04-067_L15_S183_L001,04-067_L15,/home/phesketh/Documents/projects/TBSeq/TBSEQ.cat-nf/test/04-067_L15_S183_L001_R1_001.fastq.gz.fastq.gz,/home/phesketh/Documents/projects/TBSeq/TBSEQ.cat-nf/test/04-067_L15_S183_L001_R2_001.fastq.gz.fastq.gz
+04-069_L15_S72,04-069_L15,/home/phesketh/Documents/projects/TBSeq/TBSEQ.cat-nf/test/04-069_L15_S72_L001_R1_001.fastq.gz.fastq.gz,/home/phesketh/Documents/projects/TBSeq/TBSEQ.cat-nf/test/04-069_L15_S72_L001_R2_001.fastq.gz.fastq.gz
+04-071_L15_S73,04-071_L15,/home/phesketh/Documents/projects/TBSeq/TBSEQ.cat-nf/test/04-071_L15_S73_L001_R1_001.fastq.gz.fastq.gz,/home/phesketh/Documents/projects/TBSeq/TBSEQ.cat-nf/test/04-071_L15_S73_L001_R2_001.fastq.gz.fastq.gz

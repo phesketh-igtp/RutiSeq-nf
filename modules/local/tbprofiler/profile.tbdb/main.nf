@@ -1,31 +1,39 @@
 process TBPROFILER_PROFILE_TBDB {
+    
     tag "$sampleID"
-    label 'process_medium'
 
-    conda "bioconda::tb-profiler=6.3.0"
-    container 'community.wave.seqera.io/library/tb-profiler:6.3.0--35b5c369eb6e0d52'
+    container 'oras://community.wave.seqera.io/library/tb-profiler:6.3.0--4f362e6be5d39a05'
+
+    publishDir "${params.outdir}/bbdd/tbprofiler/who-only", mode: 'link'
 
     input:
-    tuple val(old_name), val(sampleID), path(forward), path(reverse)
+        tuple val(sampleID), path(forward), path(reverse)
 
     output:
-    path "bam/${sampleID}.bam",              emit: tbprof_tbdb_bam
-    path "vcf/${sampleID}.target.vcf.gz",    emit: tbprof_tbdb_vcf
-    path "results/${sampleID}.results.txt",  emit: tbprof_tbdb_res
-    path "results/${sampleID}.results.json", emit: tbprof_tbdb_json
+        tuple val(sampleID), path("bam/${sampleID}.bam"),              emit: tbprof_tbdb_bam
+        tuple val(sampleID), path("vcf/${sampleID}.targets.vcf.gz"),    emit: tbprof_tbdb_vcf
+        tuple val(sampleID), path("results/${sampleID}.results.txt"),  emit: tbprof_tbdb_res
+        tuple val(sampleID), path("results/${sampleID}.results.json"), emit: tbprof_tbdb_json
+        path "versions.yml",                                           emit: versions
 
     script:
     def args = task.ext.args ?: ""
     """
     tb-profiler profile \\
-        -1 ${forward} \\
-        -2 ${reverse} \\
+        -1 ${forward.toRealPath()} \\
+        -2 ${reverse.toRealPath()} \\
         -p ${sampleID} \\
         --txt \\
         --dir . \\
+        --db who \\
         ${args} \\
         --threads ${task.cpus} \\
         --ram ${task.memory.toGiga()}
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        tb-profiler: \$(tb-profiler version | sed 's/^.*TB-profiler version //; s/ .*\$//')
+    END_VERSIONS
     """
 
     stub:
@@ -35,5 +43,7 @@ process TBPROFILER_PROFILE_TBDB {
     touch vcf/${sampleID}.target.vcf.gz
     touch results/${sampleID}.results.txt
     touch results/${sampleID}.results.json
+    echo "${task.process}:" > versions.yml
+    echo "    tb-profiler: 6.3.0" >> versions.yml
     """
 }
