@@ -24,6 +24,7 @@ include     { VIEW_HEAD }                       from './modules/utilities/view.h
     params.unambig = 0.1
     params.window = 10
 
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     DEFINE WORKFLOW
@@ -31,18 +32,6 @@ include     { VIEW_HEAD }                       from './modules/utilities/view.h
 */
 
 workflow {
-
-    log.info """
-    ====================================================================================================
-    RutiSeq-nf:
-        A reference based analysis of Illumina generated lineage Mycobacterium 
-        tuberculosis genome and identified MTB lineage and genomes into transmission clusters
-    ====================================================================================================
-              Input samples:    ${params.sample_sheet}
-    BBDD/database directory:    ${params.outdir}
-                Contig file:    ${params.config}
-    ====================================================================================================
-    """
 
     // Create channel from sample sheet
     samples_ch = Channel
@@ -52,29 +41,34 @@ workflow {
             [row.old_name, row.sampleID, file(row.forward_path), file(row.reverse_path)]
         }
 
-    // Run processes
-    TBPROFILER_PROFILE(samples_ch)
-    MTBSEQ_SINGLE(samples_ch, samples_ch.map { it[1] })
+    // Run MTBSEQ_SINGLE
+        MTBSEQ_SINGLE(samples_ch, samples_ch.map { it[1] })
+
+    // Run TBPROFILER_PROFILE_TBDB
+        TBPROFILER_PROFILE_TBDB(samples_ch)
+
+    // Prepare TBPROFILER_PROFILE_TBDB output for TBPROFILER_PROFILE_WHO
+        vcf_ch = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf
+            .map { vcf -> 
+                def sampleID = vcf.getName().split('\\.')[0]
+                return tuple(sampleID, vcf)
+                }
+
+    // Run NEXT_MODULE
+        TBPROFILER_PROFILE_WHO(vcf_ch)
+
+    // Prepare the output for NEXT_MODULE
+        vcf_ch = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf
+            .map { vcf -> 
+                def sampleID = vcf.getName().split('\\.')[0]
+                return tuple(sampleID, vcf)
+                }
 
     // View outputs
     VIEW_HEAD(MTBSEQ_SINGLE.out.position_variants)
     VIEW_HEAD(MTBSEQ_SINGLE.out.position_tables)
-
-    // Publish outputs
-    publish:
-    TBPROFILER_PROFILE.out.csv >> 'tbprofiler'
-    TBPROFILER_PROFILE.out.json >> 'tbprofiler'
-    TBPROFILER_PROFILE.out.txt >> 'tbprofiler'
-    TBPROFILER_PROFILE.out.vcf >> 'tbprofiler'
-    MTBSEQ_SINGLE.out.called >> 'mtbseq'
-    MTBSEQ_SINGLE.out.position_tables_dir >> 'mtbseq'
-    MTBSEQ_SINGLE.out.classification_dir >> 'mtbseq'
-    MTBSEQ_SINGLE.out.statistics_dir >> 'mtbseq'
-    MTBSEQ_SINGLE.out.statistics >> 'mtbseq'
-    MTBSEQ_SINGLE.out.classification >> 'mtbseq'
-    MTBSEQ_SINGLE.out.position_variants >> 'mtbseq'
-    MTBSEQ_SINGLE.out.position_tables >> 'mtbseq'
-    }
+    
+        }
 
 // Output configuration
 output {
