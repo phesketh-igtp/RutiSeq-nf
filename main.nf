@@ -19,7 +19,7 @@ params.unambig = 0.1
 params.window = 10
 
 workflow {
-    
+
     // Create channel from sample sheet
     samples_ch = Channel
         .fromPath(params.sample_sheet)
@@ -49,10 +49,4 @@ workflow {
     VIEW_HEAD(MTBSEQ_SINGLE.out.position_tables)
     VIEW_HEAD(TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf)
 
-    // Publish outputs
-    publish:
-    MTBSEQ_SINGLE.out.position_variants to: 'mtbseq_results'
-    MTBSEQ_SINGLE.out.position_tables to: 'mtbseq_results'
-    TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf to: 'tbprofiler_results'
-    TBPROFILER_PROFILE_WHO.out.tbprof_who_res to: 'tbprofiler_results'
 }
