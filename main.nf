@@ -10,9 +10,10 @@ nextflow.preview.output = true
 */
 
 // local modules
-include     { MTBSEQ_SINGLE }           from './modules/nf-core/mtbseq/single/main.nf'
-include     { TBPROFILER_PROFILE }      from './modules/nf-core/tbprofiler/profile/main.nf'
-include     { VIEW_HEAD }               from './modules/utilities/view.head.nf'
+include     { MTBSEQ_SINGLE }                   from './modules/local/mtbseq/single/main.nf'
+include     { TBPROFILER_PROFILE_WHO }          from './modules/local/tbprofiler/profile.who/main.nf'
+include     { TBPROFILER_PROFILE_TBDB }         from './modules/local/tbprofiler/profile.tbdb/main.nf'
+include     { VIEW_HEAD }                       from './modules/utilities/view.head.nf'
 
 // Define fixed parameters
     params.minbqual = 5
