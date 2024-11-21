@@ -6,8 +6,6 @@ process TBPROFILER_PROFILE_WHO {
 
     container 'oras://community.wave.seqera.io/library/tb-profiler:6.3.0--4f362e6be5d39a05'
 
-    publishDir "${params.outdir}/bbdd/tbprofiler/who-only", mode: 'copy'
-
     input:
     tuple val(sampleID), path(vcf)
 
@@ -27,6 +25,8 @@ process TBPROFILER_PROFILE_WHO {
         ${args} \\
         --threads ${task.cpus} \\
         --ram ${task.memory.toGiga()}
+
+    rm -rf bam/ vcf/
     """
 
     stub:

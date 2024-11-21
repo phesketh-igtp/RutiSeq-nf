@@ -2,12 +2,14 @@ process TBPROFILER_PROFILE_TBDB {
     
     tag "$sampleID"
 
+    conda "bioconda::tb-profiler=6.3.0"
+
     container 'oras://community.wave.seqera.io/library/tb-profiler:6.3.0--4f362e6be5d39a05'
 
     publishDir "${params.outdir}/bbdd/tbprofiler/who-only", mode: 'link'
 
     input:
-        tuple val(sampleID), path(forward), path(reverse)
+        tuple val(sampleID), path(forward), path(reverse), val(db_done)
 
     output:
         tuple val(sampleID), path("bam/${sampleID}.bam"),              emit: tbprof_tbdb_bam
