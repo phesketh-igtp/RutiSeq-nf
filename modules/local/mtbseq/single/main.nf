@@ -27,9 +27,6 @@ process MTBSEQ_SINGLE {
     ln -s ${forward.toRealPath()} ${sampleID}_R1.fastq.gz
     ln -s ${reverse.toRealPath()} ${sampleID}_R2.fastq.gz
 
-    unlink ${forward.toRealPath()}
-    unlink ${reverse.toRealPath()}
-
     # Verify that the symlinks were created successfully
     ls -l ${sampleID}_R1.fastq.gz ${sampleID}_R2.fastq.gz
 
@@ -48,6 +45,9 @@ process MTBSEQ_SINGLE {
         --thread ${task.cpus} \
         --window 10
         ${args ?: ''}
+
+    unlink ${sampleID}_R1.fastq.gz
+    unlink ${sampleID}_R2.fastq.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

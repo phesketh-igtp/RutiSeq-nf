@@ -31,6 +31,6 @@ workflow {
     TBPROFILER_PROFILE_WHO(vcf_ch)
 
     // Run MTBSEQ_SINGLE (this can run independently if it doesn't depend on the DB update)
-    MTBSEQ_SINGLE(samples_ch)
+    /// MTBSEQ_SINGLE(samples_ch)
 
 }
