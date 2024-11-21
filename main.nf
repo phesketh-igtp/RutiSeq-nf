@@ -20,6 +20,8 @@ workflow {
         .set { samples_ch }
 
     // Run TBPROFILER_PROFILE_DB and emit a dummy value
+    /// the who database needs to be downloaded seperately, so this just updates the db and generates
+    /// a empty val(true) that forces the remaining tb-profiler steps to wait on hold
     TBPROFILER_DB()
     db_done = TBPROFILER_DB.out.collect()
 
