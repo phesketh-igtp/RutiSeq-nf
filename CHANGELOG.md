@@ -9,6 +9,13 @@ Initial release of phesketh-igtp/TBSEQ.cat-wf, created with the [nf-core](https:
 
 ### `Added`
 
+- The following modules that will make up the subworkflow <code>SINGLE_SUBWF</code>:
+    - <code>MTBSEQ_SINGLE</code> -- currently doesnt work, deletes all the data when it runs - very very good
+    - <code>TBPROFILER_DB</code>
+    - <code>TBPROFILER_PROFILE_TBDB</code>
+    - <code>TBPROFILER_PROFILE_WHO</code>
+- Test data added, 4 samples sub-samples to 10% of the average number of reads (20K)
+
 ### `Fixed`
 
 ### `Dependencies`

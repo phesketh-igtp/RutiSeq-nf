@@ -7,29 +7,26 @@ process MTBSEQ_SINGLE {
     publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}", mode: 'link'
 
     input:
-    tuple val(sampleID), path(forward), path(reverse)
+    tuple val(sampleID), path(forward, name: "${sampleID}_R1.fastq.gz"), path(reverse, name: "${sampleID}_R2.fastq.gz")
 
     output:
-    path "Amend", emit: called
+    path "Bam/",
+        path "Bam/${sampleID}.bam",
+        path "Bam/${sampleID}.bam.bai",
+        path "Bam/${sampleID}.bamlog",
     path "Position_Tables", emit: position_tables_dir
+        path "Position_Tables/${sampleID}.gatk_position_table.tab", emit: position_tables
     path "Classification", emit: classification_dir
+        path "Classification/Strain_Classification.tab", emit: classification
     path "Statistics", emit: statistics_dir
-    path "Statistics/Mapping_and_Variant_Statistics.tab", emit: statistics
-    path "Classification/Strain_Classification.tab", emit: classification
+        path "Statistics/Mapping_and_Variant_Statistics.tab", emit: statistics
+    path "Called/", emit: position_variants, emit: called_dir
     path "Called/*gatk_position_variants*.tab", emit: position_variants
-    path "Position_Tables/*.gatk_position_table.tab", emit: position_tables
+
 
     script:
     
     """
-
-    # Create symbolic links for input files using full paths
-    ln -s ${forward.toRealPath()} ${sampleID}_R1.fastq.gz
-    ln -s ${reverse.toRealPath()} ${sampleID}_R2.fastq.gz
-
-    # Verify that the symlinks were created successfully
-    ls -l ${sampleID}_R1.fastq.gz ${sampleID}_R2.fastq.gz
-
     # Create sample file
     echo "${sampleID} ${sampleID}_R1.fastq.gz ${sampleID}_R2.fastq.gz" > ${sampleID}_sample.txt
 
@@ -45,9 +42,6 @@ process MTBSEQ_SINGLE {
         --thread ${task.cpus} \
         --window 10
         ${args ?: ''}
-
-    unlink ${sampleID}_R1.fastq.gz
-    unlink ${sampleID}_R2.fastq.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
