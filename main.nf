@@ -2,10 +2,11 @@
 
 nextflow.enable.dsl = 2
 
-include { TBPROFILER_DB_UPDATE }        from './modules/local/tbprofiler/db/main'
-include { TBPROFILER_PROFILE_TBDB }     from './modules/local/tbprofiler/profile.tbdb/main'
-include { TBPROFILER_PROFILE_WHO }      from './modules/local/tbprofiler/profile.who/main'
-include { MTBSEQ_SINGLE }               from './modules/local/mtbseq/single/main'
+//include { CHECK_EXISTING_OUTPUTS }      from './modules/utilities/single/check.outputs/main.nf'
+include { TBPROFILER_DB_UPDATE }        from './modules/local/tbprofiler/db/main.nf'
+include { TBPROFILER_PROFILE_TBDB }     from './modules/local/tbprofiler/profile.tbdb/main.nf'
+include { TBPROFILER_PROFILE_WHO }      from './modules/local/tbprofiler/profile.who/main.nf'
+include { MTBSEQ_SINGLE }               from './modules/local/mtbseq/single/main.nf'
 
 workflow {
     // Create channel from sample sheet

@@ -1,28 +1,18 @@
 // modules/check_outputs.nf
 
-process CHECK_OUTPUTS {
+process CHECK_EXISTING_OUTPUTS {
     tag "Checking outputs for ${sampleID}"
     
     input:
     tuple val(sampleID), 
     path(${params.outdir}/bbdd/mtbseq/samples/${sampleID})
-    path()
+    path(${params.outdir}/bbdd/tbprofiler/results/${sampleID}.results.txt)
+    path(${params.outdir}/bbdd/tbprofiler/results/${sampleID}.results.json)
 
     output:
-    tuple val(sampleID), path(expected_outputs), emit: to_process
-    tuple val(sampleID), path("${sampleID}_existing_outputs.txt"), emit: existing
 
     script:
     """
-    touch ${sampleID}_existing_outputs.txt
-    for output in ${expected_outputs}
-    do
-        if [[] -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/${output}" && \ 
-               -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/${output}" ]]
-        then
-            echo "${output}" >> ${sampleID}_existing_outputs.txt
-            rm ${output}
-        fi
-    done
+
     """
 }
