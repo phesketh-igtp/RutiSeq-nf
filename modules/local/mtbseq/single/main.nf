@@ -1,7 +1,5 @@
 process MTBSEQ_SINGLE {
 
-    label 'highmem' // this specifies which HPC configution to use
-    
     tag "$sampleID"
 
     conda { file("/imppc/labs/emlab/phesketh/miniconda3/envs/mtbseq").exists() ? "/imppc/labs/emlab/phesketh/miniconda3/envs/mtbseq" : "./modules/local/mtbseq/mtbseq.yml" }
