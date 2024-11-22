@@ -33,6 +33,10 @@ workflow {
     TBPROFILER_PROFILE_WHO(vcf_ch)
 
     // Run MTBSEQ_SINGLE (this can run independently if it doesn't depend on the DB update)
+    // Add a debug statement
+    samples_ch.view { sample_id, forward, reverse -> 
+        "Debug: sample_id=${sample_id}, forward=${forward}, reverse=${reverse}" 
+    }
     MTBSEQ_SINGLE(samples_ch)
 
 }

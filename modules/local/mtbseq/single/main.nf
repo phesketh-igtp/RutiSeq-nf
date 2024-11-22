@@ -1,6 +1,5 @@
 process MTBSEQ_SINGLE {
-
-    tag ${sampleID}
+    tag "$sampleID"
 
     conda "bioconda::mtbseq=1.1.0"
 
@@ -9,9 +8,7 @@ process MTBSEQ_SINGLE {
     publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}", mode: 'link'
 
     input:
-    tuple val(sampleID), 
-    path(forward, stageAs: "${sampleID}_R1.fastq.gz"), // this will rename the staged inputs with the desired names for MTBSeq
-    path(reverse, stageAs: "${sampleID}_R2.fastq.gz")
+    tuple val(sampleID), path(forward), path(reverse)
 
     output:
     path "Bam/", emit: bam_dir
@@ -28,7 +25,13 @@ process MTBSEQ_SINGLE {
     path "Called/*gatk_position_variants*.tab", emit: position_variants
 
     script:
+    def threads = params.mtbseq_threads ?: task.cpus
+    
     """
+    # Rename the loaded data to the correct format using the alias/sampleID
+    mv ${forward} ${sampleID}_R1.fastq.gz
+    mv ${reverse} ${sampleID}_R2.fastq.gz
+
     # Create sample file
     echo "${sampleID} ${sampleID}_R1.fastq.gz ${sampleID}_R2.fastq.gz" > ${sampleID}_sample.txt
 
@@ -41,14 +44,9 @@ process MTBSEQ_SINGLE {
     MTBseq --step TBfull \
         --samples ${sampleID}_sample.txt \
         --project ${sampleID} \
-        --thread ${task.cpus} \
-        --window 10 \
-        ${args ?: ''}
+        --thread ${threads} \
+        --window 10
 
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        mtbseq: \$(MTBseq --version 2>&1 | sed 's/^.*MTBseq //; s/ .*\$//')
-    END_VERSIONS
     """
 
     stub:
