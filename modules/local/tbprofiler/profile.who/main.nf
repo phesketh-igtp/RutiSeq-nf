@@ -3,8 +3,8 @@ process TBPROFILER_PROFILE_WHO {
     label 'process_medium'
 
     conda "bioconda::tb-profiler=6.3.0"
-
-    container 'oras://community.wave.seqera.io/library/tb-profiler:6.3.0--4f362e6be5d39a05'
+   
+    container 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/cb/cbf8de71c4b6e9b044bbbf6ef573ab58e14bf75a846c7bc84dfbe03ac0e278c1/data'
 
     input:
     tuple val(sampleID), path(vcf)

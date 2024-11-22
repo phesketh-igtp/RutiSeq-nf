@@ -3,7 +3,7 @@ process MTBSEQ_SINGLE {
 
     conda "bioconda::mtbseq=1.1.0"
 
-    container "oras://community.wave.seqera.io/library/mtbseq:1.1.0--d0a0774ca038b4d3"
+    container "https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data"
 
     publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}", mode: 'link'
 
