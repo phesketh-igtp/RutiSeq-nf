@@ -2,10 +2,10 @@
 
 nextflow.enable.dsl = 2
 
-include { MTBSEQ_SINGLE }           from './modules/local/mtbseq/single/main'
-include { TBPROFILER_DB }           from './modules/local/tbprofiler/db/main'
-include { TBPROFILER_PROFILE_TBDB } from './modules/local/tbprofiler/profile.tbdb/main'
-include { TBPROFILER_PROFILE_WHO }  from './modules/local/tbprofiler/profile.who/main'
+include { TBPROFILER_DB_UPDATE }        from './modules/local/tbprofiler/db/main'
+include { TBPROFILER_PROFILE_TBDB }     from './modules/local/tbprofiler/profile.tbdb/main'
+include { TBPROFILER_PROFILE_WHO }      from './modules/local/tbprofiler/profile.who/main'
+include { MTBSEQ_SINGLE }               from './modules/local/mtbseq/single/main'
 
 workflow {
     // Create channel from sample sheet
@@ -22,8 +22,8 @@ workflow {
     // Run TBPROFILER_PROFILE_DB and emit a dummy value
     /// the who database needs to be downloaded seperately, so this just updates the db and generates
     /// a empty val(true) that forces the remaining tb-profiler steps to wait on hold
-    TBPROFILER_DB()
-    db_done = TBPROFILER_DB.out.collect()
+    TBPROFILER_DB_UPDATE()
+    db_done = TBPROFILER_DB_UPDATE.out.collect()
 
     // Run TBPROFILER_PROFILE_TBDB after TBPROFILER_PROFILE_DB is done
     TBPROFILER_PROFILE_TBDB(samples_ch.combine(db_done))
@@ -34,9 +34,8 @@ workflow {
 
     // Run MTBSEQ_SINGLE (this can run independently if it doesn't depend on the DB update)
     // Add a debug statement
-    samples_ch.view { sample_id, forward, reverse -> 
-        "Debug: sample_id=${sample_id}, forward=${forward}, reverse=${reverse}" 
-    }
+    ///samples_ch.view { sample_id, forward, reverse -> 
+    ///    "Debug: sample_id=${sample_id}, forward=${forward}, reverse=${reverse}" }
     MTBSEQ_SINGLE(samples_ch)
 
 }

@@ -1,7 +1,10 @@
 process MTBSEQ_SINGLE {
+
+    label 'highmem' // this specifies which HPC configution to use
+    
     tag "$sampleID"
 
-    conda "bioconda::mtbseq=1.1.0"
+    conda { file("/imppc/labs/emlab/phesketh/miniconda3/envs/mtbseq").exists() ? "/imppc/labs/emlab/phesketh/miniconda3/envs/mtbseq" : "./modules/local/mtbseq/mtbseq.yml" }
 
     container "https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data"
 
@@ -25,7 +28,6 @@ process MTBSEQ_SINGLE {
     path "Called/*gatk_position_variants*.tab", emit: position_variants
 
     script:
-    def threads = params.mtbseq_threads ?: task.cpus
     
     """
     # Rename the loaded data to the correct format using the alias/sampleID
@@ -44,7 +46,7 @@ process MTBSEQ_SINGLE {
     MTBseq --step TBfull \
         --samples ${sampleID}_sample.txt \
         --project ${sampleID} \
-        --thread ${threads} \
+        --thread ${task.cpus} \
         --window 10
 
     """
