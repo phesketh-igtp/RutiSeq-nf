@@ -18,7 +18,7 @@ workflow {
         .fromPath(params.samplesheet)
         .splitCsv(header: true, sep: ',')
         .map { row -> tuple(row.sampleID, file(row.forward_path), file(row.reverse_path)) }
-        .set { samples_ch }
+        .set { samples_ch } // give the channel name
 
     // Run TBPROFILER_PROFILE_DB and emit a dummy value
     /// the who database needs to be downloaded seperately, so this just updates the db and generates
