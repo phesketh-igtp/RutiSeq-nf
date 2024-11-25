@@ -1,12 +1,8 @@
 #!/bin/bash
 
-### qsub -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -e qsub-nf.err -l h=sge-exec-12|sge-exec-13|sge-exec-14 -q d10imppcv3 -pe smp 4 -l mem_free=6G submit-nf.sh --samplesheet test/samples.csv --outdir RutiSeq
-
+### qsub -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -e qsub-nf.err -l h=sge-exec-12 -q d10imppcv3 -pe smp 4 -l mem_free=6G submit-nf.sh --samplesheet test/samples.csv --outdir RutiSeq
 
 eval "$(conda shell.bash hook)"
-
-export PATH=$PATH:/imppc/labs/emlab/phesketh/.local/bin/
-
 
 # Configure bash
 set -e          # exit immediately on error
