@@ -1,9 +1,10 @@
 process MTBC_READ_QC {
+
+    tag 
+    
     conda { file("/imppc/labs/emlab/phesketh/miniconda3/envs/kaiju").exists() ? "/imppc/labs/emlab/phesketh/miniconda3/envs/kaiju" : "../modules/local/pre-wf-check/mtbc-reads-qc/kaiju.yml" }
     
-    container = params.container_tech == 'singularity' ?
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/09/09c601d67c915ec87dbcbf5b8a12e5cc15d6bc36523377b5f3103c3ec2dc0c50/data' :
-        'docker://community.wave.seqera.io/library/kaiju_seqkit:f0dee6f099a0663d'
+    container 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/09/09c601d67c915ec87dbcbf5b8a12e5cc15d6bc36523377b5f3103c3ec2dc0c50/data'
         
     input:
         tuple val(sampleID), path(forward), path(reverse), val(db_done)
@@ -36,7 +37,7 @@ process MTBC_READ_QC {
     MTB_PERC=\$(grep 'Mycobacterium' "${sampleID}.kaiju_summary.tsv" | sed '1d' | head -1 | cut -f2)
 
     mkdir -p samples/ mtbc-reads/
-    echo -e "${sampleID}\t${R1_num}\t${R1_qual}\t${R2_num}\t${R2_qual}\t${MTB_PERC}" > samples/${sampleID}.qc.out
+    echo -e "\${sampleID}\t\${R1_num}\t\${R1_qual}\t\${R2_num}\t\${R2_qual}\t\${MTB_PERC}" > samples/${sampleID}.qc.out
 
     grep -f .tmp.MTBC.list "${sampleID}.kaiju.out" | cut -f2 > .tmp.${sampleID}.list
     seqkit grep -j "${params.cpu}" -f .tmp.${sampleID}.list "${forward}" -o mtbc-reads/${sampleID}_R1.fastq.gz
