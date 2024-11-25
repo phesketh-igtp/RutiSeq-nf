@@ -37,6 +37,6 @@ workflow {
     // Add a debug statement
     ///samples_ch.view { sample_id, forward, reverse -> 
     ///    "Debug: sample_id=${sample_id}, forward=${forward}, reverse=${reverse}" }
-    MTBSEQ_SINGLE(samples_ch)
+    //MTBSEQ_SINGLE(samples_ch)
 
 }
