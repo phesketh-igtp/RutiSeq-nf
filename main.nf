@@ -13,13 +13,18 @@ include { CLEANUP_MTBC_READS }          from './modules/utilities/single/cleanup
 workflow {
     // Create channel from sample sheet
     if (params.samplesheet == null) {
-        error "Please provide a samplesheet CSV file with --samplesheet"
+            error "Please provide a samplesheet CSV file with --samplesheet"
     }
 
     Channel
         .fromPath(params.samplesheet)
         .splitCsv(header: true, sep: ',')
-        .map { row -> tuple(row.sampleID, file(row.forward_path), file(row.reverse_path)) }
+        .map { row -> // checks if the sample sheet is completed
+            if (row.sampleID == null || row.forward_path == null || row.reverse_path == null) {
+                error "Missing required column in samplesheet: ${row}"
+            } // checks if the files exist
+            tuple(row.sampleID, file(row.forward_path, checkIfExists: true), file(row.reverse_path, checkIfExists: true))
+        }
         .set { samples_ch }
 
     // Run TBPROFILER_DB_UPDATE and emit a dummy value
@@ -51,5 +56,5 @@ workflow {
         .map { it[1..2] }  // Keep only the file paths
 
     CLEANUP_MTBC_READS(mtbc_reads_to_delete)
-    
+
 }

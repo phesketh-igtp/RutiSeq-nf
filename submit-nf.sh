@@ -1,12 +1,12 @@
 #!/bin/bash
 
-### qsub -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -e qsub-nf.err -l h=sge-exec-12 -q d10imppcv3 -pe smp 4 -l mem_free=6G submit-nf.sh --samplesheet test/samples.csv --outdir RutiSeq
+### 
 
 eval "$(conda shell.bash hook)"
 
 # Configure bash
 set -e          # exit immediately on error
-set -u          # exit immidiately if using undefined variables
+set -u          # exit immediately if using undefined variables
 set -o pipefail # ensure bash pipelines return non-zero status if any of their command fails
 
 # Setup trap function to be run when canceling the pipeline job. It will propagate the SIGTERM signal
@@ -24,7 +24,8 @@ export NXF_JVM_ARGS="-Xms2g -Xmx5g"
 
 # Run the pipeline. The command uses the arguments passed to this script, e.g:
 #
-# $ qsub submit_nf.sh nextflow/rnatoy -with-singularity
+# $ qsub -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -e qsub-nf.err -l h=sge-exec-12 -q d10imppcv3 -pe smp 4 -l mem_free=6G submit-nf.sh --samplesheet test/samples.csv --outdir RutiSeq
+#### qsub submit_nf.sh nextflow/rnatoy -with-singularity
 #
 nextflow run "$@" -profile igtp --container_tech singularity -ansi-log false & pid=$!
 
