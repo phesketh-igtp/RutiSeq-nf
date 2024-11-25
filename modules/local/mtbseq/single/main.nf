@@ -32,20 +32,13 @@ process MTBSEQ_SINGLE {
     mv ${forward} ${sampleID}_R1.fastq.gz
     mv ${reverse} ${sampleID}_R2.fastq.gz
 
-    # Create sample file
-    echo "${sampleID} ${sampleID}_R1.fastq.gz ${sampleID}_R2.fastq.gz" > ${sampleID}_sample.txt
-
     echo "Current working directory: \$(pwd)"
     echo "Contents of current directory:"
     ls -l
     echo "Contents of sample file:"
     cat ${sampleID}_sample.txt
 
-    MTBseq --step TBfull \
-        --samples ${sampleID}_sample.txt \
-        --project ${sampleID} \
-        --thread ${task.cpus} \
-        --window 10
+    MTBseq --step TBfull --thread ${task.cpus} --window 10
 
     """
 
