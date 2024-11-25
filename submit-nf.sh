@@ -1,6 +1,6 @@
 #!/bin/bash
 
-### qsub -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -e qsub-nf.err -l h=sge-exec-12 -q d10imppcv3 -pe smp 4 -l mem_free=6G submit-nf.sh --samplesheet test/samples.csv --outdir RutiSeq
+### qsub -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -e qsub-nf.err -l h=sge-exec-12|sge-exec-13|sge-exec-14 -q d10imppcv3 -pe smp 4 -l mem_free=6G submit-nf.sh --samplesheet test/samples.csv --outdir RutiSeq
 
 
 eval "$(conda shell.bash hook)"
@@ -31,9 +31,9 @@ export NXF_JVM_ARGS="-Xms2g -Xmx5g"
 # $ sbatch submit_nf.sh nextflow/rnatoy -with-singularity
 #
 # will use "nextflow/rnatoy -with-singularity" as arguments
-nextflow run "$@" --profile igtp -ansi-log false & pid=$!
+/imppc/labs/emlab/phesketh/.local/bin/nextflow run "$@" -profile igtp -ansi-log false & pid=$!
 
-echo -e "Running:       nextflow run "$@" --profile igtp -ansi-log false "
+echo -e "Running:       nextflow run "$@" -profile igtp -ansi-log false "
 
 # Wait for the pipeline to finish
 echo "Waiting for ${pid}"
