@@ -24,13 +24,13 @@ export NXF_JVM_ARGS="-Xms2g -Xmx5g"
 
 # Run the pipeline. The command uses the arguments passed to this script, e.g:
 #
-# $ qsub -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -e qsub-nf.err -l h=sge-exec-12 -q d10imppcv3 -pe smp 4 -l mem_free=6G submit-nf.sh --samplesheet test/samples.csv --outdir RutiSeq
+# $ qsub -q d10imppcv3 -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -e qsub-nf.err -l h=sge-exec-12 -pe smp 1 -l mem_free=6G submit-nf.sh main.nf --samplesheet test/samples.csv --outdir RutiSeq
 #### qsub submit_nf.sh nextflow/rnatoy -with-singularity
 #
-nextflow run "$@" -profile igtp --singularity_on -ansi-log false & pid=$!
+nextflow run "$@" -profile igtp,singularity_on -ansi-log false & pid=$!
 
 echo -e "Running:       
-nextflow run "$@" -profile igtp --container_tech singularity -ansi-log false & pid=$! 
+                nextflow run "$@" -profile igtp,singularity_on -ansi-log false & pid=$!
 "
 
 # Wait for the pipeline to finish
