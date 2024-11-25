@@ -31,7 +31,9 @@ export NXF_JVM_ARGS="-Xms2g -Xmx5g"
 # $ sbatch submit_nf.sh nextflow/rnatoy -with-singularity
 #
 # will use "nextflow/rnatoy -with-singularity" as arguments
-nextflow run -ansi-log false "$@" & pid=$!
+nextflow run "$@" --profile igtp -ansi-log false & pid=$!
+
+echo -e "Running:       nextflow run "$@" --profile igtp -ansi-log false "
 
 # Wait for the pipeline to finish
 echo "Waiting for ${pid}"
