@@ -26,7 +26,7 @@ export NXF_JVM_ARGS="-Xms2g -Xmx5g"
 #
 # $ qsub submit_nf.sh nextflow/rnatoy -with-singularity
 #
-nextflow run "$@" -profile igtp -ansi-log false & pid=$!
+nextflow run "$@" -profile igtp --container_tech singularity -ansi-log false & pid=$!
 
 echo -e "Running:       nextflow run "$@" -profile igtp -ansi-log false "
 

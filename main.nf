@@ -8,6 +8,7 @@ include { TBPROFILER_DB_UPDATE }        from './modules/local/tbprofiler/db/main
 include { TBPROFILER_PROFILE_TBDB }     from './modules/local/tbprofiler/profile.tbdb/main.nf'
 include { TBPROFILER_PROFILE_WHO }      from './modules/local/tbprofiler/profile.who/main.nf'
 include { MTBSEQ_SINGLE }               from './modules/local/mtbseq/single/main.nf'
+include { CLEANUP_MTBC_READS }          from './modules/utilities/single/cleanup-mtbc-reads/main.nf'
 
 workflow {
     // Create channel from sample sheet
@@ -42,5 +43,13 @@ workflow {
 
     // Run MTBSEQ_SINGLE
     MTBSEQ_SINGLE(MTBC_READ_QC.out.mtbc_reads)
+
+    // Wait for all processes that use the MTBC reads to complete
+    mtbc_reads_to_delete = MTBC_READ_QC.out.mtbc_reads
+        .join(TBPROFILER_PROFILE_TBDB.out)
+        .join(MTBSEQ_SINGLE.out)
+        .map { it[1..2] }  // Keep only the file paths
+
+    CLEANUP_MTBC_READS(mtbc_reads_to_delete)
     
 }
