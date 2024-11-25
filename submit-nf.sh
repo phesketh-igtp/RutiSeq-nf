@@ -29,7 +29,9 @@ export NXF_JVM_ARGS="-Xms2g -Xmx5g"
 #
 nextflow run "$@" -profile igtp --container_tech singularity -ansi-log false & pid=$!
 
-echo -e "Running:       nextflow run "$@" -profile igtp -ansi-log false "
+echo -e "Running:       
+nextflow run "$@" -profile igtp --container_tech singularity -ansi-log false & pid=$! 
+"
 
 # Wait for the pipeline to finish
 echo "Waiting for ${pid}"
