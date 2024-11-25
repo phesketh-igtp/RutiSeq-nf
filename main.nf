@@ -2,7 +2,8 @@
 
 nextflow.enable.dsl = 2
 
-//include { CHECK_EXISTING_OUTPUTS }      from './modules/utilities/single/check.outputs/main.nf'
+//include { CHECK_EXISTING_OUTPUTS }      from './modules/pre-wf-check/single/check.outputs/main.nf'
+include { MTBC_READ_QC }                from './modules/local/pre-wf-check/mtbc-reads-qc/main.nf'
 include { TBPROFILER_DB_UPDATE }        from './modules/local/tbprofiler/db/main.nf'
 include { TBPROFILER_PROFILE_TBDB }     from './modules/local/tbprofiler/profile.tbdb/main.nf'
 include { TBPROFILER_PROFILE_WHO }      from './modules/local/tbprofiler/profile.who/main.nf'
@@ -18,25 +19,28 @@ workflow {
         .fromPath(params.samplesheet)
         .splitCsv(header: true, sep: ',')
         .map { row -> tuple(row.sampleID, file(row.forward_path), file(row.reverse_path)) }
-        .set { samples_ch } // give the channel name
+        .set { samples_ch }
 
-    // Run TBPROFILER_PROFILE_DB and emit a dummy value
-    /// the who database needs to be downloaded seperately, so this just updates the db and generates
-    /// a empty val(true) that forces the remaining tb-profiler steps to wait on hold
+    // Run TBPROFILER_DB_UPDATE and emit a dummy value
     TBPROFILER_DB_UPDATE()
     db_done = TBPROFILER_DB_UPDATE.out.collect()
 
-    // Run TBPROFILER_PROFILE_TBDB after TBPROFILER_PROFILE_DB is done
-    TBPROFILER_PROFILE_TBDB(samples_ch.combine(db_done))
+    // Run MTBC_READ_QC
+    MTBC_READ_QC(samples_ch.combine(db_done))
 
-    // Prepare and run TBPROFILER_PROFILE_WHO after TBPROFILER_PROFILE_DB is done
+    // Collect all QC outputs into a single file
+    MTBC_READ_QC.out.qc_out
+        .collectFile(name: 'all_samples_qc.tsv', keepHeader: true, sort: true)
+        .set { all_qc_results }
+
+    // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
+    TBPROFILER_PROFILE_TBDB(MTBC_READ_QC.out.mtbc_reads)
+
+    // Prepare and run TBPROFILER_PROFILE_WHO
     vcf_ch = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf
     TBPROFILER_PROFILE_WHO(vcf_ch)
 
-    // Run MTBSEQ_SINGLE (this can run independently if it doesn't depend on the DB update)
-    // Add a debug statement
-    ///samples_ch.view { sample_id, forward, reverse -> 
-    ///    "Debug: sample_id=${sample_id}, forward=${forward}, reverse=${reverse}" }
-    //MTBSEQ_SINGLE(samples_ch)
-
+    // Run MTBSEQ_SINGLE
+    MTBSEQ_SINGLE(MTBC_READ_QC.out.mtbc_reads)
+    
 }

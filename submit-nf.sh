@@ -24,10 +24,9 @@ export NXF_JVM_ARGS="-Xms2g -Xmx5g"
 
 # Run the pipeline. The command uses the arguments passed to this script, e.g:
 #
-# $ sbatch submit_nf.sh nextflow/rnatoy -with-singularity
+# $ qsub submit_nf.sh nextflow/rnatoy -with-singularity
 #
-# will use "nextflow/rnatoy -with-singularity" as arguments
-/imppc/labs/emlab/phesketh/.local/bin/nextflow run "$@" -profile igtp -ansi-log false & pid=$!
+nextflow run "$@" -profile igtp -ansi-log false & pid=$!
 
 echo -e "Running:       nextflow run "$@" -profile igtp -ansi-log false "
 
