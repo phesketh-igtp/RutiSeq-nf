@@ -33,15 +33,18 @@ process MTBSEQ_SINGLE {
     MTBseq --step TBfull \\
         --thread ${task.cpus} \\
         --window 10 \\
-        --prefix ${sampleID}
+        --prefix ${sampleID} \\
+        1>>.command.out \\
+        2>>.command.err \\
+        || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 
-    # Check if the expected output files exist
+    # Check if the expected final output files exist
     if [ -f "Classification/Strain_Classification.tab" ] && [ -f "Statistics/Mapping_and_Variant_Statistics.tab" ]; then
         touch mtbseq_completed.flag
         exit 0  # Exit with success status if the expected files exist
     else
         echo "MTBseq did not produce expected output files" >&2
-        exit 42  # Exit with a specific error code for non-resource related errors
+        exit 42 # Exit with a specific error code for non-resource related errors
     fi
 
     """

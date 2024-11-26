@@ -10,6 +10,30 @@ include { MTBSEQ_SINGLE }               from './modules/local/mtbseq/single/main
 include { CLEANUP_MTBC_READS }          from './modules/utilities/single/cleanup-mtbc-reads/main.nf'
 
 workflow {
+def color_purple = '\u001B[35m'
+def color_green = '\u001B[32m'
+def color_red = '\u001B[31m'
+def color_reset = '\u001B[0m'
+
+log.info """
+${color_purple}
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║     ██████╗ ██╗   ██╗████████╗██╗███████╗███████╗ ██████╗                  ║
+║     ██╔══██╗██║   ██║╚══██╔══╝██║██╔════╝██╔════╝██╔═══██╗                 ║
+║     ██████╔╝██║   ██║   ██║   ██║███████╗█████╗  ██║   ██║                 ║
+║     ██╔══██╗██║   ██║   ██║   ██║╚════██║██╔══╝  ██║▄▄ ██║                 ║
+║     ██║  ██║╚██████╔╝   ██║   ██║███████║███████╗╚██████╔╝                 ║
+║     ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝╚══════╝╚══════╝ ╚══▀▀═╝  v.1.0.0-alpha   ║
+║                                                                            ║
+╠════════════════════════════════════════════════════════════════════════════╣
+║                                                                            ║
+║  ${color_green}Subworkflow: Single genome analysis${color_purple}          ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+${color_reset}
+"""
+
     // Create channel from sample sheet
     if (params.samplesheet == null) {
             error "Please provide a samplesheet CSV file with --samplesheet"
