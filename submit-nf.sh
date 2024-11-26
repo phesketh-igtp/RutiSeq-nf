@@ -24,7 +24,7 @@ export NXF_JVM_ARGS="-Xms2g -Xmx5g"
 
 # Run the pipeline. The command uses the arguments passed to this script, e.g:
 #
-# $ qsub -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -e qsub-nf.err -l h=sge-exec-2 mem_free=6G submit-nf.sh main.nf --samplesheet test/samples.csv --outdir RutiSeq -c nextflow.igtp.config -profile igtp
+# $ qsub -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -l mem_free=6G submit-nf.sh main.nf --samplesheet test/samples.hpc.csv --outdir RutiSeq -profile igtp,singularity_on
 
 nextflow run "$@" -ansi-log false & pid=$!
 

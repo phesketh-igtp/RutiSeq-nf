@@ -10,7 +10,6 @@ process MTBSEQ_SINGLE {
 
     input:
     tuple val(sampleID), path(forward), path(reverse)
-    path tbprofiler_db
 
     output:
     path "Bam/", emit: bam_dir
@@ -33,7 +32,17 @@ process MTBSEQ_SINGLE {
     # Run MTBseq for a single sample
     MTBseq --step TBfull \\
         --thread ${task.cpus} \\
-        --window 10
+        --window 10 \\
+        --prefix ${sampleID}
+
+    # Check if the expected output files exist
+    if [ -f "Classification/Strain_Classification.tab" ] && [ -f "Statistics/Mapping_and_Variant_Statistics.tab" ]; then
+        touch mtbseq_completed.flag
+        exit 0  # Exit with success status if the expected files exist
+    else
+        echo "MTBseq did not produce expected output files" >&2
+        exit 42  # Exit with a specific error code for non-resource related errors
+    fi
 
     """
 

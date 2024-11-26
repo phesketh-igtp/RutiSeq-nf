@@ -3,8 +3,7 @@
 nextflow.enable.dsl = 2
 
 //include { CHECK_EXISTING_OUTPUTS }      from './modules/pre-wf-check/single/check.outputs/main.nf'
-include { MTBC_READ_QC }                from './modules/local/pre-wf-check/mtbc-reads-qc/main.nf'
-include { TBPROFILER_DB_UPDATE }        from './modules/local/tbprofiler/db/main.nf'
+include { MTBC_READ_QC  }                from './modules/local/pre-wf-check/mtbc-reads-qc/main.nf'
 include { TBPROFILER_PROFILE_TBDB }     from './modules/local/tbprofiler/profile.tbdb/main.nf'
 include { TBPROFILER_PROFILE_WHO }      from './modules/local/tbprofiler/profile.who/main.nf'
 include { MTBSEQ_SINGLE }               from './modules/local/mtbseq/single/main.nf'
@@ -55,7 +54,12 @@ workflow {
                             )
 
     // Run MTBSEQ_SINGLE
+    //MTBSEQ_SINGLE(MTBC_READ_QC.out.mtbc_reads) // MTBSeq is generating an error that collapseas nf
     MTBSEQ_SINGLE(MTBC_READ_QC.out.mtbc_reads)
+
+    MTBSEQ_SINGLE.out.bam
+        .filter { it.parent.resolve('mtbseq_completed.flag').exists() }
+        .set { mtbseq_results }
 
     /*
     // Wait for all processes that use the MTBC reads to complete
