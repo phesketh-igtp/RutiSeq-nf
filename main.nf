@@ -27,6 +27,9 @@ workflow {
         }
         .set { samples_ch }
 
+    // Does that sample's results already exist in the PublishDir/BBDD?
+    
+
     // Run TBPROFILER_DB_UPDATE and emit a dummy value
     //TBPROFILER_DB_UPDATE()
     //db_done = TBPROFILER_DB_UPDATE.out.collect()

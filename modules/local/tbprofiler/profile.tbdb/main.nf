@@ -6,10 +6,10 @@ process TBPROFILER_PROFILE_TBDB {
 
     container 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/cb/cbf8de71c4b6e9b044bbbf6ef573ab58e14bf75a846c7bc84dfbe03ac0e278c1/data'
 
-    publishDir "${params.outdir}/bbdd/tbprofiler/", mode: 'move'
+    publishDir "${params.outdir}/bbdd/tbprofiler/", mode: 'copy'
 
     input:
-        tuple val(sampleID), path(forward), path(reverse), val(db_done)
+        tuple val(sampleID), path(forward), path(reverse)
 
     output:
         tuple val(sampleID), path("bam/${sampleID}.bam"),              emit: tbprof_tbdb_bam
@@ -27,8 +27,7 @@ process TBPROFILER_PROFILE_TBDB {
         --txt \\
         --dir . \\
         --db who \\
-        --threads ${task.cpus} \\
-        --ram ${task.memory.toGiga()}
+        --threads ${task.cpus}
 
     """
 
@@ -36,10 +35,8 @@ process TBPROFILER_PROFILE_TBDB {
     """
     mkdir -p bam vcf results
     touch bam/${sampleID}.bam
-    touch vcf/${sampleID}.target.vcf.gz
+    touch vcf/${sampleID}.targets.vcf.gz
     touch results/${sampleID}.results.txt
     touch results/${sampleID}.results.json
-    echo "${task.process}:" > versions.yml
-    echo "    tb-profiler: 6.3.0" >> versions.yml
     """
 }
