@@ -10,7 +10,7 @@ set -u          # exit immediately if using undefined variables
 set -o pipefail # ensure bash pipelines return non-zero status if any of their command fails
 
 # Setup trap function to be run when canceling the pipeline job. It will propagate the SIGTERM signal
-# to Nextlflow so that all jobs launche by the pipeline will be cancelled too.
+# to Nextlflow so that all jobs launched by the pipeline will be cancelled too.
 _term() {
         echo "Caught SIGTERM signal!"
         kill -s SIGTERM $pid
@@ -24,13 +24,12 @@ export NXF_JVM_ARGS="-Xms2g -Xmx5g"
 
 # Run the pipeline. The command uses the arguments passed to this script, e.g:
 #
-# $ qsub -q d10imppcv3 -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -e qsub-nf.err -l h=sge-exec-12 -pe smp 1 -l mem_free=6G submit-nf.sh main.nf --samplesheet test/samples.csv --outdir RutiSeq
-#### qsub submit_nf.sh nextflow/rnatoy -with-singularity
-#
-nextflow run "$@" -profile igtp,singularity_on -ansi-log false & pid=$!
+# $ qsub -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -e qsub-nf.err -l h=sge-exec-2 mem_free=6G submit-nf.sh main.nf --samplesheet test/samples.csv --outdir RutiSeq -c nextflow.igtp.config -profile igtp
+
+nextflow run "$@" -ansi-log false & pid=$!
 
 echo -e "Running:       
-                nextflow run "$@" -profile igtp,singularity_on -ansi-log false & pid=$!
+                nextflow run "$@" -ansi-log false & pid=$!
 "
 
 # Wait for the pipeline to finish

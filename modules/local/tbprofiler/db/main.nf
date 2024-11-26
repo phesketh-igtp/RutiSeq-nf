@@ -9,12 +9,6 @@ process TBPROFILER_DB_UPDATE {
 
     script:
     """
-    echo "Current PATH: \$PATH"
-    echo "CONDA_PREFIX: \$CONDA_PREFIX"
-    which conda
-    conda info
-    which tb-profiler
-    tb-profiler --version
     tb-profiler update_tbdb --branch who
     """
 

@@ -1,6 +1,6 @@
 process MTBC_READ_QC {
 
-    tag 
+    tag "$sampleID"
     
     conda { file("/imppc/labs/emlab/phesketh/miniconda3/envs/kaiju").exists() ? "/imppc/labs/emlab/phesketh/miniconda3/envs/kaiju" : "../modules/local/pre-wf-check/mtbc-reads-qc/kaiju.yml" }
     
@@ -15,9 +15,7 @@ process MTBC_READ_QC {
 
     script:
     """
-    set -e  # Exit on error
-
-    grep 'Mycobacterium tuberculosis ' "${params.kaiju}/names.dmp" | cut -f1 | sort | uniq > .tmp.MTBC.list
+    grep 'Mycobacterium tuberculosis ' "${params.kaiju_names}" | cut -f1 | sort | uniq > .tmp.MTBC.list
 
     seqkit stats -abT -j "${params.cpu}" "${forward}" | sed '1d' > .${sampleID}.tmp-r1
     seqkit stats -abT -j "${params.cpu}" "${reverse}" | sed '1d' > .${sampleID}.tmp-r2
@@ -26,18 +24,18 @@ process MTBC_READ_QC {
     R2_num=\$(cut -f4 .${sampleID}.tmp-r2)
     R2_qual=\$(cut -f17 .${sampleID}.tmp-r2)
 
-    kaiju -t "${params.kaiju}/nodes.dmp" -f "${params.kaiju}/kaiju_db_*.fmi" \
+    kaiju -t "${params.kaiju_nodes}" -f "${params.kaiju_fmi}" \
             -i "${forward}" -j "${reverse}" \
             -z "${params.cpu}" -o "${sampleID}.kaiju.out"
     
-    kaiju2table -t "${params.kaiju}/nodes.dmp" -n "${params.kaiju}/names.dmp" \
+    kaiju2table -t "${params.kaiju_nodes}" -n "${params.kaiju_names}" \
                 -r genus -m 1.0 -o "${sampleID}.kaiju_summary.tsv" \
                 "${sampleID}.kaiju.out"
     
-    MTB_PERC=\$(grep 'Mycobacterium' "${sampleID}.kaiju_summary.tsv" | sed '1d' | head -1 | cut -f2)
+    #MTB_PERC=\$(grep 'Mycobacterium' "${sampleID}.kaiju_summary.tsv" | sed '1d' | head -1 | cut -f2)
 
-    mkdir -p samples/ mtbc-reads/
-    echo -e "\${sampleID}\t\${R1_num}\t\${R1_qual}\t\${R2_num}\t\${R2_qual}\t\${MTB_PERC}" > samples/${sampleID}.qc.out
+    mkdir -p mtbc-reads/
+    #echo -e "\${sampleID}\t\${R1_num}\t\${R1_qual}\t\${R2_num}\t\${R2_qual}\t\${MTB_PERC}" > samples/${sampleID}.qc.out
 
     grep -f .tmp.MTBC.list "${sampleID}.kaiju.out" | cut -f2 > .tmp.${sampleID}.list
     seqkit grep -j "${params.cpu}" -f .tmp.${sampleID}.list "${forward}" -o mtbc-reads/${sampleID}_R1.fastq.gz

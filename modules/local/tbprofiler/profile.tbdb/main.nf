@@ -16,7 +16,6 @@ process TBPROFILER_PROFILE_TBDB {
         tuple val(sampleID), path("vcf/${sampleID}.targets.vcf.gz"),    emit: tbprof_tbdb_vcf
         tuple val(sampleID), path("results/${sampleID}.results.txt"),  emit: tbprof_tbdb_res
         tuple val(sampleID), path("results/${sampleID}.results.json"), emit: tbprof_tbdb_json
-        path "versions.yml",                                           emit: versions
 
     script:
     def args = task.ext.args ?: ""
@@ -28,14 +27,9 @@ process TBPROFILER_PROFILE_TBDB {
         --txt \\
         --dir . \\
         --db who \\
-        ${args} \\
         --threads ${task.cpus} \\
         --ram ${task.memory.toGiga()}
 
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        tb-profiler: \$(tb-profiler version | sed 's/^.*TB-profiler version //; s/ .*\$//')
-    END_VERSIONS
     """
 
     stub:
