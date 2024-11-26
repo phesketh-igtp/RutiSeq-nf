@@ -28,16 +28,8 @@ process MTBSEQ_SINGLE {
     script:
     
     """
-    # Rename the loaded data to the correct format using the alias/sampleID
-    mv ${forward} ${sampleID}_R1.fastq.gz
-    mv ${reverse} ${sampleID}_R2.fastq.gz
 
-    echo "Current working directory: \$(pwd)"
-    echo "Contents of current directory:"
-    ls -l
-    echo "Contents of sample file:"
-    cat ${sampleID}_sample.txt
-
+    # Run MTBseq for a single sample
     MTBseq --step TBfull --thread ${task.cpus} --window 10
 
     """
