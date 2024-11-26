@@ -6,31 +6,31 @@ process TBPROFILER_PROFILE_WHO {
    
     container 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/cb/cbf8de71c4b6e9b044bbbf6ef573ab58e14bf75a846c7bc84dfbe03ac0e278c1/data'
 
-    publishDir "${params.outdir}/bbdd/tbprofiler/who-only", mode: 'copy'
+    publishDir "${params.outdir}/bbdd/tbprofiler/who-only", mode: 'link'
 
     input:
-    tuple val(sampleID), path(vcf)
+        tuple val(sampleID), path(vcf)
+        path tbprofiler_db
 
     output:
-    path "results/${sampleID}.results.txt",  emit: tbprof_tbdb_res
-    path "results/${sampleID}.results.json", emit: tbprof_tbdb_json
+        path "results/${sampleID}.results.txt",  emit: tbprof_tbdb_res
+        path "results/${sampleID}.results.json", emit: tbprof_tbdb_json
 
     script:
     def args = task.ext.args ?: ""
     """
 
     # Check the DB is updated
-    tb-profiler update_tbdb --branch who
 
     # Run the WHO-only analysis using the VCFs
     tb-profiler profile \\
         --vcf ${vcf} \\
         -p ${sampleID} \\
         --txt \\
-        --db who \\
-        --dir . \\
-        ${args} \\
-        --threads ${task.cpus}
+        --db ${tbprofiler_db}/who \\
+        --txt --dir . \\
+        --threads ${task.cpus} \\
+        ${args}
 
     rm -rf bam/ vcf/
     """

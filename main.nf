@@ -30,12 +30,12 @@ workflow {
     // Does that sample's results already exist in the PublishDir/BBDD?
 
 
-    // Run TBPROFILER_DB_UPDATE and emit a dummy value
-    TBPROFILER_DB_UPDATE()
-    db_done = TBPROFILER_DB_UPDATE.out.collect()
-
     // Run MTBC_READ_QC
-    MTBC_READ_QC(samples_ch)
+    MTBC_READ_QC(   samples_ch,
+                    file(params.kaiju_names),
+                    file(params.kaiju_nodes),
+                    file(params.kaiju_fmi)
+                )
 
     // Collect all QC outputs into a single file
     MTBC_READ_QC.out.qc_out
@@ -44,11 +44,15 @@ workflow {
     view(all_qc_results)
 
     // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
-    TBPROFILER_PROFILE_TBDB(MTBC_READ_QC.out.mtbc_reads)
+    TBPROFILER_PROFILE_TBDB(MTBC_READ_QC.out.mtbc_reads,
+                            file(params.tbprofiler_db)
+                            )
 
     // Prepare and run TBPROFILER_PROFILE_WHO
     vcf_ch = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf
-    TBPROFILER_PROFILE_WHO(vcf_ch)
+    TBPROFILER_PROFILE_WHO( vcf_ch,
+                            file(params.tbprofiler_db)
+                            )
 
     // Run MTBSEQ_SINGLE
     MTBSEQ_SINGLE(MTBC_READ_QC.out.mtbc_reads)

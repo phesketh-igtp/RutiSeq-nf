@@ -6,10 +6,11 @@ process TBPROFILER_PROFILE_TBDB {
 
     container 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/cb/cbf8de71c4b6e9b044bbbf6ef573ab58e14bf75a846c7bc84dfbe03ac0e278c1/data'
 
-    publishDir "${params.outdir}/bbdd/tbprofiler/", mode: 'copy'
+    publishDir "${params.outdir}/bbdd/tbprofiler/", mode: 'link'
 
     input:
         tuple val(sampleID), path(forward), path(reverse)
+        path tbprofiler_db
 
     output:
         tuple val(sampleID), path("bam/${sampleID}.bam"),              emit: tbprof_tbdb_bam
@@ -24,10 +25,10 @@ process TBPROFILER_PROFILE_TBDB {
         -1 ${forward.toRealPath()} \\
         -2 ${reverse.toRealPath()} \\
         -p ${sampleID} \\
-        --txt \\
-        --dir . \\
-        --db who \\
-        --threads ${task.cpus}
+        --txt --dir . \\
+        --db ${tbprofiler_db}/tbdb \\
+        --threads ${task.cpus} \\
+        ${args}
 
     """
 
