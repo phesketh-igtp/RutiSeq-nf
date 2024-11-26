@@ -28,11 +28,11 @@ workflow {
         .set { samples_ch }
 
     // Does that sample's results already exist in the PublishDir/BBDD?
-    
+
 
     // Run TBPROFILER_DB_UPDATE and emit a dummy value
-    //TBPROFILER_DB_UPDATE()
-    //db_done = TBPROFILER_DB_UPDATE.out.collect()
+    TBPROFILER_DB_UPDATE()
+    db_done = TBPROFILER_DB_UPDATE.out.collect()
 
     // Run MTBC_READ_QC
     MTBC_READ_QC(samples_ch)

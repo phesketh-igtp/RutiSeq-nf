@@ -18,6 +18,11 @@ process TBPROFILER_PROFILE_WHO {
     script:
     def args = task.ext.args ?: ""
     """
+
+    # Check the DB is updated
+    tb-profiler update_tbdb --branch who
+
+    # Run the WHO-only analysis using the VCFs
     tb-profiler profile \\
         --vcf ${vcf} \\
         -p ${sampleID} \\
