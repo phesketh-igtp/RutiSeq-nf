@@ -15,6 +15,7 @@ process MTBC_READ_QC {
 
     output:
         tuple val(sampleID), path("${sampleID}_R1.fastq.gz"), path("${sampleID}_R2.fastq.gz"), emit: mtbc_reads
+        tuple val(sampleID), path("${sampleID}_S*_L001_R1_001.fastq.gz"), path("${sampleID}_S*_L001_R2_001.fastq.gz"), emit: original_reads
         path("${sampleID}.qc.out"), emit: qc_out
 
     script:

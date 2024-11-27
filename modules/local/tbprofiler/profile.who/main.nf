@@ -13,8 +13,8 @@ process TBPROFILER_PROFILE_WHO {
         path tbprofiler_db
 
     output:
-        path "results/${sampleID}.results.txt",  emit: tbprof_tbdb_res
-        path "results/${sampleID}.results.json", emit: tbprof_tbdb_json
+        path "results/${sampleID}.results.txt",  emit: tbprof_who_txt
+        path "results/${sampleID}.results.json", emit: tbprof_who_json
 
     script:
     

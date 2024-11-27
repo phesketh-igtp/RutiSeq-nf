@@ -9,8 +9,8 @@ process TBPROFILER_PROFILE_TBDB {
     publishDir "${params.outdir}/bbdd/tbprofiler/", mode: 'link'
 
     input:
-        tuple val(sampleID), path(forward), path(reverse)
-        path tbprofiler_db
+        tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse)
+        path(tbprofiler_db)
 
     output:
         tuple val(sampleID), path("bam/${sampleID}.bam"), emit: tbprof_tbdb_bam
@@ -23,8 +23,8 @@ process TBPROFILER_PROFILE_TBDB {
 
     """
     tb-profiler profile \\
-        -1 ${forward.toRealPath()} \\
-        -2 ${reverse.toRealPath()} \\
+        -1 ${mtbc_forward} \\
+        -2 ${mtbc_reverse} \\
         -p ${sampleID} \\
         --txt --dir . \\
         --db ${tbprofiler_db}/tbdb \\

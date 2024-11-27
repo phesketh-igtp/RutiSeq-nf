@@ -9,22 +9,23 @@ process MTBSEQ_SINGLE {
     publishDir "${params.outdir}/bbdd/mtbseq/${sampleID}", mode: 'link'
 
     input:
-    tuple val(sampleID), path(forward), path(reverse)
+        tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse)
 
     output:
-    path "Bam/", emit: bam_dir
-    path "Bam/${sampleID}.bam", emit: bam
-    path "Bam/${sampleID}.bam.bai", emit: bam_index
-    path "Bam/${sampleID}.bamlog", emit: bamlog
-    path "Position_Tables", emit: position_tables_dir
-    path "Position_Tables/${sampleID}.gatk_position_table.tab", emit: position_tables
-    path "Classification", emit: classification_dir
-    path "Classification/Strain_Classification.tab", emit: classification
-    path "Statistics", emit: statistics_dir
-    path "Statistics/Mapping_and_Variant_Statistics.tab", emit: statistics
-    path "Called/", emit: called_dir
-    path "Called/*gatk_position_variants*.tab", emit: position_variants
-    path "Mpileup/${sampleID}*.gatk.mpileup", emit: mpileup
+        path "Bam/", emit: bam_dir
+        path "Bam/${sampleID}.bam", emit: bam
+        path "Bam/${sampleID}.bam.bai", emit: bam_index
+        path "Bam/${sampleID}.bamlog", emit: bamlog
+        path "Position_Tables", emit: position_tables_dir
+        path "Position_Tables/${sampleID}.gatk_position_table.tab", emit: position_tables
+        path "Classification", emit: classification_dir
+        path "Classification/Strain_Classification.tab", emit: classification
+        path "Statistics", emit: statistics_dir
+        path "Statistics/Mapping_and_Variant_Statistics.tab", emit: statistics
+        path "Called/", emit: called_dir
+        path "Called/*gatk_position_variants*.tab", emit: position_variants
+        path "Mpileup/", emit: mpileup_dir
+        path "Mpileup/${sampleID}*.gatk.mpileup", emit: mpileup
 
     script:
     

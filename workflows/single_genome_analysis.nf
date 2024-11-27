@@ -6,7 +6,14 @@ include { MTBSEQ_SINGLE }             from '../modules/local/mtbseq/single/main.
 include { SNP_PROFILING_SINGLE }      from '../modules/local/snp-barcoding/single.profiling/main.nf'
 include { SNP_BARCODING_SINGLE }      from '../modules/local/snp-barcoding/single.barcoding/main.nf'
 
+
+
 workflow SINGLE_GENOME_ANALYSIS {
+    
+        /*
+            Define input for workflow
+        */
+
     take:
         samples_ch
         kaiju_names
@@ -15,6 +22,29 @@ workflow SINGLE_GENOME_ANALYSIS {
         tbprofiler_db
 
     main:
+
+        /*
+            Opening message for workflow
+        */
+
+        def color_purple = '\u001B[35m'
+        def color_green = '\u001B[32m'
+        def color_red = '\u001B[31m'
+        def color_reset = '\u001B[0m'
+
+        log.info """
+        ${color_purple}
+        ╔════════════════════════════════════════════════════════════════════════════╗
+        ║                                                                            ║
+        ║  ${color_green}Sub-workflow: Single genome analysis${color_purple}                        ║
+        ║                                                                            ║
+        ╚════════════════════════════════════════════════════════════════════════════╝
+        """
+
+        /*
+            Commence main workflow
+        */
+
         // Check for existing outputs
         CHECK_EXISTING_OUTPUTS(samples_ch)
 
@@ -42,35 +72,67 @@ workflow SINGLE_GENOME_ANALYSIS {
             .collectFile(name: 'all_samples_qc.tsv', keepHeader: true, sort: true)
 
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
-        TBPROFILER_PROFILE_TBDB(MTBC_READ_QC.out.mtbc_reads
-                                .join(samples_for_tbprofiler_tbdb, by: 0), tbprofiler_db)
+        TBPROFILER_PROFILE_TBDB(
+            MTBC_READ_QC.out.mtbc_reads
+                .join(samples_for_tbprofiler_tbdb, by: 0)
+                .map { sampleID, mtbc_forward, mtbc_reverse -> tuple(sampleID, mtbc_forward, mtbc_reverse) }, 
+            tbprofiler_db
+        )
 
         // Prepare and run TBPROFILER_PROFILE_WHO
         vcf_ch = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf
-            .join(samples_for_tbprofiler_who, by: 0)  // Join with samples that need WHO profiling
-            .map { sampleID, vcf, forward, reverse -> tuple(sampleID, vcf) }  // Keep only sampleID and VCF
+                .join(samples_for_tbprofiler_who, by: 0)
+                .map { sampleID, vcf, mtbc_forward, mtbc_reverse -> tuple(sampleID, vcf) }
         TBPROFILER_PROFILE_WHO(vcf_ch, tbprofiler_db)
         
         // Run MTBSEQ_SINGLE
-        MTBSEQ_SINGLE(MTBC_READ_QC.out.mtbc_reads
-            .join(samples_for_mtbseq, by: 0))
+        MTBSEQ_SINGLE(
+            MTBC_READ_QC.out.mtbc_reads
+                .join(samples_for_mtbseq, by: 0)
+                .map { sampleID, mtbc_forward, mtbc_reverse -> tuple(sampleID, mtbc_forward, mtbc_reverse) }
+        )
 
+
+        /* WORK IN PROGRESS::module needs fixing!
         // Run SNP_PROFILING_SINGLE using the mpileup output
         mpileup_ch = MTBSEQ_SINGLE.out.mpileup       
         SNP_PROFILING_SINGLE(mpileup_ch)
+        */
 
+        /* WORK IN PROGRESS::module needs to be written!
         // Pre-classify genomes using SNP profiles
-        //snp_profiles_ch = SNP_PROFILING_SINGLE.out.snp_barcoding_individual_vcf
-        //    .join(SNP_PROFILING_SINGLE.out.snp_barcoding_individual_vcf_index)
-        //SNP_BARCODING_SINGLE(snp_profiles_ch)
+        snp_profiles_ch = SNP_PROFILING_SINGLE.out.snp_barcoding_individual_vcf
+            .join(SNP_PROFILING_SINGLE.out.snp_barcoding_individual_vcf_index)
+        SNP_BARCODING_SINGLE(snp_profiles_ch)
+        // In the emit section:  
+        */
 
     emit:
+        // QC reads outputs
         qc_results = all_qc_results
+        // TB-Profiler outputs
         tbprofiler_tbdb_json = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_json
         tbprofiler_tbdb_txt = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_res
         tbprofiler_tbdb_vcf = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf
-        tbprofiler_who_results = TBPROFILER_PROFILE_WHO.out
-        mtbseq_results = MTBSEQ_SINGLE.out
-        snp_profiling_results = SNP_PROFILING_SINGLE.out
+        tbprofiler_who_json = TBPROFILER_PROFILE_WHO.out.tbprof_who_json
+        tbprofiler_who_txt = TBPROFILER_PROFILE_WHO.out.tbprof_who_txt
+        // MTBseq outputs
+        mtbseq_bam_dir = MTBSEQ_SINGLE.out.bam_dir
+        mtbseq_bam = MTBSEQ_SINGLE.out.bam
+        mtbseq_bam_index = MTBSEQ_SINGLE.out.bam_index
+        mtbseq_bamlog = MTBSEQ_SINGLE.out.bamlog
+        mtbseq_position_tables_dir = MTBSEQ_SINGLE.out.position_tables_dir
+        mtbseq_position_tables = MTBSEQ_SINGLE.out.position_tables
+        mtbseq_classification_dir = MTBSEQ_SINGLE.out.classification_dir
+        mtbseq_classification = MTBSEQ_SINGLE.out.classification
+        mtbseq_statistics_dir = MTBSEQ_SINGLE.out.statistics_dir
+        mtbseq_statistics = MTBSEQ_SINGLE.out.statistics
+        mtbseq_called_dir = MTBSEQ_SINGLE.out.called_dir
+        mtbseq_position_variants = MTBSEQ_SINGLE.out.position_variants
+        mtbseq_mpileup_dir = MTBSEQ_SINGLE.out.mpileup_dir
+        mtbseq_mpileup = MTBSEQ_SINGLE.out.mpileup
+        /*
+        snp_barcoding_results = SNP_BARCODING_SINGLE.out
+        */
 
 }
