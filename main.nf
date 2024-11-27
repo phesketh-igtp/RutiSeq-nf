@@ -47,7 +47,7 @@ workflow {
     ${color_purple}
     ╔════════════════════════════════════════════════════════════════════════════╗
     ║                                                                            ║
-    ║  ${color_green}Workflow: Single genome analysis${color_purple}                            ║
+    ║  ${color_green}Sub-workflow: Single genome analysis${color_purple}                        ║
     ║                                                                            ║
     ╚════════════════════════════════════════════════════════════════════════════╝
     """
@@ -68,7 +68,7 @@ workflow {
     ${color_purple}
     ╔════════════════════════════════════════════════════════════════════════════╗
     ║                                                                            ║
-    ║  ${color_green}Workflow: Pairwise genome analysis${color_purple}                          ║
+    ║  ${color_green}Sub-workflow: Pairwise genome analysis${color_purple}                      ║
     ║                                                                            ║
     ╚════════════════════════════════════════════════════════════════════════════╝
     """
