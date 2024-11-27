@@ -6,7 +6,7 @@ process CHECK_EXISTING_OUTPUTS {
     tuple val(sampleID), path(forward), path(reverse)
     
     output:
-    tuple val(sampleID), path(forward), path(reverse), env(tbprofiler_tbdb_exists), env(tbprofiler_who_exists), env(mtbseq_exists)
+    tuple val(sampleID), path(forward), path(reverse), val(tbprofiler_tbdb_exists), val(tbprofiler_who_exists), val(mtbseq_exists)
 
     script:
     """
