@@ -63,4 +63,14 @@ workflow {
     // You can now use the outputs from the subworkflow if needed
     SINGLE_GENOME_ANALYSIS.out.qc_results.view()
 
+
+        log.info """
+    ${color_purple}
+    ╔════════════════════════════════════════════════════════════════════════════╗
+    ║                                                                            ║
+    ║  ${color_green}Workflow: Pairwise genome analysis${color_purple}                          ║
+    ║                                                                            ║
+    ╚════════════════════════════════════════════════════════════════════════════╝
+    """
+
 }
