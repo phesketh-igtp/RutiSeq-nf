@@ -66,10 +66,11 @@ workflow SINGLE_GENOME_ANALYSIS {
 
     emit:
         qc_results = all_qc_results
-        tbprofiler_tbdb_results = TBPROFILER_PROFILE_TBDB.out
+        tbprofiler_tbdb_json = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_json
+        tbprofiler_tbdb_txt = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_res
+        tbprofiler_tbdb_vcf = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf
         tbprofiler_who_results = TBPROFILER_PROFILE_WHO.out
         mtbseq_results = MTBSEQ_SINGLE.out
-        //snp_profiles = SNP_PROFILING_SINGLE.out
-        //prelim_cluster_id = SNP_BARCODING_SINGLE.out
+        snp_profiling_results = SNP_PROFILING_SINGLE.out
 
 }
