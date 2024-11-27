@@ -35,10 +35,10 @@ The following software needs to be available on your path
 - Miniconda3/Anaconda/Condaforge - however you want <code>conda</code> to be available
 
 1. First you need to clone the github repository and pull all the necessary scripts
-```{sh}
-git clone https://github.com/phesketh-igtp/TBSEQ.cat-nf.git
-```
-1. Download a kaiju database and add full paths to the <code>nextflow.config</code> file
+ ```{sh}
+  git clone https://github.com/phesketh-igtp/TBSEQ.cat-nf.git
+  ```
+2. Download a kaiju database and add full paths to the <code>nextflow.config</code> file
 ```{sh}
 # Example for downloading the pre-build kaiju RefSeq-rn (bacteria/archaea and fungi only)
 wget https://kaiju-idx.s3.eu-central-1.amazonaws.com/2023/kaiju_db_refseq_ref_2023-07-05.tgz
@@ -46,8 +46,10 @@ wget https://kaiju-idx.s3.eu-central-1.amazonaws.com/2023/kaiju_db_refseq_ref_20
 Modify the nextflow.config file to update the paths. You will need to modify <code>kaiju_fmi</code>, <code>kaiju_nodes</code>, and <code>kaiju_names</code> with the path of the kaiju database being utilised.
 
 ![image](png/figure1.png)
-3. If using conda, you will need to create the conda enviornments Create all the necessay onda environe
+3. If using conda, you will need to create the conda enviornments Create all the necessary conda environent.
+
 ```{sh}
+
 ```
 
 ## Usage
@@ -65,6 +67,8 @@ qsub -S /bin/bash -cwd -V -N nf-main \
         -profile igtp,singularity_on # this specifies that the job should be submitted to the IGTP HPC using singularity, can also designate it to use conda with 'conda_on'
 ```
 
+If you are adding new data to an existing database generated with this pipeline, the <code>--outdir</code> MUST be be given the path to that database.
+
 ## Inputs
 
 **<u>Sample sheet:</u>** This must be a <code>CSV</code> file that contains the following information:
@@ -72,16 +76,23 @@ qsub -S /bin/bash -cwd -V -N nf-main \
 | ------------- | ----- | ------------ | ------------ |
 | sample1_XXX-AAA- | 1-XXX-AAA_LX | /path/to/R1.fastq.gz | /path/to/R2.fastq.gz |
 | sample1_XXX-AAA- | 2-XXX-AAA_LX | /path/to/R1.fastq.gz | /path/to/R2.fastq.gz |
+
+```{sh}
+$ cat samples.csv
+name,alias,forward_path,reverse_path
+sample1_XXX-AAA,1-XXX-AAA_LX,/path/to/R1.fastq.gz,/path/to/R2.fastq.gz
+sample1_XXX-AAA,2-XXX-AAA_LX,/path/to/R1.fastq.gz,/path/to/R2.fastq.gz
+```
   
-  The alias MUST have the following structure - **[SampleID]_[LibraryID]**. The sampleID can be have information separated by hyphens ( - ), BUT the undescore ( \_ ) must be reserve by distinguishing between the SampleID and the LibraryID. This is to satisfy a data naming convention requires by MTBseq, which requires reads are name: **\[SampleID]\_[LibID]\_[\*]_[Direction].f(ast)q.gz**.
+The alias MUST have the following structure - **[SampleID]_[LibraryID]**. The sampleID can be have information separated by hyphens ( - ), BUT the undescore ( \_ ) must be reserve by distinguishing between the SampleID and the LibraryID. This is to satisfy a data naming convention requires by MTBseq, which requires reads are name: **\[SampleID]\_[LibID]\_[\*]_[Direction].f(ast)q.gz**.
 
-  If you sampleID's happen to follow this structure, you can just have the same value in **name** and **alias**.
+If you sampleID's happen to follow this structure, you can just have the same value in **name** and **alias**.
 
-  Retaining the original name of your sample in the file is for your own records and wont be used in the pipeline.
+Retaining the original name of your sample in the file is for your own records and wont be used in the pipeline.
 
-  The complete path of the sample sheet use used for the following flag <code>--samplesheet /path/to/samples.csv</code>. It is recommended that you keep a dated record of all the samples ran.
+The complete path of the sample sheet use used for the following flag <code>--samplesheet /path/to/samples.csv</code>. It is recommended that you keep a dated record of all the samples ran.
 
-  If a sample in your sample sheet is duplicated, or that SampleID already exists in the database, then that sample will no be analyzed, and an alert will be produced informing you of this.
+If a sample in your sample sheet is duplicated, or that SampleID already exists in the database, then that sample will no be analyzed, and an alert will be produced informing you of this.
 
 **<u>Metadata [optional]:</u>** Metadata, if provided, is only utilized at the summary step when the nexus files are generated for visualising the median-joining networks. If the following metadata is provided with the correct headers, then the nexus files will also contain relevant metadata.
 'detection_date' is the estimated date for the onset of infection, or diagnosis. 'location' can be anything you want, the district of the patient, the hospital that performed the diagnosis, country of sample origin.
@@ -90,3 +101,4 @@ qsub -S /bin/bash -cwd -V -N nf-main \
 | ------------- | ----- | ------------ | ------------ |
 | sample1_XXX-AAA- | 1-XXX-AAA_LX | 2024-01-01 | Hospital A |
 | sample1_XXX-AAA- | 2-XXX-AAA_LX | 2022-01-02 | Hospital B |
+
