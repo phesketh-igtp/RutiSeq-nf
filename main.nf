@@ -63,9 +63,4 @@ workflow {
     // You can now use the outputs from the subworkflow if needed
     SINGLE_GENOME_ANALYSIS.out.qc_results.view()
 
-    GENOME_COMPARISONS(
-        samples_ch,
-
-    )
-
 }
