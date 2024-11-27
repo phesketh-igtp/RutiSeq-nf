@@ -60,6 +60,4 @@ process MTBC_READ_QC {
     
     """
 
-
-        
 }
