@@ -17,7 +17,9 @@ process TBPROFILER_PROFILE_WHO {
         path "results/${sampleID}.results.json", emit: tbprof_tbdb_json
 
     script:
-    def args = task.ext.args ?: ""
+    
+    def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
+
     """
 
     # Check the DB is updated
@@ -30,7 +32,7 @@ process TBPROFILER_PROFILE_WHO {
         --db ${tbprofiler_db}/who \\
         --txt --dir . \\
         --threads ${task.cpus} \\
-        ${args}
+        ${additional_args}
 
     rm -rf bam/ vcf/
     """

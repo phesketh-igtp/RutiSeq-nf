@@ -19,7 +19,8 @@ process TBPROFILER_PROFILE_TBDB {
         tuple val(sampleID), path("results/${sampleID}.results.json"), emit: tbprof_tbdb_json
 
     script:
-    def args = task.ext.args ?: ""
+        def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
+
     """
     tb-profiler profile \\
         -1 ${forward.toRealPath()} \\
@@ -28,7 +29,7 @@ process TBPROFILER_PROFILE_TBDB {
         --txt --dir . \\
         --db ${tbprofiler_db}/tbdb \\
         --threads ${task.cpus} \\
-        ${args}
+        ${additional_args}
 
     """
 

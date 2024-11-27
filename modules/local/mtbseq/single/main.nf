@@ -6,7 +6,7 @@ process MTBSEQ_SINGLE {
 
     container "https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data"
 
-    publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}", mode: 'link'
+    publishDir "${params.outdir}/bbdd/mtbseq/${sampleID}", mode: 'link'
 
     input:
     tuple val(sampleID), path(forward), path(reverse)
@@ -27,25 +27,18 @@ process MTBSEQ_SINGLE {
 
     script:
     
+    def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
+
     """
 
     # Run MTBseq for a single sample
     MTBseq --step TBfull \\
         --thread ${task.cpus} \\
-        --window 10 \\
         --prefix ${sampleID} \\
+        ${additional_args} \\
         1>>.command.out \\
         2>>.command.err \\
         || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
-
-    # Check if the expected final output files exist
-    if [ -f "Classification/Strain_Classification.tab" ] && [ -f "Statistics/Mapping_and_Variant_Statistics.tab" ]; then
-        touch mtbseq_completed.flag
-        exit 0  # Exit with success status if the expected files exist
-    else
-        echo "MTBseq did not produce expected output files" >&2
-        exit 42 # Exit with a specific error code for non-resource related errors
-    fi
 
     """
 

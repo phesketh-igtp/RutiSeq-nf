@@ -3,7 +3,7 @@
 nextflow.enable.dsl = 2
 
 include { SINGLE_GENOME_ANALYSIS }  from './workflows/single_genome_analysis.nf'
-include { GENOME_COMPARISONS }      from './workflows/genome_comparisons.nf'
+//include { PAIRIWISE_GENOME_ANALYSIS }      from './workflows/pairwise_analysis.nf'
 
 workflow {
     def color_purple = '\u001B[35m'
@@ -47,7 +47,7 @@ workflow {
     ${color_purple}
     ╔════════════════════════════════════════════════════════════════════════════╗
     ║                                                                            ║
-    ║  ${color_green}Workflow: Single genome analysis${color_purple}             ║
+    ║  ${color_green}Workflow: Single genome analysis${color_purple}                            ║
     ║                                                                            ║
     ╚════════════════════════════════════════════════════════════════════════════╝
     """

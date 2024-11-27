@@ -19,6 +19,9 @@ process MTBC_READ_QC {
 
     script:
 
+    def additional_args_kaiju = task.ext.additional_args_kaiju ?: '' // defined in the nextflow.config file
+    def additional_args_kaiju2table = task.ext.additional_args_kaiju2table ?: '' // defined in the nextflow.config file
+
     """
     grep 'Mycobacterium tuberculosis ' ${kaiju_names} | cut -f1 | sort | uniq > MTBC.list
     echo ${sampleID} > sampleID
@@ -29,9 +32,16 @@ process MTBC_READ_QC {
     cut -f4 stats.r1 > r1_num; cut -f17 stats.r1 > r1_qual
     cut -f4 stats.r2 > r2_num; cut -f17 stats.r2 > r2_qual
 
-    kaiju -t ${kaiju_nodes} -f ${kaiju_fmi} -i ${forward} -j ${reverse} -z ${task.cpus} -o ${sampleID}.kaiju.out
+    kaiju -t ${kaiju_nodes} -f ${kaiju_fmi} \\
+            -i ${forward} -j ${reverse} \\
+            -z ${task.cpus} \\
+            ${additional_args_kaiju} \\
+            -o ${sampleID}.kaiju.out
 
-    kaiju2table -t "${kaiju_nodes}" -n ${kaiju_names} -r genus -m 1.0 -o ${sampleID}.kaiju_summary.tsv ${sampleID}.kaiju.out
+    kaiju2table -t "${kaiju_nodes}" -n ${kaiju_names} \\
+                ${additional_args_kaiju2table} \\
+                -o ${sampleID}.kaiju_summary.tsv \\
+                ${sampleID}.kaiju.out
 
     grep -f MTBC.list "${sampleID}.kaiju.out" | cut -f2 > tmp.${sampleID}.list
 
