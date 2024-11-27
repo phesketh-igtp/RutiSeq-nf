@@ -3,7 +3,8 @@ include { MTBC_READ_QC }              from '../modules/local/pre-wf-check/mtbc-r
 include { TBPROFILER_PROFILE_TBDB }   from '../modules/local/tbprofiler/profile.tbdb/main.nf'
 include { TBPROFILER_PROFILE_WHO }    from '../modules/local/tbprofiler/profile.who/main.nf'
 include { MTBSEQ_SINGLE }             from '../modules/local/mtbseq/single/main.nf'
-include { CLEANUP_MTBC_READS }        from '../modules/utilities/single/cleanup-mtbc-reads/main.nf'
+include { SNP_PROFILING_SINGLE }      from '../modules/local/snp-barcoding/single.profiling/main.nf'
+include { SNP_BARCODING_SINGLE }      from '../modules/local/snp-barcoding/single.barcoding/main.nf'
 
 workflow SINGLE_GENOME_ANALYSIS {
     take:
@@ -48,19 +49,27 @@ workflow SINGLE_GENOME_ANALYSIS {
         vcf_ch = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf
             .join(samples_for_tbprofiler_who, by: 0)  // Join with samples that need WHO profiling
             .map { sampleID, vcf, forward, reverse -> tuple(sampleID, vcf) }  // Keep only sampleID and VCF
-
         TBPROFILER_PROFILE_WHO(vcf_ch, tbprofiler_db)
         
         // Run MTBSEQ_SINGLE
         MTBSEQ_SINGLE(MTBC_READ_QC.out.mtbc_reads
             .join(samples_for_mtbseq, by: 0))
 
-        // Clean up MTBC reads
-        CLEANUP_MTBC_READS(MTBC_READ_QC.out.mtbc_reads)
+        // Run SNP_PROFILING_SINGLE using the mpileup output
+        mpileup_ch = MTBSEQ_SINGLE.out.mpileup       
+        SNP_PROFILING_SINGLE(mpileup_ch)
+
+        // Pre-classify genomes using SNP profiles
+        snp_profiles_ch = SNP_PROFILING_SINGLE.out.snp_barcoding_individual_vcf
+            .join(SNP_PROFILING_SINGLE.out.snp_barcoding_individual_vcf_index)
+        SNP_BARCODING_SINGLE(snp_profiles_ch)
 
     emit:
         qc_results = all_qc_results
         tbprofiler_tbdb_results = TBPROFILER_PROFILE_TBDB.out
         tbprofiler_who_results = TBPROFILER_PROFILE_WHO.out
         mtbseq_results = MTBSEQ_SINGLE.out
+        snp_profiles = SNP_PROFILING_SINGLE.out
+        prelim_cluster_id = SNP_BARCODING_SINGLE.out
+
 }

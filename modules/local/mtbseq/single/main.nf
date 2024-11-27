@@ -24,6 +24,7 @@ process MTBSEQ_SINGLE {
     path "Statistics/Mapping_and_Variant_Statistics.tab", emit: statistics
     path "Called/", emit: called_dir
     path "Called/*gatk_position_variants*.tab", emit: position_variants
+    path "Mpileup/${sampleID}*.gatk.mpileup", emit: mpileup
 
     script:
     
