@@ -13,6 +13,7 @@ The workflow partitions *Mycobacterium tuberculosis* complex r-eads for downstre
 
 #### <u>sub-wf 2: Pairwise genome analysis</u> (<code>--pairwise</code>)  [WIP]
 All genomes that have been processed through sub-wf 1 will be partitioned into their sub-lineages at two levels (e.g. Lineage4.2), as designated by TB-profile SNP lineage barcoding. Within these groups the genomes will complete the MTBSeq analysis begining with the joining of the SNP profiles (the slowest step), generating SNP alignments, and clustering the genomes at SNP distance of 5, 10 and 15 (these distances can be modified in the <code>nextflow.config</code>.)
+
 #### <u>sub-wf 3: Analysis (<code>--summary</code>)</u> [WIP]
 
 #### <u>sub-wf 4: Cluster SNP barcoding</u> (<code>--barcoding</code>) [WIP]
@@ -67,16 +68,18 @@ qsub -S /bin/bash -cwd -V -N nf-main \
 ## Inputs
 
 **<u>Sample sheet:</u>** This must be a <code>CSV</code> file that contains the following information:
-| detailed_name | alias | forward_path | reverse_path |
+| name | alias | forward_path | reverse_path |
 | ------------- | ----- | ------------ | ------------ |
 | sample1_XXX-AAA- | 1-XXX-AAA_LX | /path/to/R1.fastq.gz | /path/to/R2.fastq.gz |
 | sample1_XXX-AAA- | 2-XXX-AAA_LX | /path/to/R1.fastq.gz | /path/to/R2.fastq.gz |
   
   The alias MUST have the following structure - **[SampleID]_[LibraryID]**. The sampleID can be have information separated by hyphens ( - ), BUT the undescore ( \_ ) must be reserve by distinguishing between the SampleID and the LibraryID. This is to satisfy a data naming convention requires by MTBseq, which requires reads are name: **\[SampleID]\_[LibID]\_[\*]_[Direction].f(ast)q.gz**.
 
+  If you sampleID's happen to follow this structure, you can just have the same value in **name** and **alias**.
+
   Retaining the original name of your sample in the file is for your own records and wont be used in the pipeline.
 
-  The compelte path of the sample sheet use used for the following flag <code>--samplesheet /path/to/samples.csv</code>. It is recommended that you keep a dated record of all the samples ran.
+  The complete path of the sample sheet use used for the following flag <code>--samplesheet /path/to/samples.csv</code>. It is recommended that you keep a dated record of all the samples ran.
 
   If a sample in your sample sheet is duplicated, or that SampleID already exists in the database, then that sample will no be analyzed, and an alert will be produced informing you of this.
 
