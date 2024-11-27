@@ -46,52 +46,67 @@ workflow SINGLE_GENOME_ANALYSIS {
         */
 
         // Check for existing outputs
-        CHECK_EXISTING_OUTPUTS(samples_ch)
+            CHECK_EXISTING_OUTPUTS(samples_ch)
 
         // Filter samples for each module
-        samples_for_tbprofiler_tbdb = CHECK_EXISTING_OUTPUTS.out
-            .filter { it[3] == "0" }
-            .map { it[0..2] }
+            samples_for_tbprofiler_tbdb = CHECK_EXISTING_OUTPUTS.out
+                .filter { it[3] == "0" }
+                .map { it[0..2] }
 
-        samples_for_tbprofiler_who = CHECK_EXISTING_OUTPUTS.out
-            .filter { it[4] == "0" }
-            .map { it[0..2] }
+            samples_for_tbprofiler_who = CHECK_EXISTING_OUTPUTS.out
+                .filter { it[4] == "0" }
+                .map { it[0..2] }
 
-        samples_for_mtbseq = CHECK_EXISTING_OUTPUTS.out
-            .filter { it[5] == "0" }
-            .map { it[0..2] }
+            samples_for_mtbseq = CHECK_EXISTING_OUTPUTS.out
+                .filter { it[5] == "0" }
+                .map { it[0..2] }
 
         // Run MTBC_READ_QC on filtered samples
-        MTBC_READ_QC(CHECK_EXISTING_OUTPUTS.out.map { it[0..2] }, 
-                    kaiju_names, 
-                    kaiju_nodes, 
-                    kaiju_fmi)
+            MTBC_READ_QC(CHECK_EXISTING_OUTPUTS.out.map { it[0..2] }, 
+                        kaiju_names, 
+                        kaiju_nodes, 
+                        kaiju_fmi)
+            view(MTBC_READ_QC.out)
+         /*   // Create mtbc_reads channel by joining mtbc_forward and mtbc_reverse
+            mtbc_reads = MTBC_READ_QC.out.mtbc_forward
+                .join(MTBC_READ_QC.out.mtbc_reverse)
+                .map { sampleID, mtbc_forward, mtbc_reverse -> 
+                    tuple(sampleID, mtbc_forward, mtbc_reverse) 
+                }
 
+                // View the contents of mtbc_reads - debugging
+                mtbc_reads.view { sampleID, mtbc_forward, mtbc_reverse ->
+                                "Sample: $sampleID\n" +
+                                "Forward: $mtbc_forward (exists: ${file(mtbc_forward).exists()})\n" +
+                                "Reverse: $mtbc_reverse (exists: ${file(mtbc_reverse).exists()})\n" +
+                                "---"
+                            }
+        */
+        /*    
         // Collect all QC outputs into a single file
-        all_qc_results = MTBC_READ_QC.out.qc_out
-            .collectFile(name: 'all_samples_qc.tsv', keepHeader: true, sort: true)
+            all_qc_results = MTBC_READ_QC.out.qc_out
+                .collectFile(name: 'all_samples_qc.tsv', keepHeader: true, sort: true)
 
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
-        TBPROFILER_PROFILE_TBDB(
-            MTBC_READ_QC.out.mtbc_reads
-                .join(samples_for_tbprofiler_tbdb, by: 0)
-                .map { sampleID, mtbc_forward, mtbc_reverse -> tuple(sampleID, mtbc_forward, mtbc_reverse) }, 
-            tbprofiler_db
-        )
+            TBPROFILER_PROFILE_TBDB(
+                mtbc_reads
+                    .join(samples_for_tbprofiler_tbdb, by: 0)
+                    .map { it -> tuple(it[0], it[1], it[2]) }, 
+                tbprofiler_db
+            )
 
         // Prepare and run TBPROFILER_PROFILE_WHO
-        vcf_ch = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf
+            vcf_ch = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf
                 .join(samples_for_tbprofiler_who, by: 0)
-                .map { sampleID, vcf, mtbc_forward, mtbc_reverse -> tuple(sampleID, vcf) }
-        TBPROFILER_PROFILE_WHO(vcf_ch, tbprofiler_db)
+                .map { sampleID, vcf -> tuple(sampleID, vcf) }
+            TBPROFILER_PROFILE_WHO(vcf_ch, tbprofiler_db)
         
         // Run MTBSEQ_SINGLE
-        MTBSEQ_SINGLE(
-            MTBC_READ_QC.out.mtbc_reads
-                .join(samples_for_mtbseq, by: 0)
-                .map { sampleID, mtbc_forward, mtbc_reverse -> tuple(sampleID, mtbc_forward, mtbc_reverse) }
-        )
-
+            MTBSEQ_SINGLE(
+                mtbc_reads
+                    .join(samples_for_mtbseq, by: 0)
+                    .map { it -> tuple(it[0], it[1], it[2]) }
+            )
 
         /* WORK IN PROGRESS::module needs fixing!
         // Run SNP_PROFILING_SINGLE using the mpileup output

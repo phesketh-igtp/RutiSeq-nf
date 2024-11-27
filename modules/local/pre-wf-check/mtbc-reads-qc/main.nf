@@ -1,4 +1,5 @@
 process MTBC_READ_QC {
+    
     tag "$sampleID"
     
     conda { file("/imppc/labs/emlab/phesketh/miniconda3/envs/kaiju").exists() ? "/imppc/labs/emlab/phesketh/miniconda3/envs/kaiju" : "../modules/local/pre-wf-check/mtbc-reads-qc/kaiju.yml" }
@@ -14,8 +15,8 @@ process MTBC_READ_QC {
         path kaiju_fmi
 
     output:
-        tuple val(sampleID), path("${sampleID}_R1.fastq.gz"), path("${sampleID}_R2.fastq.gz"), emit: mtbc_reads
-        tuple val(sampleID), path("${sampleID}_S*_L001_R1_001.fastq.gz"), path("${sampleID}_S*_L001_R2_001.fastq.gz"), emit: original_reads
+        tuple val(sampleID), path("mtbc_reads/${sampleID}_R1.fastq.gz"), emit: mtbc_forward
+        tuple val(sampleID), path("mtbc_reads/${sampleID}_R2.fastq.gz"), emit: mtbc_reverse       
         path("${sampleID}.qc.out"), emit: qc_out
 
     script:
@@ -46,8 +47,9 @@ process MTBC_READ_QC {
 
     grep -f MTBC.list "${sampleID}.kaiju.out" | cut -f2 > tmp.${sampleID}.list
 
-    seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${forward} -o ${sampleID}_R1.fastq.gz
-    seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${reverse} -o ${sampleID}_R2.fastq.gz
+    mkdir -p mtbc_reads/
+    seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${forward} -o mtbc_reads/${sampleID}_R1.fastq.gz
+    seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${reverse} -o mtbc_reads/${sampleID}_R2.fastq.gz
 
     # Create the output file of the results
     grep 'Mycobacterium' "${sampleID}.kaiju_summary.tsv" | sed '1d' | head -1 | cut -f2 > MTB.perc

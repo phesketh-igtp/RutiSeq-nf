@@ -71,13 +71,6 @@ workflow {
                 .combine(SINGLE_GENOME_ANALYSIS.out.mtbseq_mpileup_dir)
                 .combine(SINGLE_GENOME_ANALYSIS.out.mtbseq_mpileup)
 
-        log.info """
-    ${color_purple}
-    ╔════════════════════════════════════════════════════════════════════════════╗
-    ║                                                                            ║
-    ║  ${color_green}Sub-workflow: Pairwise genome analysis${color_purple}                      ║
-    ║                                                                            ║
-    ╚════════════════════════════════════════════════════════════════════════════╝
-    """
+
 
 }

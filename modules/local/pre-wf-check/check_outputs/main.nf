@@ -3,13 +3,14 @@ process CHECK_EXISTING_OUTPUTS {
     tag "${sampleID}"
 
     input:
-    tuple val(sampleID), path(forward), path(reverse)
+        tuple val(sampleID),
     
     output:
-    tuple val(sampleID), path(forward), path(reverse), env(tbprofiler_tbdb_exists), env(tbprofiler_who_exists), env(mtbseq_exists)
+        tuple val(sampleID), env(tbprofiler_tbdb_exists), env(tbprofiler_who_exists), env(mtbseq_exists)
 
     script:
     """
+
     tbprofiler_tbdb_exists=0
     tbprofiler_who_exists=0
     mtbseq_exists=0
@@ -29,5 +30,7 @@ process CHECK_EXISTING_OUTPUTS {
     echo \$tbprofiler_tbdb_exists
     echo \$tbprofiler_who_exists
     echo \$mtbseq_exists
+
     """
+
 }
