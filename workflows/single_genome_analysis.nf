@@ -60,6 +60,8 @@ workflow SINGLE_GENOME_ANALYSIS {
             samples_for_mtbseq = CHECK_EXISTING_OUTPUTS.out
                 .filter { it[5] == "0" }
                 .map { it[0..2] }
+                
+        view(CHECK_EXISTING_OUTPUTS.out.map)
 
         // Run MTBC_READ_QC on filtered samples
             MTBC_READ_QC(CHECK_EXISTING_OUTPUTS.out.map { it[0..2] }, 
