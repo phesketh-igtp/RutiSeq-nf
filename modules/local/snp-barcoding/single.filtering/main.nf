@@ -10,6 +10,7 @@ process SNP_FILTERING_SINGLE {
 
     input:
     tuple val(sampleID), path(mtbseq_vcf), path(mtbseq_vcf_index)
+    path()
 
     output:
         tuple val(sampleID), path("${sampleID}.gatk.vcf.gz"), emit: mtbseq_vcf_annot
