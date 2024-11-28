@@ -57,6 +57,16 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
                 .filter { sampleID, forward, reverse, all_outputs_exist -> all_outputs_exist == 'false' }
                 .map { sampleID, forward, reverse, all_outputs_exist -> tuple(sampleID, forward, reverse) }
 
+        // Count the filtered samples and set as total_samples
+            filtered_samples_ch
+                .count()
+                .set { total_samples }
+
+        // View the count
+            total_samples.view { count -> 
+                "${color_red}Number of samples after filtering: ${color_cyan}$count${no_color}" 
+            }
+
         /*
         // Log the filtered samples
             filtered_samples_ch.view { sampleID, forward, reverse ->
@@ -70,13 +80,14 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
                 .view { count -> "${color_red}Number of samples after filtering: ${color_cyan}$count${no_color}" }
 
         // Run MTBC_READ_QC on filtered samples
-        MTBC_READ_QC(filtered_samples_ch,
-                    kaiju_names, 
-                    kaiju_nodes, 
-                    kaiju_fmi)
+            MTBC_READ_QC(filtered_samples_ch,
+                        kaiju_names, 
+                        kaiju_nodes, 
+                        kaiju_fmi
+                        )
 
         // Explicitly capture the mtbc_reads output
-        mtbc_reads_ch = MTBC_READ_QC.out.mtbc_reads
+            mtbc_reads_ch = MTBC_READ_QC.out.mtbc_reads
 
         // Collect all QC outputs into a single file
         /* This doesnt work - just captures the first output and ignores the rest, also not putting in the MTBseq perc. Will report that later
@@ -85,19 +96,19 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
             */
 
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
-        TBPROFILER_PROFILE_TBDB(mtbc_reads_ch,
+            TBPROFILER_PROFILE_TBDB(mtbc_reads_ch,
                                 tbprofiler_db)
 
         // Prepare and run TBPROFILER_PROFILE_WHO
-        tbdb_vcf_ch = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf
-        TBPROFILER_PROFILE_WHO(tbdb_vcf_ch, tbprofiler_db)
+            tbdb_vcf_ch = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf
+            TBPROFILER_PROFILE_WHO(tbdb_vcf_ch, tbprofiler_db)
     
         // Run MTBSEQ_SINGLE
-        MTBSEQ_SINGLE(mtbc_reads_ch)
+            MTBSEQ_SINGLE(mtbc_reads_ch)
 
         //WORK IN PROGRESS::module needs fixing!
         // Run SNP_PROFILING_SINGLE using the mpileup output
-        SNP_PROFILING_SINGLE(MTBSEQ_SINGLE.out.mtbseq_mpileup)
+            SNP_PROFILING_SINGLE(MTBSEQ_SINGLE.out.mtbseq_mpileup)
 
         /* WORK IN PROGRESS::module needs to be written! Barcoding BED needs generating!
         // Pre-classify genomes using SNP profiles
@@ -107,9 +118,20 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
         // In the emit section:  
         */
 
+        // Generate a progress log of the number of genomes that have completed the analysis
+            SNP_PROFILING_SINGLE.out.mtbseq_vcf
+                                    .map { it -> 1 }
+                                    .sum()  
+                                    .set { completed_samples }
 
-    emit:
-        
+        // Create progress log
+        completed_samples
+                .combine(total_samples)
+                .subscribe { completed, total ->
+                    log.info "${color_red}Progress: ${color_cyan}$completed ${color_red}/ ${color_cyan}$total ${color_red}samples completed${no_color}"
+                }
+
+    emit: 
         // QC reads outputs
         //all_ qc_results                   = qc_results
         // TB-Profiler outputs

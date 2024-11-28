@@ -19,9 +19,9 @@ process CHECK_EXISTING_OUTPUTS {
 
     tbprofiler_result="${params.outdir}/bbdd/tbprofiler/results/${sampleID}.results.txt"
     tbprofiler_who_result="${params.outdir}/bbdd/tbprofiler/who-only/results/${sampleID}.results.txt"
-    mtbseq_classification="${params.outdir}/bbdd/mtbseq/${sampleID}/Classification/Strain_Classification.tab"
-    mtbseq_statistics="${params.outdir}/bbdd/mtbseq/${sampleID}/Statistics/Mapping_and_Variant_Statistics.tab"
-    mtbseq_snp_profile="${params.outdir}/bbdd/mtbseq/${sampleID}/SNP-Profiles/${sampleID}.gatk.vcf.gz"
+    mtbseq_classification="${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Classification/Strain_Classification.tab"
+    mtbseq_statistics="${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Statistics/Mapping_and_Variant_Statistics.tab"
+    mtbseq_snp_profile="${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/${sampleID}.gatk.vcf.gz"
 
     echo "Checking files for ${sampleID}:"
     echo "TBProfiler result: \$tbprofiler_result"
