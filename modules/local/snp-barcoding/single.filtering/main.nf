@@ -9,8 +9,8 @@ process SNP_FILTERING_SINGLE {
     publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/", mode: 'copy'
 
     input:
-    tuple val(sampleID), path(mtbseq_vcf), path(mtbseq_vcf_index)
-    path()
+        tuple val(sampleID), path(mtbseq_vcf), path(mtbseq_vcf_index)
+        path snpeff_db
 
     output:
         tuple val(sampleID), path("${sampleID}.gatk.vcf.gz"), emit: mtbseq_vcf_annot
