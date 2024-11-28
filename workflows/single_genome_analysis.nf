@@ -64,20 +64,8 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
 
         // View the count
             total_samples.view { count -> 
-                "${color_red}Number of samples after filtering: ${color_cyan}$count${no_color}" 
+                "${color_red}Number of samples being analyzed: ${color_cyan}$count${no_color}" 
             }
-
-        /*
-        // Log the filtered samples
-            filtered_samples_ch.view { sampleID, forward, reverse ->
-                "${color_red}Filtered sample: ${color_cyan}$sampleID${no_color}"
-            }
-        */
-
-        // Count the filtered samples
-            filtered_samples_ch
-                .count()
-                .view { count -> "${color_red}Number of samples after filtering: ${color_cyan}$count${no_color}" }
 
         // Run MTBC_READ_QC on filtered samples
             MTBC_READ_QC(filtered_samples_ch,
