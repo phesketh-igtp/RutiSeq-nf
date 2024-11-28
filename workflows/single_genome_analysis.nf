@@ -31,24 +31,25 @@ log.info """
 ${color_purple}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${nocol}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${no_color}
 """
 
         /*
             Commence main workflow
         */
-
-                log.info "Input samples:"
-                    samples_ch.view { sampleID, forward, reverse -> 
-                    "${color_red}Sample: ${color_cyan}$sampleID${color_red} |   Forward: ${color_cyan}$forward${color_red}  |   Reverse: ${color_cyan}$reverse${no_color}" 
-                }
+        
+        // Report the samples part of the analysis
+            log.info "${color_purple}Input samples:${no_color}"
+                samples_ch.view { sampleID, forward, reverse -> 
+                "${color_red}Sample: ${color_cyan}$sampleID${color_red}     Forward: ${color_cyan}$forward${color_red}  Reverse: ${color_cyan}$reverse${no_color}" 
+            }
 
         // Run CHECK_EXISTING_OUTPUTS on all samples
             check_results_ch = CHECK_EXISTING_OUTPUTS(samples_ch)
 
         // Log the check results
             check_results_ch.view { sampleID, forward, reverse, all_outputs_exist ->
-            "${color_red}CHECK_EXISTING_OUTPUTS results: Sample: ${color_cyan}$sampleID${color_red}, All outputs exist: ${color_cyan}$all_outputs_exist${no_color}"
+            "${color_red}CHECK_EXISTING_OUTPUTS results: Sample: ${color_cyan}$sampleID${color_red}     Outputs exist?: ${color_cyan}$all_outputs_exist${no_color}"
             }
 
         // Filter the samples based on the check results
@@ -56,10 +57,12 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
                 .filter { sampleID, forward, reverse, all_outputs_exist -> all_outputs_exist == 'false' }
                 .map { sampleID, forward, reverse, all_outputs_exist -> tuple(sampleID, forward, reverse) }
 
+        /*
         // Log the filtered samples
             filtered_samples_ch.view { sampleID, forward, reverse ->
                 "${color_red}Filtered sample: ${color_cyan}$sampleID${no_color}"
             }
+        */
 
         // Count the filtered samples
             filtered_samples_ch
@@ -136,5 +139,5 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
         snp_profiling_vcf_index             = SNP_PROFILING_SINGLE.out.mtbseq_vcf_index
         // Uncomment the following line if you implement SNP_BARCODING_SINGLE in the future
         // snp_barcoding_results = SNP_BARCODING_SINGLE.out
-*/       
+
 }
