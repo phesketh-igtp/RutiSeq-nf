@@ -49,7 +49,7 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
 
         // Log the check results
             check_results_ch.view { sampleID, forward, reverse, all_outputs_exist ->
-            "${color_red}CHECK_EXISTING_OUTPUTS results: Sample: ${color_cyan}$sampleID${color_red}     Outputs exist?: ${color_cyan}$all_outputs_exist${no_color}"
+            "${color_red}CHECK_EXISTING_OUTPUTS results     Sample: ${color_cyan}$sampleID${color_red}     Outputs exist?: ${color_cyan}$all_outputs_exist${no_color}"
             }
 
         // Filter the samples based on the check results
