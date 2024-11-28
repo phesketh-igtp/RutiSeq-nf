@@ -52,25 +52,4 @@ workflow {
         file(params.tbprofiler_db)
     )
 
-    // You can now use the outputs from the subworkflow if needed
-    SINGLE_GENOME_ANALYSIS.out.qc_results.view()
-
-    // Combine all the MTBSeq results into a single channel
-    mtbseq_results = SINGLE_GENOME_ANALYSIS.out.mtbseq_bam_dir
-                .combine(SINGLE_GENOME_ANALYSIS.out.mtbseq_bam)
-                .combine(SINGLE_GENOME_ANALYSIS.out.mtbseq_bam_index)
-                .combine(SINGLE_GENOME_ANALYSIS.out.mtbseq_bamlog)
-                .combine(SINGLE_GENOME_ANALYSIS.out.mtbseq_position_tables_dir)
-                .combine(SINGLE_GENOME_ANALYSIS.out.mtbseq_position_tables)
-                .combine(SINGLE_GENOME_ANALYSIS.out.mtbseq_classification_dir)
-                .combine(SINGLE_GENOME_ANALYSIS.out.mtbseq_classification)
-                .combine(SINGLE_GENOME_ANALYSIS.out.mtbseq_statistics_dir)
-                .combine(SINGLE_GENOME_ANALYSIS.out.mtbseq_statistics)
-                .combine(SINGLE_GENOME_ANALYSIS.out.mtbseq_called_dir)
-                .combine(SINGLE_GENOME_ANALYSIS.out.mtbseq_position_variants)
-                .combine(SINGLE_GENOME_ANALYSIS.out.mtbseq_mpileup_dir)
-                .combine(SINGLE_GENOME_ANALYSIS.out.mtbseq_mpileup)
-
-
-
 }

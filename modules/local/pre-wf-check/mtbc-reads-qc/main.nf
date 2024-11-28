@@ -15,12 +15,12 @@ process MTBC_READ_QC {
         path kaiju_fmi
 
     output:
-        tuple val(sampleID), path("mtbc_reads/${sampleID}_R1.fastq.gz"), emit: mtbc_forward
-        tuple val(sampleID), path("mtbc_reads/${sampleID}_R2.fastq.gz"), emit: mtbc_reverse       
-        path("${sampleID}.qc.out"), emit: qc_out
+    tuple val(sampleID), 
+            path("mtbc_reads/${sampleID}_R1.fastq.gz"), 
+            path("mtbc_reads/${sampleID}_R2.fastq.gz"),         emit: mtbc_reads
+    path("${sampleID}.qc.out"),                                 emit: qc_results
 
     script:
-
     def additional_args_kaiju = task.ext.additional_args_kaiju ?: '' // defined in the nextflow.config file
     def additional_args_kaiju2table = task.ext.additional_args_kaiju2table ?: '' // defined in the nextflow.config file
 

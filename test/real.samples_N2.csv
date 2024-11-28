@@ -1,0 +1,4 @@
+old_name,sampleID,forward_path,reverse_path
+06-010_L2,06-010_L2,/imppc/labs/emlab/share/TBSEQ/FASTQ/06-010_L2_R1.fastq.gz,/imppc/labs/emlab/share/TBSEQ/FASTQ/06-010_L2_R2.fastq.gz
+20-055_L9,20-055_L9,/imppc/labs/emlab/share/TBSEQ/FASTQ/20-055_L9_S13_L001_R1_001.fastq.gz,/imppc/labs/emlab/share/TBSEQ/FASTQ/20-055_L9_S13_L001_R2_001.fastq.gz
+51-027_L10,51-027_L10,/imppc/labs/emlab/share/TBSEQ/FASTQ/51-027-L10_S10_L001_R1_001.fastq.gz,/imppc/labs/emlab/share/TBSEQ/FASTQ/51-027-L10_S10_L001_R2_001.fastq.gz
