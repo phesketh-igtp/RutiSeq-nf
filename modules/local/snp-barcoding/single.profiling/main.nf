@@ -32,6 +32,7 @@ process SNP_PROFILING_SINGLE {
     tabix -p vcf ${sampleID}.gatk.vcf.gz
 
     rm sample.list
+
     """
 
     stub:

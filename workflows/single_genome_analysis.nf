@@ -4,6 +4,7 @@ include { TBPROFILER_PROFILE_TBDB }   from '../modules/local/tbprofiler/profile.
 include { TBPROFILER_PROFILE_WHO }    from '../modules/local/tbprofiler/profile.who/main.nf'
 include { MTBSEQ_SINGLE }             from '../modules/local/mtbseq/single/main.nf'
 include { SNP_PROFILING_SINGLE }      from '../modules/local/snp-barcoding/single.profiling/main.nf'
+include { SNP_FILTERING_SINGLE }      from '../modules/local/snp-barcoding/single.filtering/main.nf'
 //include { SNP_BARCODING_SINGLE }      from '../modules/local/snp-barcoding/single.barcoding/main.nf'
 
 workflow SINGLE_GENOME_ANALYSIS {
@@ -98,6 +99,9 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
         // Run SNP_PROFILING_SINGLE using the mpileup output
             SNP_PROFILING_SINGLE(MTBSEQ_SINGLE.out.mtbseq_mpileup)
 
+        // Filter the SNPs based on Iñaki Comas labs methods ()
+            SNP_FILTERING_SINGLE(SNP_PROFILING_SINGLE.out)
+
         /* WORK IN PROGRESS::module needs to be written! Barcoding BED needs generating!
         // Pre-classify genomes using SNP profiles
         snp_profiles_ch = SNP_PROFILING_SINGLE.out.snp_barcoding_individual_vcf
@@ -107,7 +111,7 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
         */
 
         // Generate a progress log of the number of genomes that have completed the analysis
-            SNP_PROFILING_SINGLE.out.mtbseq_vcf
+            SNP_FILTERING_SINGLE.out.mtbseq_vcf_annot
                                     .map { it -> 1 }
                                     .sum()  
                                     .set { completed_samples }

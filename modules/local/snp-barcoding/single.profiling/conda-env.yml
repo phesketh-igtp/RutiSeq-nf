@@ -1,0 +1,8 @@
+channels:
+- conda-forge
+- bioconda
+dependencies:
+- bioconda::bcftools
+- bioconda::snpeff
+- bioconda::varscan
+- bioconda::vcftools
