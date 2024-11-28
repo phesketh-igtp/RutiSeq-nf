@@ -24,13 +24,14 @@ workflow SINGLE_GENOME_ANALYSIS {
         def color_purple = '\u001B[35m'
         def color_green = '\u001B[32m'
         def color_red = '\u001B[31m'
-        def color_reset = '\u001B[0m'
+        def color_cyan = '\u001B[36m'
+        def no_color = '\u001B[0m'
 
 log.info """
 ${color_purple}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${nocol}
 """
 
         /*
@@ -39,7 +40,7 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
 
                 log.info "Input samples:"
                     samples_ch.view { sampleID, forward, reverse -> 
-                    "Sample: $sampleID, Forward: $forward, Reverse: $reverse" 
+                    "${color_red}Sample: ${color_cyan}$sampleID${color_red} |   Forward: ${color_cyan}$forward${color_red}  |   Reverse: ${color_cyan}$reverse${no_color}" 
                 }
 
         // Run CHECK_EXISTING_OUTPUTS on all samples
@@ -47,7 +48,7 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
 
         // Log the check results
             check_results_ch.view { sampleID, forward, reverse, all_outputs_exist ->
-            "CHECK_EXISTING_OUTPUTS results: Sample: $sampleID, All outputs exist: $all_outputs_exist"
+            "${color_red}CHECK_EXISTING_OUTPUTS results: Sample: ${color_cyan}$sampleID${color_red}, All outputs exist: ${color_cyan}$all_outputs_exist${no_color}"
             }
 
         // Filter the samples based on the check results
@@ -57,14 +58,14 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
 
         // Log the filtered samples
             filtered_samples_ch.view { sampleID, forward, reverse ->
-                "Filtered sample: $sampleID"
+                "${color_red}Filtered sample: ${color_cyan}$sampleID${no_color}"
             }
 
         // Count the filtered samples
             filtered_samples_ch
                 .count()
-                .view { count -> "Number of samples after filtering: $count" }
-/*      
+                .view { count -> "${color_red}Number of samples after filtering: ${color_cyan}$count${no_color}" }
+
         // Run MTBC_READ_QC on filtered samples
         MTBC_READ_QC(filtered_samples_ch,
                     kaiju_names, 
@@ -79,7 +80,7 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
         all_qc_results = MTBC_READ_QC.out.qc_out
             .collectFile(name: 'all_samples_qc.tsv', keepHeader: true, sort: true)
             */
-/*
+
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
         TBPROFILER_PROFILE_TBDB(mtbc_reads_ch,
                                 tbprofiler_db)
@@ -103,7 +104,7 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
         // In the emit section:  
         */
 
-/* 
+
     emit:
         
         // QC reads outputs
