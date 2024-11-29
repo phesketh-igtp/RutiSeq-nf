@@ -70,8 +70,8 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
 
         // Run MTBC_READ_QC on filtered samples
             MTBC_READ_QC(filtered_samples_ch,
-                        kaiju_names, 
-                        kaiju_nodes, 
+                        kaiju_names,
+                        kaiju_nodes,
                         kaiju_fmi
                         )
 
@@ -111,10 +111,10 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
         */
 
         // Generate a progress log of the number of genomes that have completed the analysis
-            SNP_FILTERING_SINGLE.out.mtbseq_vcf_annot
-                                    .map { it -> 1 }
-                                    .sum()  
-                                    .set { completed_samples }
+        SNP_FILTERING_SINGLE.out.mtbseq_vcf_annot
+                                .map { it -> 1 }
+                                .sum()
+                                .set { completed_samples }
 
         // Create progress log
         completed_samples
@@ -125,32 +125,32 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
 
     emit: 
         // QC reads outputs
-        //all_ qc_results                   = qc_results
+            //all_ qc_results                   = qc_results
         // TB-Profiler outputs
-        tbprofiler_tbdb_json                = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_json
-        tbprofiler_tbdb_txt                 = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_res
-        tbprofiler_tbdb_vcf                 = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf
-        tbprofiler_who_json                 = TBPROFILER_PROFILE_WHO.out.tbprof_who_json
-        tbprofiler_who_txt                  = TBPROFILER_PROFILE_WHO.out.tbprof_who_txt
+            tbprofiler_tbdb_json                = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_json
+            tbprofiler_tbdb_txt                 = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_res
+            tbprofiler_tbdb_vcf                 = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf
+            tbprofiler_who_json                 = TBPROFILER_PROFILE_WHO.out.tbprof_who_json
+            tbprofiler_who_txt                  = TBPROFILER_PROFILE_WHO.out.tbprof_who_txt
         // MTBseq outputs
-        mtbseq_bam                          = MTBSEQ_SINGLE.out.mtbseq_bam
-        mtbseq_bam_index                    = MTBSEQ_SINGLE.out.mtbseq_bam_index
-        mtbseq_bamlog                       = MTBSEQ_SINGLE.out.mtbseq_bamlog
-        mtbseq_uncovered_positions          = MTBSEQ_SINGLE.out.mtbseq_uncovered_positions
-        mtbseq_variant_positions            = MTBSEQ_SINGLE.out.mtbseq_variant_positions
-        mtbseq_strain_classification        = MTBSEQ_SINGLE.out.mtbseq_strain_classification
-        mtbseq_gatk_bam                     = MTBSEQ_SINGLE.out.mtbseq_gatk_bam
-        mtbseq_gatk_bam_index               = MTBSEQ_SINGLE.out.mtbseq_gatk_bam_index
-        mtbseq_gatk_bamlog                  = MTBSEQ_SINGLE.out.mtbseq_gatk_bamlog
-        mtbseq_gatk_grp                     = MTBSEQ_SINGLE.out.mtbseq_gatk_grp
-        mtbseq_gatk_intervals               = MTBSEQ_SINGLE.out.mtbseq_gatk_intervals
-        mtbseq_mpileup                      = MTBSEQ_SINGLE.out.mtbseq_mpileup
-        mtbseq_mpileuplog                   = MTBSEQ_SINGLE.out.mtbseq_mpileuplog
-        mtbseq_position_table               = MTBSEQ_SINGLE.out.mtbseq_position_table
-        mtbseq_mapping_variant_statistics   = MTBSEQ_SINGLE.out.mtbseq_mapping_variant_statistics
+            mtbseq_bam                          = MTBSEQ_SINGLE.out.mtbseq_bam
+            mtbseq_bam_index                    = MTBSEQ_SINGLE.out.mtbseq_bam_index
+            mtbseq_bamlog                       = MTBSEQ_SINGLE.out.mtbseq_bamlog
+            mtbseq_uncovered_positions          = MTBSEQ_SINGLE.out.mtbseq_uncovered_positions
+            mtbseq_variant_positions            = MTBSEQ_SINGLE.out.mtbseq_variant_positions
+            mtbseq_strain_classification        = MTBSEQ_SINGLE.out.mtbseq_strain_classification
+            mtbseq_gatk_bam                     = MTBSEQ_SINGLE.out.mtbseq_gatk_bam
+            mtbseq_gatk_bam_index               = MTBSEQ_SINGLE.out.mtbseq_gatk_bam_index
+            mtbseq_gatk_bamlog                  = MTBSEQ_SINGLE.out.mtbseq_gatk_bamlog
+            mtbseq_gatk_grp                     = MTBSEQ_SINGLE.out.mtbseq_gatk_grp
+            mtbseq_gatk_intervals               = MTBSEQ_SINGLE.out.mtbseq_gatk_intervals
+            mtbseq_mpileup                      = MTBSEQ_SINGLE.out.mtbseq_mpileup
+            mtbseq_mpileuplog                   = MTBSEQ_SINGLE.out.mtbseq_mpileuplog
+            mtbseq_position_table               = MTBSEQ_SINGLE.out.mtbseq_position_table
+            mtbseq_mapping_variant_statistics   = MTBSEQ_SINGLE.out.mtbseq_mapping_variant_statistics
         // SNP Profiling outputs
-        snp_profiling_vcf                   = SNP_PROFILING_SINGLE.out.mtbseq_vcf
-        snp_profiling_vcf_index             = SNP_PROFILING_SINGLE.out.mtbseq_vcf_index
+            snp_profiling_vcf                   = SNP_PROFILING_SINGLE.out.mtbseq_vcf
+            snp_profiling_vcf_index             = SNP_PROFILING_SINGLE.out.mtbseq_vcf_index
         // Uncomment the following line if you implement SNP_BARCODING_SINGLE in the future
         // snp_barcoding_results = SNP_BARCODING_SINGLE.out
 
