@@ -107,6 +107,7 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
         snp_profiles_ch = SNP_PROFILING_SINGLE.out.snp_barcoding_individual_vcf
             .join(SNP_PROFILING_SINGLE.out.snp_barcoding_individual_vcf_index)
         SNP_BARCODING_SINGLE(snp_profiles_ch)
+        
         // In the emit section:  
         */
 
