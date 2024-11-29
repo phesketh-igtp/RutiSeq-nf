@@ -10,29 +10,40 @@ process SNP_FILTERING_SINGLE {
 
     input:
         tuple val(sampleID), path(mtbseq_vcf), path(mtbseq_vcf_index)
-        path snpeff_db
+        path snpeff_ref_genome
+        tuple val()
 
     output:
-        tuple val(sampleID), path("${sampleID}.gatk.vcf.gz"), emit: mtbseq_vcf_annot
+        tuple val(sampleID), path("${sampleID}.gatk.annot.vcf.gz"), emit: mtbseq_vcf_annot
+        tuple val(sampleID), path("${sampleID}.gatk.annot.vcf.gz.tbi"), emit: mtbseq_vcf_annot:index
 
     script:
 
     // defined in the nextflow.config file
-    def additional_args_snpeff = task.ext.additional_args_snpeff ?: '' // SnpEff arguments
-    def additional_args_filt_snps = task.ext.additional_args_filt_snps ?: '' // filtering SNPs by strings
+    def additional_str_snpeff = task.ext.additional_str_snpeff ?: '' // SnpEff arguments
 
     """
+
+    #Need to change the name of the vcf 'M.tuberculosis_H37Rv' to 'Mycobacterium_tuberculosis_h37rv'
+    bgzip -d ${mtbseq_vcf} > ${sampleID}.gatk.vcf
+    sed -i 's@${snpeff_ref_genome}@Chromosome@g' ${sampleID}.gatk.vcf
+    bgzip ${sampleID}.gatk.vcf # recompress for annotation
     
-    java -jar snpEff/snpEff.jar \\
+    # Annotate SNPs
+    snpEff ann \\
         ${additional_args_snpeff} \\
-        MTB_ancestor \\
+        ${snpeff_ref_genome} \\
         ${mtbseq_vcf} \\
-        > ${sampleID}.gatk.annot.vcf.gz
+        > ${sampleID}.gatk.annot.vcf
+
+    # Recompress and index SNPs
+    bgzip ${sampleID}.gatk.annot.vcf
+    tabix ${sampleID}.gatk.annot.vcf
 
     """
 
     stub:
     """
-
+    touch stub.gatk.annot.vcf.gz
     """
 }
