@@ -8,20 +8,20 @@ This pipeline is build to be *additive*, meaning new genomes can be analyses and
 
 ![image](png/pipeline.png)
 
-#### <u>sub-wf 1: Single genomes analsysis</u> (<code>--workflow single</code>)
+#### <u>Workflow 1: Single genomes analsysis</u> (<code>--workflow single</code>)
 The workflow partitions *Mycobacterium tuberculosis* complex r-eads for downstream processing (removing potentially contaminating reads), and utilizes TB specific tools [TB-Profiler](https://github.com/jodyphelan/TBProfiler) and [MTBSeq](https://github.com/ngs-fzb/MTBseq_source) for resistance profiling, lineage classification and variant calling. This will create a database (BBDD) of analysed genomes that will be utulised for downstream analysis.
 
 If a genome genome in your sample sheet already exists in the BBDD, that genome will not be re-analysed. The only way to reanlayse the genome is to remove it completely from the BBDD, a sub-utility is under construction.
 
-#### <u>sub-wf 2: Pairwise genome analysis</u> (<code>--workflow pairwise</code>)  [WIP]
+#### <u>Workflow 2: Pairwise genome analysis</u> (<code>--workflow pairwise</code>)  [WIP]
 During this sub-workflow, all genomes that have been processed through sub-wf 1 will be partitioned into their sub-lineages at two levels for Lineage 4 genomes (the majority), and at one level for all other lineages (until the lineage has more than 600 genomes, which is when it will be split at level 2), as designated by TB-profile SNP lineage barcoding. Within these groups the genomes will complete the MTBSeq analysis (<code>--TBjoin</code>, <code>--TBamend</code>, and <code>--TBgroup</code>), which includes joining SNP profiles, generating SNP alignments, and clustering the genomes at SNP distances (default; **5, 10, 15** - but these distances can be modified in the <code>nextflow.config</code>).
 
-#### <u>sub-wf 3: Analysis (<code>--workflow summary</code>)</u> [WIP]
+#### <u>Workflow 3: Analysis (<code>--workflow summary</code>)</u> [WIP]
 During this sub-workflow all the outputs from sub-wf 1 and 2 are compile by their essential information, all the raw outputs still remain in the BBDD for detail consideration. The principal results will be generated in a multi-sheet <code>XLSX</code>. This will include (i) Summary of genomes (classification, mapping statistics, genome coverage and quality), (ii-iii) resistance profiles (using both TBDB and the WHO designations), (iv) genomic clusters at designated SNP distances.
 
 Additional outputs include PDFs of SNP phylogeny (ML tree generated with IQ-Tree) colored by cluster identity, and NEX files for upload into [PopArt](https://popart.maths.otago.ac.nz/) for visualisation.
 
-#### <u>sub-wf 4: Cluster SNP barcoding</u> (<code>--workflow barcoding</code>) [WIP]
+#### <u>Workflow 4: Cluster SNP barcoding</u> (<code>--workflow barcoding</code>) [WIP]
 This is an experimental aspect of the workflow that aims to begin characterizing individual SNPs that are designated uniquely to a particular 15 SNP distance cluster (<code>--distance 15</code> in MTBseq). The plan with this sub-wf is to quickly being identifying which genomic cluster a particular genome may belong to prior to SNP clustering with the goal of reducing computational resources and speeding up the analysis. All genomes as part of the sub-wf 1 will have their SNP profiles compared to the cluster barcode SNPs and pre allocated a preliminary cluster for clustering in sub-wf 2.
 
 In this workflow, all genomes SNP profiles merged into a single VCF (grouped by lineage), and the SNP profiles of genomes belonging to the same cluster are compared to all other genomes within the same lineage, to calculate the F~TS~ value (fixation index) for each SNP within the cluster population. SNPs that fulfill the following criteria are classified as a cluster specific SNP:
@@ -30,7 +30,7 @@ In this workflow, all genomes SNP profiles merged into a single VCF (grouped by 
 - Minimum quality of 20
 - Not annotated as: *PE/PPE/PGRS*; *maturase*; *phage*; or *13E12 repeat family protein*
 - Not located in insertion sequences
-- Not within InDels or in high desity regions (> 3 SNPs in 10 bp)
+- Not within InDels or in high density regions (> 3 SNPs in 10 bp)
 
 The script will generate a <code>BED</code> file for each unique SNP and its cluster designation and the genomes will re-assessed by this barcoding method. A report will be generated on the quality of the predictions, wether the clsuter asignment was no better than random chance, or if there is consistency compared to the MTBSeq cluster assignment. In future all genomes will ideally be grouped by their predicted clsuters, speeding up the rate by which a genome cluster is identified.
 
