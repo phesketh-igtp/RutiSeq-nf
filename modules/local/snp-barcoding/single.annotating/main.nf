@@ -14,7 +14,7 @@ process SNP_ANNOTATING_SINGLE {
 
     output:
         tuple val(sampleID), path("${sampleID}.gatk.annot.vcf.gz"), emit: mtbseq_vcf_annot
-        tuple val(sampleID), path("${sampleID}.gatk.annot.vcf.gz.tbi"), emit: mtbseq_vcf_annot:index
+        tuple val(sampleID), path("${sampleID}.gatk.annot.vcf.gz.tbi"), emit: mtbseq_vcf_annot_index
 
     script:
 
