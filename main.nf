@@ -81,6 +81,7 @@ workflow {
         file(params.tbprofiler_db)
     )
 
+    /* UNDER DEVELOPMENT!!
     PAIRWISE_WORKFLOW(
         params.runID,
         SINGLE_WORKFLOW.out.tbprofiler_tbdb_json,
@@ -93,7 +94,7 @@ workflow {
         SINGLE_WORKFLOW.out.mtbseq_position_table,
         SINGLE_WORKFLOW.out.mtbseq_mapping_variant_statistics
     )
-
+    */ 
     
 
 }
