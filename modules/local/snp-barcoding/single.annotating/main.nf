@@ -1,4 +1,4 @@
-process SNP_FILTERING_SINGLE {
+process SNP_ANNOTATING_SINGLE {
 
     tag "$sampleID"
 
@@ -11,7 +11,6 @@ process SNP_FILTERING_SINGLE {
     input:
         tuple val(sampleID), path(mtbseq_vcf), path(mtbseq_vcf_index)
         path snpeff_ref_genome
-        tuple val()
 
     output:
         tuple val(sampleID), path("${sampleID}.gatk.annot.vcf.gz"), emit: mtbseq_vcf_annot
