@@ -1,7 +1,8 @@
-include { TBPROFILER_COMPILE_TBDB }   from '../modules/local/tbprofiler/compile.tbdb/main.nf'
-include { TBPROFILER_COMPILE_WHO }    from '../modules/local/tbprofiler/compile.who/main.nf'
-include { MTBSEQ_LINEAGE_SPLITTING }  from '../modules/local/mtbseq/lineage_split/main.nf'
-include { MTBSEQ_LINEAGE_PAIRWISE }   from '../modules/local/mtbseq/lineage_pairwise/main.nf'
+include { TBPROFILER_COMPILE_TBDB }         from '../modules/local/tbprofiler/compile.tbdb/main.nf'
+include { TBPROFILER_COMPILE_WHO }          from '../modules/local/tbprofiler/compile.who/main.nf'
+include { MTBSEQ_LINEAGE_SPLITTING }        from '../modules/local/mtbseq/lineage_split/main.nf'
+include { MTBSEQ_LINEAGE_PAIRWISE }         from '../modules/local/mtbseq/lineage_pairwise/main.nf'
+include { MTBSEQ_LINEAGE_PAIRWISE_GROUP }   from '../modules/local/mtbseq/lineage_pairwise_group/main.nf'
 
 workflow PAIRWISE_WORKFLOW {
     
@@ -54,13 +55,22 @@ workflow PAIRWISE_WORKFLOW {
 
         // Split the genomes into lineages based on params.
         MTBSEQ_LINEAGE_PAIRWISE(runID,
-                                mtbseq_variant_positions,
-                                mtbseq_strain_classification,
-                                mtbseq_position_table,
-                                mtbseq_mapping_variant_statistics,
-                                MTBSEQ_LINEAGE_SPLITTING.lineages_ch,
-                                TBPROFILER_COMPILE_TBDB.out.tbprofiler_tbdb_compile,
-                                Channel.fromList(params.mtbseq.snp_distance))
+                        MTBSEQ_LINEAGE_SPLITTING.out.lineages_ch,
+                        mtbseq_variant_positions,
+                        mtbseq_strain_classification,
+                        mtbseq_position_table,
+                        mtbseq_mapping_variant_statistics)
 
+        MTBSEQ_LINEAGE_PAIRWISE_GROUP(runID,
+                                    Channel.fromList(params.mtbseq.snp_distance),
+                                    MTBSEQ_LINEAGE_PAIRWISE.out
+                                    )
+
+    emit:
+        tbprofiler_tbdb_results = TBPROFILER_COMPILE_TBDB.out.tbprofile_tbdb_compile
+        tbprofiler_who_results = TBPROFILER_COMPILE_WHO.out.tbprofile_who_compile
+        lineage_splitting_results = MTBSEQ_LINEAGE_SPLITTING.out.lineages_ch
+        lineage_pairwise_results = MTBSEQ_LINEAGE_PAIRWISE.out.lineage_results
+        lineage_pairwise_group_results = MTBSEQ_LINEAGE_PAIRWISE_GROUP.out.group_results
 
 }
