@@ -30,7 +30,7 @@ process SNP_ANNOTATING_SINGLE {
     
     # Annotate SNPs
     snpEff ann \\
-        ${additional_args_snpeff} \\
+        ${task.additional_args_snpeff} \\
         ${snpeff_ref_genome} \\
         ${mtbseq_vcf} \\
         > ${sampleID}.gatk.annot.vcf
