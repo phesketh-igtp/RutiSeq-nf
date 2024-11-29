@@ -111,17 +111,17 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
         */
 
         // Generate a progress log of the number of genomes that have completed the analysis
-        SNP_FILTERING_SINGLE.out.mtbseq_vcf_annot
-                                .map { it -> 1 }
-                                .sum()
-                                .set { completed_samples }
+            SNP_FILTERING_SINGLE.out.mtbseq_vcf_annot
+                                    .map { it -> 1 }
+                                    .sum()
+                                    .set { completed_samples }
 
         // Create progress log
-        completed_samples
-                .combine(total_samples)
-                .subscribe { completed, total ->
-                    log.info "${color_red}Progress: ${color_cyan}$completed ${color_red}/ ${color_cyan}$total ${color_red}samples completed${no_color}"
-                }
+            completed_samples
+                    .combine(total_samples)
+                    .subscribe { completed, total ->
+                        log.info "${color_red}Progress: ${color_cyan}$completed ${color_red}/ ${color_cyan}$total ${color_red}samples completed${no_color}"
+                    }
 
     emit: 
         // QC reads outputs
