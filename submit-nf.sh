@@ -39,3 +39,7 @@ wait $pid
 
 # Return 0 exit-status if everything went well
 exit 0
+
+### SUBMIT TO HPC:
+####
+#### qsub -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -l mem_free=6G submit-nf.sh /imppc/labs/emlab/share/GitHub/RutiSeq-nf/main.nf -profile igtp,singularity_on --samplesheet sample-sheet/[XXXX].csv --runID [XXX]

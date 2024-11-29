@@ -1,5 +1,6 @@
 include { CHECK_EXISTING_OUTPUTS }    from '../modules/local/pre-wf-check/check_outputs/main.nf'  
 include { MTBC_READ_QC }              from '../modules/local/pre-wf-check/mtbc-reads-qc/main.nf'
+include { COMBINE_QC_RESULTS }        from '../modules/local/pre-wf-check/combine-qc-results/main.nf'
 include { TBPROFILER_PROFILE_TBDB }   from '../modules/local/tbprofiler/profile.tbdb/main.nf'
 include { TBPROFILER_PROFILE_WHO }    from '../modules/local/tbprofiler/profile.who/main.nf'
 include { MTBSEQ_SINGLE }             from '../modules/local/mtbseq/single/main.nf'
@@ -28,12 +29,12 @@ workflow SINGLE_GENOME_ANALYSIS {
         def color_cyan = '\u001B[36m'
         def no_color = '\u001B[0m'
 
-log.info """
-${color_purple}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${no_color}
-"""
+        log.info """
+        ${color_purple}
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${no_color}
+        """
 
         /*
             Commence main workflow
@@ -75,6 +76,12 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
                         kaiju_fmi
                         )
 
+            // Collect all QC results
+            all_qc_results = MTBC_READ_QC.out.qc_results.map { it[1] }.collect()
+
+            // Combine QC results
+            COMBINE_QC_RESULTS(all_qc_results) // produces a 
+
         // Explicitly capture the mtbc_reads output
             mtbc_reads_ch = MTBC_READ_QC.out.mtbc_reads
 
@@ -112,7 +119,8 @@ ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
         */
 
         // Generate a progress log of the number of genomes that have completed the analysis
-            SNP_PROFILING_SINGLE.out.mtbseq_vcf_annot
+        // need to change it to the last output channels if the module changes
+            SNP_PROFILING_SINGLE.out.mtbseq_vcf
                                     .map { it -> 1 }
                                     .sum()
                                     .set { completed_samples }
