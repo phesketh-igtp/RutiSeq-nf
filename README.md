@@ -2,7 +2,7 @@
 
 ## Introduction
 
-TBSEQ.cat-nf is for the classification and clustering and SNP barcoding of *Mycobacterium tuberculosis* genomes for surveillance of outbreaks. The pipeline consists of 4 sub-workflows. (1) Single genomes analysis (<code>--workflow single</code>), (2) Pairwise genome comparisons (<code>--workflow pairwise</code>), (3) Analysis summary (<code>--workflow summary</code>), and (4) Cluster barcoding (<code>--workflow barcoding</code>). 
+TBSEQ.cat-nf is for the classification and clustering and SNP barcoding of *Mycobacterium tuberculosis* genomes for surveillance of outbreaks. The pipeline consists of four sub-workflows, with the default being to run all workflows (<code>--workflow full</code>). (1) Single genomes analysis (<code>--workflow single</code>), (2) Pairwise genome comparisons (<code>--workflow pairwise</code>), (3) Analysis summary (<code>--workflow summary</code>), and (4) Cluster barcoding (<code>--workflow barcoding</code>). 
 
 This pipeline is build to be *additive*, meaning new genomes can be analyses and appended to the database (BBDD), facilitating the continuing monitoring of TB outbreaks. Because of this, it is important to ensure that sufficient storage is available for all the data. I am still in the process of optimising the whole process to ensure that the most essential files are retained while being consiousnt of storage. A databse consisting of 1,300 genomes will require ~ 600 GB (excluding the reads).
 
