@@ -118,3 +118,6 @@ If a sample in your sample sheet is duplicated, or that SampleID already exists 
 | sample1_XXX-AAA- | 1-XXX-AAA_LX | 2024-01-01 | Hospital A |
 | sample1_XXX-AAA- | 2-XXX-AAA_LX | 2022-01-02 | Hospital B |
 
+# To do 
+- Test <code>--workflow pairwise</code>
+- Write <code>--workflow summay</code> and <code>--workflow barcode</code>
