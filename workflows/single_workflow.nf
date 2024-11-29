@@ -8,7 +8,7 @@ include { SNP_PROFILING_SINGLE }      from '../modules/local/snp-barcoding/singl
 include { SNP_ANNOTATING_SINGLE }     from '../modules/local/snp-barcoding/single.annotating/main.nf'
 //include { SNP_BARCODING_SINGLE }      from '../modules/local/snp-barcoding/single.barcoding/main.nf'
 
-workflow SINGLE_GENOME_ANALYSIS {
+workflow SINGLE_WORKFLOW {
 
     take:
         samples_ch
@@ -80,7 +80,7 @@ workflow SINGLE_GENOME_ANALYSIS {
             all_qc_results = MTBC_READ_QC.out.qc_results.map { it[1] }.collect()
 
             // Combine QC results
-            COMBINE_QC_RESULTS(all_qc_results) // produces a 
+            COMBINE_QC_RESULTS(all_qc_results, params.runID) // produces a tsv of the total results
 
         // Explicitly capture the mtbc_reads output
             mtbc_reads_ch = MTBC_READ_QC.out.mtbc_reads

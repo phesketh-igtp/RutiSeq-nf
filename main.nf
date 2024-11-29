@@ -1,9 +1,11 @@
 #!/usr/bin/env nextflow
-
 nextflow.enable.dsl = 2
 
-include { SINGLE_GENOME_ANALYSIS }  from './workflows/single_genome_analysis.nf'
-//include { PAIRIWISE_GENOME_ANALYSIS }      from './workflows/pairwise_analysis.nf'
+include { SINGLE_WORKFLOW }         from './workflows/single_workflow.nf'
+include { PAIRWISE_WORKFLOW }       from './workflows/pairwise_workflow.nf'
+//include { SUMMARY_WORKFLOW }        from './workflows/summary_workflow.nf'
+//include { BARCODING_WORKFLOW }      from './workflows/barcoding_workflow.nf'
+//include { REMOVE_SAMPLE_WORKFLOW }  from './workflows/remove-sample_workflow.nf'
 
 workflow {
     def color_purple = '\u001B[35m'
@@ -26,10 +28,34 @@ workflow {
     ${color_reset}
     """
 
+    /*
+
+    Define all the expected argument to be provided at time of running 
+        nextflow at CLI
+
+        --samplesheet /path/to/sample-sheet
+        --runID [a-zA-Z0-9]
+        --workflow [full, single, pairwise, summary, barcoding]
+
+    */
+
     // Create channel from sample sheet
-    if (params.samplesheet == null) {
-        error "Please provide a samplesheet CSV file with --samplesheet"
-    }
+        if (params.samplesheet == null) {
+            error "Please provide a samplesheet CSV file with --samplesheet"
+        }
+
+    // Check if RunID is provided
+        if (!params.runID) {
+            error "Please provide a RunID using --runID"
+        }
+
+    /* UNDER CONSTRUCTION!
+    // Validate workflow option
+        def valid_workflows = ['full', 'single', 'pairwise', 'summary', 'barcoding']
+        if (!valid_workflows.contains(params.workflow)) {
+            error "Invalid workflow option. Please choose from: ${valid_workflows.join(', ')}"
+        }   
+    */ 
 
     Channel
         .fromPath(params.samplesheet)
@@ -42,14 +68,32 @@ workflow {
         }
         .set { samples_ch }
 
-    // Call the subworkflow
 
-    SINGLE_GENOME_ANALYSIS(
+    /*
+    Call  the workflows
+    */
+
+    SINGLE_WORKFLOW(
         samples_ch,
         file(params.kaiju_names),
         file(params.kaiju_nodes),
         file(params.kaiju_fmi),
         file(params.tbprofiler_db)
     )
+
+    PAIRWISE_WORKFLOW(
+        params.runID,
+        SINGLE_WORKFLOW.out.tbprofiler_tbdb_json,
+        SINGLE_WORKFLOW.out.tbprofiler_tbdb_txt,
+        SINGLE_WORKFLOW.out.tbprofiler_tbdb_vcf,
+        SINGLE_WORKFLOW.out.tbprofiler_who_json,
+        SINGLE_WORKFLOW.out.tbprofiler_who_txt,
+        SINGLE_WORKFLOW.out.mtbseq_variant_positions,
+        SINGLE_WORKFLOW.out.mtbseq_strain_classification,
+        SINGLE_WORKFLOW.out.mtbseq_position_table,
+        SINGLE_WORKFLOW.out.mtbseq_mapping_variant_statistics
+    )
+
+    
 
 }
