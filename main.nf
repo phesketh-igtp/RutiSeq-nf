@@ -1,11 +1,11 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-include { SINGLE_WORKFLOW }         from './workflows/single_workflow.nf'
-include { PAIRWISE_WORKFLOW }       from './workflows/pairwise_workflow.nf'
-//include { SUMMARY_WORKFLOW }        from './workflows/summary_workflow.nf'
-//include { BARCODING_WORKFLOW }      from './workflows/barcoding_workflow.nf'
-//include { REMOVE_SAMPLE_WORKFLOW }  from './workflows/remove-sample_workflow.nf'
+include { SINGLE_WORKFLOW }         from './workflows/single_wf.nf'
+include { PAIRWISE_WORKFLOW }       from './workflows/pairwise_wf.nf'
+//include { SUMMARY_WORKFLOW }        from './workflows/summary_wf.nf'
+//include { BARCODING_WORKFLOW }      from './workflows/barcoding_wf.nf'
+//include { REMOVE_SAMPLE_WORKFLOW }  from './workflows/remove-sample_wf.nf'
 
 workflow {
     def color_purple = '\u001B[35m'
@@ -81,7 +81,7 @@ workflow {
         file(params.tbprofiler_db)
     )
 
-    /* UNDER DEVELOPMENT!!
+    // UNDER DEVELOPMENT!!
     PAIRWISE_WORKFLOW(
         params.runID,
         SINGLE_WORKFLOW.out.tbprofiler_tbdb_json,
@@ -94,7 +94,26 @@ workflow {
         SINGLE_WORKFLOW.out.mtbseq_position_table,
         SINGLE_WORKFLOW.out.mtbseq_mapping_variant_statistics
     )
-    */ 
     
+    /*
+    //
+    SUMMARY_WORKFLOW()
+
+    //
+    BARCODING_WORKFLOW()
+
+    //
+    Channel
+        .fromPath(params.removelist)
+        .splitCsv(header: true, sep: ',')
+        .map { row ->
+            if (row.sampleID == null ) {
+                error "Missing required column in samplesheet: ${row}"
+            }
+            tuple(row.sampleID)
+        }
+        .set { remove_ch }
+    REMOVE_SAMPLE_WORKFLOW(remove_ch)
+    */
 
 }
