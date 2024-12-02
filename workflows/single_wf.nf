@@ -51,7 +51,7 @@ workflow SINGLE_WORKFLOW {
 
         // Log the check results
             check_results_ch.view { sampleID, forward, reverse, all_outputs_exist ->
-            "${color_red}CHECK_EXISTING_OUTPUTS results     Sample: ${color_cyan}$sampleID${color_red}     Outputs exist?: ${color_cyan}$all_outputs_exist${no_color}"
+            "${color_red}Inspect RutiSeq-BBDD | Sample: ${color_cyan}$sampleID${color_red} | In BBDD?: ${color_cyan}$all_outputs_exist${no_color}"
             }
 
         // Filter the samples based on the check results
@@ -133,6 +133,7 @@ workflow SINGLE_WORKFLOW {
                     }
 
     emit: 
+        handoff                                 = completed_samples
         // QC reads outputs
             //all_ qc_results                   = qc_results
         // TB-Profiler outputs

@@ -46,7 +46,7 @@ process MTBC_READ_QC {
                 -o ${sampleID}.kaiju_summary.tsv \\
                 ${sampleID}.kaiju.out
 
-    grep -f MTBC.list "${sampleID}.kaiju.out" | cut -f2 > ${sampleID}.list
+    grep -f MTBC.list "${sampleID}.kaiju.out" | cut -f2 > tmp.${sampleID}.list
 
     mkdir -p mtbc_reads/
     seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${forward} -o mtbc_reads/${sampleID}_R1.fastq.gz

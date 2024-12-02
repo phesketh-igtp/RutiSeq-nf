@@ -10,11 +10,7 @@ process MTBSEQ_LINEAGE_PAIRWISE {
 
     input:
         val runID
-        tuple val(lineage), path(samples_file)
-        path mtbseq_variant_positions
-        path mtbseq_strain_classification
-        path mtbseq_position_table
-        path mtbseq_mapping_variant_statistics
+        tuple val(lineage), val(sample_name), path(called_dir), path(position_tables_dir)
 
     output:
         // Amend outputs

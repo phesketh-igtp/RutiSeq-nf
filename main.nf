@@ -45,7 +45,7 @@ workflow {
         }
 
     // Check if RunID is provided
-        if (!params.runID == null ) {
+        if (params.runID == null ) {
             error "Please provide a RunID using --runID"
         }
 
@@ -74,29 +74,21 @@ workflow {
     */
 
     SINGLE_WORKFLOW(
-        samples_ch,
-        file(params.kaiju_names),
-        file(params.kaiju_nodes),
-        file(params.kaiju_fmi),
-        file(params.tbprofiler_db)
+                    samples_ch,
+                    file(params.kaiju_names),
+                    file(params.kaiju_nodes),
+                    file(params.kaiju_fmi),
+                    file(params.tbprofiler_db)
     )
 
     // UNDER DEVELOPMENT!!
+    /*
     PAIRWISE_WORKFLOW(
-        runID,
-        sample_ch
-        params.runID,
-        SINGLE_WORKFLOW.out.tbprofiler_tbdb_json,
-        SINGLE_WORKFLOW.out.tbprofiler_tbdb_txt,
-        SINGLE_WORKFLOW.out.tbprofiler_tbdb_vcf,
-        SINGLE_WORKFLOW.out.tbprofiler_who_json,
-        SINGLE_WORKFLOW.out.tbprofiler_who_txt,
-        SINGLE_WORKFLOW.out.mtbseq_variant_positions,
-        SINGLE_WORKFLOW.out.mtbseq_strain_classification,
-        SINGLE_WORKFLOW.out.mtbseq_position_table,
-        SINGLE_WORKFLOW.out.mtbseq_mapping_variant_statistics
+                    params.runID,
+                    samples_ch,
+                    SINGLE_WORKFLOW.out.handoff
     )
-    
+    */
     /*
     //
     SUMMARY_WORKFLOW()
