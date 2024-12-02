@@ -55,6 +55,7 @@ workflow SINGLE_WORKFLOW {
             }
 
         // Filter the samples based on the check results
+        //// (in future might want to split this into the individual process: tbprof and mtbseq)
             filtered_samples_ch = check_results_ch
                 .filter { sampleID, forward, reverse, all_outputs_exist -> all_outputs_exist == 'false' }
                 .map { sampleID, forward, reverse, all_outputs_exist -> tuple(sampleID, forward, reverse) }
