@@ -7,6 +7,7 @@ include { MTBSEQ_LINEAGE_PAIRWISE_GROUP }   from '../modules/local/mtbseq/lineag
 workflow PAIRWISE_WORKFLOW {
     
     take:
+            sample_ch
             runID
         // TB-Profiler files
             tbprofiler_tbdb_json
@@ -40,17 +41,13 @@ workflow PAIRWISE_WORKFLOW {
         """
 
         // Compile TB-Profiler results
-        TBPROFILER_COMPILE_TBDB(runID,
-                                tbprofiler_tbdb_txt, 
-                                tbprofiler_tbdb_json)
+        TBPROFILER_COMPILE_TBDB(runID)
         
-        TBPROFILER_COMPILE_WHO(runID,
-                                tbprofiler_who_json, 
-                                tbprofiler_who_txt)
+        TBPROFILER_COMPILE_WHO(runID)
 
         // Split the genomes into lineages based on params.
         MTBSEQ_LINEAGE_SPLITTING(runID,
-                                TBPROFILER_COMPILE_TBDB.out.tbprofiler_tbdb_compile,
+                                TBPROFILER_COMPILE_TBDB.tbprofiler_tbdb_compile,
                                 Channel.fromList(params.lineage_pairwise))
 
         // Split the genomes into lineages based on params.

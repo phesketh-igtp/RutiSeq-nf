@@ -26,6 +26,7 @@ process MTBSEQ_LINEAGE_SPLITTING {
 
     # Sort and remove duplicates from the unique lineages list
     sort -u -o "${runID}.unique-lineages.list" "${runID}.unique-lineages.list"
-    """
     
+    """
+
 }

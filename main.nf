@@ -45,7 +45,7 @@ workflow {
         }
 
     // Check if RunID is provided
-        if (!params.runID) {
+        if (!params.runID == null ) {
             error "Please provide a RunID using --runID"
         }
 
@@ -83,6 +83,8 @@ workflow {
 
     // UNDER DEVELOPMENT!!
     PAIRWISE_WORKFLOW(
+        runID,
+        sample_ch
         params.runID,
         SINGLE_WORKFLOW.out.tbprofiler_tbdb_json,
         SINGLE_WORKFLOW.out.tbprofiler_tbdb_txt,

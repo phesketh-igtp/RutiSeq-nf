@@ -1,6 +1,6 @@
 process TBPROFILER_COMPILE_TBDB {
     
-    tag "$params.runID"
+    tag "${runID}"
 
     conda (params.enable_conda ? { file("/imppc/labs/emlab/phesketh/miniconda3/envs/tb-profiler").exists() ? "/imppc/labs/emlab/phesketh/miniconda3/envs/tb-profiler" : "./modules/local/tbprofiler/conda.yml" } : null)
 
@@ -9,16 +9,25 @@ process TBPROFILER_COMPILE_TBDB {
     publishDir "${params.outdir}/bbdd/tbprofiler/", mode: 'copy'
 
     input:
-    path tbprofiler_tbdb_txt
-    path tbprofiler_tbdb_json
+        val runID
 
     output:
-    path "tbprofile.txt",  emit: tbprofile_tbdb_compile
-    path "tbprofile..variants.csv" 
+    path("tbprofiler.txt"),             emit: tbprofile_who_compile
+    path "tbprofiler.dr.indiv.itol.txt"
+    path "tbprofiler.dr.itol.txt"
+    path "tbprofiler.lineage.itol.txt"
+    path "tbprofiler.variants.csv"
     path "tbprofiler.variants.txt"
 
     script:
     """
+    mkdir results/
+
+    ln -s ${params.outdir}/bbdd/tbprofiler/results/* results/
+
     tb-profiler collate --full --mark_missing --all_variants --itol
+
+    rm -rf results/
+
     """
 }

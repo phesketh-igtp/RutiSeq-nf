@@ -9,17 +9,29 @@ process TBPROFILER_COMPILE_WHO {
     publishDir "${params.outdir}/bbdd/tbprofiler/who-only/", mode: 'copy'
 
     input:
-    path("${params.outdir}/bbdd/tbprofiler/results/")
+        val runID
 
     output:
-    path("tbprofile.results.txt"),           emit: tbprofile_who_compile
-    path "tbprofile..variants.csv" 
+    path("tbprofiler.txt"),             emit: tbprofile_tbdb_compile
+    path "tbprofiler.dr.indiv.itol.txt"
+    path "tbprofiler.dr.itol.txt"
+    path "tbprofiler.lineage.itol.txt"
+    path "tbprofiler.variants.csv"
     path "tbprofiler.variants.txt"
+
 
     script:
 
     """
+
+    mkdir results/
+
+    ln -s ${params.outdir}/bbdd/tbprofiler/who-only/results/* results/
+
     tb-profiler collate --full --mark_missing --all_variants --itol
+
+    rm -rf results/
+
     """
 
 
