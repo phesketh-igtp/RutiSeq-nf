@@ -10,6 +10,10 @@ include { SNP_ANNOTATING_SINGLE }     from '../modules/local/snp-barcoding/singl
 
 workflow SINGLE_WORKFLOW {
 
+        /*
+            Define the inputs from main.nf
+        */
+
     take:
         samples_ch
         kaiju_names
@@ -40,13 +44,7 @@ workflow SINGLE_WORKFLOW {
             Commence main workflow
         */
         
-        // Report the samples part of the analysis
-            log.info "${color_purple}Input samples:${no_color}"
-                samples_ch.view { sampleID, forward, reverse -> 
-                "${color_red}Sample: ${color_cyan}$sampleID${color_red}     Forward: ${color_cyan}$forward${color_red}  Reverse: ${color_cyan}$reverse${no_color}" 
-            }
-
-        // Run CHECK_EXISTING_OUTPUTS on all samples
+       // Run CHECK_EXISTING_OUTPUTS on all samples
             check_results_ch = CHECK_EXISTING_OUTPUTS(samples_ch)
 
         // Log the check results
@@ -80,8 +78,10 @@ workflow SINGLE_WORKFLOW {
             // Collect all QC results
             all_qc_results = MTBC_READ_QC.out.qc_results.map { it[1] }.collect()
 
-            // Combine QC results
-            COMBINE_QC_RESULTS(all_qc_results, params.runID) // produces a tsv of the total results
+            // Combine QC results : NEEDS REPAIRING
+            COMBINE_QC_RESULTS( // produce TSV of read QC results
+                            all_qc_results, 
+                            params.runID)
 
         // Explicitly capture the mtbc_reads output
             mtbc_reads_ch = MTBC_READ_QC.out.mtbc_reads
@@ -121,17 +121,19 @@ workflow SINGLE_WORKFLOW {
 
         // Generate a progress log of the number of genomes that have completed the analysis
         // need to change it to the last output channels if the module changes
-            SNP_PROFILING_SINGLE.out.mtbseq_vcf
-                                    .map { it -> 1 }
-                                    .sum()
-                                    .set { completed_samples }
+        SNP_PROFILING_SINGLE.out.mtbseq_vcf
+            .ifEmpty { log.warn "${color_red}No samples completed SNP profiling.${no_color}"; return Channel.of(0) }
+            .map { it -> 1 }
+            .sum()
+            .set { completed_samples }
 
         // Create progress log
-            completed_samples
-                    .combine(total_samples)
-                    .subscribe { completed, total ->
-                        log.info "${color_red}Progress: ${color_cyan}$completed ${color_red}/ ${color_cyan}$total ${color_red}samples completed${no_color}"
-                    }
+        completed_samples
+            .combine(total_samples)
+            .ifEmpty { log.warn "${color_red}Unable to generate progress log.${no_color}"; return }
+            .subscribe { completed, total ->
+                log.info "${color_red}Progress: ${color_cyan}$completed ${color_red}/ ${color_cyan}$total ${color_red}samples completed${no_color}"
+            }
 
     emit: 
         handoff                                 = completed_samples

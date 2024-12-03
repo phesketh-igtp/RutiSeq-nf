@@ -57,6 +57,7 @@ workflow {
         }   
     */ 
 
+        // Create channel from sample sheet
     Channel
         .fromPath(params.samplesheet)
         .splitCsv(header: true, sep: ',')
@@ -68,17 +69,19 @@ workflow {
         }
         .set { samples_ch }
 
+    // Report the samples part of the samplesheet
+        log.info "${color_purple}Input samples:${color_reset}"
+        samples_ch.view { sampleID, forward, reverse ->
+            "${color_red}Sample: ${color_green}$sampleID${color_red} | Forward: ${color_green}$forward${color_red} | Reverse: ${color_green}$reverse${color_reset}"
+        }
 
-    /*
-    Call  the workflows
-    */
-
+    // Call the SINGLE_WORKFLOW
     SINGLE_WORKFLOW(
-                    samples_ch,
-                    file(params.kaiju_names),
-                    file(params.kaiju_nodes),
-                    file(params.kaiju_fmi),
-                    file(params.tbprofiler_db)
+        samples_ch, 
+        file(params.kaiju_names),
+        file(params.kaiju_nodes),
+        file(params.kaiju_fmi),
+        file(params.tbprofiler_db)
     )
 
     // UNDER DEVELOPMENT!!
