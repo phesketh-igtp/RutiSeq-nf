@@ -40,31 +40,8 @@ workflow SINGLE_WORKFLOW {
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${no_color}
         """          
 
-        // Run CHECK_EXISTING_OUTPUTS on all samples
-            check_results_ch = CHECK_EXISTING_OUTPUTS(samples_ch)
-
-        // Log the check results
-            check_results_ch.view { sampleID, forward, reverse, all_outputs_exist ->
-                "${color_red}Inspect RutiSeq-BBDD | Sample: ${color_cyan}$sampleID${color_red} | In BBDD?: ${color_cyan}$all_outputs_exist${no_color}"
-            }
-
-        // Filter the samples based on the check results
-            filtered_samples_ch = check_results_ch
-                .filter { sampleID, forward, reverse, all_outputs_exist -> all_outputs_exist == 'false' }
-                .map { sampleID, forward, reverse, all_outputs_exist -> tuple(sampleID, file(forward), file(reverse)) }
-
-        // Count the filtered samples and set as total_samples
-            filtered_samples_ch
-                .count()
-                .set { total_samples }
-
-        // View the count
-            total_samples.view { count -> 
-                "${color_red}Number of samples being analyzed: ${color_cyan}$count${no_color}" 
-            }
-
         // Run MTBC_READ_QC on filtered samples
-            MTBC_READ_QC(filtered_samples_ch,
+            MTBC_READ_QC(samples_ch,
                         kaiju_names,
                         kaiju_nodes,
                         kaiju_fmi
