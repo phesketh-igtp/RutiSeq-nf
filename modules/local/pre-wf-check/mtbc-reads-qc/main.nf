@@ -4,8 +4,6 @@ process MTBC_READ_QC {
     
     conda { file("/imppc/labs/emlab/phesketh/miniconda3/envs/kaiju").exists() ? "/imppc/labs/emlab/phesketh/miniconda3/envs/kaiju" : "../modules/local/pre-wf-check/mtbc-reads-qc/kaiju.yml" }
     
-    //container 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/0f/0f00cd356ee92f5211e5941beeb4bcab6abfb341e0e5fa7ace8c043406c13381/data'
-
     publishDir "${params.outdir}/bbdd/read-qc", mode: 'link'
 
     input:
@@ -15,18 +13,30 @@ process MTBC_READ_QC {
         path kaiju_fmi
 
     output:
-    tuple val(sampleID), 
+        tuple val(sampleID), 
             path("mtbc_reads/${sampleID}_R1.fastq.gz"), 
-            path("mtbc_reads/${sampleID}_R2.fastq.gz"),         emit: mtbc_reads
-    tuple val(sampleID), path("${sampleID}.qc.out"),            emit: qc_results
-    path("${sampleID}.kaiju.out")
-    path("${sampleID}.kaiju_summary.tsv")
+            path("mtbc_reads/${sampleID}_R2.fastq.gz"),         emit: mtbc_reads, optional: true
+        tuple val(sampleID), path("${sampleID}.qc.out"),          emit: qc_results, optional: true
+        path("${sampleID}.kaiju.out"), optional: true
+        path("${sampleID}.kaiju_summary.tsv"), optional: true
 
     script:
-    def additional_args_kaiju = task.ext.additional_args_kaiju ?: '' // defined in the nextflow.config file
-    def additional_args_kaiju2table = task.ext.additional_args_kaiju2table ?: '' // defined in the nextflow.config file
+    def additional_args_kaiju = task.ext.additional_args_kaiju ?: ''
+    def additional_args_kaiju2table = task.ext.additional_args_kaiju2table ?: ''
 
     """
+    # Check if output files already exist
+    if [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Classification/Strain_Classification.tab" ] && \\
+        [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Statistics/Mapping_and_Variant_Statistics.tab" ] && \\
+        [ -f "${params.outdir}/bbdd/tbprofiler/results/${sampleID}.results.txt" ] && \\
+        [ -f "${params.outdir}/bbdd/tbprofiler/who-only/results/${sampleID}.results.txt" ] && \\
+        [ -f "${params.outdir}/bbdd/read-qc/${sampleID}.kaiju_summary.tsv" ]; then
+        echo "Output files already exist for ${sampleID}. Skipping processing."
+        exit 0
+    fi
+
+    # If files don't exist, proceed with the script
+
     grep 'Mycobacterium tuberculosis ' ${kaiju_names} | cut -f1 | sort | uniq > MTBC.list
 
     seqkit stats -abT -j ${task.cpus} ${forward} | sed '1d' > tmp.stats.r1.orig
@@ -76,7 +86,5 @@ process MTBC_READ_QC {
 
     # Clean up temporary files
     rm tmp.*
-    
     """
-
 }
