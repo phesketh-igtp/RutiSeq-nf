@@ -2,7 +2,7 @@ process SNP_PROFILING_SINGLE {
 
     tag "$sampleID"
 
-    conda { file("/imppc/labs/emlab/phesketh/miniconda3/envs/snp-profiling").exists() ? "/imppc/labs/emlab/phesketh/miniconda3/envs/snp-profiling" : "./modules/local/snp-barcoding/snp-profiling.yml" }
+    conda "../conda/snp-profiling.yml"
 
     container 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/60/608c097132a7de8e156c452f40ea3b3fea6bf0a35b6988e4b2fe74d91524303f/data'
 
@@ -40,4 +40,5 @@ process SNP_PROFILING_SINGLE {
     touch ${sampleID}.gatk.vcf.gz
     touch ${sampleID}.gatk.vcf.gz.tbi
     """
+
 }

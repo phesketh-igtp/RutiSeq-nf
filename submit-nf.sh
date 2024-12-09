@@ -21,6 +21,10 @@ trap _term TERM
 
 # limit the RAM that can be used by nextflow
 export NXF_JVM_ARGS="-Xms2g -Xmx5g"
+export SINGULARITY_TMPDIR='/imppc/labs/emlab/phesketh/.singularity/temp'
+export SINGULARITY_CACHEDIR='/imppc/labs/emlab/phesketh/.singularity/cache'
+export NXF_SINGULARITY_CACHEDIR='/imppc/labs/emlab/phesketh/.singularity/cache'
+export TMPDIR='/imppc/labs/emlab/phesketh/.singularity/temp
 
 # Run the pipeline. The command uses the arguments passed to this script, e.g:
 #

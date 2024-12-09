@@ -2,7 +2,7 @@ process MTBC_READ_QC {
     
     tag "$sampleID"
     
-    conda { file("/imppc/labs/emlab/phesketh/miniconda3/envs/kaiju").exists() ? "/imppc/labs/emlab/phesketh/miniconda3/envs/kaiju" : "../modules/local/pre-wf-check/mtbc-reads-qc/kaiju.yml" }
+    conda '../conda/mtbc-reads_check.yml'
     
     container 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/0f/0f00cd356ee92f5211e5941beeb4bcab6abfb341e0e5fa7ace8c043406c13381/data'
 
@@ -41,8 +41,8 @@ process MTBC_READ_QC {
 
     grep 'Mycobacterium tuberculosis ' ${kaiju_names} | cut -f1 | sort | uniq > MTBC.list
 
-    seqkit stats -abT -j ${task.cpus} ${forward} | sed '1d' > tmp.stats.r1.orig
-    seqkit stats -abT -j ${task.cpus} ${reverse} | sed '1d' > tmp.stats.r2.orig
+    seqkit stats -abT -j ${task.cpus} ${forward} | sed "1d" > tmp.stats.r1.orig
+    seqkit stats -abT -j ${task.cpus} ${reverse} | sed "1d" > tmp.stats.r2.orig
 
     cut -f4 tmp.stats.r1.orig > tmp.r1_num; cut -f17 tmp.stats.r1.orig > tmp.r1_qual
     cut -f4 tmp.stats.r2.orig > tmp.r2_num; cut -f17 tmp.stats.r2.orig > tmp.r2_qual
@@ -62,10 +62,10 @@ process MTBC_READ_QC {
 
     mkdir -p mtbc_reads/
     seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${forward} -o mtbc_reads/${sampleID}_R1.fastq.gz
-    seqkit stats -abT -j ${task.cpus} mtbc_reads/${sampleID}_R1.fastq.gz | sed '1d' > tmp.stats.r1.filt
+    seqkit stats -abT -j ${task.cpus} mtbc_reads/${sampleID}_R1.fastq.gz | sed "1d" > tmp.stats.r1.filt
 
     seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${reverse} -o mtbc_reads/${sampleID}_R2.fastq.gz
-    seqkit stats -abT -j ${task.cpus} mtbc_reads/${sampleID}_R2.fastq.gz | sed '1d' > tmp.stats.r2.filt
+    seqkit stats -abT -j ${task.cpus} mtbc_reads/${sampleID}_R2.fastq.gz | sed "1d" > tmp.stats.r2.filt
 
     cut -f4 tmp.stats.r1.filt > tmp.r1_num.filt ; cut -f17 tmp.stats.r1.filt > tmp.r1_qual.filt
     cut -f4 tmp.stats.r2.filt > tmp.r2_num.filt ; cut -f17 tmp.stats.r2.filt > tmp.r2_qual.filt    

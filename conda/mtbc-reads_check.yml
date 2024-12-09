@@ -1,3 +1,4 @@
+name: mtbc-reads_check
 channels:
 - conda-forge
 - bioconda

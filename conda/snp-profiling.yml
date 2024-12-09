@@ -1,0 +1,9 @@
+name: snp-profiling
+channels:
+- conda-forge
+- bioconda
+dependencies:
+- bioconda::bcftools
+- bioconda::snpeff
+- bioconda::vcftools
+- bioconda::varscan

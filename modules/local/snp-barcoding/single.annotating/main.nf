@@ -2,7 +2,7 @@ process SNP_ANNOTATING_SINGLE {
 
     tag "$sampleID"
 
-    conda { file("/imppc/labs/emlab/phesketh/miniconda3/envs/snp-profiling").exists() ? "/imppc/labs/emlab/phesketh/miniconda3/envs/snp-profiling" : "./modules/local/snp-barcoding/snp-profiling.yml" }
+    conda "../conda/snp-profiling.yml"
 
     container 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/f7/f7b4d880135db1027c7b0ead23ae6464da73fc498f84b2462ff36af4ac0f198b/data'
 
