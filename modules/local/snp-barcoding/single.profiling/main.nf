@@ -2,8 +2,9 @@ process SNP_PROFILING_SINGLE {
 
     tag "$sampleID"
 
-    conda "../conda/snp-profiling.yml"
-
+    //conda "../conda/snp-profiling.yml"
+    conda '/imppc/labs/emlab/phesketh/miniforge3/envs/snp-profiling'
+    
     container 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/60/608c097132a7de8e156c452f40ea3b3fea6bf0a35b6988e4b2fe74d91524303f/data'
 
     publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/", mode: 'copy'

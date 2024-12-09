@@ -2,7 +2,8 @@ process MTBC_READ_QC {
     
     tag "$sampleID"
     
-    conda '../conda/mtbc-reads_check.yml'
+    //conda '../conda/mtbc-reads_check.yml'
+    conda '/imppc/labs/emlab/phesketh/miniforge3/envs/kaiju'
     
     container 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/0f/0f00cd356ee92f5211e5941beeb4bcab6abfb341e0e5fa7ace8c043406c13381/data'
 
