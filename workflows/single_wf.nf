@@ -38,25 +38,20 @@ workflow SINGLE_WORKFLOW {
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${no_color}
-        """
+        """          
 
-        /*
-            Commence main workflow
-        */
-        
-       // Run CHECK_EXISTING_OUTPUTS on all samples
+        // Run CHECK_EXISTING_OUTPUTS on all samples
             check_results_ch = CHECK_EXISTING_OUTPUTS(samples_ch)
 
         // Log the check results
             check_results_ch.view { sampleID, forward, reverse, all_outputs_exist ->
-            "${color_red}Inspect RutiSeq-BBDD | Sample: ${color_cyan}$sampleID${color_red} | In BBDD?: ${color_cyan}$all_outputs_exist${no_color}"
+                "${color_red}Inspect RutiSeq-BBDD | Sample: ${color_cyan}$sampleID${color_red} | In BBDD?: ${color_cyan}$all_outputs_exist${no_color}"
             }
 
         // Filter the samples based on the check results
-        //// (in future might want to split this into the individual process: tbprof and mtbseq)
             filtered_samples_ch = check_results_ch
                 .filter { sampleID, forward, reverse, all_outputs_exist -> all_outputs_exist == 'false' }
-                .map { sampleID, forward, reverse, all_outputs_exist -> tuple(sampleID, forward, reverse) }
+                .map { sampleID, forward, reverse, all_outputs_exist -> tuple(sampleID, file(forward), file(reverse)) }
 
         // Count the filtered samples and set as total_samples
             filtered_samples_ch
@@ -75,10 +70,10 @@ workflow SINGLE_WORKFLOW {
                         kaiju_fmi
                         )
 
-            // Collect all QC results
+        // Collect all QC results
             all_qc_results = MTBC_READ_QC.out.qc_results.map { it[1] }.collect()
 
-            // Combine QC results : NEEDS REPAIRING
+        // Combine QC results : NEEDS REPAIRING
             COMBINE_QC_RESULTS( // produce TSV of read QC results
                             all_qc_results, 
                             params.runID)
