@@ -1,4 +1,4 @@
-include { CHECK_EXISTING_OUTPUTS }    from '../modules/local/pre-wf-check/check_outputs/main.nf'  
+//include { CHECK_EXISTING_OUTPUTS }    from '../modules/local/pre-wf-check/check_outputs/main.nf'  
 include { MTBC_READ_QC }              from '../modules/local/pre-wf-check/mtbc-reads-qc/main.nf'
 include { COMBINE_QC_RESULTS }        from '../modules/local/pre-wf-check/combine-qc-results/main.nf'
 include { TBPROFILER_PROFILE_TBDB }   from '../modules/local/tbprofiler/profile.tbdb/main.nf'
@@ -37,6 +37,7 @@ workflow SINGLE_WORKFLOW {
         ${color_purple}
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
+        2024-12-09
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${no_color}
         """          
 
@@ -91,24 +92,7 @@ workflow SINGLE_WORKFLOW {
         
         */
 
-        // Generate a progress log of the number of genomes that have completed the analysis
-        // need to change it to the last output channels if the module changes
-        SNP_PROFILING_SINGLE.out.mtbseq_vcf
-            .ifEmpty { log.warn "${color_red}No samples completed SNP profiling.${no_color}"; return Channel.of(0) }
-            .map { it -> 1 }
-            .sum()
-            .set { completed_samples }
-
-        // Create progress log
-        completed_samples
-            .combine(total_samples)
-            .ifEmpty { log.warn "${color_red}Unable to generate progress log.${no_color}"; return }
-            .subscribe { completed, total ->
-                log.info "${color_red}Progress: ${color_cyan}$completed ${color_red}/ ${color_cyan}$total ${color_red}samples completed${no_color}"
-            }
-
     emit: 
-        handoff                                 = completed_samples
         // QC reads outputs
             //all_ qc_results                   = qc_results
         // TB-Profiler outputs
