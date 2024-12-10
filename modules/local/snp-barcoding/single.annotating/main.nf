@@ -2,7 +2,7 @@ process SNP_ANNOTATING_SINGLE {
 
     tag "$sampleID"
 
-    conda 'bioconda::bcftools==1.21 bioconda::snpeff==5.2'
+    conda 'bioconda::bcftools==1.21 bioconda::varscan==2.4.6 bioconda::snpeff==5.2'
 
     container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/5e/5e1dc9586886df729616e7af235efe76cc2d31b5fa2a6afe0b0656efee6d983a/data'
             } else { 'community.wave.seqera.io/library/bcftools_snpeff_varscan_vcftools:3fa84761d1a9bed3' }
