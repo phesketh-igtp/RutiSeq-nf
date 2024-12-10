@@ -1,8 +1,8 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-include { SINGLE_WF }         from 'workflows/single_wf.nf'
-include { PAIRWISE_WF }       from 'workflows/pairwise_wf.nf'
+include { SINGLE_WF }               from './workflows/single_wf.nf'
+include { PAIRWISE_WF }             from './workflows/pairwise_wf.nf'
 //include { SUMMARY_WORKFLOW }        from './workflows/summary_wf.nf'
 //include { BARCODING_WORKFLOW }      from './workflows/barcoding_wf.nf'
 //include { REMOVE_SAMPLE_WORKFLOW }  from './workflows/remove-sample_wf.nf'
@@ -74,7 +74,7 @@ workflow {
         }
 
     // Call the SINGLE_WORKFLOW
-    SINGLE_WORKFLOW(
+    SINGLE_WF(
         samples_ch, 
         file(params.kaiju_names),
         file(params.kaiju_nodes),
@@ -82,12 +82,12 @@ workflow {
         file(params.tbprofiler_db)
     )
 
-    SINGLE_WORKFLOW.out.workflow_outputs.view()
+    SINGLE_WF.out.workflow_outputs.view()
 
     // UNDER DEVELOPMENT!!
-    PAIRWISE_WORKFLOW(
+    PAIRWISE_WF(
                     params.runID,
-                    SINGLE_WORKFLOW.out.workflow_outputs
+                    SINGLE_WF.out.workflow_outputs
     )
 
     /*

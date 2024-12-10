@@ -27,7 +27,6 @@ process MTBSEQ_SAMPLE_FILTER {
         paste -d ',' samples.list samples.called samples.pos > mtbseq.paths.txt
         rm samples.called samples.pos samples.list
 
-
         # Concatenate the statistics files and classification files by MTBseq
 
         echo "Date	SampleID	LibraryID	FullID	Total Reads	Mapped Reads	% Mapped Reads	Genome Size	Genome GC	(Any) Total Bases	% (Any) Total Bases	(Any) GC-Content	(Any) Coverage mean	(Any) Coverage median	(Unambiguous) Total Bases	% (Unambiguous) Total Bases	(Unambiguous) GC-Content	(Unambiguous) Coverage mean	(Unambiguous) Coverage median	SNPs	Deletions	Insertions	Uncovered	Substitutions (Including Stop Codons)" > Mapping_and_Variant_Statistics.tab

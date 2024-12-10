@@ -25,20 +25,11 @@ workflow PAIRWISE_WF {
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${no_color}
         """
 
-        // Create channels from the result paths
-            tbprofiler_tbdb_results     = Channel.fromPath("${params.outdir}/bbdd/tbprofiler/results/*")
-            tbprofiler_who_results      = Channel.fromPath("${params.outdir}/bbdd/tbprofiler/who-only/results/*")
-            mtbseq_called_results       = Channel.fromPath("${params.outdir}/bbdd/mtbseq/samples/*/Called/*.")
-            mtbseq_pos_var_results      = Channel.fromPath("${params.outdir}/bbdd/mtbseq/samples/*/Position_Tables/*")
-
-
         // Compile TB-Profiler results
         TBPROFILER_COMPILE_TBDB(runID,
-                                tbprofiler_tbdb_results
                                 )
 
         TBPROFILER_COMPILE_WHO( runID,
-                                tbprofiler_who_results
                                 )
 
         // Compile stats and classifications from MTBSeq
@@ -76,11 +67,12 @@ workflow PAIRWISE_WF {
                                     MTBSEQ_LINEAGE_PAIRWISE.out,
                                     Channel.fromList(params.mtbseq.snp_distance))
         */
-
+    /*
     emit:
         tbprofiler_tbdb_results = TBPROFILER_COMPILE_TBDB.out.tbprof_tbdb_res
         tbprofiler_who_results = TBPROFILER_COMPILE_WHO.out.tbprof_who_res
         mtbseq_filtered_results = MTBSEQ_SAMPLE_FILTER.out.mtbseq_join_paths
+    */
         // Uncomment the following lines if you uncomment the corresponding processes above
         /*
         lineage_splitting_results = MTBSEQ_LINEAGE_SPLITTING.out.lineages_ch

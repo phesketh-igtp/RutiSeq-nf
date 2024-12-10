@@ -1,8 +1,6 @@
 /*
-    
+    Import modules, sub-workflows, ect
 */
-
-//include { CHECK_EXISTING_OUTPUTS }    from '../modules/local/pre-wf-check/check_outputs/main.nf'  
 include { MTBC_READ_QC }              from '../modules/local/pre-wf-check/mtbc-reads-qc/main.nf'
 include { COMBINE_QC_RESULTS }        from '../modules/local/pre-wf-check/combine-qc-results/main.nf'
 include { TBPROFILER_PROFILE_TBDB }   from '../modules/local/tbprofiler/profile.tbdb/main.nf'
@@ -10,8 +8,10 @@ include { TBPROFILER_PROFILE_WHO }    from '../modules/local/tbprofiler/profile.
 include { MTBSEQ_SINGLE }             from '../modules/local/mtbseq/single/main.nf'
 include { SNP_PROFILING_SINGLE }      from '../modules/local/snp-barcoding/single.profiling/main.nf'
 include { SNP_ANNOTATING_SINGLE }     from '../modules/local/snp-barcoding/single.annotating/main.nf'
-//include { SNP_BARCODING_SINGLE }      from '../modules/local/snp-barcoding/single.barcoding/main.nf'
 
+/*
+    Define workflow
+*/
 workflow SINGLE_WF {
 
         /*
@@ -103,8 +103,7 @@ workflow SINGLE_WF {
 
         */
 
-    emit: 
-        workflow_outputs = tuple(
+    emit:
         // QC reads outputs
             //all_ qc_results                   = qc_results
         // TB-Profiler outputs
@@ -131,6 +130,12 @@ workflow SINGLE_WF {
             snp_profiling_vcf_index             = SNP_PROFILING_SINGLE.out.mtbseq_vcf_index
         // Uncomment the following line if you implement SNP_BARCODING_SINGLE in the future
         // snp_barcoding_results = SNP_BARCODING_SINGLE.out
-            )
-            
+        workflow_outputs = tuple(
+                        TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_res,
+                        TBPROFILER_PROFILE_WHO.out.tbprof_who_txt,
+                        MTBSEQ_SINGLE.out.mtbseq_strain_classification,
+                        MTBSEQ_SINGLE.out.mtbseq_mapping_variant_statistics,
+                        SNP_PROFILING_SINGLE.out.mtbseq_vcf,
+                        SNP_PROFILING_SINGLE.out.mtbseq_vcf_index
+                                )
 }
