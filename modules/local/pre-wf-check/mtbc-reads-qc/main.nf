@@ -2,10 +2,11 @@ process MTBC_READ_QC {
     
     tag "$sampleID"
     
-    //conda '../conda/mtbc-reads_check.yml'
-    conda '/imppc/labs/emlab/phesketh/miniforge3/envs/kaiju'
-    
-    container 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/0f/0f00cd356ee92f5211e5941beeb4bcab6abfb341e0e5fa7ace8c043406c13381/data'
+    conda 'bioconda::kaiju==1.10.1 bioconda::seqkit==2.9.0'
+
+    container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/0f/0f00cd356ee92f5211e5941beeb4bcab6abfb341e0e5fa7ace8c043406c13381/data'
+        } else { 'community.wave.seqera.io/library/kaiju_seqkit:6e4140ab47bd567e' }
+    }
 
     publishDir "${params.outdir}/bbdd/read-qc", mode: 'link'
 
