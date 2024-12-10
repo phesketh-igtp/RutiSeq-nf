@@ -31,9 +31,9 @@ workflow PAIRWISE_WORKFLOW {
         TBPROFILER_COMPILE_WHO(runID)
 
         // Compile stats and classifications from MTBSeq
-        MTBSEQ_SAMPLE_FILTER(params.mtbseq.min_cov, 
+        MTBSEQ_SAMPLE_FILTER(params.mtbseq.min_cov,
                             runID,
-                            TBPROFILER_COMPILE_TBDB.out.tbprof_tbdb_res)
+                            TBPROFILER_COMPILE_TBDB.out.tbprofile_tdb_compile)
             
         MTBSEQ_SAMPLE_FILTER.out.mtbseq_join_paths
             .splitCsv(header: false)

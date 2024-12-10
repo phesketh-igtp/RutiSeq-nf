@@ -1,3 +1,5 @@
+
+
 //include { CHECK_EXISTING_OUTPUTS }    from '../modules/local/pre-wf-check/check_outputs/main.nf'  
 include { MTBC_READ_QC }              from '../modules/local/pre-wf-check/mtbc-reads-qc/main.nf'
 include { COMBINE_QC_RESULTS }        from '../modules/local/pre-wf-check/combine-qc-results/main.nf'
@@ -100,14 +102,11 @@ workflow SINGLE_WORKFLOW {
         */
 
     emit: 
+        workflow_outputs = tuple(
         // QC reads outputs
             //all_ qc_results                   = qc_results
         // TB-Profiler outputs
-        workflow_outputs = tuple(
-            tbprofiler_tbdb_json                = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_json
             tbprofiler_tbdb_txt                 = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_res
-            tbprofiler_tbdb_vcf                 = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf
-            tbprofiler_who_json                 = TBPROFILER_PROFILE_WHO.out.tbprof_who_json
             tbprofiler_who_txt                  = TBPROFILER_PROFILE_WHO.out.tbprof_who_txt
         // MTBseq outputs
             mtbseq_bam                          = MTBSEQ_SINGLE.out.mtbseq_bam

@@ -12,26 +12,24 @@ process TBPROFILER_COMPILE_TBDB {
 
     input:
         val runID
+        path("${params.outdir}/bbdd/tbprofiler/results/*")//,  stageAs: tbprofiler_results_dir
 
     output:
-    path("tbprofiler.txt"),             emit: tbprofile_who_compile
-    path "tbprofiler.dr.indiv.itol.txt"
-    path "tbprofiler.dr.itol.txt"
-    path "tbprofiler.lineage.itol.txt"
-    path "tbprofiler.variants.csv"
-    path "tbprofiler.variants.txt"
+        path("tbprofiler.txt"),                             emit: tbprofile_tdb_compile
+        path "tbprofiler.dr.indiv.itol.txt"
+        path "tbprofiler.dr.itol.txt"
+        path "tbprofiler.lineage.itol.txt"
+        path "tbprofiler.variants.csv"
+        path "tbprofiler.variants.txt"
 
     script:
 
     """
-    mkdir results/
-
-    ln -s ${params.outdir}/bbdd/tbprofiler/results/* results/
-
     tb-profiler collate --full --mark_missing --all_variants --itol
-
-    rm -rf results/
-
     """
+
+    //##mkdir results/
+    //##ln -s ${params.outdir}/bbdd/tbprofiler/results/* results/
+    //##ln -s ${tbprofiler_results_dir}/* results/
     
 }
