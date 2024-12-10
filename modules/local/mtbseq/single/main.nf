@@ -29,7 +29,6 @@ process MTBSEQ_SINGLE {
         tuple val(sampleID), path("Mpileup/${sampleID}.gatk.mpileuplog"),                   emit: mtbseq_mpileuplog
         tuple val(sampleID), path("Position_Tables/${sampleID}.gatk_position_table.tab"),   emit: mtbseq_position_table
         tuple val(sampleID), path("Statistics/Mapping_and_Variant_Statistics.tab"),         emit: mtbseq_mapping_variant_statistics
-        path("MTBseq_*_.log")
 
     script:
     
@@ -40,20 +39,12 @@ process MTBSEQ_SINGLE {
     # Run MTBseq for a single sample
     MTBseq --step TBfull \\
         --thread ${task.cpus} \\
-        --prefix ${sampleID} \\
         ${additional_args} \\
         1>>.command.out \\
-        2>>.command.err \\
-        || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
+        2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
+
+    ## --prefix ${sampleID} \\
 
     """
-
-    stub:
-    """
-    mkdir -p Amend Position_Tables Classification Statistics Called
-    touch Statistics/Mapping_and_Variant_Statistics.tab
-    touch Classification/Strain_Classification.tab
-    touch Called/gatk_position_variants.tab
-    touch Position_Tables/gatk_position_table.tab
-    """
+    
 }

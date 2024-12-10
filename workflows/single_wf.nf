@@ -122,5 +122,5 @@ workflow SINGLE_WORKFLOW {
             snp_profiling_vcf_index             = SNP_PROFILING_SINGLE.out.mtbseq_vcf_index
         // Uncomment the following line if you implement SNP_BARCODING_SINGLE in the future
         // snp_barcoding_results = SNP_BARCODING_SINGLE.out
-
+            
 }
