@@ -2,11 +2,12 @@ process SNP_PROFILING_SINGLE {
 
     tag "$sampleID"
 
-    //conda "../conda/snp-profiling.yml"
-    conda '/imppc/labs/emlab/phesketh/miniforge3/envs/snp-profiling'
+    conda 'bioconda::bcftools==1.21 bioconda::varscan==2.4.6'
     
-    container 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/60/608c097132a7de8e156c452f40ea3b3fea6bf0a35b6988e4b2fe74d91524303f/data'
-
+    container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/5e/5e1dc9586886df729616e7af235efe76cc2d31b5fa2a6afe0b0656efee6d983a/data'
+            } else { 'community.wave.seqera.io/library/bcftools_snpeff_varscan_vcftools:3fa84761d1a9bed3' }
+    }
+    
     publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/", mode: 'copy'
 
     input:

@@ -1,7 +1,0 @@
-name: mtbc-reads_check
-channels:
-- conda-forge
-- bioconda
-dependencies:
-- bioconda::kaiju
-- bioconda::seqkit

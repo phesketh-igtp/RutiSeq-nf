@@ -2,11 +2,12 @@ process MTBSEQ_SINGLE {
 
     tag "$sampleID"
 
-    //conda "../conda/mtbseq.yml"
-    conda '/imppc/labs/emlab/phesketh/miniforge3/envs/mtbseq'
+    conda "bioconda::mtbseq=1.1.0"
 
-    container "https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data"
-
+    container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data'
+            } else { 'quay.io/biocontainers/mtbseq' }
+    }
+    
     publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}", mode: 'copy'
 
     input:

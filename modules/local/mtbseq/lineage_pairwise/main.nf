@@ -2,10 +2,12 @@ process MTBSEQ_LINEAGE_PAIRWISE {
 
     tag "${lineage}"
 
-    conda { file("/imppc/labs/emlab/phesketh/miniconda3/envs/mtbseq").exists() ? "/imppc/labs/emlab/phesketh/miniconda3/envs/mtbseq" : "./modules/local/mtbseq/mtbseq.yml" }
+    conda "bioconda::mtbseq=1.1.0"
 
-    container "https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data"
-
+    container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data'
+            } else { 'quay.io/biocontainers/mtbseq' }
+    }
+                
     publishDir "${params.outdir}/bbdd/mtbseq/lineages/${lineage}", mode: 'copy'
 
     input:
@@ -14,7 +16,7 @@ process MTBSEQ_LINEAGE_PAIRWISE {
 
     output:
         // Amend outputs
-        tuple val(lineage), path("Amend/"),                                                                               emit: amended_dir
+        tuple val(lineage), path("Amend/"),                                                        emit: amended_dir
         tuple val(lineage), path("Amend/${lineage}_joint_*_amended.tab"),                          emit: amended_tab
         tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo.fasta"),               emit: phylo_fasta
         tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo.plainIDs.fasta"),      emit: phylo_plainids_fasta
@@ -24,9 +26,9 @@ process MTBSEQ_LINEAGE_PAIRWISE {
         tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo_w*_removed.tab"),      emit: phylo_w_removed_tab
         tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.tab"),              emit: phylo_w_tab
         // Join outputs
-        tuple val(lineage), path("Join/"),                           emit: join_dir
-        path("Join/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.log"),      emit: join_log
-        path("Join/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.tab"),      emit: join_tab
+        tuple val(lineage), path("Join/"),                                                         emit: join_dir
+        path("Join/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.log"),                                emit: join_log
+        path("Join/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.tab"),                                emit: join_tab
 
     script:
 
