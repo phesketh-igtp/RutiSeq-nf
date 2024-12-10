@@ -1,4 +1,6 @@
-
+/*
+    
+*/
 
 //include { CHECK_EXISTING_OUTPUTS }    from '../modules/local/pre-wf-check/check_outputs/main.nf'  
 include { MTBC_READ_QC }              from '../modules/local/pre-wf-check/mtbc-reads-qc/main.nf'
@@ -10,7 +12,7 @@ include { SNP_PROFILING_SINGLE }      from '../modules/local/snp-barcoding/singl
 include { SNP_ANNOTATING_SINGLE }     from '../modules/local/snp-barcoding/single.annotating/main.nf'
 //include { SNP_BARCODING_SINGLE }      from '../modules/local/snp-barcoding/single.barcoding/main.nf'
 
-workflow SINGLE_WORKFLOW {
+workflow SINGLE_WF {
 
         /*
             Define the inputs from main.nf

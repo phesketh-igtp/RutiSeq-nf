@@ -5,7 +5,7 @@ include { MTBSEQ_LINEAGE_SPLITTING }        from '../modules/local/mtbseq/lineag
 include { MTBSEQ_LINEAGE_PAIRWISE }         from '../modules/local/mtbseq/lineage_pairwise/main.nf'
 include { MTBSEQ_LINEAGE_PAIRWISE_GROUP }   from '../modules/local/mtbseq/lineage_pairwise_group/main.nf'
 
-workflow PAIRWISE_WORKFLOW {
+workflow PAIRWISE_WF {
     
     take:
     runID
@@ -25,10 +25,21 @@ workflow PAIRWISE_WORKFLOW {
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${no_color}
         """
 
+        // Create channels from the result paths
+            tbprofiler_tbdb_results     = Channel.fromPath("${params.outdir}/bbdd/tbprofiler/results/*")
+            tbprofiler_who_results      = Channel.fromPath("${params.outdir}/bbdd/tbprofiler/who-only/results/*")
+            mtbseq_called_results       = Channel.fromPath("${params.outdir}/bbdd/mtbseq/samples/*/Called/*.")
+            mtbseq_pos_var_results      = Channel.fromPath("${params.outdir}/bbdd/mtbseq/samples/*/Position_Tables/*")
+
+
         // Compile TB-Profiler results
-        TBPROFILER_COMPILE_TBDB(runID)
-        
-        TBPROFILER_COMPILE_WHO(runID)
+        TBPROFILER_COMPILE_TBDB(runID,
+                                tbprofiler_tbdb_results
+                                )
+
+        TBPROFILER_COMPILE_WHO( runID,
+                                tbprofiler_who_results
+                                )
 
         // Compile stats and classifications from MTBSeq
         MTBSEQ_SAMPLE_FILTER(params.mtbseq.min_cov,
@@ -56,7 +67,10 @@ workflow PAIRWISE_WORKFLOW {
                 .set { mtbseq_paths_ch }
 
         // Split the genomes into lineages based on params.
-        MTBSEQ_LINEAGE_PAIRWISE(runID, mtbseq_paths_ch)
+        MTBSEQ_LINEAGE_PAIRWISE(runID, 
+                                mtbseq_paths_ch,
+                                mtbseq_called_results,
+                                mtbseq_pos_var_results)
 
         MTBSEQ_LINEAGE_PAIRWISE_GROUP(runID, 
                                     MTBSEQ_LINEAGE_PAIRWISE.out,
