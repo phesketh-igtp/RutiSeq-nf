@@ -1,8 +1,8 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-include { SINGLE_WORKFLOW }         from './workflows/single_wf.nf'
-include { PAIRWISE_WORKFLOW }       from './workflows/pairwise_wf.nf'
+include { SINGLE_WORKFLOW }         from '../workflows/single_wf.nf'
+include { PAIRWISE_WORKFLOW }       from '../workflows/pairwise_wf.nf'
 //include { SUMMARY_WORKFLOW }        from './workflows/summary_wf.nf'
 //include { BARCODING_WORKFLOW }      from './workflows/barcoding_wf.nf'
 //include { REMOVE_SAMPLE_WORKFLOW }  from './workflows/remove-sample_wf.nf'
@@ -83,13 +83,11 @@ workflow {
     )
 
     // UNDER DEVELOPMENT!!
-    /*
     PAIRWISE_WORKFLOW(
                     params.runID,
-                    samples_ch,
-                    SINGLE_WORKFLOW.out.handoff
+                    SINGLE_WORKFLOW.out.workflow_outputs
     )
-    */
+
     /*
     //
     SUMMARY_WORKFLOW()

@@ -89,13 +89,21 @@ workflow SINGLE_WORKFLOW {
             snp_profiles_ch = SNP_PROFILING_SINGLE.out.snp_barcoding_individual_vcf
                 .join(SNP_PROFILING_SINGLE.out.snp_barcoding_individual_vcf_index)
             SNP_BARCODING_SINGLE(snp_profiles_ch)
-        
+
+        // Generate summary of paths
+            WF_HANDOVER(
+                        SNP_PROFILING_SINGLE.out,
+                        MTBSEQ_SINGLE.out
+                        TBPROFILER_PROFILE_WHO.out,
+                        TBPROFILER_PROFILE_TBDB.out)
+
         */
 
     emit: 
         // QC reads outputs
             //all_ qc_results                   = qc_results
         // TB-Profiler outputs
+        workflow_outputs = tuple(
             tbprofiler_tbdb_json                = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_json
             tbprofiler_tbdb_txt                 = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_res
             tbprofiler_tbdb_vcf                 = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf
@@ -122,5 +130,6 @@ workflow SINGLE_WORKFLOW {
             snp_profiling_vcf_index             = SNP_PROFILING_SINGLE.out.mtbseq_vcf_index
         // Uncomment the following line if you implement SNP_BARCODING_SINGLE in the future
         // snp_barcoding_results = SNP_BARCODING_SINGLE.out
+            )
             
 }
