@@ -1,6 +1,3 @@
-/*
-    Import modules, sub-workflows, ect
-*/
 include { MTBC_READ_QC }              from '../modules/local/pre-wf-check/mtbc-reads-qc/main.nf'
 include { COMBINE_QC_RESULTS }        from '../modules/local/pre-wf-check/combine-qc-results/main.nf'
 include { TBPROFILER_PROFILE_TBDB }   from '../modules/local/tbprofiler/profile.tbdb/main.nf'
@@ -9,14 +6,11 @@ include { MTBSEQ_SINGLE }             from '../modules/local/mtbseq/single/main.
 include { SNP_PROFILING_SINGLE }      from '../modules/local/snp-barcoding/single.profiling/main.nf'
 include { SNP_ANNOTATING_SINGLE }     from '../modules/local/snp-barcoding/single.annotating/main.nf'
 
-/*
-    Define workflow
-*/
 workflow SINGLE_WF {
 
-        /*
-            Define the inputs from main.nf
-        */
+    /*
+        Define the inputs from main.nf
+    */
 
     take:
         samples_ch
@@ -63,12 +57,6 @@ workflow SINGLE_WF {
         // Explicitly capture the mtbc_reads output
             mtbc_reads_ch = MTBC_READ_QC.out.mtbc_reads
 
-        // Collect all QC outputs into a single file
-        /* This doesnt work - just captures the first output and ignores the rest, also not putting in the MTBseq perc. Will report that later
-        all_qc_results = MTBC_READ_QC.out.qc_out
-            .collectFile(name: 'all_samples_qc.tsv', keepHeader: true, sort: true)
-            */
-
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
             TBPROFILER_PROFILE_TBDB(mtbc_reads_ch,
                                 tbprofiler_db)
@@ -80,62 +68,7 @@ workflow SINGLE_WF {
         // Run MTBSEQ_SINGLE
             MTBSEQ_SINGLE(mtbc_reads_ch)
 
-        //WORK IN PROGRESS::module needs fixing!
         // Run SNP_PROFILING_SINGLE using the mpileup output
             SNP_PROFILING_SINGLE(MTBSEQ_SINGLE.out.mtbseq_mpileup)
 
-        /* WORK IN PROGRESS::module needs to be written! Barcoding BED needs generating!
-        
-        // Filter the SNPs based on Iñaki Comas labs methods ()
-            //SNP_ANNOTATING_SINGLE(SNP_PROFILING_SINGLE.out)
-
-        // Pre-classify genomes using SNP profiles
-            snp_profiles_ch = SNP_PROFILING_SINGLE.out.snp_barcoding_individual_vcf
-                .join(SNP_PROFILING_SINGLE.out.snp_barcoding_individual_vcf_index)
-            SNP_BARCODING_SINGLE(snp_profiles_ch)
-
-        // Generate summary of paths
-            WF_HANDOVER(
-                        SNP_PROFILING_SINGLE.out,
-                        MTBSEQ_SINGLE.out
-                        TBPROFILER_PROFILE_WHO.out,
-                        TBPROFILER_PROFILE_TBDB.out)
-
-        */
-
-    emit:
-        // QC reads outputs
-            //all_ qc_results                   = qc_results
-        // TB-Profiler outputs
-            tbprofiler_tbdb_txt                 = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_res
-            tbprofiler_who_txt                  = TBPROFILER_PROFILE_WHO.out.tbprof_who_txt
-        // MTBseq outputs
-            mtbseq_bam                          = MTBSEQ_SINGLE.out.mtbseq_bam
-            mtbseq_bam_index                    = MTBSEQ_SINGLE.out.mtbseq_bam_index
-            mtbseq_bamlog                       = MTBSEQ_SINGLE.out.mtbseq_bamlog
-            mtbseq_uncovered_positions          = MTBSEQ_SINGLE.out.mtbseq_uncovered_positions
-            mtbseq_variant_positions            = MTBSEQ_SINGLE.out.mtbseq_variant_positions
-            mtbseq_strain_classification        = MTBSEQ_SINGLE.out.mtbseq_strain_classification
-            mtbseq_gatk_bam                     = MTBSEQ_SINGLE.out.mtbseq_gatk_bam
-            mtbseq_gatk_bam_index               = MTBSEQ_SINGLE.out.mtbseq_gatk_bam_index
-            mtbseq_gatk_bamlog                  = MTBSEQ_SINGLE.out.mtbseq_gatk_bamlog
-            mtbseq_gatk_grp                     = MTBSEQ_SINGLE.out.mtbseq_gatk_grp
-            mtbseq_gatk_intervals               = MTBSEQ_SINGLE.out.mtbseq_gatk_intervals
-            mtbseq_mpileup                      = MTBSEQ_SINGLE.out.mtbseq_mpileup
-            mtbseq_mpileuplog                   = MTBSEQ_SINGLE.out.mtbseq_mpileuplog
-            mtbseq_position_table               = MTBSEQ_SINGLE.out.mtbseq_position_table
-            mtbseq_mapping_variant_statistics   = MTBSEQ_SINGLE.out.mtbseq_mapping_variant_statistics
-        // SNP Profiling outputs
-            snp_profiling_vcf                   = SNP_PROFILING_SINGLE.out.mtbseq_vcf
-            snp_profiling_vcf_index             = SNP_PROFILING_SINGLE.out.mtbseq_vcf_index
-        // Uncomment the following line if you implement SNP_BARCODING_SINGLE in the future
-        // snp_barcoding_results = SNP_BARCODING_SINGLE.out
-        workflow_outputs = tuple(
-                        TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_res,
-                        TBPROFILER_PROFILE_WHO.out.tbprof_who_txt,
-                        MTBSEQ_SINGLE.out.mtbseq_strain_classification,
-                        MTBSEQ_SINGLE.out.mtbseq_mapping_variant_statistics,
-                        SNP_PROFILING_SINGLE.out.mtbseq_vcf,
-                        SNP_PROFILING_SINGLE.out.mtbseq_vcf_index
-                                )
 }
