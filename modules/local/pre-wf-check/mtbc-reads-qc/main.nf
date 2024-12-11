@@ -29,18 +29,6 @@ process MTBC_READ_QC {
     def additional_args_kaiju2table = task.ext.additional_args_kaiju2table ?: ''
 
     """
-    # Check if output files already exist
-    if [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Classification/Strain_Classification.tab" ] && \\
-        [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Statistics/Mapping_and_Variant_Statistics.tab" ] && \\
-        [ -f "${params.outdir}/bbdd/tbprofiler/results/${sampleID}.results.txt" ] && \\
-        [ -f "${params.outdir}/bbdd/tbprofiler/who-only/results/${sampleID}.results.txt" ] && \\
-        [ -f "${params.outdir}/bbdd/read-qc/${sampleID}.kaiju_summary.tsv" ]; then
-        echo "Output files already exist for ${sampleID}. Skipping processing."
-        exit 0
-    fi
-
-    # If files don't exist, proceed with the script
-
     grep 'Mycobacterium tuberculosis ' ${kaiju_names} | cut -f1 | sort | uniq > MTBC.list
 
     seqkit stats -abT -j ${task.cpus} ${forward} | sed "1d" > tmp.stats.r1.orig

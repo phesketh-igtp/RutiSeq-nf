@@ -57,6 +57,8 @@ workflow SINGLE_WF {
         // Explicitly capture the mtbc_reads output
             mtbc_reads_ch = MTBC_READ_QC.out.mtbc_reads
 
+            mtbc_reads_ch.view()
+
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
             TBPROFILER_PROFILE_TBDB(mtbc_reads_ch,
                                     tbprofiler_db)
