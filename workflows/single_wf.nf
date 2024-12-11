@@ -17,7 +17,8 @@ workflow SINGLE_WF {
         kaiju_names
         kaiju_nodes
         kaiju_fmi
-        tbprofiler_db
+        tbprofiler_tbdb
+        tbprofiler_who
 
     main:
 
@@ -60,11 +61,9 @@ workflow SINGLE_WF {
             mtbc_reads_ch.view()
 
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
-            TBPROFILER_PROFILE_TBDB(mtbc_reads_ch,
-                                    tbprofiler_db)
+            TBPROFILER_PROFILE_TBDB(mtbc_reads_ch, tbprofiler_tbdb)
 
-            TBPROFILER_PROFILE_WHO(mtbc_reads_ch, 
-                                    tbprofiler_db)
+            TBPROFILER_PROFILE_WHO(mtbc_reads_ch, tbprofiler_who)
     
         // Run MTBSEQ_SINGLE
             MTBSEQ_SINGLE(mtbc_reads_ch)

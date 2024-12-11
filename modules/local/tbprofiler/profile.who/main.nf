@@ -12,7 +12,7 @@ process TBPROFILER_PROFILE_WHO {
 
     input:
         tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse)
-        path(tbprofiler_db)
+        path tbprofiler_who
 
     output:
         path "results/${sampleID}.results.txt",     emit: who_out
@@ -32,7 +32,7 @@ process TBPROFILER_PROFILE_WHO {
         -2 ${mtbc_reverse} \\
         -p ${sampleID} \\
         --txt --dir . \\
-        --db ${tbprofiler_db}/who \\
+        --db ${tbprofiler_who} \\
         --threads ${task.cpus} \\
         ${additional_args}
 

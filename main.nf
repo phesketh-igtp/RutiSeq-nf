@@ -87,7 +87,8 @@ workflow {
                 file(params.kaiju_names),
                 file(params.kaiju_nodes),
                 file(params.kaiju_fmi),
-                file(params.tbprofiler_db)
+                file(params.tbprofiler_tbdb),
+                file(params.tbprofiler_who)
                     )
 
         // Collect and parse the pairwise samples into the desired structure

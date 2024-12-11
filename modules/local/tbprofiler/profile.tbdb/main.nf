@@ -12,11 +12,11 @@ process TBPROFILER_PROFILE_TBDB {
 
     input:
         tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse)
-        path(tbprofiler_db)
+        path tbprofiler_tbdb
 
     output:
         tuple val(sampleID), path("bam/${sampleID}.bam")
-        tuple val(sampleID), path("vcf/${sampleID}.targets.vcf.gz")
+        tuple val(sampleID), path("vcf/${sampleID}.targets.vcf.gz"),    emit: tbdb_vcf
         tuple val(sampleID), path("results/${sampleID}.results.txt"),   emit: tbdb_out
         tuple val(sampleID), path("results/${sampleID}.results.json")
 
@@ -29,7 +29,7 @@ process TBPROFILER_PROFILE_TBDB {
         -2 ${mtbc_reverse} \\
         -p ${sampleID} \\
         --txt --dir . \\
-        --db ${tbprofiler_db}/tbdb \\
+        --db ${tbprofiler_tbdb} \\
         --threads ${task.cpus} \\
         ${additional_args}
 
