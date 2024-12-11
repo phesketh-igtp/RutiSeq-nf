@@ -2,9 +2,11 @@ process SNP_ANNOTATING_SINGLE {
 
     tag "$sampleID"
 
-    conda { file("/imppc/labs/emlab/phesketh/miniconda3/envs/snp-profiling").exists() ? "/imppc/labs/emlab/phesketh/miniconda3/envs/snp-profiling" : "./modules/local/snp-barcoding/snp-profiling.yml" }
+    conda 'bioconda::bcftools==1.21 bioconda::varscan==2.4.6 bioconda::snpeff==5.2'
 
-    //container 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/f7/f7b4d880135db1027c7b0ead23ae6464da73fc498f84b2462ff36af4ac0f198b/data'
+    container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/5e/5e1dc9586886df729616e7af235efe76cc2d31b5fa2a6afe0b0656efee6d983a/data'
+            } else { 'community.wave.seqera.io/library/bcftools_snpeff_varscan_vcftools:3fa84761d1a9bed3' }
+    }
 
     publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/", mode: 'copy'
 

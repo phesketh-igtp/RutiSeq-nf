@@ -2,9 +2,11 @@ process MTBC_READ_QC {
     
     tag "$sampleID"
     
-    conda { file("/imppc/labs/emlab/phesketh/miniconda3/envs/kaiju").exists() ? "/imppc/labs/emlab/phesketh/miniconda3/envs/kaiju" : "../modules/local/pre-wf-check/mtbc-reads-qc/kaiju.yml" }
-    
-    //container 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/0f/0f00cd356ee92f5211e5941beeb4bcab6abfb341e0e5fa7ace8c043406c13381/data'
+    conda 'bioconda::kaiju==1.10.1 bioconda::seqkit==2.9.0'
+
+    container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/0f/0f00cd356ee92f5211e5941beeb4bcab6abfb341e0e5fa7ace8c043406c13381/data'
+        } else { 'community.wave.seqera.io/library/kaiju_seqkit:6e4140ab47bd567e' }
+    }
 
     publishDir "${params.outdir}/bbdd/read-qc", mode: 'link'
 
@@ -15,22 +17,34 @@ process MTBC_READ_QC {
         path kaiju_fmi
 
     output:
-    tuple val(sampleID), 
+        tuple val(sampleID), 
             path("mtbc_reads/${sampleID}_R1.fastq.gz"), 
-            path("mtbc_reads/${sampleID}_R2.fastq.gz"),         emit: mtbc_reads
-    tuple val(sampleID), path("${sampleID}.qc.out"),            emit: qc_results
-    path("${sampleID}.kaiju.out")
-    path("${sampleID}.kaiju_summary.tsv")
+            path("mtbc_reads/${sampleID}_R2.fastq.gz"),         emit: mtbc_reads, optional: true
+        tuple val(sampleID), path("${sampleID}.qc.out"),          emit: qc_results, optional: true
+        path("${sampleID}.kaiju.out"), optional: true
+        path("${sampleID}.kaiju_summary.tsv"), optional: true
 
     script:
-    def additional_args_kaiju = task.ext.additional_args_kaiju ?: '' // defined in the nextflow.config file
-    def additional_args_kaiju2table = task.ext.additional_args_kaiju2table ?: '' // defined in the nextflow.config file
+    def additional_args_kaiju = task.ext.additional_args_kaiju ?: ''
+    def additional_args_kaiju2table = task.ext.additional_args_kaiju2table ?: ''
 
     """
+    # Check if output files already exist
+    if [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Classification/Strain_Classification.tab" ] && \\
+        [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Statistics/Mapping_and_Variant_Statistics.tab" ] && \\
+        [ -f "${params.outdir}/bbdd/tbprofiler/results/${sampleID}.results.txt" ] && \\
+        [ -f "${params.outdir}/bbdd/tbprofiler/who-only/results/${sampleID}.results.txt" ] && \\
+        [ -f "${params.outdir}/bbdd/read-qc/${sampleID}.kaiju_summary.tsv" ]; then
+        echo "Output files already exist for ${sampleID}. Skipping processing."
+        exit 0
+    fi
+
+    # If files don't exist, proceed with the script
+
     grep 'Mycobacterium tuberculosis ' ${kaiju_names} | cut -f1 | sort | uniq > MTBC.list
 
-    seqkit stats -abT -j ${task.cpus} ${forward} | sed '1d' > tmp.stats.r1.orig
-    seqkit stats -abT -j ${task.cpus} ${reverse} | sed '1d' > tmp.stats.r2.orig
+    seqkit stats -abT -j ${task.cpus} ${forward} | sed "1d" > tmp.stats.r1.orig
+    seqkit stats -abT -j ${task.cpus} ${reverse} | sed "1d" > tmp.stats.r2.orig
 
     cut -f4 tmp.stats.r1.orig > tmp.r1_num; cut -f17 tmp.stats.r1.orig > tmp.r1_qual
     cut -f4 tmp.stats.r2.orig > tmp.r2_num; cut -f17 tmp.stats.r2.orig > tmp.r2_qual
@@ -50,10 +64,10 @@ process MTBC_READ_QC {
 
     mkdir -p mtbc_reads/
     seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${forward} -o mtbc_reads/${sampleID}_R1.fastq.gz
-    seqkit stats -abT -j ${task.cpus} mtbc_reads/${sampleID}_R1.fastq.gz | sed '1d' > tmp.stats.r1.filt
+    seqkit stats -abT -j ${task.cpus} mtbc_reads/${sampleID}_R1.fastq.gz | sed "1d" > tmp.stats.r1.filt
 
     seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${reverse} -o mtbc_reads/${sampleID}_R2.fastq.gz
-    seqkit stats -abT -j ${task.cpus} mtbc_reads/${sampleID}_R2.fastq.gz | sed '1d' > tmp.stats.r2.filt
+    seqkit stats -abT -j ${task.cpus} mtbc_reads/${sampleID}_R2.fastq.gz | sed "1d" > tmp.stats.r2.filt
 
     cut -f4 tmp.stats.r1.filt > tmp.r1_num.filt ; cut -f17 tmp.stats.r1.filt > tmp.r1_qual.filt
     cut -f4 tmp.stats.r2.filt > tmp.r2_num.filt ; cut -f17 tmp.stats.r2.filt > tmp.r2_qual.filt    
@@ -76,7 +90,5 @@ process MTBC_READ_QC {
 
     # Clean up temporary files
     rm tmp.*
-    
     """
-
 }

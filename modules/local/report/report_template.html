@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Report</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .figure { max-width: 100%; height: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Analysis Report for ${runID}</h1>
+
+    Generated on ${YYMMDD}
+    
+    <h3>RutiSeq BBDD contents</h3>
+<table id="Summary of data" class="display">
+    <thead>
+        <tr>
+            <th>run ID</th>
+            <th>No. genomes</th>
+            <th>No. reads</th>
+            <th>No. bases</th>
+            <th>Data (Gb)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% 
+        def totalGenomes = 0
+        def totalReads = 0
+        def totalBases = 0
+        def totalGiga = 0
+        geneExpressionData.each { gene -> 
+        totalGenomes += gene.genomes
+        totalReads += gene.reads
+        totalBases += gene.bases
+        totalGiga += gene.giga
+        %>
+        <tr>
+            <td>${gene.runID}</td>
+            <td>${gene.genomes}</td>
+            <td>${gene.reads}</td>
+            <td>${gene.bases}</td>
+            <td>${gene.giga}</td>
+        </tr>
+        <% } %>
+    </tbody>
+    <tfoot>
+        <tr>
+            <th>Total</th>
+            <th>${totalGenomes}</th>
+            <th>${totalReads}</th>
+            <th>${totalBases}</th>
+            <th>${totalGiga}</th>
+        </tr>
+    </tfoot>
+</table>
+
+<script>
+    $(document).ready(function() {
+        $('#Summary of data').DataTable({
+            pageLength: 25,
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ],
+            "footerCallback": function ( row, data, start, end, display ) {
+                var api = this.api(), data;
+    
+                // Remove the formatting to get integer data for summation
+                var intVal = function ( i ) {
+                    return typeof i === 'string' ?
+                        i.replace(/[\$,]/g, '')*1 :
+                        typeof i === 'number' ?
+                            i : 0;
+                };
+    
+                // Total over all pages
+                for (var i = 1; i <= 4; i++) {
+                    total = api
+                        .column( i )
+                        .data()
+                        .reduce( function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0 );
+    
+                    // Update footer
+                    $( api.column( i ).footer() ).html(total);
+                }
+            }
+        });
+    });
+</script>
+
+        <h3>Read quality control</h3>
+
+    <h2>Analysis Results</h2>
+    <img src="data:image/png;base64,${qualityScorePlot}" alt="Quality Score Distribution" class="figure">
+    
+    <h2>Gene Expression Data</h2>
+    <table id="geneExpressionTable" class="display">
+        <thead>
+            <tr>
+                <th>Gene</th>
+                <th>Expression</th>
+                <th>Chromosome</th>
+                <th>Function</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% geneExpressionData.each { gene -> %>
+            <tr>
+                <td>${gene.name}</td>
+                <td>${gene.expression}</td>
+                <td>${gene.chromosome}</td>
+                <td>${gene.function}</td>
+            </tr>
+            <% } %>
+        </tbody>
+    </table>
+
+    <script>
+        \$(document).ready(function() {
+            \$('#geneExpressionTable').DataTable({
+                pageLength: 25,
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ]
+            });
+        });
+    </script>
+</body>
+</html>

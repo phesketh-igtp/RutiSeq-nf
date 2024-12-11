@@ -1,13 +1,15 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-include { SINGLE_WORKFLOW }         from './workflows/single_wf.nf'
-include { PAIRWISE_WORKFLOW }       from './workflows/pairwise_wf.nf'
+include { SINGLE_WF }               from './workflows/single_wf.nf'
+include { PAIRWISE_WF }             from './workflows/pairwise_wf.nf'
+include { FILE_CHECK }              from './modules/local/file-checks/main.nf'
 //include { SUMMARY_WORKFLOW }        from './workflows/summary_wf.nf'
 //include { BARCODING_WORKFLOW }      from './workflows/barcoding_wf.nf'
 //include { REMOVE_SAMPLE_WORKFLOW }  from './workflows/remove-sample_wf.nf'
 
 workflow {
+    
     def color_purple = '\u001B[35m'
     def color_green = '\u001B[32m'
     def color_red = '\u001B[31m'
@@ -55,41 +57,140 @@ workflow {
         }   
     */ 
 
-        // Create channel from sample sheet
-    Channel
-        .fromPath(params.samplesheet)
-        .splitCsv(header: true, sep: ',')
-        .map { row ->
-            if (row.sampleID == null || row.forward_path == null || row.reverse_path == null) {
-                error "Missing required column in samplesheet: ${row}"
+    // Create channel from sample sheet
+        Channel
+            .fromPath(params.samplesheet)
+            .splitCsv(header: true, sep: ',')
+            .map { row ->
+                if (row.sampleID == null || row.forward_path == null || row.reverse_path == null) {
+                    error "Missing required column in samplesheet: ${row}"
+                }
+                tuple(row.sampleID, file(row.forward_path, checkIfExists: true), file(row.reverse_path, checkIfExists: true))
             }
-            tuple(row.sampleID, file(row.forward_path, checkIfExists: true), file(row.reverse_path, checkIfExists: true))
-        }
-        .set { samples_ch }
+            .set { samples_ch }
 
+/*
     // Report the samples part of the samplesheet
         log.info "${color_purple}Input samples:${color_reset}"
         samples_ch.view { sampleID, forward, reverse ->
             "${color_red}Sample: ${color_green}$sampleID${color_red} | Forward: ${color_green}$forward${color_red} | Reverse: ${color_green}$reverse${color_reset}"
         }
+*/
 
-    // Call the SINGLE_WORKFLOW
-    SINGLE_WORKFLOW(
-        samples_ch, 
-        file(params.kaiju_names),
-        file(params.kaiju_nodes),
-        file(params.kaiju_fmi),
-        file(params.tbprofiler_db)
-    )
+    // Run FILE_CHECK process
+        FILE_CHECK(samples_ch)
 
-    // UNDER DEVELOPMENT!!
-    /*
-    PAIRWISE_WORKFLOW(
-                    params.runID,
-                    samples_ch,
-                    SINGLE_WORKFLOW.out.handoff
-    )
-    */
+        // Collect and parse the pairwise samples into the desired structure
+        single_samples = FILE_CHECK.out.single_input
+                                        .collectFile(name: 'all_single_samples.txt', newLine: true)
+
+        single_samples
+            .splitCsv()
+            .map { row -> 
+                def (forward, reverse) = row
+                def sampleID = forward.tokenize('/')[-1].split('_')[0]  // Assuming sampleID is the first part of the filename
+                tuple(sampleID, 
+                    file(forward, checkIfExists: true), 
+                    file(reverse, checkIfExists: true))
+            }
+            .set { single_samples_ch }
+
+        // Call the SINGLE_WORKFLOW only for samples missing files
+        SINGLE_WF(
+            single_samples_ch, 
+            file(params.kaiju_names),
+            file(params.kaiju_nodes),
+            file(params.kaiju_fmi),
+            file(params.tbprofiler_db)
+        )
+
+
+        // Collect and parse the pairwise samples into the desired structure
+        pairwise_samples = FILE_CHECK.out.pairwise_input
+                                        .collectFile(name: 'all_pairwise_samples.txt', newLine: true)
+
+            // Parse the pairwise samples into the desired structure
+            pairwise_samples
+                .splitCsv()
+                .map { row -> 
+                    def (sampleID,mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out) = row
+                    tuple(sampleID, 
+                        file(mtbseq_class),
+                        file(mtbseq_stats),
+                        file(mtbseq_pos),
+                        file(mtbseq_vars),
+                        file(tbdb_out),
+                        file(who_out))
+                }
+                .set { pairwise_samples_ch }
+
+        // Extract sampleIDs from pairwise_samples_ch
+            pairwise_sampleIDs = pairwise_samples_ch.map { it[0] }.collect()
+
+        // Check if all samples from samples_ch are in pairwise_samples_ch
+        // this will give a simple true/false print
+            all_samples_pairwise = samples_ch
+                .map { it[0] }  // Extract sampleID from samples_ch
+                .collect()
+                .map { samples -> 
+                    pairwise_sampleIDs.val.containsAll(samples)
+                }
+    
+        // Use a conditional workflow execution
+            all_samples_pairwise
+                .filter { it }  // Only proceed if true
+                .ifEmpty { log.warn "Not all samples have SINGLE workflow results needed for pairwise analysis. Skipping PAIRWISE_WF." }
+                .map { 
+                    println "Proceeding with PAIRWISE analysis"
+                    return [pairwise_samples_ch]
+                }
+                .set { pairwise_input }
+
+            PAIRWISE_WF(params.runID, pairwise_input)
+
+}
+
+/*
+
+
+*/
+        // Now you can access each file type separately
+        ///parsed_pairwise_samples.strain_classification.view { "Strain Classification: $it" }
+        ///parsed_pairwise_samples.mapping_statistics.view { "Mapping Statistics: $it" }
+        ///parsed_pairwise_samples.position_table.view { "Position Table: $it" }
+        ///parsed_pairwise_samples.variant_table.view { "Variant Table: $it" }
+        ///parsed_pairwise_samples.tbprofiler_results.view { "TB Profiler Results: $it" }
+        ///parsed_pairwise_samples.tbprofiler_who_results.view { "TB Profiler WHO Results: $it" }
+
+        // For single samples, you can split them into forward and reverse reads if needed
+
+/*
+    // Collect all pairwise samples
+        pairwise_samples = FILE_CHECK.out.pairwise_input.collect()
+
+    // Process pairwise samples
+        pairwise_input = pairwise_samples
+            .filter { it.size() > 0 }
+            .map { samples -> 
+                def all_files = samples.flatten()
+                return all_files
+            }
+
+    // Log pairwise input
+        pairwise_input.subscribe { files ->
+            log.info "Pairwise input files: $files"
+        }
+
+
+    // Call PAIRWISE_WF only if there are pairwise samples
+        pairwise_input
+            .filter { it.size() > 0 }
+            .ifEmpty { log.warn "No pairwise samples found. Skipping PAIRWISE_WF." }
+            .set { final_pairwise_input }
+
+        PAIRWISE_WF(params.runID, final_pairwise_input)
+        */
+
     /*
     //
     SUMMARY_WORKFLOW()
@@ -110,5 +211,3 @@ workflow {
         .set { remove_ch }
     REMOVE_SAMPLE_WORKFLOW(remove_ch)
     */
-
-}

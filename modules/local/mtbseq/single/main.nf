@@ -2,10 +2,12 @@ process MTBSEQ_SINGLE {
 
     tag "$sampleID"
 
-    conda { file("/imppc/labs/emlab/phesketh/miniconda3/envs/mtbseq").exists() ? "/imppc/labs/emlab/phesketh/miniconda3/envs/mtbseq" : "./modules/local/mtbseq/mtbseq.yml" }
+    conda "bioconda::mtbseq=1.1.0"
 
-    //container "https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data"
-
+    container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data'
+            } else { 'quay.io/biocontainers/mtbseq' }
+    }
+    
     publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}", mode: 'copy'
 
     input:
@@ -27,7 +29,6 @@ process MTBSEQ_SINGLE {
         tuple val(sampleID), path("Mpileup/${sampleID}.gatk.mpileuplog"),                   emit: mtbseq_mpileuplog
         tuple val(sampleID), path("Position_Tables/${sampleID}.gatk_position_table.tab"),   emit: mtbseq_position_table
         tuple val(sampleID), path("Statistics/Mapping_and_Variant_Statistics.tab"),         emit: mtbseq_mapping_variant_statistics
-        path("MTBseq_*_.log")
 
     script:
     
@@ -38,20 +39,12 @@ process MTBSEQ_SINGLE {
     # Run MTBseq for a single sample
     MTBseq --step TBfull \\
         --thread ${task.cpus} \\
-        --prefix ${sampleID} \\
         ${additional_args} \\
         1>>.command.out \\
-        2>>.command.err \\
-        || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
+        2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
+
+    ## --prefix ${sampleID} \\
 
     """
-
-    stub:
-    """
-    mkdir -p Amend Position_Tables Classification Statistics Called
-    touch Statistics/Mapping_and_Variant_Statistics.tab
-    touch Classification/Strain_Classification.tab
-    touch Called/gatk_position_variants.tab
-    touch Position_Tables/gatk_position_table.tab
-    """
+    
 }

@@ -1,4 +1,6 @@
-include { CHECK_EXISTING_OUTPUTS }    from '../modules/local/pre-wf-check/check_outputs/main.nf'  
+/*
+    Import modules, sub-workflows, ect
+*/
 include { MTBC_READ_QC }              from '../modules/local/pre-wf-check/mtbc-reads-qc/main.nf'
 include { COMBINE_QC_RESULTS }        from '../modules/local/pre-wf-check/combine-qc-results/main.nf'
 include { TBPROFILER_PROFILE_TBDB }   from '../modules/local/tbprofiler/profile.tbdb/main.nf'
@@ -6,9 +8,11 @@ include { TBPROFILER_PROFILE_WHO }    from '../modules/local/tbprofiler/profile.
 include { MTBSEQ_SINGLE }             from '../modules/local/mtbseq/single/main.nf'
 include { SNP_PROFILING_SINGLE }      from '../modules/local/snp-barcoding/single.profiling/main.nf'
 include { SNP_ANNOTATING_SINGLE }     from '../modules/local/snp-barcoding/single.annotating/main.nf'
-//include { SNP_BARCODING_SINGLE }      from '../modules/local/snp-barcoding/single.barcoding/main.nf'
 
-workflow SINGLE_WORKFLOW {
+/*
+    Define workflow
+*/
+workflow SINGLE_WF {
 
         /*
             Define the inputs from main.nf
@@ -37,48 +41,21 @@ workflow SINGLE_WORKFLOW {
         ${color_purple}
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
+        2024-12-09
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${no_color}
-        """
-
-        /*
-            Commence main workflow
-        */
-        
-       // Run CHECK_EXISTING_OUTPUTS on all samples
-            check_results_ch = CHECK_EXISTING_OUTPUTS(samples_ch)
-
-        // Log the check results
-            check_results_ch.view { sampleID, forward, reverse, all_outputs_exist ->
-            "${color_red}Inspect RutiSeq-BBDD | Sample: ${color_cyan}$sampleID${color_red} | In BBDD?: ${color_cyan}$all_outputs_exist${no_color}"
-            }
-
-        // Filter the samples based on the check results
-        //// (in future might want to split this into the individual process: tbprof and mtbseq)
-            filtered_samples_ch = check_results_ch
-                .filter { sampleID, forward, reverse, all_outputs_exist -> all_outputs_exist == 'false' }
-                .map { sampleID, forward, reverse, all_outputs_exist -> tuple(sampleID, forward, reverse) }
-
-        // Count the filtered samples and set as total_samples
-            filtered_samples_ch
-                .count()
-                .set { total_samples }
-
-        // View the count
-            total_samples.view { count -> 
-                "${color_red}Number of samples being analyzed: ${color_cyan}$count${no_color}" 
-            }
+        """          
 
         // Run MTBC_READ_QC on filtered samples
-            MTBC_READ_QC(filtered_samples_ch,
+            MTBC_READ_QC(samples_ch,
                         kaiju_names,
                         kaiju_nodes,
                         kaiju_fmi
                         )
 
-            // Collect all QC results
+        // Collect all QC results
             all_qc_results = MTBC_READ_QC.out.qc_results.map { it[1] }.collect()
 
-            // Combine QC results : NEEDS REPAIRING
+        // Combine QC results : NEEDS REPAIRING
             COMBINE_QC_RESULTS( // produce TSV of read QC results
                             all_qc_results, 
                             params.runID)
@@ -116,34 +93,21 @@ workflow SINGLE_WORKFLOW {
             snp_profiles_ch = SNP_PROFILING_SINGLE.out.snp_barcoding_individual_vcf
                 .join(SNP_PROFILING_SINGLE.out.snp_barcoding_individual_vcf_index)
             SNP_BARCODING_SINGLE(snp_profiles_ch)
-        
+
+        // Generate summary of paths
+            WF_HANDOVER(
+                        SNP_PROFILING_SINGLE.out,
+                        MTBSEQ_SINGLE.out
+                        TBPROFILER_PROFILE_WHO.out,
+                        TBPROFILER_PROFILE_TBDB.out)
+
         */
 
-        // Generate a progress log of the number of genomes that have completed the analysis
-        // need to change it to the last output channels if the module changes
-        SNP_PROFILING_SINGLE.out.mtbseq_vcf
-            .ifEmpty { log.warn "${color_red}No samples completed SNP profiling.${no_color}"; return Channel.of(0) }
-            .map { it -> 1 }
-            .sum()
-            .set { completed_samples }
-
-        // Create progress log
-        completed_samples
-            .combine(total_samples)
-            .ifEmpty { log.warn "${color_red}Unable to generate progress log.${no_color}"; return }
-            .subscribe { completed, total ->
-                log.info "${color_red}Progress: ${color_cyan}$completed ${color_red}/ ${color_cyan}$total ${color_red}samples completed${no_color}"
-            }
-
-    emit: 
-        handoff                                 = completed_samples
+    emit:
         // QC reads outputs
             //all_ qc_results                   = qc_results
         // TB-Profiler outputs
-            tbprofiler_tbdb_json                = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_json
             tbprofiler_tbdb_txt                 = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_res
-            tbprofiler_tbdb_vcf                 = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf
-            tbprofiler_who_json                 = TBPROFILER_PROFILE_WHO.out.tbprof_who_json
             tbprofiler_who_txt                  = TBPROFILER_PROFILE_WHO.out.tbprof_who_txt
         // MTBseq outputs
             mtbseq_bam                          = MTBSEQ_SINGLE.out.mtbseq_bam
@@ -166,5 +130,12 @@ workflow SINGLE_WORKFLOW {
             snp_profiling_vcf_index             = SNP_PROFILING_SINGLE.out.mtbseq_vcf_index
         // Uncomment the following line if you implement SNP_BARCODING_SINGLE in the future
         // snp_barcoding_results = SNP_BARCODING_SINGLE.out
-
+        workflow_outputs = tuple(
+                        TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_res,
+                        TBPROFILER_PROFILE_WHO.out.tbprof_who_txt,
+                        MTBSEQ_SINGLE.out.mtbseq_strain_classification,
+                        MTBSEQ_SINGLE.out.mtbseq_mapping_variant_statistics,
+                        SNP_PROFILING_SINGLE.out.mtbseq_vcf,
+                        SNP_PROFILING_SINGLE.out.mtbseq_vcf_index
+                                )
 }
