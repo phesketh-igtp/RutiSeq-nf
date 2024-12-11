@@ -10,7 +10,7 @@ workflow PAIRWISE_WF {
     
     take:
         runID
-        pairwise_input // This will be a flattened list of all files for all samples
+        pairwise_input_ch // This will be a flattened list of all files for all samples
     
     main:
         def color_purple = '\u001B[35m'
@@ -26,28 +26,32 @@ workflow PAIRWISE_WF {
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${no_color}
         """
 
-        // Group files by type
-            def strain_classifications = pairwise_input.findAll { it.toString().contains("Strain_Classification.tab") }
-            def mapping_statistics = pairwise_input.findAll { it.toString().contains("Mapping_and_Variant_Statistics.tab") }
-            def position_tables = pairwise_input.findAll { it.toString().contains("Position_Table/") }
-            def variant_tables = pairwise_input.findAll { it.toString().contains("Called/") }
-            def tbprofiler_results = pairwise_input.findAll { it.toString().contains("tbprofiler/results") }
-            def tbprofiler_who_results = pairwise_input.findAll { it.toString().contains("tbprofiler/who-only/results") }
-
-        strain_classifications.view()
-        mapping_statistics.view()
-
+        // Create channels of just the necessary outputs contained within the tuple
+            mtbseq_stats_files = pairwise_input_ch.map { tuple ->
+                    def (sampleID, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
+                    return mtbseq_stats}.collect()
+            mtbseq_class_files = pairwise_input_ch.map { tuple ->
+                    def (sampleID, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
+                    return mtbseq_class}.collect()
+            tbdb_out_files = pairwise_input_ch.map { tuple ->
+                    def (sampleID, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
+                    return tbdb_out}.collect()
+            who_out_files = pairwise_input_ch.map { tuple ->
+                    def (sampleID, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
+                    return mtbseq_class
+                    }.collect()
+        
         // Compile TB-Profiler results
-            TBPROFILER_COMPILE_TBDB(runID, tbprofiler_results)
+            TBPROFILER_COMPILE_TBDB(runID, tbdb_out_files)
                 TBPROFILER_COMPILE_TBDB.out.sample_lineage
                     .splitCsv(sep: '\t')
                     .map { sampleID, lineage -> [sampleID, lineage] }
                     .set { ch_sample_lineage }
 
-            TBPROFILER_COMPILE_WHO(runID, tbprofiler_who_results)
+            TBPROFILER_COMPILE_WHO(runID, who_out_files)
 
         // Compile stats and classifications from MTBSeq
-            MTBSEQ_STATS_COMPILE(runID, strain_classifications, mapping_statistics)
+            MTBSEQ_STATS_COMPILE(runID, mtbseq_stats_files, mtbseq_class_files)
                 MTBSEQ_STATS_COMPILE.out.sample_coverage
                     .splitCsv(sep: '\t')
                     .map { sampleID, coverage -> [sampleID, coverage] }
@@ -60,30 +64,5 @@ workflow PAIRWISE_WF {
 
             // View the merged channel (optional)
             merged_channel.view()
-
-        /*
-            // Filter the merged channel based on coverage
-            filtered_channel = merged_channel.filter { tuple ->
-                // Assuming coverage is the third element (index 2) in the tuple
-                // Adjust this index if the coverage is at a different position
-                def coverage = tuple[2]
-                coverage >= params.mtbseq_min_cov}
-
-
-        // Filter the pairwise_input to include only genomes with the minimum coverage (params.mtbseq.min_cov)
-        // and add the lineage to the tuple for splitting afterwards
-
-                // Prepare input for MTBSEQ_SAMPLE_FILTER
-                def mtbseq_sample_tables = position_tables.combine(variant_tables, by: 0)
-                    .map { sampleID, position_table, variant_table -> 
-                        tuple(sampleID, position_table, variant_table)
-                    }
-
-            MTBSEQ_SAMPLE_FILTER(runID, 
-                                params.mtbseq.min_cov, params.lineage_pairwise
-                                mtbseq_sample_tables,
-                                MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_map_stats,
-                                TBPROFILER_COMPILE_TBDB.out.tbprofile_tdb_compile)
-        */
 
 }

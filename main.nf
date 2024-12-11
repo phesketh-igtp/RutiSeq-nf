@@ -65,42 +65,38 @@ workflow {
             }
 
         // Check if the genome has previously been analyzed
-        FILE_CHECK(samples_ch)
-
-        FILE_CHECK.out.single_input.view()
+            FILE_CHECK(samples_ch)
 
         // Collect and parse the pairwise samples into the desired structure
-        single_samples = FILE_CHECK.out.single_input
-                                        .collectFile(name: 'all_single_samples.txt', newLine: true)
-        single_samples.view()                                
+            single_samples = FILE_CHECK.out.single_input
+                                            .collectFile(name: 'all_single_samples.txt', newLine: true)
 
-        single_samples
-            .splitCsv()
-            .map { row -> 
-                def (sampleID, forward, reverse) = row
-                tuple(sampleID, 
-                    file(forward, checkIfExists: true), 
-                    file(reverse, checkIfExists: true))
-            }
-            .set { single_samples_ch }
-
-        single_samples_ch.view()
+            single_samples
+                .splitCsv()
+                .map { row -> 
+                    def (sampleID, forward, reverse) = row
+                    tuple(sampleID, 
+                        file(forward, checkIfExists: true), 
+                        file(reverse, checkIfExists: true))
+                }
+                .set { single_samples_ch }
 
         // Call the SINGLE_WORKFLOW only for samples missing files
-        SINGLE_WF(
-            single_samples_ch, 
-            file(params.kaiju_names),
-            file(params.kaiju_nodes),
-            file(params.kaiju_fmi),
-            file(params.tbprofiler_db)
-                )
+            SINGLE_WF(
+                single_samples_ch, 
+                file(params.kaiju_names),
+                file(params.kaiju_nodes),
+                file(params.kaiju_fmi),
+                file(params.tbprofiler_db)
+                    )
 
-        
         // Collect and parse the pairwise samples into the desired structure
-        pairwise_samples = FILE_CHECK.out.pairwise_input
+            pairwise_samples = FILE_CHECK.out.pairwise_input
                                         .collectFile(name: 'all_pairwise_samples.txt', newLine: true)
 
-            // Parse the pairwise samples into the desired structure
+            pairwise_samples.view()
+
+        // Parse the pairwise samples into the desired structure
             pairwise_samples
                 .splitCsv()
                 .map { row -> 
@@ -115,31 +111,29 @@ workflow {
                         file(mtbseq_vcf))
                 }
                 .set { pairwise_samples_ch }
-        
-        pairwise_samples.view()
 
-        // Create a merged channel that has all the paths for the outputs needed for the pairwise analysis
-        // since the wf will wait for the output from SINGLE_WF, this is how im thinking i get around
-        // the expanding BBDD issue and how nextflow isnt really intended for this kind of processes.
-        // When merging the WFs, this channel will be emitted and fed into the pairwise workflow
-        pairwise_input_channel = pairwise_samples_ch
-            .mix(SINGLE_WF.out.analyzed_single_samples_ch.map { sampleID, files ->
-                tuple(
-                    sampleID,
-                    files[0], // mtbseq_class
-                    files[1], // mtbseq_stats
-                    files[2], // mtbseq_pos
-                    files[3], // mtbseq_vars
-                    files[4], // tbdb_out
-                    files[5], // who_out
-                    files[6]  // mtbseq_vcf
+            // Create a merged channel that has all the paths for the outputs needed for the pairwise analysis
+            // since the wf will wait for the output from SINGLE_WF, this is how im thinking i get around
+            // the expanding BBDD issue and how nextflow isnt really intended for this kind of processes.
+            // When merging the WFs, this channel will be emitted and fed into the pairwise workflow
+            pairwise_input_ch = pairwise_samples_ch
+                .mix(SINGLE_WF.out.analyzed_single_samples_ch.map { sampleID, files ->
+                    tuple(
+                        sampleID,
+                        files[0], // mtbseq_class
+                        files[1], // mtbseq_stats
+                        files[2], // mtbseq_pos
+                        files[3], // mtbseq_vars
+                        files[4], // tbdb_out
+                        files[5], // who_out
+                        files[6]  // mtbseq_vcf
+                        )
+                    }
                 )
-            })
 
-        pairwise_input_channel.view()
+            pairwise_input_ch.view()
 
-
-    PAIRWISE_WF(pairwise_input_channel,
-                params.runID)
+            PAIRWISE_WF(pairwise_input_ch,
+                        params.runID)
 
 }
