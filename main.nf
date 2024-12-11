@@ -92,12 +92,12 @@ workflow {
 
         // Collect and parse the pairwise samples into the desired structure
             pairwise_samples = FILE_CHECK.out.pairwise_input
-                                        .collectFile(name: 'all_pairwise_samples.txt', newLine: true)
+                .collectFile(name: 'all_pairwise_samples.txt', newLine: true)
 
             pairwise_samples.view()
 
         // Parse the pairwise samples into the desired structure
-            pairwise_samples
+            pairwise_samples_ch = pairwise_samples
                 .splitCsv()
                 .map { row -> 
                     def (sampleID,mtbseq_class,mtbseq_stats,mtbseq_pos,mtbseq_vars,tbdb_out,who_out,mtbseq_vcf) = row
@@ -110,14 +110,10 @@ workflow {
                         file(who_out),
                         file(mtbseq_vcf))
                 }
-                .set { pairwise_samples_ch }
 
-            // Create a merged channel that has all the paths for the outputs needed for the pairwise analysis
-            // since the wf will wait for the output from SINGLE_WF, this is how im thinking i get around
-            // the expanding BBDD issue and how nextflow isnt really intended for this kind of processes.
-            // When merging the WFs, this channel will be emitted and fed into the pairwise workflow
-            pairwise_input_ch = pairwise_samples_ch
-                .mix(SINGLE_WF.out.analyzed_single_samples_ch.map { sampleID, files ->
+        // Create a merged channel that has all the paths for the outputs needed for the pairwise analysis
+            pairwise_input_ch = pairwise_samples_ch.mix(
+                SINGLE_WF.out.analyzed_single_samples_ch.map { sampleID, files ->
                     tuple(
                         sampleID,
                         files[0], // mtbseq_class
@@ -127,13 +123,14 @@ workflow {
                         files[4], // tbdb_out
                         files[5], // who_out
                         files[6]  // mtbseq_vcf
-                        )
-                    }
-                )
+                    )
+                }
+            )
 
             pairwise_input_ch.view()
 
-            PAIRWISE_WF(pairwise_input_ch,
-                        params.runID)
+/*
+            PAIRWISE_WF(pairwise_input_ch, params.runID)
+            */
 
 }
