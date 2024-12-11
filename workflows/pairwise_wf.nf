@@ -41,10 +41,7 @@ workflow PAIRWISE_WF {
                     .splitCsv(sep: '\t')
                     .map { sampleID, lineage -> [sampleID, lineage] }
                     .set { ch_sample_lineage }
-                
-                // Use other outputs as needed
-                TBPROFILER_COMPILE_TBDB.out.tbprofiler_txt.view()
-        
+
             TBPROFILER_COMPILE_WHO(runID, tbprofiler_who_results)
 
         // Compile stats and classifications from MTBSeq

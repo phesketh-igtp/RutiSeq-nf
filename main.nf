@@ -94,6 +94,18 @@ workflow {
             }
             .set { single_samples_ch }
 
+        // Report wether any samples are missing necessary files
+        single_samples_ch
+                        .ifEmpty { println "The single_samples_ch is empty. All samples have been been analyzed by the SINGLE workflow. "}
+                        .branch {
+                            not_empty: it != null
+                            empty: it == null
+                        }
+                        .set { branched_ch }
+                    branched_ch.not_empty
+                        .tap { ch -> println "The single_samples_ch contains samples, proceeding with SINGLE workflow for the following samples:" }
+                        .view { "Sample: $it" }
+
         // Collect and parse the pairwise samples into the desired structure
         pairwise_samples = FILE_CHECK.out.pairwise_input
                                         .collectFile(name: 'all_pairwise_samples.txt', newLine: true)
@@ -102,15 +114,14 @@ workflow {
             pairwise_samples
                 .splitCsv()
                 .map { row -> 
-                    def (mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out) = row
-                    def sampleID = mtbseq_class.tokenize('/')[-3]  // Assuming sampleID is the third-to-last part of the path
+                    def (sampleID,mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out) = row
                     tuple(sampleID, 
-                        file(mtbseq_class, checkIfExists: true),
-                        file(mtbseq_stats, checkIfExists: true),
-                        file(mtbseq_pos, checkIfExists: true),
-                        file(mtbseq_vars, checkIfExists: true),
-                        file(tbdb_out, checkIfExists: true),
-                        file(who_out, checkIfExists: true))
+                        file(mtbseq_class),
+                        file(mtbseq_stats),
+                        file(mtbseq_pos),
+                        file(mtbseq_vars),
+                        file(tbdb_out),
+                        file(who_out))
                 }
                 .set { pairwise_samples_ch }
 
@@ -118,21 +129,27 @@ workflow {
             pairwise_sampleIDs = pairwise_samples_ch.map { it[0] }.collect()
 
         // Check if all samples from samples_ch are in pairwise_samples_ch
+        // this will give a simple true/false print
             all_samples_pairwise = samples_ch
                 .map { it[0] }  // Extract sampleID from samples_ch
                 .collect()
                 .map { samples -> 
                     pairwise_sampleIDs.val.containsAll(samples)
                 }
+    
+        // Use a conditional workflow execution
+        all_samples_pairwise.branch {
+        true:   { println "Proceeding with PAIRWISE analysis"
+                PAIRWISE_WF(params.runID, pairwise_samples_ch) 
+                }
+        false:  { log.warn "Not all samples have SINGLE workflow results needed for pairwise analysis. Skipping PAIRWISE_WF." }
+                                    }
+
 
 }
 
 /*
-    // Use a conditional workflow execution
-        all_samples_pairwise.branch {
-        true: { PAIRWISE_WF(params.runID, pairwise_samples_ch) }
-        false: { log.warn "Not all samples have pairwise data. Skipping PAIRWISE_WF." }
-        }
+
 
 */
         // Now you can access each file type separately
