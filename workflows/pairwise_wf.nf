@@ -34,6 +34,8 @@ workflow PAIRWISE_WF {
             def tbprofiler_results = pairwise_input.findAll { it.toString().contains("tbprofiler/results") }
             def tbprofiler_who_results = pairwise_input.findAll { it.toString().contains("tbprofiler/who-only/results") }
 
+        strain_classifications.view()
+        mapping_statistics.view()
 
         // Compile TB-Profiler results
             TBPROFILER_COMPILE_TBDB(runID, tbprofiler_results)

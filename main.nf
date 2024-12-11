@@ -9,6 +9,7 @@ include { FILE_CHECK }              from './modules/local/file-checks/main.nf'
 //include { REMOVE_SAMPLE_WORKFLOW }  from './workflows/remove-sample_wf.nf'
 
 workflow {
+    
     def color_purple = '\u001B[35m'
     def color_green = '\u001B[32m'
     def color_red = '\u001B[31m'
@@ -94,17 +95,15 @@ workflow {
             }
             .set { single_samples_ch }
 
-        // Report wether any samples are missing necessary files
-        single_samples_ch
-                        .ifEmpty { println "The single_samples_ch is empty. All samples have been been analyzed by the SINGLE workflow. "}
-                        .branch {
-                            not_empty: it != null
-                            empty: it == null
-                        }
-                        .set { branched_ch }
-                    branched_ch.not_empty
-                        .tap { ch -> println "The single_samples_ch contains samples, proceeding with SINGLE workflow for the following samples:" }
-                        .view { "Sample: $it" }
+        // Call the SINGLE_WORKFLOW only for samples missing files
+        SINGLE_WF(
+            single_samples_ch, 
+            file(params.kaiju_names),
+            file(params.kaiju_nodes),
+            file(params.kaiju_fmi),
+            file(params.tbprofiler_db)
+        )
+
 
         // Collect and parse the pairwise samples into the desired structure
         pairwise_samples = FILE_CHECK.out.pairwise_input
@@ -138,13 +137,16 @@ workflow {
                 }
     
         // Use a conditional workflow execution
-        all_samples_pairwise.branch {
-        true:   { println "Proceeding with PAIRWISE analysis"
-                PAIRWISE_WF(params.runID, pairwise_samples_ch) 
+            all_samples_pairwise
+                .filter { it }  // Only proceed if true
+                .ifEmpty { log.warn "Not all samples have SINGLE workflow results needed for pairwise analysis. Skipping PAIRWISE_WF." }
+                .map { 
+                    println "Proceeding with PAIRWISE analysis"
+                    return [pairwise_samples_ch]
                 }
-        false:  { log.warn "Not all samples have SINGLE workflow results needed for pairwise analysis. Skipping PAIRWISE_WF." }
-                                    }
+                .set { pairwise_input }
 
+            PAIRWISE_WF(params.runID, pairwise_input)
 
 }
 
@@ -179,14 +181,6 @@ workflow {
             log.info "Pairwise input files: $files"
         }
 
-    // Call the SINGLE_WORKFLOW only for samples missing files
-        SINGLE_WF(
-            single_samples, 
-            file(params.kaiju_names),
-            file(params.kaiju_nodes),
-            file(params.kaiju_fmi),
-            file(params.tbprofiler_db)
-        )
 
     // Call PAIRWISE_WF only if there are pairwise samples
         pairwise_input
