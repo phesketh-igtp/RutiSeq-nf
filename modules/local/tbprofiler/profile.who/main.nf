@@ -12,7 +12,6 @@ process TBPROFILER_PROFILE_WHO {
 
     input:
         tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse)
-        path tbprofiler_who
 
     output:
         path "results/${sampleID}.results.txt",     emit: who_out

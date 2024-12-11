@@ -12,7 +12,6 @@ process TBPROFILER_PROFILE_TBDB {
 
     input:
         tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse)
-        path tbprofiler_tbdb
 
     output:
         tuple val(sampleID), path("bam/${sampleID}.bam")
