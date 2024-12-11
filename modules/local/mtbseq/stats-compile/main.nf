@@ -7,6 +7,7 @@ process MTBSEQ_STATS_COMPILE {
     input:
         path stats_files
         path mtbseq_class_files
+        val runID
 
     output:
         path("Strain_Classification.tab"),              emit: mtbseq_compiled_strains

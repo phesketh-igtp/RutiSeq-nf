@@ -51,18 +51,13 @@ workflow PAIRWISE_WF {
             TBPROFILER_COMPILE_WHO(runID, who_out_files)
 
         // Compile stats and classifications from MTBSeq
-            MTBSEQ_STATS_COMPILE(runID, mtbseq_stats_files, mtbseq_class_files)
-                MTBSEQ_STATS_COMPILE.out.sample_coverage
+            MTBSEQ_STATS_COMPILE(runID, 
+                                mtbseq_stats_files, 
+                                mtbseq_class_files)
+            
+            MTBSEQ_STATS_COMPILE.out.sample_coverage
                     .splitCsv(sep: '\t')
                     .map { sampleID, coverage -> [sampleID, coverage] }
                     .set { ch_sample_coverage }
-
-        // Merge the channels using join
-            merged_channel = ch_sample_lineage
-                .join(ch_sample_coverage, by: 0)  // Join based on the first element (sampleID)
-                .join(pairwise_input, by: 0)      // Join the result with pairwise_input
-
-            // View the merged channel (optional)
-            merged_channel.view()
 
 }

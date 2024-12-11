@@ -130,8 +130,8 @@ workflow {
 
             pairwise_input_ch.view()
 
-/*
+
             PAIRWISE_WF(pairwise_input_ch, params.runID)
-            */
+
 
 }
