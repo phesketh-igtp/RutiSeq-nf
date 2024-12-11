@@ -15,10 +15,10 @@ process TBPROFILER_PROFILE_TBDB {
         path(tbprofiler_db)
 
     output:
-        tuple val(sampleID), path("bam/${sampleID}.bam"), emit: tbprof_tbdb_bam
-        tuple val(sampleID), path("vcf/${sampleID}.targets.vcf.gz"), emit: tbprof_tbdb_vcf
-        tuple val(sampleID), path("results/${sampleID}.results.txt"), emit: tbprof_tbdb_res
-        tuple val(sampleID), path("results/${sampleID}.results.json"), emit: tbprof_tbdb_json
+        tuple val(sampleID), path("bam/${sampleID}.bam")
+        tuple val(sampleID), path("vcf/${sampleID}.targets.vcf.gz")
+        tuple val(sampleID), path("results/${sampleID}.results.txt"),   emit: tbdb_out
+        tuple val(sampleID), path("results/${sampleID}.results.json")
 
     script:
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file

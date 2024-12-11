@@ -18,8 +18,8 @@ process MTBSEQ_SINGLE {
         tuple val(sampleID), path("Bam/${sampleID}.bam.bai"),                               emit: mtbseq_bam_index
         tuple val(sampleID), path("Bam/${sampleID}.bamlog"),                                emit: mtbseq_bamlog
         tuple val(sampleID), path("Called/${sampleID}.gatk_position_uncovered_*.tab"),      emit: mtbseq_uncovered_positions
-        tuple val(sampleID), path("Called/${sampleID}.gatk_position_variants_*.tab"),       emit: mtbseq_variant_positions
-        tuple val(sampleID), path("Classification/Strain_Classification.tab"),              emit: mtbseq_strain_classification
+        tuple val(sampleID), path("Called/${sampleID}.gatk_position_variants_*.tab"),       emit: mtbseq_vars
+        tuple val(sampleID), path("Classification/Strain_Classification.tab"),              emit: mtbseq_class
         tuple val(sampleID), path("GATK_Bam/${sampleID}.gatk.bam"),                         emit: mtbseq_gatk_bam
         tuple val(sampleID), path("GATK_Bam/${sampleID}.gatk.bai"),                         emit: mtbseq_gatk_bam_index
         tuple val(sampleID), path("GATK_Bam/${sampleID}.gatk.bamlog"),                      emit: mtbseq_gatk_bamlog
@@ -27,8 +27,8 @@ process MTBSEQ_SINGLE {
         tuple val(sampleID), path("GATK_Bam/${sampleID}.gatk.intervals"),                   emit: mtbseq_gatk_intervals
         tuple val(sampleID), path("Mpileup/${sampleID}.gatk.mpileup"),                      emit: mtbseq_mpileup
         tuple val(sampleID), path("Mpileup/${sampleID}.gatk.mpileuplog"),                   emit: mtbseq_mpileuplog
-        tuple val(sampleID), path("Position_Tables/${sampleID}.gatk_position_table.tab"),   emit: mtbseq_position_table
-        tuple val(sampleID), path("Statistics/Mapping_and_Variant_Statistics.tab"),         emit: mtbseq_mapping_variant_statistics
+        tuple val(sampleID), path("Position_Tables/${sampleID}.gatk_position_table.tab"),   emit: mtbseq_pos
+        tuple val(sampleID), path("Statistics/Mapping_and_Variant_Statistics.tab"),         emit: mtbseq_stats
 
     script:
     

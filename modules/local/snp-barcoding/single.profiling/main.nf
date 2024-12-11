@@ -14,8 +14,8 @@ process SNP_PROFILING_SINGLE {
     tuple val(sampleID), path(mtbseq_mpileup)
 
     output:
-        tuple val(sampleID), path("${sampleID}.gatk.vcf.gz"), emit: mtbseq_vcf
-        tuple val(sampleID), path("${sampleID}.gatk.vcf.gz.tbi"), emit: mtbseq_vcf_index
+        tuple val(sampleID), path("${sampleID}.gatk.vcf.gz"),       emit: mtbseq_vcf
+        tuple val(sampleID), path("${sampleID}.gatk.vcf.gz.tbi"),   emit: mtbseq_vcf_index
 
     script:
     def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file

@@ -13,7 +13,7 @@ workflow SINGLE_WF {
     */
 
     take:
-        samples_ch
+        single_samples_ch
         kaiju_names
         kaiju_nodes
         kaiju_fmi
@@ -40,7 +40,7 @@ workflow SINGLE_WF {
         """          
 
         // Run MTBC_READ_QC on filtered samples
-            MTBC_READ_QC(samples_ch,
+            MTBC_READ_QC(single_samples_ch,
                         kaiju_names,
                         kaiju_nodes,
                         kaiju_fmi
@@ -59,16 +59,30 @@ workflow SINGLE_WF {
 
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
             TBPROFILER_PROFILE_TBDB(mtbc_reads_ch,
-                                tbprofiler_db)
+                                    tbprofiler_db)
 
-        // Prepare and run TBPROFILER_PROFILE_WHO
-            tbdb_vcf_ch = TBPROFILER_PROFILE_TBDB.out.tbprof_tbdb_vcf
-            TBPROFILER_PROFILE_WHO(tbdb_vcf_ch, tbprofiler_db)
+            TBPROFILER_PROFILE_WHO(mtbc_reads_ch, 
+                                    tbprofiler_db)
     
         // Run MTBSEQ_SINGLE
             MTBSEQ_SINGLE(mtbc_reads_ch)
 
         // Run SNP_PROFILING_SINGLE using the mpileup output
             SNP_PROFILING_SINGLE(MTBSEQ_SINGLE.out.mtbseq_mpileup)
+
+        // Collect all the output paths from the single analysis and create tuple that is emitted for the final output    
+            collected_outputs = MTBSEQ_SINGLE.out.mtbseq_class
+                            .mix(MTBSEQ_SINGLE.out.mtbseq_stats)
+                            .mix(MTBSEQ_SINGLE.out.mtbseq_pos)
+                            .mix(MTBSEQ_SINGLE.out.mtbseq_vars)
+                            .mix(TBPROFILER_PROFILE_TBDB.out.tbdb_out)
+                            .mix(TBPROFILER_PROFILE_WHO.out.who_out)                          
+                            .mix(SNP_PROFILING_SINGLE.out.mtbseq_vcf)
+                            .groupTuple(by: 0)
+
+    collected_outputs.view()
+
+    emit:
+        analyzed_single_samples_ch = collected_outputs
 
 }

@@ -11,12 +11,12 @@ process TBPROFILER_PROFILE_WHO {
     publishDir "${params.outdir}/bbdd/tbprofiler/who-only", mode: 'copy'
 
     input:
-        tuple val(sampleID), path(vcf)
-        path tbprofiler_db
+        tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse)
+        path(tbprofiler_db)
 
     output:
-        path "results/${sampleID}.results.txt",  emit: tbprof_who_txt
-        path "results/${sampleID}.results.json", emit: tbprof_who_json
+        path "results/${sampleID}.results.txt",     emit: who_out
+        path "results/${sampleID}.results.json"
 
     script:
     
@@ -28,11 +28,11 @@ process TBPROFILER_PROFILE_WHO {
 
     # Run the WHO-only analysis using the VCFs
     tb-profiler profile \\
-        --vcf ${vcf} \\
+        -1 ${mtbc_forward} \\
+        -2 ${mtbc_reverse} \\
         -p ${sampleID} \\
-        --txt \\
-        --db ${tbprofiler_db}/who \\
         --txt --dir . \\
+        --db ${tbprofiler_db}/who \\
         --threads ${task.cpus} \\
         ${additional_args}
 
