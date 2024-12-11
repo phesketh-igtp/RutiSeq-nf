@@ -79,6 +79,73 @@ workflow {
     // Run FILE_CHECK process
         FILE_CHECK(samples_ch)
 
+        // Collect and parse the pairwise samples into the desired structure
+        single_samples = FILE_CHECK.out.single_input
+                                        .collectFile(name: 'all_single_samples.txt', newLine: true)
+
+        single_samples
+            .splitCsv()
+            .map { row -> 
+                def (forward, reverse) = row
+                def sampleID = forward.tokenize('/')[-1].split('_')[0]  // Assuming sampleID is the first part of the filename
+                tuple(sampleID, 
+                    file(forward, checkIfExists: true), 
+                    file(reverse, checkIfExists: true))
+            }
+            .set { single_samples_ch }
+
+        // Collect and parse the pairwise samples into the desired structure
+        pairwise_samples = FILE_CHECK.out.pairwise_input
+                                        .collectFile(name: 'all_pairwise_samples.txt', newLine: true)
+
+            // Parse the pairwise samples into the desired structure
+            pairwise_samples
+                .splitCsv()
+                .map { row -> 
+                    def (mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out) = row
+                    def sampleID = mtbseq_class.tokenize('/')[-3]  // Assuming sampleID is the third-to-last part of the path
+                    tuple(sampleID, 
+                        file(mtbseq_class, checkIfExists: true),
+                        file(mtbseq_stats, checkIfExists: true),
+                        file(mtbseq_pos, checkIfExists: true),
+                        file(mtbseq_vars, checkIfExists: true),
+                        file(tbdb_out, checkIfExists: true),
+                        file(who_out, checkIfExists: true))
+                }
+                .set { pairwise_samples_ch }
+
+        // Extract sampleIDs from pairwise_samples_ch
+            pairwise_sampleIDs = pairwise_samples_ch.map { it[0] }.collect()
+
+        // Check if all samples from samples_ch are in pairwise_samples_ch
+            all_samples_pairwise = samples_ch
+                .map { it[0] }  // Extract sampleID from samples_ch
+                .collect()
+                .map { samples -> 
+                    pairwise_sampleIDs.val.containsAll(samples)
+                }
+
+}
+
+/*
+    // Use a conditional workflow execution
+        all_samples_pairwise.branch {
+        true: { PAIRWISE_WF(params.runID, pairwise_samples_ch) }
+        false: { log.warn "Not all samples have pairwise data. Skipping PAIRWISE_WF." }
+        }
+
+*/
+        // Now you can access each file type separately
+        ///parsed_pairwise_samples.strain_classification.view { "Strain Classification: $it" }
+        ///parsed_pairwise_samples.mapping_statistics.view { "Mapping Statistics: $it" }
+        ///parsed_pairwise_samples.position_table.view { "Position Table: $it" }
+        ///parsed_pairwise_samples.variant_table.view { "Variant Table: $it" }
+        ///parsed_pairwise_samples.tbprofiler_results.view { "TB Profiler Results: $it" }
+        ///parsed_pairwise_samples.tbprofiler_who_results.view { "TB Profiler WHO Results: $it" }
+
+        // For single samples, you can split them into forward and reverse reads if needed
+
+/*
     // Collect all pairwise samples
         pairwise_samples = FILE_CHECK.out.pairwise_input.collect()
 
@@ -97,7 +164,7 @@ workflow {
 
     // Call the SINGLE_WORKFLOW only for samples missing files
         SINGLE_WF(
-            FILE_CHECK.out.single_input, 
+            single_samples, 
             file(params.kaiju_names),
             file(params.kaiju_nodes),
             file(params.kaiju_fmi),
@@ -111,8 +178,7 @@ workflow {
             .set { final_pairwise_input }
 
         PAIRWISE_WF(params.runID, final_pairwise_input)
-        
-}
+        */
 
     /*
     //
