@@ -4,13 +4,14 @@ include { MTBSEQ_SAMPLE_FILTER }            from '../modules/local/mtbseq/sample
 include { MTBSEQ_LINEAGE_SPLITTING }        from '../modules/local/mtbseq/lineage_split/main.nf'
 include { MTBSEQ_LINEAGE_PAIRWISE }         from '../modules/local/mtbseq/lineage_pairwise/main.nf'
 include { MTBSEQ_LINEAGE_PAIRWISE_GROUP }   from '../modules/local/mtbseq/lineage_pairwise_group/main.nf'
+include { MTBSEQ_STATS_COMPILE }            from '../modules/local/mtbseq/stats-compile/main.nf'
 
 workflow PAIRWISE_WF {
     
     take:
-    runID
-    workflow_complete
-
+        runID
+        pairwise_input // This will be a flattened list of all files for all samples
+    
     main:
         def color_purple = '\u001B[35m'
         def color_green = '\u001B[32m'
@@ -25,58 +26,65 @@ workflow PAIRWISE_WF {
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${no_color}
         """
 
-        // Compile TB-Profiler results
-        TBPROFILER_COMPILE_TBDB(runID,
-                                )
+        // Group files by type
+            def strain_classifications = pairwise_input.findAll { it.toString().contains("Strain_Classification.tab") }
+            def mapping_statistics = pairwise_input.findAll { it.toString().contains("Mapping_and_Variant_Statistics.tab") }
+            def position_tables = pairwise_input.findAll { it.toString().contains("Position_Table/") }
+            def variant_tables = pairwise_input.findAll { it.toString().contains("Called/") }
+            def tbprofiler_results = pairwise_input.findAll { it.toString().contains("tbprofiler/results") }
+            def tbprofiler_who_results = pairwise_input.findAll { it.toString().contains("tbprofiler/who-only/results") }
 
-        TBPROFILER_COMPILE_WHO( runID,
-                                )
+
+        // Compile TB-Profiler results
+            TBPROFILER_COMPILE_TBDB(runID, tbprofiler_results)
+                TBPROFILER_COMPILE_TBDB.out.sample_lineage
+                    .splitCsv(sep: '\t')
+                    .map { sampleID, lineage -> [sampleID, lineage] }
+                    .set { ch_sample_lineage }
+                
+                // Use other outputs as needed
+                TBPROFILER_COMPILE_TBDB.out.tbprofiler_txt.view()
+        
+            TBPROFILER_COMPILE_WHO(runID, tbprofiler_who_results)
 
         // Compile stats and classifications from MTBSeq
-        MTBSEQ_SAMPLE_FILTER(params.mtbseq.min_cov,
-                            runID,
-                            TBPROFILER_COMPILE_TBDB.out.tbprofile_tdb_compile)
-            
-        MTBSEQ_SAMPLE_FILTER.out.mtbseq_join_paths
-            .splitCsv(header: false)
-            .map { row -> tuple(row[0], file(row[1]), file(row[2])) }
-            .set { mtbseq_join_paths_ch }
+            MTBSEQ_STATS_COMPILE(runID, strain_classifications, mapping_statistics)
+                MTBSEQ_STATS_COMPILE.out.sample_coverage
+                    .splitCsv(sep: '\t')
+                    .map { sampleID, coverage -> [sampleID, coverage] }
+                    .set { ch_sample_coverage }
 
-        mtbseq_join_paths_ch.view { it -> "MTBseq join paths: $it" }
+        // Merge the channels using join
+            merged_channel = ch_sample_lineage
+                .join(ch_sample_coverage, by: 0)  // Join based on the first element (sampleID)
+                .join(pairwise_input, by: 0)      // Join the result with pairwise_input
 
-        // Uncomment and adjust the following sections as needed
+            // View the merged channel (optional)
+            merged_channel.view()
+
         /*
-        // Split the genomes into lineages based on params.
-        MTBSEQ_LINEAGE_SPLITTING(runID,
-                                TBPROFILER_COMPILE_TBDB.out.tbprofiler_tbdb_compile,
-                                Channel.fromList(params.lineage_pairwise))
-    
-        // Create a channel for all the mtbseq paths needed for compiling
-        MTBSEQ_LINEAGE_SPLITTING.out.mtbseq_paths
-                .splitCsv(header: false)
-                .map { row -> tuple(row[0], row[1], file(row[2]), file(row[3])) }
-                .set { mtbseq_paths_ch }
+            // Filter the merged channel based on coverage
+            filtered_channel = merged_channel.filter { tuple ->
+                // Assuming coverage is the third element (index 2) in the tuple
+                // Adjust this index if the coverage is at a different position
+                def coverage = tuple[2]
+                coverage >= params.mtbseq_min_cov}
 
-        // Split the genomes into lineages based on params.
-        MTBSEQ_LINEAGE_PAIRWISE(runID, 
-                                mtbseq_paths_ch,
-                                mtbseq_called_results,
-                                mtbseq_pos_var_results)
 
-        MTBSEQ_LINEAGE_PAIRWISE_GROUP(runID, 
-                                    MTBSEQ_LINEAGE_PAIRWISE.out,
-                                    Channel.fromList(params.mtbseq.snp_distance))
+        // Filter the pairwise_input to include only genomes with the minimum coverage (params.mtbseq.min_cov)
+        // and add the lineage to the tuple for splitting afterwards
+
+                // Prepare input for MTBSEQ_SAMPLE_FILTER
+                def mtbseq_sample_tables = position_tables.combine(variant_tables, by: 0)
+                    .map { sampleID, position_table, variant_table -> 
+                        tuple(sampleID, position_table, variant_table)
+                    }
+
+            MTBSEQ_SAMPLE_FILTER(runID, 
+                                params.mtbseq.min_cov, params.lineage_pairwise
+                                mtbseq_sample_tables,
+                                MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_map_stats,
+                                TBPROFILER_COMPILE_TBDB.out.tbprofile_tdb_compile)
         */
-    /*
-    emit:
-        tbprofiler_tbdb_results = TBPROFILER_COMPILE_TBDB.out.tbprof_tbdb_res
-        tbprofiler_who_results = TBPROFILER_COMPILE_WHO.out.tbprof_who_res
-        mtbseq_filtered_results = MTBSEQ_SAMPLE_FILTER.out.mtbseq_join_paths
-    */
-        // Uncomment the following lines if you uncomment the corresponding processes above
-        /*
-        lineage_splitting_results = MTBSEQ_LINEAGE_SPLITTING.out.lineages_ch
-        lineage_pairwise_results = MTBSEQ_LINEAGE_PAIRWISE.out.lineage_results
-        lineage_pairwise_group_results = MTBSEQ_LINEAGE_PAIRWISE_GROUP.out.group_results
-        */
+
 }

@@ -1,57 +1,54 @@
 process MTBSEQ_SAMPLE_FILTER {
-
     tag "${runID}"
 
-    publishDir "${params.outdir}/bbdd/mtbseq/", mode: 'copy'
+    publishDir "${params.outdir}/bbdd/mtbseq/pairwise/", mode: 'copy'
 
     input:
-        val min_cov
-        val runID
-        path tbprof_tbdb_res
+        val(runID)
+        val(min_cov)
+        val(lineage_pairwise)
+        tuple val(sampleID), path(position_table), path(variant_table)
+        path(mtbseq_compiled_map_stats)
+        path(tbprof_tbdb_res)
 
     output:
-        path "Mapping_and_Variant_Statistics.tab", emit: mtbseq_stats
-        path "Strain_Classification.tab", emit: mtbseq_class
+        tuple val(sampleID), path(position_table), path(variant_table), val(lineage), emit: filtered_pairwise_samples
         path "mtbseq.paths.minCov.paths"
-        tuple val(sampleID), path(called_dir), path(positions_dir), emit: mtbseq_join_paths
 
     script:
+    """
+    # Filter samples based on minimum coverage and lineage
+    awk -v min_cov="${min_cov}" '\$19 >= min_cov { print \$4 }' ${mtbseq_compiled_map_stats} > samples_with_min_cov.txt
 
-        """
+    # Extract lineages for samples with minimum coverage
+    grep -f samples_with_min_cov.txt ${tbprof_tbdb_res} | cut -f 1,3 > samples_with_min_cov.lineages.txt
 
-        # Create paths for the MTBseq files needed for pairwise analysis
+    # Filter samples based on specified lineages
+    awk -v lineages="${lineage_pairwise}" '
+    BEGIN {split(lineages, lin_arr, ",")}
+    {
+        for (i in lin_arr) {
+            if (\$2 == lin_arr[i]) {
+                print \$0
+                next
+            }
+        }
+    }
+    ' samples_with_min_cov.lineages.txt > filtered_samples.txt
 
-        ls ${params.outdir}/bbdd/mtbseq/samples > samples.list
-        sed 's@^@${params.outdir}/bbdd/mtbseq/samples/@g' samples.list | sed 's@\$@/Called/@g' > samples.called
-        sed 's@^@${params.outdir}/bbdd/mtbseq/samples/@g' samples.list | sed 's@\$@/Position_Tables/@g' > samples.pos
-        paste -d ',' samples.list samples.called samples.pos > mtbseq.paths.txt
-        rm samples.called samples.pos samples.list
+    # Create the output file with filtered samples and their paths
+    while IFS=\$'\\t' read -r sample lineage; do
+        echo "\${sample}\\t\${position_table}\\t\${variant_table}\\t\${lineage}" >> mtbseq.paths.minCov.paths
+    done < filtered_samples.txt
 
-        # Concatenate the statistics files and classification files by MTBseq
+    # Extract lineage for the current sample
+    lineage=\$(grep "^${sampleID}\\s" filtered_samples.txt | cut -f2)
 
-        echo "Date	SampleID	LibraryID	FullID	Total Reads	Mapped Reads	% Mapped Reads	Genome Size	Genome GC	(Any) Total Bases	% (Any) Total Bases	(Any) GC-Content	(Any) Coverage mean	(Any) Coverage median	(Unambiguous) Total Bases	% (Unambiguous) Total Bases	(Unambiguous) GC-Content	(Unambiguous) Coverage mean	(Unambiguous) Coverage median	SNPs	Deletions	Insertions	Uncovered	Substitutions (Including Stop Codons)" > Mapping_and_Variant_Statistics.tab
-        for f in ${params.outdir}/bbdd/mtbseq/samples/*/Statistics/Mapping_and_Variant_Statistics.tab; do
-            sed '1d' \$f | sed "s@'@@g" >> Mapping_and_Variant_Statistics.tab
-        done
+    # If lineage is empty, set it to "unknown"
+    if [ -z "\$lineage" ]; then
+        lineage="unknown"
+    fi
 
-        echo "Date	SampleID	LibraryID	FullID	Homolka species	Homolka lineage	Homolka group	Quality	Coll lineage (branch)	Coll lineage_name (branch)	Coll quality (branch)	Coll lineage (easy)	Coll lineage_name (easy)	Coll quality (easy)	Beijing lineage (easy)	Beijing quality (easy)" > Strain_Classification.tab
-        for f in ${params.outdir}/bbdd/mtbseq/samples/*/Classification/Strain_Classification.tab; do
-            sed '1d' \$f | sed "s@'@@g" >> Strain_Classification.tab
-        done
-
-
-        # Filter list of samples to only those with >= minimum coverage
-
-        awk -v min_cov="${min_cov}" '(NR>1 && \$19 >= min_cov) {print \$4}' Mapping_and_Variant_Statistics.tab > sample.minCov.list
-
-        grep -f sample.minCov.list mtbseq.paths.txt > mtbseq.paths.minCov.paths
-
-
-        # Create the tuple for mtbseq_join_paths
-        
-        while IFS=',' read -r sampleID called_dir positions_dir; do
-            echo "\$sampleID,\$called_dir,\$positions_dir"
-        done < mtbseq.paths.minCov.paths > mtbseq_join_paths.txt
-        """
-
+    echo "${sampleID}\\t${position_table}\\t${variant_table}\\t\${lineage}" > sample_tuple.txt
+    """
 }

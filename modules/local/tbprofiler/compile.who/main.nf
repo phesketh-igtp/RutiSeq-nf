@@ -12,6 +12,7 @@ process TBPROFILER_COMPILE_WHO {
 
     input:
         val runID
+        path (tbprofiler_who_results)
 
     output:
         path("tbprofiler.txt"),                                         emit: tbprofile_who_compile
