@@ -3,7 +3,7 @@ process MTBSEQ_LINEAGE_COMPILE {
     label 'process_tbfull'
     label 'error_retry'
 
-    conda "bioconda::mtbseq=1.1.0"
+    conda "bioconda::mtbseq"
 
     container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data'
             } else { 'quay.io/biocontainers/mtbseq' }
@@ -13,6 +13,7 @@ process MTBSEQ_LINEAGE_COMPILE {
 
     input:
         tuple val(old_name), val(sampleID), path(forward), path(reverse)
+        val runID
 
     output:
         path "Amend/",                                                  emit: amend_dir 

@@ -32,7 +32,7 @@ process TBPROFILER_PROFILE_WHO {
         -2 ${mtbc_reverse} \\
         -p ${sampleID} \\
         --txt --dir . \\
-        --db ${tbprofiler_who} \\
+        --db ${params.tbprofiler_who} \\
         --threads ${task.cpus} \\
         ${additional_args}
 

@@ -29,7 +29,7 @@ process TBPROFILER_PROFILE_TBDB {
         -2 ${mtbc_reverse} \\
         -p ${sampleID} \\
         --txt --dir . \\
-        --db ${tbprofiler_tbdb} \\
+        --db ${params.tbprofiler_tbdb} \\
         --threads ${task.cpus} \\
         ${additional_args}
 
