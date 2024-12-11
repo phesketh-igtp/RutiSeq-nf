@@ -112,7 +112,10 @@ workflow {
         
         pairwise_samples.view()
 
-
+        // Create a merged channel that has all the paths for the outputs needed for the pairwise analysis
+        // since the wf will wait for the output from SINGLE_WF, this is how im thinking i get around
+        // the expanding BBDD issue and how nextflow isnt really intended for this kind of processes.
+        // When merging the WFs, this channel will be emitted and fed into the pairwise workflow
         merged_channel = pairwise_samples_ch
             .mix(SINGLE_WF.out.analyzed_single_samples_ch.map { sampleID, files ->
                 tuple(
@@ -126,5 +129,7 @@ workflow {
                     files[6]  // mtbseq_vcf
                 )
             })
+
+        merged_channel.view()
 
 }
