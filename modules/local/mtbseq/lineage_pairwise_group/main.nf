@@ -2,7 +2,7 @@ process MTBSEQ_LINEAGE_PAIRWISE_GROUP {
 
     tag "${lineage}_${snp_distance}"
 
-    conda "bioconda::mtbseq=1.1.0"
+    conda "./envs/conda/mtbseq-env.yml"
 
     container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data'
             } else { 'quay.io/biocontainers/mtbseq' }

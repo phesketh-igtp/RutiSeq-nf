@@ -2,7 +2,7 @@ process MTBC_READ_QC {
     
     tag "$sampleID"
     
-    conda 'bioconda::kaiju==1.10.1 bioconda::seqkit==2.9.0'
+    conda './envs/conda/kaiju-env.yml'
 
     container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/0f/0f00cd356ee92f5211e5941beeb4bcab6abfb341e0e5fa7ace8c043406c13381/data'
         } else { 'community.wave.seqera.io/library/kaiju_seqkit:6e4140ab47bd567e' }

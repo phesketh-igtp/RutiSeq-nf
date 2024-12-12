@@ -1,0 +1,10 @@
+name: bcftools-env
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - bcftools=1.21
+  - vcftools=0.1.16
+  - varscan=2.4.6
+  - snpeff=5.2

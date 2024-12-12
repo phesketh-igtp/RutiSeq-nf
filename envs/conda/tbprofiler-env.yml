@@ -1,0 +1,7 @@
+name: tbprofiler-env
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - tb-profiler=6.5.0

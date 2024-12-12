@@ -1,7 +1,7 @@
 process TBPROFILER_COMPILE_TBDB {
     tag "${runID}"
 
-    conda 'bioconda::tb-profiler==6.5.0'
+    conda './envs/conda/tbprofiler-env.yml'
 
     container { 
         if (workflow.containerEngine == 'singularity') {
