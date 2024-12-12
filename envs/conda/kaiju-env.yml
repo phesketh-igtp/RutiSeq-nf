@@ -1,4 +1,4 @@
-name: kaiju-env
+name: kaiju
 channels:
   - bioconda
   - conda-forge

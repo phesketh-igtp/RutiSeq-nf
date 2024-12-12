@@ -1,4 +1,4 @@
-name: tbprofiler-env
+name: tb-profiler
 channels:
   - bioconda
   - conda-forge

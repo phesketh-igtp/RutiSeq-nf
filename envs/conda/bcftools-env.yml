@@ -1,4 +1,4 @@
-name: bcftools-env
+name: snp-profiling
 channels:
   - bioconda
   - conda-forge
