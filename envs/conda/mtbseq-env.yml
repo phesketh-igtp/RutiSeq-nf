@@ -1,0 +1,7 @@
+name: mtbseq
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - mtbseq=1.1.0

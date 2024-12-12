@@ -4,9 +4,9 @@ process MTBSEQ_SAMPLE_FILTER {
     publishDir "${params.outdir}/bbdd/mtbseq/pairwise/", mode: 'copy'
 
     input:
-        val(runID)
-        val(min_cov)
-        val(lineage_pairwise)
+        val runID
+        val min_cov
+        val lineage_pairwise
         tuple val(sampleID), path(position_table), path(variant_table)
         path(mtbseq_compiled_map_stats)
         path(tbprof_tbdb_res)

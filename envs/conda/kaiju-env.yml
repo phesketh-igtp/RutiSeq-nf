@@ -1,0 +1,8 @@
+name: kaiju
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - kaiju=1.10.1
+  - seqkit=2.9.0

@@ -2,7 +2,7 @@ process MTBC_READ_QC {
     
     tag "$sampleID"
     
-    conda 'bioconda::kaiju==1.10.1 bioconda::seqkit==2.9.0'
+    conda params.kaiju_env
 
     container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/0f/0f00cd356ee92f5211e5941beeb4bcab6abfb341e0e5fa7ace8c043406c13381/data'
         } else { 'community.wave.seqera.io/library/kaiju_seqkit:6e4140ab47bd567e' }
@@ -25,22 +25,10 @@ process MTBC_READ_QC {
         path("${sampleID}.kaiju_summary.tsv"), optional: true
 
     script:
-    def additional_args_kaiju = task.ext.additional_args_kaiju ?: ''
+    def additional_args_kaiju       = task.ext.additional_args_kaiju ?: ''
     def additional_args_kaiju2table = task.ext.additional_args_kaiju2table ?: ''
 
     """
-    # Check if output files already exist
-    if [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Classification/Strain_Classification.tab" ] && \\
-        [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Statistics/Mapping_and_Variant_Statistics.tab" ] && \\
-        [ -f "${params.outdir}/bbdd/tbprofiler/results/${sampleID}.results.txt" ] && \\
-        [ -f "${params.outdir}/bbdd/tbprofiler/who-only/results/${sampleID}.results.txt" ] && \\
-        [ -f "${params.outdir}/bbdd/read-qc/${sampleID}.kaiju_summary.tsv" ]; then
-        echo "Output files already exist for ${sampleID}. Skipping processing."
-        exit 0
-    fi
-
-    # If files don't exist, proceed with the script
-
     grep 'Mycobacterium tuberculosis ' ${kaiju_names} | cut -f1 | sort | uniq > MTBC.list
 
     seqkit stats -abT -j ${task.cpus} ${forward} | sed "1d" > tmp.stats.r1.orig
