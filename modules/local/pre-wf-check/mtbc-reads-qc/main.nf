@@ -2,7 +2,7 @@ process MTBC_READ_QC {
     
     tag "$sampleID"
     
-    conda './envs/conda/kaiju-env.yml'
+    conda params.kaiju_env
 
     container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/0f/0f00cd356ee92f5211e5941beeb4bcab6abfb341e0e5fa7ace8c043406c13381/data'
         } else { 'community.wave.seqera.io/library/kaiju_seqkit:6e4140ab47bd567e' }
@@ -25,7 +25,7 @@ process MTBC_READ_QC {
         path("${sampleID}.kaiju_summary.tsv"), optional: true
 
     script:
-    def additional_args_kaiju = task.ext.additional_args_kaiju ?: ''
+    def additional_args_kaiju       = task.ext.additional_args_kaiju ?: ''
     def additional_args_kaiju2table = task.ext.additional_args_kaiju2table ?: ''
 
     """
