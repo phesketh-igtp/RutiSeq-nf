@@ -25,38 +25,42 @@ workflow {
     ${color_reset}
     """
 
-    /*
+        /*
+            DEFINE INPUT ARGUMENTS: expected argument to be provided at time of running 
+                nextflow at CLI
 
-    Define all the expected argument to be provided at time of running 
-        nextflow at CLI
+            nextflow run main.nf \
+                --samplesheet /path/to/sample-sheet
+                --runID [a-zA-Z0-9]
+                --workflow [full, single, pairwise, summary, barcoding]
 
-        --samplesheet /path/to/sample-sheet
-        --runID [a-zA-Z0-9]
-        --workflow [full, single, pairwise, summary, barcoding]
+        */
 
-    */
-
-    // Create channel from sample sheet
-        if (params.samplesheet == null) {
-            error "Please provide a samplesheet CSV file with --samplesheet (csv)"
-        }
-
-    // Create channel from sample sheet
-        if (params.runID == null) {
-            error "Please provide a runID file with --runID (chr)"
-        }
-
-    // Create channel from sample sheet
-        Channel
-            .fromPath(params.samplesheet)
-            .splitCsv(header: true, sep: ',')
-            .map { row ->
-                if (row.sampleID == null || row.forward_path == null || row.reverse_path == null) {
-                    error "Missing required column in samplesheet: ${row}"
-                }
-                tuple(row.sampleID, file(row.forward_path, checkIfExists: true), file(row.reverse_path, checkIfExists: true))
+        // Create channel from sample sheet
+            if (params.samplesheet == null) {
+                error "Please provide a samplesheet CSV file with --samplesheet (csv)"
             }
-            .set { samples_ch }
+
+        // Create channel from sample sheet
+            if (params.runID == null) {
+                error "Please provide a runID file with --runID (chr)"
+            }
+
+        /*
+            CREATE sample_ch FROM SAMPLESHEETS
+        */
+
+        // Create channel from sample sheet
+            Channel
+                .fromPath(params.samplesheet)
+                .splitCsv(header: true, sep: ',')
+                .map { row ->
+                    if (row.sampleID == null || row.forward_path == null || row.reverse_path == null) {
+                        error "Missing required column in samplesheet: ${row}"
+                    }
+                    tuple(row.sampleID, file(row.forward_path, checkIfExists: true), file(row.reverse_path, checkIfExists: true))
+                }
+                .set { samples_ch }
 
         // Report the samples part of the samplesheet
             log.info "${color_purple}Input samples:${color_reset}"
@@ -64,8 +68,16 @@ workflow {
                 "${color_red}Sample: ${color_green}$sampleID${color_red} | Forward: ${color_green}$forward${color_red} | Reverse: ${color_green}$reverse${color_reset}"
             }
 
+        /*
+            INSPECT BBDD FOR INTERMEDIATE FILES (i.e. sample has been previously analyzed)
+        */
+
         // Check if the genome has previously been analyzed
             FILE_CHECK(samples_ch)
+
+        /*
+            SINGLE genome analysis
+        */
 
         // Collect and parse the pairwise samples into the desired structure
             single_samples = FILE_CHECK.out.single_input
@@ -88,6 +100,10 @@ workflow {
                 file(params.kaiju_nodes),
                 file(params.kaiju_fmi)
                     )
+
+        /*
+            PAIRWISE genome analysis
+        */
 
         // Collect and parse the pairwise samples into the desired structure
             pairwise_samples = FILE_CHECK.out.pairwise_input
@@ -126,7 +142,8 @@ workflow {
                 }
             )
 
-            pairwise_input_ch.view()
+        // DEV: Inspect the resulting channel has the expected structure (tuple: sampleID,mtbseq_class,mtbseq_stats,mtbseq_pos,tbdb_out,who_out,mtbseq_vcf)
+        pairwise_input_ch.view()
 
 /*
             PAIRWISE_WF(pairwise_input_ch, params.runID)
