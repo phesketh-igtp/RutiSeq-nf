@@ -58,7 +58,8 @@ workflow {
                     if (row.sampleID == null || row.forward_path == null || row.reverse_path == null) {
                         error "Missing required column in samplesheet: ${row}"
                     }
-                    tuple(row.sampleID, file(row.forward_path, checkIfExists: true), file(row.reverse_path, checkIfExists: true))
+                    tuple(row.sampleID, file(row.forward_path, checkIfExists: true), 
+                            file(row.reverse_path, checkIfExists: true))
                 }
                 .set { samples_ch }
 
@@ -89,9 +90,17 @@ workflow {
                     def (sampleID, forward, reverse) = row
                     tuple(sampleID, 
                         file(forward, checkIfExists: true), 
-                        file(reverse, checkIfExists: true))
-                }
+                        file(reverse, checkIfExists: true)
+                        )
+                    }
                 .set { single_samples_ch }
+
+            // Only run SINGLE_WF if single_samples_ch is not empty
+                single_samples_ch
+                    .ifEmpty { 
+                        log.info "${color_red}File check:${color_green} No single samples to process. ${color_red}Skipping SINGLE_WF.${color_reset}"
+                    }
+                    .set { samples_to_process }
 
         // Call the SINGLE_WORKFLOW only for samples missing files
             SINGLE_WF(
@@ -102,8 +111,12 @@ workflow {
                     )
 
         /*
-            PAIRWISE genome analysis
+            PAIRWISE genome analysis      
         */
+
+        FILE_CHECK.out.single_input.view { log.info "Single input: $it" }
+        FILE_CHECK.out.pairwise_input.view { log.info "Pairwise input: $it" }
+        SINGLE_WF.out.analyzed_single_samples_ch.view { log.info "Analyzed single samples: $it" }
 
         // Collect and parse the pairwise samples into the desired structure
             pairwise_samples = FILE_CHECK.out.pairwise_input

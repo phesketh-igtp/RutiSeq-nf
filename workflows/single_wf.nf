@@ -70,14 +70,23 @@ workflow SINGLE_WF {
             SNP_PROFILING_SINGLE(MTBSEQ_SINGLE.out.mtbseq_mpileup)
 
         // Collect all the output paths from the single analysis and create tuple that is emitted for the final output    
+            MTBSEQ_SINGLE.out.mtbseq_class.view()
+            MTBSEQ_SINGLE.out.mtbseq_stats.view()
+            MTBSEQ_SINGLE.out.mtbseq_pos.view()
+            MTBSEQ_SINGLE.out.mtbseq_vars.view()
+            TBPROFILER_PROFILE_TBDB.out.tbdb_out.view()
+            TBPROFILER_PROFILE_WHO.out.who_out.view()
+            SNP_PROFILING_SINGLE.out.mtbseq_vcf.view()
+
             collected_outputs = MTBSEQ_SINGLE.out.mtbseq_class
-                            .mix(MTBSEQ_SINGLE.out.mtbseq_stats)
-                            .mix(MTBSEQ_SINGLE.out.mtbseq_pos)
-                            .mix(MTBSEQ_SINGLE.out.mtbseq_vars)
-                            .mix(TBPROFILER_PROFILE_TBDB.out.tbdb_out)
-                            .mix(TBPROFILER_PROFILE_WHO.out.who_out)                          
-                            .mix(SNP_PROFILING_SINGLE.out.mtbseq_vcf)
-                            .groupTuple(by: 0)
+                                .mix(MTBSEQ_SINGLE.out.mtbseq_stats)
+                                .mix(MTBSEQ_SINGLE.out.mtbseq_pos)
+                                .mix(MTBSEQ_SINGLE.out.mtbseq_vars)
+                                .mix(TBPROFILER_PROFILE_TBDB.out.tbdb_out)
+                                .mix(TBPROFILER_PROFILE_WHO.out.who_out)                          
+                                .mix(SNP_PROFILING_SINGLE.out.mtbseq_vcf)
+                                .groupTuple()
+                                .toList()
 
     collected_outputs.view()
 

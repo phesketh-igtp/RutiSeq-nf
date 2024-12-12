@@ -37,10 +37,4 @@ process SNP_PROFILING_SINGLE {
 
     """
 
-    stub:
-    """
-    touch ${sampleID}.gatk.vcf.gz
-    touch ${sampleID}.gatk.vcf.gz.tbi
-    """
-
 }
