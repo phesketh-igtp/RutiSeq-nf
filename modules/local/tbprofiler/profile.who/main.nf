@@ -19,27 +19,19 @@ process TBPROFILER_PROFILE_WHO {
 
     script:
     
-    def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
+        def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
-    """
-
-        echo "Debug: Checking input files"
-        ls -l ${mtbc_forward} ${mtbc_reverse}
-
-        ln -s ${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_R1.fastq.gz ${sampleID}_R1.fastq.gz
-        ln -s ${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_R2.fastq.gz ${sampleID}_R2.fastq.gz 
-
-        echo "Debug: Running tb-profiler"
+        """
         tb-profiler profile \\
-            -1 ${sampleID}_R1.fastq.gz \\
-            -2 ${sampleID}_R2.fastq.gz  \\
-            -p ${sampleID} \\
-        --txt --dir . \\
-        --db ${params.tbprofiler_who} \\
-        --threads ${task.cpus} \\
-        ${additional_args}
+                -1 ${mtbc_forward} \\
+                -2 ${mtbc_reverse} \\
+                -p ${sampleID} \\
+            --txt --dir . \\
+            --db ${params.tbprofiler_who} \\
+            --threads ${task.cpus} \\
+            ${additional_args}
 
-    rm -rf bam/ vcf/
-    
-    """
+        rm -rf bam/ vcf/
+        
+        """
 }
