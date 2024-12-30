@@ -23,12 +23,24 @@ process FILE_CHECK {
         """
         if [ -f ${mtbseq_class} ] && [ -f ${mtbseq_stats} ] && [ -f ${mtbseq_pos} ] && [ -f ${mtbseq_vars} ] && [ -f ${tbdb_out} ] && [ -f ${who_out} ] && [ -f ${mtbseq_vcf} ]; then
             
-            echo "${sampleID},${mtbseq_class},${mtbseq_stats},${mtbseq_pos},${mtbseq_vars},${tbdb_out},${who_out},${mtbseq_vcf}" >> pairwise_samples.txt
-
+            echo "${sampleID},${mtbseq_class},${mtbseq_stats},${mtbseq_pos},${mtbseq_vars},${tbdb_out},${who_out},${mtbseq_vcf}" > pairwise_samples.txt
+            
+            echo "DEBUG: Added to pairwise_samples.txt: ${sampleID}" >&2
+        
         else
-
-            echo "${sampleID},${forward_path},${reverse_path}" >> single_samples.txt
-
+            
+            echo "${sampleID},${forward_path},${reverse_path}" > single_samples.txt
+            
+            echo "DEBUG: Added to single_samples.txt: ${sampleID}" >&2
+        
         fi
+
+        echo "DEBUG: Content of pairwise_samples.txt:" >&2
+        cat pairwise_samples.txt >&2 || echo "pairwise_samples.txt does not exist" >&2
+        echo "DEBUG: Content of single_samples.txt:" >&2
+        cat single_samples.txt >&2 || echo "single_samples.txt does not exist" >&2
+
+        # Ensure the process doesn't fail if one of the files doesn't exist
+            touch pairwise_samples.txt single_samples.txt
         """
 }

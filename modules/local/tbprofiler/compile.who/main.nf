@@ -15,7 +15,7 @@ process TBPROFILER_COMPILE_WHO {
         path (tbprofiler_who_results)
 
     output:
-        path("tbprofiler.txt"),                                         emit: tbprofile_who_compile
+        path("tbprofiler.txt"),               emit: who_results
         path "tbprofiler.dr.indiv.itol.txt"
         path "tbprofiler.dr.itol.txt"
         path "tbprofiler.lineage.itol.txt"

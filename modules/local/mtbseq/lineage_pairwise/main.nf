@@ -1,6 +1,6 @@
 process MTBSEQ_LINEAGE_PAIRWISE {
 
-    tag "${lineage}"
+    tag "${runID}_${lineage}"
 
     conda params.mtbseq_env
 
@@ -8,40 +8,47 @@ process MTBSEQ_LINEAGE_PAIRWISE {
             } else { 'quay.io/biocontainers/mtbseq' }
     }
                 
-    publishDir "${params.outdir}/bbdd/mtbseq/lineages/${lineage}", mode: 'copy'
+    publishDir "${params.outdir}/bbdd/mtbseq/pairwise/${lineage}", mode: 'copy'
 
     input:
         val runID
-        tuple val(lineage), val(sample_name), path(called_dir), path(position_tables_dir)
+        tuple val(lineage), path(samples_file)
 
     output:
         // Amend outputs
-        tuple val(lineage), path("Amend/"),                                                        emit: amended_dir
-        tuple val(lineage), path("Amend/${lineage}_joint_*_amended.tab"),                          emit: amended_tab
-        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo.fasta"),               emit: phylo_fasta
-        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo.plainIDs.fasta"),      emit: phylo_plainids_fasta
-        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo.tab"),                 emit: phylo_tab
-        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.fasta"),            emit: phylo_w_fasta
-        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.plainIDs.fasta"),   emit: phylo_w_plainids_fasta
-        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo_w*_removed.tab"),      emit: phylo_w_removed_tab
-        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.tab"),              emit: phylo_w_tab
+        tuple val(lineage), path("Amend/"),                                                  emit: amended_dir
+        tuple val(lineage), path("Amend/${lineage}_joint_*_amended.tab")
+        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo.fasta")
+        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo.plainIDs.fasta")
+        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo.tab")
+        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.fasta")
+        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.plainIDs.fasta")
+        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo_w*_removed.tab")
+        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.tab")
         // Join outputs
-        tuple val(lineage), path("Join/"),                                                         emit: join_dir
-        path("Join/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.log"),                                emit: join_log
-        path("Join/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.tab"),                                emit: join_tab
+        tuple val(lineage), path("Join/"),                                                   emit: join_dir
+        path("Join/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.log")
+        path("Join/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.tab")
 
     script:
 
     def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
     """
-    # get the genomes that have >= "${params.mtbseq.minCov}"
-    awk '{if (\$17 >= ${params.mtbseq.minCov}) print}' ${samples_file} | sed 's@_L@\tL@g' > ${lineage}.mtbseq.samples.txt
+
+    mkdir Position_Tables/ Called/
+
+    sed 's@\t@_@g' ${samples_file} samplesID.list
+
+    while IFS=',' read -r sampleID; do
+        ln -s ${params.outdir}/bbdd/mtbseq/pairwise/\${sampleID}/Position_Tables/* Position_Tables/
+        ln -s ${params.outdir}/bbdd/mtbseq/pairwise/\${sampleID}/Called/* Called/
+    done
 
     MTBseq --step TBjoin \\
         --thread ${task.cpus} \\
         --prefix ${lineage} \\
-        --sample ${lineage}.mtbseq.samples.txt \\
+        --sample ${samples_file} \\
         ${additional_args} \\
         1>>.command.out \\
         2>>.command.err \\
@@ -50,10 +57,11 @@ process MTBSEQ_LINEAGE_PAIRWISE {
     MTBseq --step TBamend \\
         --thread ${task.cpus} \\
         --prefix ${lineage} \\
-        --samples ${lineage}.mtbseq.samples.txt \\
+        --samples ${samples_file} \\
         ${additional_args} \\
         1>>.command.out \\
         2>>.command.err \\
         || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
+
     """
 }

@@ -1,9 +1,10 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
 
-include { SINGLE_WF }               from './workflows/single_wf.nf'
 include { FILE_CHECK }              from './modules/local/file-checks/main.nf'
+include { SINGLE_WF }               from './workflows/single_wf.nf'
 include { PAIRWISE_WF }             from './workflows/pairwise_wf.nf'
+//include { SUMMARY_WF }              from './workflows/summary_wf.nf'
 
 workflow {
     
@@ -76,90 +77,108 @@ workflow {
         // Check if the genome has previously been analyzed
             FILE_CHECK(samples_ch)
 
-        /*
-            SINGLE genome analysis
-        */
-
-        // Collect and parse the pairwise samples into the desired structure
-            single_samples = FILE_CHECK.out.single_input
-                                            .collectFile(name: 'all_single_samples.txt', newLine: true)
-
-            single_samples
-                .splitCsv()
-                .map { row -> 
-                    def (sampleID, forward, reverse) = row
-                    tuple(sampleID, 
-                        file(forward, checkIfExists: true), 
-                        file(reverse, checkIfExists: true)
-                        )
-                    }
-                .set { single_samples_ch }
-
-            // Only run SINGLE_WF if single_samples_ch is not empty
-                single_samples_ch
-                    .ifEmpty { 
-                        log.info "${color_red}File check:${color_green} No single samples to process. ${color_red}Skipping SINGLE_WF.${color_reset}"
-                    }
-                    .set { samples_to_process }
-
-        // Call the SINGLE_WORKFLOW only for samples missing files
-            SINGLE_WF(
-                single_samples_ch, 
-                file(params.kaiju_names),
-                file(params.kaiju_nodes),
-                file(params.kaiju_fmi)
-                    )
-
-        /*
-            PAIRWISE genome analysis      
-        */
-
-        FILE_CHECK.out.single_input.view { log.info "Single input: $it" }
-        FILE_CHECK.out.pairwise_input.view { log.info "Pairwise input: $it" }
-        SINGLE_WF.out.analyzed_single_samples_ch.view { log.info "Analyzed single samples: $it" }
-
-        // Collect and parse the pairwise samples into the desired structure
+            // After the FILE_CHECK process
             pairwise_samples = FILE_CHECK.out.pairwise_input
-                .collectFile(name: 'all_pairwise_samples.txt', newLine: true)
+                .collectFile(name: 'all_pairwise_samples.txt', newLine: true, storeDir: params.outdir)
+                .ifEmpty { file("${params.outdir}/empty_pairwise_samples.txt") }
 
-            pairwise_samples.view()
+            single_samples = FILE_CHECK.out.single_input
+                .collectFile(name: 'all_single_samples.txt', newLine: true, storeDir: params.outdir)
+                .ifEmpty { file("${params.outdir}/empty_single_samples.txt") }
 
-        // Parse the pairwise samples into the desired structure
+            // Debug: Print the content of all_pairwise_samples.txt and all_single_samples.txt
+            pairwise_samples.view   { "DEBUG - Content of all_pairwise_samples.txt:\n${it.text}" }
+            single_samples.view     { "DEBUG - Content of all_single_samples.txt:\n${it.text}" }
+
+            // Parse the pairwise samples into the desired structure
             pairwise_samples_ch = pairwise_samples
                 .splitCsv()
                 .map { row -> 
-                    def (sampleID,mtbseq_class,mtbseq_stats,mtbseq_pos,mtbseq_vars,tbdb_out,who_out,mtbseq_vcf) = row
-                    tuple(sampleID, 
-                        file(mtbseq_class),
-                        file(mtbseq_stats),
-                        file(mtbseq_pos),
-                        file(mtbseq_vars),
-                        file(tbdb_out),
-                        file(who_out),
-                        file(mtbseq_vcf))
+                    log.debug "DEBUG - Processing pairwise row: $row"
+                    if (row.size() == 8) {
+                        def (sampleID, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = row
+                        return tuple(
+                            sampleID, 
+                            file(mtbseq_class.trim()),
+                            file(mtbseq_stats.trim()),
+                            file(mtbseq_pos.trim()),
+                            file(mtbseq_vars.trim()),
+                            file(tbdb_out.trim()),
+                            file(who_out.trim()),
+                            file(mtbseq_vcf.trim())
+                        )
+                    } else {
+                        log.warn "Skipping pairwise row with incorrect number of elements: $row"
+                        return null
+                    }
                 }
+                .filter { it != null }
 
-        // Create a merged channel that has all the paths for the outputs needed for the pairwise analysis
-            pairwise_input_ch = pairwise_samples_ch.mix(
-                SINGLE_WF.out.analyzed_single_samples_ch.map { sampleID, files ->
-                    tuple(
-                        sampleID,
-                        files[0], // mtbseq_class
-                        files[1], // mtbseq_stats
-                        files[2], // mtbseq_pos
-                        files[3], // mtbseq_vars
-                        files[4], // tbdb_out
-                        files[5], // who_out
-                        files[6]  // mtbseq_vcf
+        // Parse the single samples into the desired structure
+        single_samples_ch = single_samples
+            .splitCsv()
+            .map { row -> 
+                log.debug "DEBUG - Processing single row: $row"
+                if (row.size() == 3) {
+                    def (sampleID, forward, reverse) = row
+                    return tuple(sampleID, file(forward.trim()), file(reverse.trim()))
+                } else {
+                    log.warn "Skipping single row with incorrect number of elements: $row"
+                    return null
+                }
+            }
+            .filter { it != null }
+
+            // Debug: Print the content of pairwise_samples_ch and single_samples_ch
+            pairwise_samples_ch.view { sample -> "DEBUG - Pairwise sample: $sample" }
+            single_samples_ch.view { sample -> "DEBUG - Single sample: $sample" }
+
+        /*
+            SINGLE sample analysis
+        */
+
+        // Use pairwise_samples_ch and single_samples_ch for further processing
+            pairwise_samples_ch
+                .ifEmpty { 
+                    log.info "${color_red}File check:${color_green} No pairwise samples found. ${color_red}Skipping PAIRWISE_WF.${color_reset}"
+                        }
+                .set { final_pairwise_samples_ch }
+
+            single_samples_ch
+                .ifEmpty { 
+                    log.info "${color_red}File check:${color_green} No single samples found. ${color_red}Skipping SINGLE_WF.${color_reset}"
+                        }
+                .set { final_single_samples_ch }
+
+                 // DEV: Inspect the resulting channels
+                final_pairwise_samples_ch.view  { sample -> "Final pairwise input: $sample" }
+                final_single_samples_ch.view    { sample -> "Final single input: $sample"   }
+
+        // Call the SINGLE_WORKFLOW only for samples missing necessary files
+            SINGLE_WF(final_single_samples_ch, 
+                        file(params.kaiju_names),
+                        file(params.kaiju_nodes),
+                        file(params.kaiju_fmi)
                     )
-                }
-            )
 
-        // DEV: Inspect the resulting channel has the expected structure (tuple: sampleID,mtbseq_class,mtbseq_stats,mtbseq_pos,tbdb_out,who_out,mtbseq_vcf)
-        pairwise_input_ch.view()
+        /*
+            PAIRWISE sample analysis that have all the intermediate documents OR 
+            post SINGLE_WF analysis (depends on if intermediate files were present in the BBDD)
+        */
 
-/*
-            PAIRWISE_WF(pairwise_input_ch, params.runID)
-*/
+        // Call the PAIRWISE_WF con
+            //PAIRWISE_WF(params.runID, final_pairwise_samples_ch)
 
 }
+
+//        SUMMARY_WF(params.runID
+//                    PAIRWISE_WF.out.pairwise_clusters,
+//                    PAIRWISE_WF.out.pairwise_matrix,
+//                    PAIRWISE_WF.out.analysis_summary,
+//                    PAIRWISE_WF.out.who_resistance,
+//                    PAIRWISE_WF.out.tbdb_resistance
+//                    )
+//
+//        BARCODING_WF(params.runID,
+//                    final_single_samples_ch,
+//                    PAIRWISE_WF.out.mtbseq_vcf)
