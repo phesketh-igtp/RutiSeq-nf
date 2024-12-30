@@ -4,9 +4,8 @@ nextflow.enable.dsl = 2
 include { FILE_CHECK }              from './modules/local/file-checks/main.nf'
 include { SINGLE_WF_SUBMIT }        from './workflows/glue/single_submit.nf'
 include { SINGLE_WF }               from './workflows/single_wf.nf'
-include { PAIRWISE_WF_SUBMIT }      from './workflows/glue/pairwise_submit.nf'
 include { PAIRWISE_WF }             from './workflows/pairwise_wf.nf'
-//include { SUMMARY_WF }              from './workflows/summary_wf.nf'
+include { SUMMARY_WF }              from './workflows/summary_wf.nf'
 
 workflow {
     
@@ -140,7 +139,7 @@ workflow {
         */
         // Call the SINGLE_WORKFLOW only for samples missing necessary files
             SINGLE_WF_SUBMIT(
-                                single_samples_ch
+                            single_samples_ch
                             )
 
         /*
@@ -149,10 +148,19 @@ workflow {
         */
 
         // Call the PAIRWISE_WF con
-            PAIRWISE_WF_SUBMIT(
-                                params.runID, 
-                                pairwise_samples_ch,
-                                SINGLE_WF_SUBMIT.out.single_results
-                            )
+            PAIRWISE_WF(
+                            params.runID, 
+                            pairwise_samples_ch,
+                            SINGLE_WF_SUBMIT.out.single_results
+                        )
+
+        // SUMMARY_WF
+            SUMMARY_WF(     params.runID,
+                            PAIRWISE_WF.out.pairwise_clusters,
+                            PAIRWISE_WF.out.pairwise_matrix,
+                            PAIRWISE_WF.out.analysis_summary,
+                            PAIRWISE_WF.out.who_resistance,
+                            PAIRWISE_WF.out.tbdb_resistance
+                    )
 
 }

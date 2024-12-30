@@ -3,7 +3,7 @@ include { PREPARE_PATHS }           from '../modules/local/summary/prepare-paths
 include { GENERATE_PHYLOGENY }      from '../modules/local/summary/generate-phylogeny/main.nf'
 include { GENERATE_NEXUS }          from '../modules/local/summary/generate-nexys/main.nf'
 
-process SUMMARY_WORKFLOW{
+workflow SUMMARY_WF{
 
     take:
         runID

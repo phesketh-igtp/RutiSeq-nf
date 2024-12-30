@@ -38,6 +38,12 @@ workflow PAIRWISE_WF_SUBMIT {
                     )
 
     emit:
-        pairwise_results    = PAIRWISE_WF.out
         single_results      = single_results
+        pairwise_clusters   = PAIRWISE_WF.out.pairwise_clusters
+        pairwise_matrix     = PAIRWISE_WF.out.pairwise_matrix
+        analysis_summary    = PAIRWISE_WF.out.analysis_summary
+        who_resistance      = PAIRWISE_WF.out.who_resistance
+        tbdb_resistance     = PAIRWISE_WF.out.tbdb_resistance
+        //snp_vcf       = PAIRWISE_WF.out.snp_vcf
+
 }

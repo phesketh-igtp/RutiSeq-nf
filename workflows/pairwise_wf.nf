@@ -10,6 +10,7 @@ workflow PAIRWISE_WF {
     take:
         runID
         pairwise_branched_samples
+        single_results
 
     main:
         def color_purple = '\u001B[35m'
@@ -105,11 +106,12 @@ workflow PAIRWISE_WF {
             MTBSEQ_PAIRWISE_RESULTS(all_clusters, all_matrices)
 
     emit:
+        single_results              = single_results
         pairwise_clusters           = MTBSEQ_PAIRWISE_RESULTS.out.master_clusters
         pairwise_matrix             = MTBSEQ_PAIRWISE_RESULTS.out.master_matrices
         analysis_summary            = COMPILE_SEQUENCING_STATS.out.analysis_summary
         who_resistance              = COMPILE_SEQUENCING_STATS.out.who_resistance
         tbdb_resistance             = COMPILE_SEQUENCING_STATS.out.tbdb_resistance
-        //mtbseq_vcf                  = mtbseq_vcf_ch
+        //snp_vcf                  = mtbseq_vcf_ch
 
 }
