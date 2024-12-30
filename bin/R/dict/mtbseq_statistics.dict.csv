@@ -1,0 +1,24 @@
+old.name,new.name,value,final
+V1,Date,date,Y
+V2,SampleID,character,Y
+V3,LibraryID,character,Y
+V4,FullID,character,Y
+V6,Total Reads,numeric,Y
+V7,Mapped Reads,numeric,Y
+V8,Mapped Reads (%),numeric,Y
+V9,Genome Size,numeric,Y
+V10,Genome GC,numeric,Y
+V11,(Any) Total Bases,numeric,Y
+V12,(Any) Total Bases (%),numeric,Y
+V13,(Any) GC-Content,numeric,Y
+V14,(Any) Coverage mean,numeric,Y
+V15,(Any) Coverage median,numeric,Y
+V16,(Unambiguous) Total Bases,numeric,Y
+V17,(Unambiguous) Total Bases (%),numeric,Y
+V18,(Unambiguous) GC-Content,numeric,Y
+V19,(Unambiguous) Coverage mean,numeric,Y
+V20,(Unambiguous) Coverage median,numeric,Y
+V21,SNPs,numeric,Y
+V22,Deletions,numeric,Y
+V23,Insertions,numeric,Y
+V24,Uncovered Substitutions (Including Stop Codons),numeric,Y

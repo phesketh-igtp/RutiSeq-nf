@@ -1,0 +1,29 @@
+old.name,new.name,value,final
+sample,sample,character,Y
+main_lineage,Main lineage,character,Y
+sub_lineage,Sub-lineage,character,Y
+spoligotype,spoligotype,character,N
+drtype,DR type,character,Y
+target_median_depth,target_median_depth,numeric,N
+pct_reads_mapped,pct_reads_mapped,numeric,N
+num_reads_mapped,num_reads_mapped,numeric,N
+num_dr_variants,DR variants,numeric,Y
+num_other_variants,num_other_variants,numeric,N
+rifampicin,RIF,character,Y
+isoniazid,INH,character,Y
+ethambutol,EMB,character,Y
+pyrazinamide,PZA,character,Y
+moxifloxacin,MXF,character,Y
+levofloxacin,LEV,character,Y
+bedaquiline,BDQ,character,Y
+delamanid,DLM,character,Y
+pretomanid,Pa,character,Y
+linezolid,LZD,character,Y
+streptomycin,STR,character,Y
+amikacin,AMI,character,Y
+kanamycin,KAN,character,Y
+capreomycin,CAP,character,Y
+clofazimine,CFZ,character,Y
+ethionamide,ETH,character,Y
+para.aminosalicylic_acid,PAC,character,Y
+cycloserine,CYR,character,Y

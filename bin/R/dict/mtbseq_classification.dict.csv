@@ -1,0 +1,17 @@
+old.name,new.name,value,final
+V1,Date,character,Y
+V2,SampleID,character,Y
+V3,LibraryID,character,Y
+V4,FullID,character,Y
+V5,Homolka species,character,Y
+V6,Homolka lineage,character,Y
+V7,Homolka group,character,Y
+V8,Quality,character,Y
+V9,Coll lineage (branch),character,Y
+V10,Coll lineage_name (branch),character,Y
+V11,Coll quality (branch),character,Y
+V12,Coll lineage (easy),character,Y
+V13,Coll lineage_name (easy),character,Y
+V14,Coll quality (easy),character,Y
+V15,Beijing lineage (easy),character,Y
+V16,Beijing quality (easy),character,Y

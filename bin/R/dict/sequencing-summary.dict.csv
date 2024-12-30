@@ -1,0 +1,64 @@
+old.name,new.name,value,final
+Date,Date,timestamp,N
+SampleID,SampleID,character,N
+FullID,Sample,character,Y
+LibraryID,Library,character,Y
+main_lineage,Main lineage,character,Y
+sub_lineage,Sub-lineage,character,Y
+infection_type,Infection type,character,Y
+Total Reads,Total Reads,numeric,Y
+Mapped Reads,Mapped Reads,numeric,N
+Mapped Reads (%),Mapped Reads (%),numeric,N
+Genome Size,Genome size,numeric,N
+Genome GC,Genome (GC),numeric,N
+(Any) Total Bases,(Any) Total Bases,numeric,N
+(Any) Total Bases (%),(Any) Total Bases (%),numeric,N
+(Any) GC-Content,(Any) GC Content,numeric,N
+(Any) Coverage mean,(Any) Coverage mean,numeric,N
+(Any) Coverage median,(Any) Coverage median,numeric,N
+(Unambiguous) Total Bases,(Unambiguous) Total Bases,numeric,Y
+(Unambiguous) Total Bases (%),(Unambiguous) Total Bases (%),numeric,Y
+(Unambiguous) GC-Content,(Unambiguous) GC Content,numeric,Y
+(Unambiguous) Coverage mean,(Unambiguous) Coverage mean,numeric,N
+(Unambiguous) Coverage median,(Unambiguous) Coverage median,numeric,Y
+SNPs,nSNPs,numeric,Y
+Deletions,Deletions,numeric,N
+Insertions,Insertions,numeric,N
+Uncovered Substitutions (Including Stop Codons),Substitutions (including stop codons),numeric,N
+Homolka species,Homolka species,character,N
+Homolka lineage,Homolka lineage,character,N
+Homolka group,Homolka group,character,N
+Quality,Quality,character,N
+Coll lineage (branch),Coll lineage (branch),character,N
+Coll lineage_name (branch),Coll lineage name (branch),character,N
+Coll quality (branch),Coll quality (branch),character,N
+Coll lineage (easy),Coll lineage (easy),character,N
+Coll lineage_name (easy),Coll lineage_name (easy),character,N
+Coll quality (easy),Coll quality (easy),character,N
+Beijing lineage (easy),Beijing lineage (easy),character,N
+Beijing quality (easy),Beijing quality (easy),character,N
+spoligotype,spoligotype,character,N
+drtype,Drug resistance type,character,Y
+target_median_depth,target_median_depth,character,N
+pct_reads_mapped,pct_reads_mapped,character,N
+num_reads_mapped,num_reads_mapped,character,N
+num_dr_variants,num_dr_variants,character,N
+num_other_variants,num_other_variants,character,N
+rifampicin,RIF,character,N
+isoniazid,INH,character,N
+ethambutol,EMB,character,N
+pyrazinamide,PZA,character,N
+moxifloxacin,MXF,character,N
+levofloxacin,LEV,character,N
+bedaquiline,BDQ,character,N
+delamanid,DLM,character,N
+pretomanid,Pa,character,N
+linezolid,LZD,character,N
+streptomycin,STR,character,N
+amikacin,AMI,character,N  
+kanamycin,KAN,character,N
+capreomycin,CAP,character,N
+clofazimine,CFZ,character,N
+ethionamide,ETH,character,N
+para.aminosalicylic_acid,PAC,character,N
+cycloserine,CYR,character,N
