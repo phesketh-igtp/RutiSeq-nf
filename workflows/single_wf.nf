@@ -13,7 +13,7 @@ workflow SINGLE_WF {
     */
 
     take:
-        single_branched_samples
+        single_samples_ch
         kaiju_names
         kaiju_nodes
         kaiju_fmi
@@ -36,61 +36,73 @@ workflow SINGLE_WF {
         ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
         2024-12-09
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${no_color}
-        """          
+        """
 
-        // Run MTBC_READ_QC on filtered samples
-            MTBC_READ_QC(single_branched_samples,
-                        kaiju_names,
-                        kaiju_nodes,
-                        kaiju_fmi
-                        )
+        // Check if the input channel is empty
+        def collected_outputs
+        def all_qc_results
+        def mtbc_reads_ch
 
-        // Collect all QC results
-            all_qc_results = MTBC_READ_QC.out.qc_results.map { it[1] }.collect()
+        single_samples_ch
+            .ifEmpty { 
+                log.info "No single samples to process. Creating empty 'collected_outputs' channel."
+                collected_outputs = Channel.empty()
+                return Channel.empty()
+            }
+            .set { samples_to_process }
 
-        // Combine QC results : NEEDS REPAIRING
-            COMBINE_QC_RESULTS( // produce TSV of read QC results
-                            all_qc_results, 
-                            params.runID)
+        // Process samples if the channel is not empty
+            samples_to_process.branch {
+                has_samples: it != null
+                no_samples: it == null
+            }
+            .set { branched_samples }
 
-        // Explicitly capture the mtbc_reads output
-            mtbc_reads_ch = MTBC_READ_QC.out.mtbc_reads
+            branched_samples.has_samples.ifEmpty { Channel.empty() }
+                
+            // Taxonomically classify and partition the MTBC reads
+                MTBC_READ_QC(
+                            samples_to_process, 
+                            kaiju_names, 
+                            kaiju_nodes, 
+                            kaiju_fmi
+                            )
 
-            mtbc_reads_ch.view()
+            // Collect all QC results
+                all_qc_results = MTBC_READ_QC.out.qc_results.map { it[1] }.collect()
 
-        // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
-            TBPROFILER_PROFILE_TBDB(mtbc_reads_ch)
+            // Combine QC results
+                COMBINE_QC_RESULTS(all_qc_results, params.runID)
 
-            TBPROFILER_PROFILE_WHO(mtbc_reads_ch)
+            // Explicitly capture the mtbc_reads output
+                mtbc_reads_ch = MTBC_READ_QC.out.mtbc_reads
 
-        // Run MTBSEQ_SINGLE
-            MTBSEQ_SINGLE(mtbc_reads_ch)
+            // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
+                TBPROFILER_PROFILE_TBDB(mtbc_reads_ch)
 
-        // Run SNP_PROFILING_SINGLE using the mpileup output
-            SNP_PROFILING_SINGLE(MTBSEQ_SINGLE.out.mtbseq_mpileup)
+                TBPROFILER_PROFILE_WHO(mtbc_reads_ch)
 
-        // Collect all the output paths from the single analysis and create tuple that is emitted for the final output    
-            MTBSEQ_SINGLE.out.mtbseq_class.view()
-            MTBSEQ_SINGLE.out.mtbseq_stats.view()
-            MTBSEQ_SINGLE.out.mtbseq_pos.view()
-            MTBSEQ_SINGLE.out.mtbseq_vars.view()
-            TBPROFILER_PROFILE_TBDB.out.tbdb_out.view()
-            TBPROFILER_PROFILE_WHO.out.who_out.view()
-            SNP_PROFILING_SINGLE.out.mtbseq_vcf.view()
+            // Run MTBSEQ_SINGLE
+                MTBSEQ_SINGLE(mtbc_reads_ch)
 
-            collected_outputs = MTBSEQ_SINGLE.out.mtbseq_class
-                                .mix(MTBSEQ_SINGLE.out.mtbseq_stats)
-                                .mix(MTBSEQ_SINGLE.out.mtbseq_pos)
-                                .mix(MTBSEQ_SINGLE.out.mtbseq_vars)
-                                .mix(TBPROFILER_PROFILE_TBDB.out.tbdb_out)
-                                .mix(TBPROFILER_PROFILE_WHO.out.who_out)                          
-                                .mix(SNP_PROFILING_SINGLE.out.mtbseq_vcf)
-                                .groupTuple()
-                                .toList()
+            // Run SNP_PROFILING_SINGLE using the mpileup output
+                SNP_PROFILING_SINGLE(MTBSEQ_SINGLE.out.mtbseq_mpileup)
+
+            // Collect all the output paths from the single analysis and create tuple that is emitted for the final output    
+                collected_outputs = MTBSEQ_SINGLE.out.mtbseq_class
+                                    .mix(MTBSEQ_SINGLE.out.mtbseq_stats)
+                                    .mix(MTBSEQ_SINGLE.out.mtbseq_pos)
+                                    .mix(MTBSEQ_SINGLE.out.mtbseq_vars)
+                                    .mix(TBPROFILER_PROFILE_TBDB.out.tbdb_out)
+                                    .mix(TBPROFILER_PROFILE_WHO.out.who_out)                          
+                                    .mix(SNP_PROFILING_SINGLE.out.mtbseq_vcf)
+                                    .groupTuple()
+                                    .toList()
+
 
     emit:
-        analyzed_single_samples_ch  = collected_outputs
-        snp_vcf                     = SNP_PROFILING_SINGLE.out.mtbseq_vcf
-        snp_vcf_index               = SNP_PROFILING_SINGLE.out.mtbseq_vcf_index
+        analyzed_single_samples_ch = branched_samples.has_samples
+            ? collected_outputs
+            : Channel.empty()
 
 }

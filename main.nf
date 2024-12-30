@@ -140,9 +140,12 @@ workflow {
             SINGLE sample analysis
         */
         // Call the SINGLE_WORKFLOW only for samples missing necessary files
-            SINGLE_WF_SUBMIT(
-                            single_samples_ch
-                            )
+            SINGLE_WF(
+                        single_samples_ch,
+                        params.kaiju_names,
+                        params.kaiju_nodes,
+                        params.kaiju_fmi
+                    )
 
         /*
             PAIRWISE sample analysis that have all the intermediate documents OR 
