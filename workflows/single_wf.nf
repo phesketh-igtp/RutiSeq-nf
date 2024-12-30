@@ -62,7 +62,7 @@ workflow SINGLE_WF {
             TBPROFILER_PROFILE_TBDB(mtbc_reads_ch)
 
             TBPROFILER_PROFILE_WHO(mtbc_reads_ch)
-    
+
         // Run MTBSEQ_SINGLE
             MTBSEQ_SINGLE(mtbc_reads_ch)
 
@@ -87,8 +87,6 @@ workflow SINGLE_WF {
                                 .mix(SNP_PROFILING_SINGLE.out.mtbseq_vcf)
                                 .groupTuple()
                                 .toList()
-
-    collected_outputs.view()
 
     emit:
         analyzed_single_samples_ch = collected_outputs
