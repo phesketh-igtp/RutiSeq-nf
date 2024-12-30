@@ -1,0 +1,22 @@
+name: r-env
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+- r-base
+- r-tidyverse
+- r-optparse
+- r-stringi
+- r-magrittr
+- bioconductor-ggtree
+- r-ape
+- r-ggrepel
+- r-patchwork
+- r-randomcolor
+- r-rcolorbrewer
+- r-dplyr
+- r-tidyr
+- bioconductor-snprelate
+- r-argparse
+- r-stringr
