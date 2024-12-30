@@ -89,6 +89,8 @@ workflow SINGLE_WF {
                                 .toList()
 
     emit:
-        analyzed_single_samples_ch = collected_outputs
+        analyzed_single_samples_ch  = collected_outputs
+        snp_vcf                     = SNP_PROFILING_SINGLE.out.mtbseq_vcf
+        snp_vcf_index               = SNP_PROFILING_SINGLE.out.mtbseq_vcf_index
 
 }

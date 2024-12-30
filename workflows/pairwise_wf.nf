@@ -112,6 +112,5 @@ workflow PAIRWISE_WF {
         analysis_summary            = COMPILE_SEQUENCING_STATS.out.analysis_summary
         who_resistance              = COMPILE_SEQUENCING_STATS.out.who_resistance
         tbdb_resistance             = COMPILE_SEQUENCING_STATS.out.tbdb_resistance
-        //snp_vcf                  = mtbseq_vcf_ch
 
 }

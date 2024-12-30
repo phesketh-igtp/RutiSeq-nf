@@ -43,4 +43,9 @@ workflow SUMMARY_WF{
                         analysis_summary
                         )
 
+/*
+    emit:
+        mjn_positions   =   GENERATE_NEXUS.out.mjn_positions
+*/
+
 }

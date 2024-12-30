@@ -6,6 +6,7 @@ include { SINGLE_WF_SUBMIT }        from './workflows/glue/single_submit.nf'
 include { SINGLE_WF }               from './workflows/single_wf.nf'
 include { PAIRWISE_WF }             from './workflows/pairwise_wf.nf'
 include { SUMMARY_WF }              from './workflows/summary_wf.nf'
+include { BARCODING_WF }            from './workflows/barcoding_wf.nf'
 
 workflow {
     
@@ -154,7 +155,12 @@ workflow {
                             SINGLE_WF_SUBMIT.out.single_results
                         )
 
-        // SUMMARY_WF
+        /*
+            SUMMARY_WF to generate the XCEL summary tables, produce ML phylogenetic trees 
+            and visualise them, and generate MJN files for visualisation in PopArt, and
+            interactive python networks
+        */
+/*
             SUMMARY_WF(     params.runID,
                             PAIRWISE_WF.out.pairwise_clusters,
                             PAIRWISE_WF.out.pairwise_matrix,
@@ -162,5 +168,19 @@ workflow {
                             PAIRWISE_WF.out.who_resistance,
                             PAIRWISE_WF.out.tbdb_resistance
                     )
+*/
+
+        /*
+            BARCODING_WF to perform barcoding analysis of the VCF files generated from the single workflow.
+            This analysis has a much lower priority
+        */
+/*
+            BARCODING_WF(
+                            params.runID,
+                            PAIRWISE_WF.out.pairwise_clusters
+                            PAIRWISE_WF.out.analysis_summary
+                            SUMMARY_WF.out.mjn_positions
+                        )
+*/
 
 }
