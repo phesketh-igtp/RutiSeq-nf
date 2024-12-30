@@ -13,7 +13,7 @@ workflow SINGLE_WF {
     */
 
     take:
-        single_samples_ch
+        final_single_samples_ch
         kaiju_names
         kaiju_nodes
         kaiju_fmi
@@ -39,7 +39,7 @@ workflow SINGLE_WF {
         """          
 
         // Run MTBC_READ_QC on filtered samples
-            MTBC_READ_QC(single_samples_ch,
+            MTBC_READ_QC(final_single_samples_ch,
                         kaiju_names,
                         kaiju_nodes,
                         kaiju_fmi

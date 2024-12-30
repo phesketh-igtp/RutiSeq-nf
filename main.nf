@@ -2,7 +2,9 @@
 nextflow.enable.dsl = 2
 
 include { FILE_CHECK }              from './modules/local/file-checks/main.nf'
+include { SINGLE_WF_SUBMIT }        from './workflows/glue/single_submit.nf'
 include { SINGLE_WF }               from './workflows/single_wf.nf'
+include { PAIRWISE_WF_SUBMIT }      from './workflows/glue/pairwise_submit.nf'
 include { PAIRWISE_WF }             from './workflows/pairwise_wf.nf'
 //include { SUMMARY_WF }              from './workflows/summary_wf.nf'
 
@@ -150,16 +152,12 @@ workflow {
                         }
                 .set { final_single_samples_ch }
 
-                 // DEV: Inspect the resulting channels
+                // DEV: Inspect the resulting channels
                 final_pairwise_samples_ch.view  { sample -> "Final pairwise input: $sample" }
                 final_single_samples_ch.view    { sample -> "Final single input: $sample"   }
 
         // Call the SINGLE_WORKFLOW only for samples missing necessary files
-            SINGLE_WF(final_single_samples_ch, 
-                        file(params.kaiju_names),
-                        file(params.kaiju_nodes),
-                        file(params.kaiju_fmi)
-                    )
+            SINGLE_WF_SUBMIT(final_single_samples_ch)
 
         /*
             PAIRWISE sample analysis that have all the intermediate documents OR 
@@ -167,7 +165,8 @@ workflow {
         */
 
         // Call the PAIRWISE_WF con
-            //PAIRWISE_WF(params.runID, final_pairwise_samples_ch)
+            PAIRWISE_WF_SUBMIT(params.runID, 
+                                final_pairwise_samples_ch)
 
 }
 
