@@ -108,7 +108,7 @@ workflow {
                             file(tbdb_out.trim()),
                             file(who_out.trim()),
                             file(mtbseq_vcf.trim())
-                        )
+                        )   
                     } else {
                         log.warn "Skipping pairwise row with incorrect number of elements: $row"
                         return null
@@ -138,26 +138,10 @@ workflow {
         /*
             SINGLE sample analysis
         */
-
-        // Use pairwise_samples_ch and single_samples_ch for further processing
-            pairwise_samples_ch
-                .ifEmpty { 
-                    log.info "${color_red}File check:${color_green} No pairwise samples found. ${color_red}Skipping PAIRWISE_WF.${color_reset}"
-                        }
-                .set { final_pairwise_samples_ch }
-
-            single_samples_ch
-                .ifEmpty { 
-                    log.info "${color_red}File check:${color_green} No single samples found. ${color_red}Skipping SINGLE_WF.${color_reset}"
-                        }
-                .set { final_single_samples_ch }
-
-                // DEV: Inspect the resulting channels
-                final_pairwise_samples_ch.view  { sample -> "Final pairwise input: $sample" }
-                final_single_samples_ch.view    { sample -> "Final single input: $sample"   }
-
         // Call the SINGLE_WORKFLOW only for samples missing necessary files
-            SINGLE_WF_SUBMIT(final_single_samples_ch)
+            SINGLE_WF_SUBMIT(
+                                single_samples_ch
+                            )
 
         /*
             PAIRWISE sample analysis that have all the intermediate documents OR 
@@ -165,19 +149,10 @@ workflow {
         */
 
         // Call the PAIRWISE_WF con
-            PAIRWISE_WF_SUBMIT(params.runID, 
-                                final_pairwise_samples_ch)
+            PAIRWISE_WF_SUBMIT(
+                                params.runID, 
+                                pairwise_samples_ch,
+                                SINGLE_WF_SUBMIT.out.single_results
+                            )
 
 }
-
-//        SUMMARY_WF(params.runID
-//                    PAIRWISE_WF.out.pairwise_clusters,
-//                    PAIRWISE_WF.out.pairwise_matrix,
-//                    PAIRWISE_WF.out.analysis_summary,
-//                    PAIRWISE_WF.out.who_resistance,
-//                    PAIRWISE_WF.out.tbdb_resistance
-//                    )
-//
-//        BARCODING_WF(params.runID,
-//                    final_single_samples_ch,
-//                    PAIRWISE_WF.out.mtbseq_vcf)

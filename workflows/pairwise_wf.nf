@@ -9,7 +9,7 @@ include { MTBSEQ_PAIRWISE_RESULTS  }    from '../modules/local/mtbseq/compile-pa
 workflow PAIRWISE_WF {
     take:
         runID
-        final_pairwise_samples_ch
+        pairwise_branched_samples
 
     main:
         def color_purple = '\u001B[35m'
@@ -34,22 +34,22 @@ workflow PAIRWISE_WF {
             //mtbseq_vcf_files    = Channel.empty() //uncomment when decided on what to do with this
         */
 
-            mtbseq_stats_files = final_pairwise_samples_ch.map { tuple ->
+            mtbseq_stats_files = pairwise_branched_samples.map { tuple ->
                     def (sampleID, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
                     return mtbseq_stats
                 }
 
-            mtbseq_class_files = final_pairwise_samples_ch.map { tuple ->
+            mtbseq_class_files = pairwise_branched_samples.map { tuple ->
                     def (sampleID, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
                     return mtbseq_class
                 }
 
-            tbdb_out_files = final_pairwise_samples_ch.map { tuple ->
+            tbdb_out_files = pairwise_branched_samples.map { tuple ->
                     def (sampleID, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
                     return tbdb_out
                 }
 
-            who_out_files = final_pairwise_samples_ch.map { tuple ->
+            who_out_files = pairwise_branched_samples.map { tuple ->
                     def (sampleID, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
                     return who_out
                 }

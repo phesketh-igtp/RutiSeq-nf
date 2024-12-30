@@ -3,7 +3,7 @@ include { SINGLE_WF }               from '../single_wf.nf'
 
 workflow SINGLE_WF_SUBMIT {
     take:
-    final_single_samples_ch
+        single_samples_ch
 
     main:
 
@@ -14,7 +14,7 @@ workflow SINGLE_WF_SUBMIT {
         def no_color = '\u001B[0m'
 
     // Check if the channel is empty
-    final_single_samples_ch
+    single_samples_ch
         .ifEmpty { 
             log.info "${color_red}Workflow execution:${color_green} No single samples to process. ${color_red}SINGLE_WF will not be executed.${no_color}"
             Channel.empty()
@@ -27,10 +27,10 @@ workflow SINGLE_WF_SUBMIT {
             has_samples: it
             no_samples: Channel.empty()
         }
-        .set { branched_samples }
+        .set { single_branched_samples }
 
     SINGLE_WF(
-        branched_samples.has_samples,
+        single_branched_samples.has_samples,
         Channel.value(file(params.kaiju_names)),
         Channel.value(file(params.kaiju_nodes)),
         Channel.value(file(params.kaiju_fmi))

@@ -2,9 +2,11 @@
 include { PAIRWISE_WF }               from '../pairwise_wf.nf'
 
 workflow PAIRWISE_WF_SUBMIT {
+
     take:
         runID
-        final_pairwise_samples_ch
+        pairwise_samples_ch
+        single_results // this is empty but forces PAIRWISE_WF to wait until SINGLE_WF has been resolved
 
     main:
 
@@ -14,26 +16,28 @@ workflow PAIRWISE_WF_SUBMIT {
         def color_cyan = '\u001B[36m'
         def no_color = '\u001B[0m'
 
-    // Check if the channel is empty
-    final_pairwise_samples_ch
-        .ifEmpty { 
-            log.info "${color_red}Workflow execution:${color_green} No pairwise samples to process. ${color_red}PAIRWISE_WF will not be executed.${no_color}"
-            Channel.empty()
-        }
-        .set { samples_to_process }
+        // Check if the channel is empty
+        pairwise_samples_ch
+            .ifEmpty { 
+                log.info "${color_red}Workflow execution:${color_green} No pairwise samples to process. ${color_red}PAIRWISE_WF will not be executed.${no_color}"
+                Channel.empty()
+            }
+            .set { samples_to_process }
 
-    // Only run SINGLE_WF if there are samples to process
-    samples_to_process
-        .branch {
-            has_samples: it
-            no_samples: Channel.empty()
-        }
-        .set { branched_samples }
+        // Only run SINGLE_WF if there are samples to process
+            samples_to_process
+                .branch {
+                    has_samples: it
+                    no_samples: Channel.empty()
+                }
+                .set { pairwise_branched_samples }
 
-    PAIRWISE_WF(params.runID, 
-                branched_samples
-            )
+        // Finally run the PAIRWISE_WF
+            PAIRWISE_WF(runID, 
+                        pairwise_branched_samples.has_samples
+                    )
 
     emit:
-        pairwise_results = PAIRWISE_WF.out
+        pairwise_results    = PAIRWISE_WF.out
+        single_results      = single_results
 }
