@@ -1,7 +1,7 @@
 include { GENERATE_SUMMARY_REPORT } from '../modules/local/summary/summary-report/main.nf'
 include { PREPARE_PATHS }           from '../modules/local/summary/prepare-paths/main.nf'
 include { GENERATE_PHYLOGENY }      from '../modules/local/summary/generate-phylogeny/main.nf'
-include { GENERATE_NEXUS }          from '../modules/local/summary/generate-nexys/main.nf'
+include { GENERATE_NEXUS }          from '../modules/local/summary/generate-nexus/main.nf'
 
 workflow SUMMARY_WF{
 
