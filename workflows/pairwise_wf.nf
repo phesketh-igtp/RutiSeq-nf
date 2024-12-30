@@ -27,14 +27,6 @@ workflow PAIRWISE_WF {
         """
 
         // Create channels of just the necessary outputs contained within the tuple
-        /*
-            mtbseq_stats_files  = Channel.empty()
-            mtbseq_class_files  = Channel.empty()
-            tbdb_out_files      = Channel.empty()
-            who_out_files       = Channel.empty()
-            //mtbseq_vcf_files    = Channel.empty() //uncomment when decided on what to do with this
-        */
-
             mtbseq_stats_files = pairwise_branched_samples.map { tuple ->
                     def (sampleID, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
                     return mtbseq_stats
@@ -56,30 +48,37 @@ workflow PAIRWISE_WF {
                 }
 
             // make the channels
-            mtbseq_stats_ch = mtbseq_stats_files.collect()
-            mtbseq_class_ch = mtbseq_class_files.collect()
-            tbdb_out_ch     = tbdb_out_files.collect()
-            who_out_ch      = who_out_files.collect()
-            //mtbseq_vcf_ch   = mtbseq_vcf_files.collect()
+            mtbseq_stats_ch     =       mtbseq_stats_files.collect()
+            mtbseq_class_ch     =       mtbseq_class_files.collect()
+            tbdb_out_ch         =       tbdb_out_files.collect()
+            who_out_ch          =       who_out_files.collect()
 
         // Compile TB-Profiler results
-            TBPROFILER_COMPILE_TBDB(runID, tbdb_out_ch)
-            TBPROFILER_COMPILE_WHO(runID, who_out_ch)
+            TBPROFILER_COMPILE_TBDB(    runID, 
+                                        tbdb_out_ch
+                                    )
+
+            TBPROFILER_COMPILE_WHO(     runID, 
+                                        who_out_ch
+                                    )
 
             // DEBUG:
                 TBPROFILER_COMPILE_TBDB.out.tbdb_results.view()
                 TBPROFILER_COMPILE_WHO.out.who_results.view()
 
         // Compile stats and classifications from MTBSeq
-            MTBSEQ_STATS_COMPILE(runID, mtbseq_stats_ch, mtbseq_class_ch)
+            MTBSEQ_STATS_COMPILE(
+                                        mtbseq_stats_ch, 
+                                        mtbseq_class_ch
+                                )
             
         // Determine infection type (Mixed vs Clonal using both tbprofiler and mtbseq outputs)
         //// and filter genomes based on quality parameters (min coverage)
-            COMPILE_SEQUENCING_STATS(runID, 
-                                    TBPROFILER_COMPILE_TBDB.out.tbdb_results,
-                                    TBPROFILER_COMPILE_WHO.out.who_results,
-                                    MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_strains,
-                                    MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_map_stats
+            COMPILE_SEQUENCING_STATS(   runID, 
+                                        TBPROFILER_COMPILE_TBDB.out.tbdb_results,
+                                        TBPROFILER_COMPILE_WHO.out.who_results,
+                                        MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_strains,
+                                        MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_map_stats
                                     )
 
             // Create tuple and data channel from lineage_samples_paths.csv
@@ -91,13 +90,18 @@ workflow PAIRWISE_WF {
                 lineage_samples_ch.view()
 
         // Run the pairwise analysis by lineages
-            MTBSEQ_LINEAGE_PAIRWISE(runID, lineage_samples_ch)
+            MTBSEQ_LINEAGE_PAIRWISE(    
+                                        runID, 
+                                        lineage_samples_ch
+                                    )
 
-            MTBSEQ_LINEAGE_GROUPING(runID, lineage_samples_ch,
-                                    MTBSEQ_LINEAGE_PAIRWISE.out.amended_dir,
-                                    MTBSEQ_LINEAGE_PAIRWISE.out.join_dir)
-            
-            
+            MTBSEQ_LINEAGE_GROUPING(
+                                        runID, 
+                                        lineage_samples_ch,
+                                        MTBSEQ_LINEAGE_PAIRWISE.out.amended_dir,
+                                        MTBSEQ_LINEAGE_PAIRWISE.out.join_dir
+                                    )
+
             // Collect all cluster and matrix outputs
             all_clusters = MTBSEQ_LINEAGE_GROUPING.out.clusters.collect()
             all_matrices = MTBSEQ_LINEAGE_GROUPING.out.matrices.collect()
@@ -105,12 +109,13 @@ workflow PAIRWISE_WF {
         // Compile the pairwise analysis results into a single cluster file
             MTBSEQ_PAIRWISE_RESULTS(all_clusters, all_matrices)
 
+
     emit:
-        single_results              = single_results
-        pairwise_clusters           = MTBSEQ_PAIRWISE_RESULTS.out.master_clusters
-        pairwise_matrix             = MTBSEQ_PAIRWISE_RESULTS.out.master_matrices
-        analysis_summary            = COMPILE_SEQUENCING_STATS.out.analysis_summary
-        who_resistance              = COMPILE_SEQUENCING_STATS.out.who_resistance
-        tbdb_resistance             = COMPILE_SEQUENCING_STATS.out.tbdb_resistance
+        single_results          =       single_results
+        pairwise_clusters       =       MTBSEQ_PAIRWISE_RESULTS.out.master_clusters
+        pairwise_matrix         =       MTBSEQ_PAIRWISE_RESULTS.out.master_matrices
+        analysis_summary        =       COMPILE_SEQUENCING_STATS.out.analysis_summary
+        who_resistance          =       COMPILE_SEQUENCING_STATS.out.who_resistance
+        tbdb_resistance         =       COMPILE_SEQUENCING_STATS.out.tbdb_resistance
 
 }

@@ -36,8 +36,8 @@ workflow SINGLE_WF_SUBMIT {
         Channel.value(file(params.kaiju_fmi))
     )
 
+    single_results = Channel.empty()
+
     emit:
-        single_results  = SINGLE_WF.out.analyzed_single_samples_ch
-        snp_vcf         = SINGLE_WF.out.snp_vcf
-        snp_vcf_index   = SINGLE_WF.out.snp_vcf_index
+        single_results  = single_results
 }

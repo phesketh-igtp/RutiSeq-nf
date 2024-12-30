@@ -1,5 +1,5 @@
-include { SPLIT_CLUSTER_GROUPS }        from './modules/barcoding/split_into_clusters/main.nf'
-include { COMPUTE_FTS }        from './modules/barcoding/compute_Fts/main.nf'
+include { SPLIT_CLUSTER_GROUPS }    from '../modules/local/barcoding/split_into_clusters/main.nf'
+include { COMPUTE_FTS }             from '../modules/local/barcoding/compute_Fts/main.nf'
 
 workflow BARCODING_WORKFLOW {
 
@@ -31,7 +31,8 @@ workflow BARCODING_WORKFLOW {
 
         */
 
-            SPLIT_CLUSTER_GROUPS(runID,
+            SPLIT_CLUSTER_GROUPS(   
+                                    runID,
                                     analysis_summary,
                                     pairwise_clusters,
                                     mjn_positions
@@ -43,7 +44,7 @@ workflow BARCODING_WORKFLOW {
         /*
             Perform the analysis to calcualte the Fixation index
         */
-            COMPUTE_FTS(vcf_ch)
+            //COMPUTE_FTS(vcf_ch)
 
         /* 
             Collect all the individual inputs into a single tsv file, and create a new channel with the input file
