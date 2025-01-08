@@ -18,9 +18,9 @@ process TBPROFILER_PROFILE_TBDB {
                 path(tbdb_out), path(who_out), path(mtbseq_vcf)
 
     output:
-        path("bam/${sampleID}.bam")
-        path("vcf/${sampleID}.targets.vcf.gz")
-        path("results/${sampleID}.results.json")
+        path("bam/tbdb-${sampleID}.bam")
+        path("vcf/tbdb-${sampleID}.targets.vcf.gz")
+        path("results/tbdb-${sampleID}.results.json")
         path("results/tbdb-${sampleID}.results.txt")
 
         // tuple for updating the sample ch
@@ -33,6 +33,11 @@ process TBPROFILER_PROFILE_TBDB {
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
+
+        # remove the default symbolic links it does to prevent confusion
+        unlink ${forward} 
+        unlink ${reverse}
+
         tb-profiler profile \\
                 -1 ${mtbc_forward} \\
                 -2 ${mtbc_reverse} \\

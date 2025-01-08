@@ -48,6 +48,9 @@ process MTBSEQ_SINGLE {
     def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
     """
+    # remove the default symbolic links it does to prevent mtbseq using the reads
+    unlink ${forward} 
+    unlink ${reverse}
 
     # Run MTBseq for a single sample
     MTBseq --step TBfull \\
