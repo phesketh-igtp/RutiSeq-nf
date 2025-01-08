@@ -43,8 +43,8 @@ workflow SINGLE_WF {
                 without_reads: it[1] == [] || it[2] == [] }
 
             // View the results
+            log.info "${color_red}Data branching: ${color_green}The following samples are to be analysed by the ${color_red}SINGLE-WF${no_color}"
             branched_channel.with_reads.view { "With reads: $it" }
-            branched_channel.without_reads.view { "Without reads: $it" }
 
             // Taxonomically classify and partition the MTBC reads
                 MTBC_READ_QC(
