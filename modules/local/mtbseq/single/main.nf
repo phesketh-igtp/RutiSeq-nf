@@ -58,8 +58,11 @@ process MTBSEQ_SINGLE {
         ${additional_args} \\
         1>>.command.out \\
         2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
+        ## --prefix ${sampleID} \\ (sometimes doesnt work)
 
-    ## --prefix ${sampleID} \\
+    # restore the symbolic links so nextflow doesnt think something went wrong
+    ln -s ${forward} .
+    ln -s ${reverse} .
 
     """
     

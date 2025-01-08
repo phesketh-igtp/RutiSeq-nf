@@ -34,10 +34,6 @@ process TBPROFILER_PROFILE_TBDB {
 
         """
 
-        # remove the default symbolic links it does to prevent confusion
-        unlink ${forward} 
-        unlink ${reverse}
-
         tb-profiler profile \\
                 -1 ${mtbc_forward} \\
                 -2 ${mtbc_reverse} \\
@@ -47,7 +43,5 @@ process TBPROFILER_PROFILE_TBDB {
             --threads ${task.cpus} \\
             ${additional_args}
 
-        echo "Debug: Listing contents of working directory after tb-profiler"
-        ls -l
         """
 }
