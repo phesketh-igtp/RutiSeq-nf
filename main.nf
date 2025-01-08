@@ -2,7 +2,6 @@
 nextflow.enable.dsl = 2
 
 include { FILE_CHECK }              from './modules/local/file-checks/main.nf'
-include { SINGLE_WF_SUBMIT }        from './workflows/glue/single_submit.nf'
 include { SINGLE_WF }               from './workflows/single_wf.nf'
 include { PAIRWISE_WF }             from './workflows/pairwise_wf.nf'
 //include { SUMMARY_WF }              from './workflows/summary_wf.nf'
