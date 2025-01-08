@@ -12,10 +12,19 @@ process SNP_PROFILING_SINGLE {
 
     input:
     tuple val(sampleID), path(mtbseq_mpileup)
+    tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
+                path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
+                path(tbdb_out), path(who_out), path(mtbseq_vcf)
 
     output:
-        tuple val(sampleID), path("${sampleID}.gatk.vcf.gz"),       emit: mtbseq_vcf
-        tuple val(sampleID), path("${sampleID}.gatk.vcf.gz.tbi"),   emit: mtbseq_vcf_index
+        tuple val(sampleID), path("${sampleID}.gatk.vcf.gz")
+        tuple val(sampleID), path("${sampleID}.gatk.vcf.gz.tbi")
+
+        // tuple for updating the sample ch
+        tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
+                path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars),  
+                path(tbdb_out), path(who_out), 
+                path("${sampleID}.gatk.vcf.gz"),                     emit: updated_sample_ch
 
     script:
     def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file

@@ -12,12 +12,22 @@ process TBPROFILER_PROFILE_TBDB {
 
     input:
         tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse)
+        
+        tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
+                path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
+                path(tbdb_out), path(who_out), path(mtbseq_vcf)
 
     output:
-        tuple val(sampleID), path("bam/${sampleID}.bam")
-        tuple val(sampleID), path("vcf/${sampleID}.targets.vcf.gz"),    emit: tbdb_vcf
-        tuple val(sampleID), path("results/${sampleID}.results.txt"),   emit: tbdb_out
-        tuple val(sampleID), path("results/${sampleID}.results.json")
+        path("bam/${sampleID}.bam")
+        path("vcf/${sampleID}.targets.vcf.gz")
+        path("results/${sampleID}.results.json")
+        path("results/tbdb-${sampleID}.results.txt")
+
+        // tuple for updating the sample ch
+        tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
+                path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars),  
+                path("results/tbdb-${sampleID}.results.txt"), // generated in this module
+                path(who_out), path(mtbseq_vcf),                            emit: updated_sample_ch
 
     script:
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
@@ -26,7 +36,7 @@ process TBPROFILER_PROFILE_TBDB {
         tb-profiler profile \\
                 -1 ${mtbc_forward} \\
                 -2 ${mtbc_reverse} \\
-            -p ${sampleID} \\
+            -p tbdb-${sampleID} \\
             --txt --dir . \\
             --db ${params.tbprofiler_tbdb} \\
             --threads ${task.cpus} \\

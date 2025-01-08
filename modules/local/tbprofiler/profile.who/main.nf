@@ -13,9 +13,22 @@ process TBPROFILER_PROFILE_WHO {
     input:
         tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse)
 
+        tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
+                path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
+                path(tbdb_out), path(who_out), path(mtbseq_vcf)
+
     output:
-        path "results/${sampleID}.results.txt",     emit: who_out
-        path "results/${sampleID}.results.json"
+        path("bam/${sampleID}.bam")
+        path("vcf/${sampleID}.targets.vcf.gz")
+        path("results/${sampleID}.results.json")
+        path("results/who-${sampleID}.results.txt")
+
+        // tuple for updating the sample ch
+        tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
+                path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars),  
+                path(tbdb_out), 
+                path("results/who-${sampleID}.results.txt"), // generated in this module
+                path(mtbseq_vcf),                            emit: updated_sample_ch
 
     script:
     
@@ -25,13 +38,11 @@ process TBPROFILER_PROFILE_WHO {
         tb-profiler profile \\
                 -1 ${mtbc_forward} \\
                 -2 ${mtbc_reverse} \\
-                -p ${sampleID} \\
+                -p who-${sampleID} \\
             --txt --dir . \\
             --db ${params.tbprofiler_who} \\
             --threads ${task.cpus} \\
             ${additional_args}
 
-        rm -rf bam/ vcf/
-        
         """
 }

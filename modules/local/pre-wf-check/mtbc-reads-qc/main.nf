@@ -11,24 +11,32 @@ process MTBC_READ_QC {
     publishDir "${params.outdir}/bbdd/read-qc", mode: 'link'
 
     input:
-        tuple val(sampleID), path(forward), path(reverse)
-        path kaiju_names
-        path kaiju_nodes
-        path kaiju_fmi
+        tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
+                path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
+                path(tbdb_out), path(who_out), path(mtbseq_vcf)
 
     output:
         tuple val(sampleID), 
-            path("mtbc_reads/${sampleID}_R1.fastq.gz"), 
-            path("mtbc_reads/${sampleID}_R2.fastq.gz"),         emit: mtbc_reads, optional: true
-        tuple val(sampleID), path("${sampleID}.qc.out"),          emit: qc_results, optional: true
+            path("mtbc_reads/mtbc-${sampleID}_R1.fastq.gz"), 
+            path("mtbc_reads/mtbc-${sampleID}_R2.fastq.gz"),                emit: mtbc_reads, optional: true
+        tuple val(sampleID), path("${sampleID}.qc.out"),                    emit: qc_results, optional: true
         path("${sampleID}.kaiju.out"), optional: true
         path("${sampleID}.kaiju_summary.tsv"), optional: true
+
+        tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
+                path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
+                path(tbdb_out), path(who_out), path(mtbseq_vcf),            emit: updated_sample_ch
+
 
     script:
         def additional_args_kaiju       = task.ext.additional_args_kaiju ?: ''
         def additional_args_kaiju2table = task.ext.additional_args_kaiju2table ?: ''
+        def kaiju_names                 = params.kaiju_names
+        def kaiju_nodes                 = params.kaiju_nodes
+        def kaiju_fmi                   = params.kaiju_fmi
 
         """
+
         grep 'Mycobacterium tuberculosis ' ${kaiju_names} | cut -f1 | sort | uniq > MTBC.list
 
         seqkit stats -abT -j ${task.cpus} ${forward} | sed "1d" > tmp.stats.r1.orig
@@ -51,11 +59,11 @@ process MTBC_READ_QC {
         grep -f MTBC.list "${sampleID}.kaiju.out" | cut -f2 > tmp.${sampleID}.list
 
         mkdir -p mtbc_reads/
-        seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${forward} -o mtbc_reads/${sampleID}_R1.fastq.gz
-        seqkit stats -abT -j ${task.cpus} mtbc_reads/${sampleID}_R1.fastq.gz | sed "1d" > tmp.stats.r1.filt
+        seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${forward} -o mtbc_reads/mtbc-${sampleID}_R1.fastq.gz
+        seqkit stats -abT -j ${task.cpus} mtbc_reads/mtbc-${sampleID}_R1.fastq.gz | sed "1d" > tmp.stats.r1.filt
 
-        seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${reverse} -o mtbc_reads/${sampleID}_R2.fastq.gz
-        seqkit stats -abT -j ${task.cpus} mtbc_reads/${sampleID}_R2.fastq.gz | sed "1d" > tmp.stats.r2.filt
+        seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${reverse} -o mtbc_reads/mtbc-${sampleID}_R2.fastq.gz
+        seqkit stats -abT -j ${task.cpus} mtbc_reads/mtbc-${sampleID}_R2.fastq.gz | sed "1d" > tmp.stats.r2.filt
 
         cut -f4 tmp.stats.r1.filt > tmp.r1_num.filt ; cut -f17 tmp.stats.r1.filt > tmp.r1_qual.filt
         cut -f4 tmp.stats.r2.filt > tmp.r2_num.filt ; cut -f17 tmp.stats.r2.filt > tmp.r2_qual.filt    

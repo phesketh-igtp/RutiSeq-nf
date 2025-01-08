@@ -13,16 +13,13 @@ workflow SINGLE_WF {
     */
 
     take:
-        single_samples_ch
-        kaiju_names
-        kaiju_nodes
-        kaiju_fmi
+        comp_samples_ch
 
     main:
 
         /*
             Opening message for workflow
-        */
+        */ 
 
         def color_purple = '\u001B[35m'
         def color_green = '\u001B[32m'
@@ -39,33 +36,19 @@ workflow SINGLE_WF {
         """
 
         // Check if the input channel is empty
-        def collected_outputs
-        def all_qc_results
-        def mtbc_reads_ch
 
-        single_samples_ch
-            .ifEmpty { 
-                log.info "No single samples to process. Creating empty 'collected_outputs' channel."
-                collected_outputs = Channel.empty()
-                return Channel.empty()
-            }
-            .set { samples_to_process }
+        // Use the branch operator to split the channel
+            branched_channel = comp_samples_ch.branch {
+                with_reads: it[1] != [] && it[2] != [] // zero-indexed so [1] is the second value in the tuple, ect
+                without_reads: it[1] == [] || it[2] == [] }
 
-        // Process samples if the channel is not empty
-            samples_to_process.branch {
-                has_samples: it != null
-                no_samples: it == null
-            }
-            .set { branched_samples }
+            // View the results
+            branched_channel.with_reads.view { "With reads: $it" }
+            branched_channel.without_reads.view { "Without reads: $it" }
 
-            branched_samples.has_samples.ifEmpty { Channel.empty() }
-                
             // Taxonomically classify and partition the MTBC reads
                 MTBC_READ_QC(
-                            samples_to_process, 
-                            kaiju_names, 
-                            kaiju_nodes, 
-                            kaiju_fmi
+                            branched_channel.with_reads,
                             )
 
             // Collect all QC results
@@ -78,31 +61,28 @@ workflow SINGLE_WF {
                 mtbc_reads_ch = MTBC_READ_QC.out.mtbc_reads
 
             // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
-                TBPROFILER_PROFILE_TBDB(mtbc_reads_ch)
+                TBPROFILER_PROFILE_TBDB(mtbc_reads_ch,
+                                        MTBC_READ_QC.out.updated_sample_ch)
 
-                TBPROFILER_PROFILE_WHO(mtbc_reads_ch)
+                TBPROFILER_PROFILE_WHO(mtbc_reads_ch,
+                                        TBPROFILER_PROFILE_TBDB.out.updated_sample_ch)
 
             // Run MTBSEQ_SINGLE
-                MTBSEQ_SINGLE(mtbc_reads_ch)
+                MTBSEQ_SINGLE(mtbc_reads_ch,
+                                TBPROFILER_PROFILE_WHO.out.updated_sample_ch)
 
             // Run SNP_PROFILING_SINGLE using the mpileup output
-                SNP_PROFILING_SINGLE(MTBSEQ_SINGLE.out.mtbseq_mpileup)
+                SNP_PROFILING_SINGLE(MTBSEQ_SINGLE.out.mtbseq_mpileup,
+                                    MTBSEQ_SINGLE.out.updated_sample_ch)
 
-            // Collect all the output paths from the single analysis and create tuple that is emitted for the final output    
-                collected_outputs = MTBSEQ_SINGLE.out.mtbseq_class
-                                    .mix(MTBSEQ_SINGLE.out.mtbseq_stats)
-                                    .mix(MTBSEQ_SINGLE.out.mtbseq_pos)
-                                    .mix(MTBSEQ_SINGLE.out.mtbseq_vars)
-                                    .mix(TBPROFILER_PROFILE_TBDB.out.tbdb_out)
-                                    .mix(TBPROFILER_PROFILE_WHO.out.who_out)                          
-                                    .mix(SNP_PROFILING_SINGLE.out.mtbseq_vcf)
-                                    .groupTuple()
-                                    .toList()
+            // Merge the processed samples with the samples without reads
+                branched_channel_with_reads_updated = SNP_PROFILING_SINGLE.out.updated_sample_ch
+                final_updated_sample_ch = branched_channel_with_reads_updated.mix(branched_channel.without_reads)
 
+            // View the merged results
+                final_updated_sample_ch.view { "Merged sample: $it" }
 
     emit:
-        analyzed_single_samples_ch = branched_samples.has_samples
-            ? collected_outputs
-            : Channel.empty()
+        single_updated_samples_ch = final_updated_sample_ch
 
 }

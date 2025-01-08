@@ -7,10 +7,10 @@ include { MTBSEQ_LINEAGE_GROUPING }     from '../modules/local/mtbseq/lineage-gr
 include { MTBSEQ_PAIRWISE_RESULTS  }    from '../modules/local/mtbseq/compile-pairwise/main.nf'
 
 workflow PAIRWISE_WF {
+    
     take:
         runID
-        pairwise_branched_samples
-        single_results
+        single_updated_samples_ch
 
     main:
         def color_purple = '\u001B[35m'
@@ -27,23 +27,23 @@ workflow PAIRWISE_WF {
         """
 
         // Create channels of just the necessary outputs contained within the tuple
-            mtbseq_stats_files = pairwise_branched_samples.map { tuple ->
-                    def (sampleID, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
+            mtbseq_stats_files = single_updated_samples_ch.map { tuple ->
+                    def (sampleID, forward, reverse, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
                     return mtbseq_stats
                 }
 
-            mtbseq_class_files = pairwise_branched_samples.map { tuple ->
-                    def (sampleID, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
+            mtbseq_class_files = single_updated_samples_ch.map { tuple ->
+                    def (sampleID, forward, reverse, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
                     return mtbseq_class
                 }
 
-            tbdb_out_files = pairwise_branched_samples.map { tuple ->
-                    def (sampleID, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
+            tbdb_out_files = single_updated_samples_ch.map { tuple ->
+                    def (sampleID, forward, reverse,  mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
                     return tbdb_out
                 }
 
-            who_out_files = pairwise_branched_samples.map { tuple ->
-                    def (sampleID, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
+            who_out_files = single_updated_samples_ch.map { tuple ->
+                    def (sampleID, forward, reverse,  mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
                     return who_out
                 }
 
@@ -54,11 +54,11 @@ workflow PAIRWISE_WF {
             who_out_ch          =       who_out_files.collect()
 
         // Compile TB-Profiler results
-            TBPROFILER_COMPILE_TBDB(    runID, 
+            TBPROFILER_COMPILE_TBDB( runID, 
                                         tbdb_out_ch
                                     )
 
-            TBPROFILER_COMPILE_WHO(     runID, 
+            TBPROFILER_COMPILE_WHO( runID, 
                                         who_out_ch
                                     )
 
@@ -67,9 +67,8 @@ workflow PAIRWISE_WF {
                 TBPROFILER_COMPILE_WHO.out.who_results.view()
 
         // Compile stats and classifications from MTBSeq
-            MTBSEQ_STATS_COMPILE(
-                                        mtbseq_stats_ch, 
-                                        mtbseq_class_ch
+            MTBSEQ_STATS_COMPILE( mtbseq_stats_ch, 
+                                    mtbseq_class_ch
                                 )
             
         // Determine infection type (Mixed vs Clonal using both tbprofiler and mtbseq outputs)
@@ -111,7 +110,6 @@ workflow PAIRWISE_WF {
 
 
     emit:
-        single_results          =       single_results
         pairwise_clusters       =       MTBSEQ_PAIRWISE_RESULTS.out.master_clusters
         pairwise_matrix         =       MTBSEQ_PAIRWISE_RESULTS.out.master_matrices
         analysis_summary        =       COMPILE_SEQUENCING_STATS.out.analysis_summary
