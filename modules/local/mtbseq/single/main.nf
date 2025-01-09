@@ -4,7 +4,8 @@ process MTBSEQ_SINGLE {
 
     conda params.mtbseq_env
 
-    container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data'
+    container { if (workflow.containerEngine == 'singularity') { 
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data'
             } else { 'quay.io/biocontainers/mtbseq' }
     }
     
@@ -34,7 +35,7 @@ process MTBSEQ_SINGLE {
         tuple val(sampleID), path("Position_Tables/${sampleID}.gatk_position_table.tab")
         tuple val(sampleID), path("Statistics/Mapping_and_Variant_Statistics.tab")
 
-        // tuple for updating the sample ch
+        // tuple for updating the sample_ch
         tuple val(sampleID), path(forward), path(reverse), 
                 path("Classification/Strain_Classification.tab"), 
                 path("Statistics/Mapping_and_Variant_Statistics.tab"), 
