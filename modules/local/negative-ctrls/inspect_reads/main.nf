@@ -8,15 +8,15 @@ process CN_READ_TAXONOMY {
         } else { 'community.wave.seqera.io/library/kaiju_seqkit:6e4140ab47bd567e' }
     }
 
-    publishDir "${params.outdir}/bbdd/negative-controls", mode: 'link'
+    publishDir "${params.outdir}/bbdd/negative-controls/results/", mode: 'link'
 
     input:
         tuple val(sampleID), path(forward), path(reverse)
 
     output:
         tuple val(sampleID), path("${sampleID}.qc.out"),    emit: cn_qc_results
-        path("${sampleID}.kaiju.out"),                      emit: cn_kaiju_out
-        path("${sampleID}.kaiju_summary.tsv"),              emit: cn_kaiju_summary
+        path("${sampleID}.kaiju.out")
+        path("${sampleID}.kaiju_summary.tsv")
 
     script:
         def additional_args_kaiju       = task.ext.additional_args_kaiju ?: ''

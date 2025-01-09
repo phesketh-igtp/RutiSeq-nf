@@ -74,19 +74,19 @@ workflow {
                 .set { branched_samples_with_type }
 
             // Remove the 'type' from the tuples
-                samples_ch = branched_samples_with_type.sample.map { id, forward, reverse, type -> 
-                    tuple(id, forward, reverse) 
+                samples_ch = branched_samples_with_type.sample.map { it -> 
+                    tuple(it[0], it[1], it[2]) // keep only the sampleID, forward and reverse reads
                 }
 
-                controls_ch = branched_samples_with_type.control.map { id, forward, reverse, type -> 
-                    tuple(id, forward, reverse) 
+                controls_ch = branched_samples_with_type.control.map { it -> 
+                    tuple(it[0], it[1], it[2]) // keep only the sampleID, forward and reverse reads
                 }
 
-        // Report the samples part of the samplesheet
-            log.info "${color_green}Input samples:${color_reset}"
-            samples_ch.view { sampleID, forward, reverse ->
-                "${color_red}Sample: ${color_green}$sampleID${color_red} | Forward: ${color_green}$forward${color_red} | Reverse: ${color_green}$reverse${color_reset}"
-            }
+            // Report the samples part of the samplesheet
+                log.info "${color_green}Input samples:${color_reset}"
+                samples_ch.view { sampleID, forward, reverse ->
+                    "${color_red}Sample: ${color_green}$sampleID${color_red} | Forward: ${color_green}$forward${color_red} | Reverse: ${color_green}$reverse${color_reset}"
+                }
 
         /*
             INSPECT BBDD FOR INTERMEDIATE FILES (i.e. sample has been previously analyzed)

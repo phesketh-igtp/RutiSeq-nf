@@ -1,6 +1,6 @@
-include { INSPECT_BBDD }        from './modules/local/negative-ctrls/inspect_bbdd/main.nf'
-include { CN_READ_TAXONOMY }    from './modules/local/negative-ctrls/inspect_reads/main.nf'
-include { COMBINE_QC_RESULTS }  from '../modules/local/pre-wf-check/combine-qc-results/main.nf'
+include { INSPECT_BBDD }        from '../modules/local/negative-ctrls/inspect_bbdd/main.nf'
+include { CN_READ_TAXONOMY }    from '../modules/local/negative-ctrls/inspect_reads/main.nf'
+//include { COMBINE_QC_RESULTS }  from './modules/local/pre-wf-check/combine-qc-results/main.nf'
 
 workflow NEGATIVE_CONTROL_WF {
 
