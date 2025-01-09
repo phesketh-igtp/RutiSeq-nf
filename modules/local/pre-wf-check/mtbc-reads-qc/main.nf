@@ -17,8 +17,8 @@ process MTBC_READ_QC {
 
     output:
         tuple val(sampleID), 
-            path("mtbc_reads/mtbc-${sampleID}_R1.fastq.gz"), 
-            path("mtbc_reads/mtbc-${sampleID}_R2.fastq.gz"),                emit: mtbc_reads, optional: true
+            path("mtbc_reads/${sampleID}_mtbc_R1.fastq.gz"), 
+            path("mtbc_reads/${sampleID}_mtbc_R2.fastq.gz"),                emit: mtbc_reads, optional: true
         tuple val(sampleID), path("${sampleID}.qc.out"),                    emit: qc_results, optional: true
         path("${sampleID}.kaiju.out"), optional: true
         path("${sampleID}.kaiju_summary.tsv"), optional: true
@@ -59,11 +59,11 @@ process MTBC_READ_QC {
         grep -f MTBC.list "${sampleID}.kaiju.out" | cut -f2 > tmp.${sampleID}.list
 
         mkdir -p mtbc_reads/
-        seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${forward} -o mtbc_reads/mtbc-${sampleID}_R1.fastq.gz
-        seqkit stats -abT -j ${task.cpus} mtbc_reads/mtbc-${sampleID}_R1.fastq.gz | sed "1d" > tmp.stats.r1.filt
+        seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${forward} -o mtbc_reads/${sampleID}_mtbc_R1.fastq.gz
+        seqkit stats -abT -j ${task.cpus} mtbc_reads/${sampleID}_mtbc_R1.fastq.gz | sed "1d" > tmp.stats.r1.filt
 
-        seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${reverse} -o mtbc_reads/mtbc-${sampleID}_R2.fastq.gz
-        seqkit stats -abT -j ${task.cpus} mtbc_reads/mtbc-${sampleID}_R2.fastq.gz | sed "1d" > tmp.stats.r2.filt
+        seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${reverse} -o mtbc_reads/${sampleID}_mtbc_R2.fastq.gz
+        seqkit stats -abT -j ${task.cpus} mtbc_reads/${sampleID}_mtbc_R2.fastq.gz | sed "1d" > tmp.stats.r2.filt
 
         cut -f4 tmp.stats.r1.filt > tmp.r1_num.filt ; cut -f17 tmp.stats.r1.filt > tmp.r1_qual.filt
         cut -f4 tmp.stats.r2.filt > tmp.r2_num.filt ; cut -f17 tmp.stats.r2.filt > tmp.r2_qual.filt    

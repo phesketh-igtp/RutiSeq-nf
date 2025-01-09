@@ -54,17 +54,27 @@ workflow {
         */
 
         // Create channel from sample sheet
-            Channel
-                .fromPath(params.samplesheet)
-                .splitCsv(header: true, sep: ',')
-                .map { row ->
-                    if (row.sampleID == null || row.forward_path == null || row.reverse_path == null) {
-                        error "Missing required column in samplesheet: ${row}"
+            Channel.fromPath(params.samplesheet)
+                    .splitCsv(header: true, sep: ',')
+                    .map { row ->
+                        if (row.sampleID == null || row.forward_path == null || row.reverse_path == null || row.type == null) {
+                            error "Missing required column in samplesheet: ${row}"
+                        }
+                        tuple( row.sampleID, 
+                                file(row.forward_path, checkIfExists: true), 
+                                file(row.reverse_path, checkIfExists: true), 
+                                row.type
+                                )
                     }
-                    tuple(row.sampleID, file(row.forward_path, checkIfExists: true), 
-                            file(row.reverse_path, checkIfExists: true))
-                }
-                .set { samples_ch }
+                    .branch {
+                        sample: it[3] == 'sample'
+                        control: it[3] == 'control'
+                    }
+                    .set { branched_samples }
+
+        // Create the sample_ch and control_ch
+            samples_ch = branched_samples.sample
+            controls_ch = branched_samples.control
 
         // Report the samples part of the samplesheet
             log.info "${color_green}Input samples:${color_reset}"
