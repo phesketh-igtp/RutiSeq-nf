@@ -45,29 +45,31 @@ process MTBSEQ_SINGLE {
                 path(mtbseq_vcf),                                                       emit: updated_sample_ch
 
     script:
-    
-    def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
-    """
-    # remove the default symbolic links it does to prevent mtbseq using the reads
-    unlink ${forward} 
-    unlink ${reverse}
+        def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
-    # Run MTBseq for a single sample
-    MTBseq --step TBfull \\
-        --thread ${task.cpus} \\
-        --project ${sampleID} \\
-        ${additional_args} \\
-        1>>.command.out \\
-        2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
-        ## --prefix ${sampleID}  \\ (sometimes doesnt work)
+        """
+        # remove the default symbolic links that nextflow creates due to 
+        # having the long main channel as an input to the module - 
+        # this prevents mtbseq from using the pre-filtered reads
 
-    for f in */${sampleID}_mtbc.*; do renamed=\$( echo \${f} | sed 's/_mtbc//g'); mv \$f \$renamed; done
+        for_name=\$(ls ${forward}); rev_name=\$(ls ${reverse})
+        mv \${for_name} tmp_for_name; mv \${rev_name} tmp_rev_name
 
-    # restore the symbolic links so nextflow doesnt think something went wrong
-    ln -s ${forward} .
-    ln -s ${reverse} .
+        # Run MTBseq for a single sample
+        MTBseq --step TBfull \\
+            --thread ${task.cpus} \\
+            --project ${sampleID} \\
+            ${additional_args} \\
+            1>>.command.out \\
+            2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
+            ## --prefix ${sampleID}  \\ (sometimes doesnt work)
 
-    """
-    
+        for f in */${sampleID}_mtbc.*; do renamed=\$( echo \${f} | sed 's/_mtbc//g'); mv \$f \$renamed; done
+
+        # restore the symbolic links so nextflow doesnt halt as it expects everything 
+        # that was inputted to the module to remain unchanged (I think - and strange and annoying if that is the case)
+
+        """
+
 }

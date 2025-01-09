@@ -1,6 +1,6 @@
 include { INSPECT_BBDD }        from '../modules/local/negative-ctrls/inspect_bbdd/main.nf'
 include { CN_READ_TAXONOMY }    from '../modules/local/negative-ctrls/inspect_reads/main.nf'
-//include { COMBINE_QC_RESULTS }  from './modules/local/pre-wf-check/combine-qc-results/main.nf'
+include { COMBINE_QC_RESULTS }  from '../modules/local/negative-ctrls/combine-qc-results/main.nf'
 
 workflow NEGATIVE_CONTROL_WF {
 
@@ -62,9 +62,6 @@ workflow NEGATIVE_CONTROL_WF {
         Combine the results into a single csv file
         */
 
-        //    COMBINE_QC_RESULTS()
-
-emit:
-        negative_ctrl_wf_summary = all_cn_wc_results
+            COMBINE_QC_RESULTS(all_cn_wc_results, params.runID)
 
 }
