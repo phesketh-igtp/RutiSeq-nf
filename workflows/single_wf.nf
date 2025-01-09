@@ -42,8 +42,10 @@ workflow SINGLE_WF {
                 with_reads: it[1] != [] && it[2] != [] // zero-indexed so [1] is the second value in the tuple, ect
                 without_reads: it[1] == [] || it[2] == [] }
 
-            // View the results
+            /*
+            // DEBUG:: View the results
             branched_channel.with_reads.view { "With reads: $it" }
+            */
 
             // Taxonomically classify and partition the MTBC reads
                 MTBC_READ_QC(

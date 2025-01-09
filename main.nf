@@ -51,8 +51,15 @@ workflow {
             }
 
         /*
-            CREATE sample_ch FROM SAMPLESHEETS
+        ······································································································
+            CREATION OF CHANNELS
+                The section creates the samples_ch and the controls_ch from the samplesheet. First the 
+                sample sheet is imported and split by the 'type' column into sample or control, and these
+                two sets of samples are directed into seperate workflows.
+        ······································································································
         */
+
+
 
         // Create channel from sample sheet
             Channel.fromPath(params.samplesheet)
@@ -82,14 +89,29 @@ workflow {
                     tuple(it[0], it[1], it[2]) // keep only the sampleID, forward and reverse reads
                 }
 
-            // Report the samples part of the samplesheet
+        /*
+            // DEBUG:: Report the samples part of the samplesheet
                 log.info "${color_green}Input samples:${color_reset}"
                 samples_ch.view { sampleID, forward, reverse ->
                     "${color_red}Sample: ${color_green}$sampleID${color_red} | Forward: ${color_green}$forward${color_red} | Reverse: ${color_green}$reverse${color_reset}"
                 }
+        */
 
         /*
-            INSPECT BBDD FOR INTERMEDIATE FILES (i.e. sample has been previously analyzed)
+        ······································································································
+            NEGATIVE CONTROL WORKFLOW (NEGATIVE_CONTROL_WF)
+                From the controls_ch, the samples are taxonomically classified with Kaiju
+        ······································································································
+        */
+
+        // Call the workflow
+            NEGATIVE_CONTROL_WF(controls_ch)
+
+        /*
+        ······································································································
+            INSPECT BBDD FOR INTERMEDIATE FILES
+                (i.e. sample has been previously analyzed)
+        ······································································································
         */
 
         // Check if the genome has previously been analyzed
@@ -129,39 +151,45 @@ workflow {
             // Demonstrate the content of the channel
             comp_samples_ch.view { sample -> "Sample: $sample" }
 
-
         /*
-            Negative controls analysis (inspect taxonomy)
-        */
+        ······································································································
+            SINGLE SAMPLE ANALYSIS (SINGLE_WF)
 
-            NEGATIVE_CONTROL_WF(controls_ch)
+        ······································································································
+        */
 
         /*
             SINGLE sample analysis
         */
 
-        // Call the SINGLE_WORKFLOW only for samples missing necessary files
-        /// this should also update the channel to contain the paths to any missing single-analysis 
-        /// results required for the pairwise comparison
             SINGLE_WF( comp_samples_ch,
                     )
                 // Demonstrate the content of the channel
                 SINGLE_WF.out.single_updated_samples_ch.view { sample -> "Sample: $sample" }
 
         /*
-            PAIRWISE sample analysis
-        
+        ······································································································
+            PAIRWISE SAMPLE ANALYSIS (PAIRWISE_WF)
+                PAIRWISE_WF performs comparative analysis of 
+        ······································································································
+        */
 
+/*
         // Call the PAIRWISE_WF con
             PAIRWISE_WF( SINGLE_WF.out.single_updated_samples_ch,
                             params.runID
                         )
 */
+
         /*
-            SUMMARY_WF to generate the XCEL summary tables, produce ML phylogenetic trees 
-            and visualise them, and generate MJN files for visualisation in PopArt, and
-            interactive python networks
+        ······································································································
+            SUMMARY WORKFLOW (SUMMARU_WF):
+                SUMMARY_WF to generate the XCEL summary tables, produce ML phylogenetic trees 
+                and visualise them, and generate MJN files for visualisation in PopArt, and
+                interactive python networks
+        ······································································································
         */
+
 /*
             SUMMARY_WF(     params.runID,
                             PAIRWISE_WF.out.pairwise_clusters,
@@ -173,8 +201,11 @@ workflow {
 */
 
         /*
-            BARCODING_WF to perform barcoding analysis of the VCF files generated from the single workflow.
-            This analysis has a much lower priority
+        ······································································································
+            BARCODING ANALYSIS (BARCODING_WF)
+                Perform barcoding analysis of the VCF files generated from the single workflow.
+                This analysis has a much lower priority
+        ······································································································
         */
 /*
             BARCODING_WF(

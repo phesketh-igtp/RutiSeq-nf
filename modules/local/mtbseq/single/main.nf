@@ -61,6 +61,8 @@ process MTBSEQ_SINGLE {
         2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
         ## --prefix ${sampleID}  \\ (sometimes doesnt work)
 
+    for f in */${sampleID}_mtbc.*; do renamed=\$( echo \${f} | sed 's/_mtbc//g'); mv \$f \$renamed; done
+
     # restore the symbolic links so nextflow doesnt think something went wrong
     ln -s ${forward} .
     ln -s ${reverse} .

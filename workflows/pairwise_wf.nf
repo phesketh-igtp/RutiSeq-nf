@@ -62,9 +62,11 @@ workflow PAIRWISE_WF {
                                         who_out_ch
                                     )
 
+            
             // DEBUG:
                 TBPROFILER_COMPILE_TBDB.out.tbdb_results.view()
                 TBPROFILER_COMPILE_WHO.out.who_results.view()
+            
 
         // Compile stats and classifications from MTBSeq
             MTBSEQ_STATS_COMPILE( mtbseq_stats_ch, 
@@ -85,7 +87,7 @@ workflow PAIRWISE_WF {
                     .splitCsv(header:false)
                     .map { row -> tuple(row[0], file(row[1])) }
 
-            // Now you can use lineage_samples_tuple in subsequent processes
+            // DEBUG: Now you can use lineage_samples_tuple in subsequent processes
                 lineage_samples_ch.view()
 
         // Run the pairwise analysis by lineages
