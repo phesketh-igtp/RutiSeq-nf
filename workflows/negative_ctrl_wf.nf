@@ -48,7 +48,6 @@ workflow NEGATIVE_CONTROL_WF {
                 with_reads: it[1] != [] && it[2] != [] // zero-indexed so [1] is the second value in the tuple, ect
                 without_reads: it[1] == [] || it[2] == [] }
 
-
         /*
         Run KAIJU on the reads and get read taxonomy
         */
