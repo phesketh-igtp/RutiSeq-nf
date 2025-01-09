@@ -2,7 +2,7 @@ process SNP_PROFILING_SINGLE {
 
     tag "$sampleID"
 
-    conda './envs/conda/bcftools-env.yml'
+    conda params.snp_profiling_env
     
     container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/5e/5e1dc9586886df729616e7af235efe76cc2d31b5fa2a6afe0b0656efee6d983a/data'
             } else { 'community.wave.seqera.io/library/bcftools_snpeff_varscan_vcftools:3fa84761d1a9bed3' }
@@ -12,6 +12,7 @@ process SNP_PROFILING_SINGLE {
 
     input:
     tuple val(sampleID), path(mtbseq_mpileup)
+    
     tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
                 path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
                 path(tbdb_out), path(who_out), path(mtbseq_vcf)
