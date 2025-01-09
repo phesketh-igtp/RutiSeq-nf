@@ -4,6 +4,7 @@ nextflow.enable.dsl = 2
 include { FILE_CHECK }              from './modules/local/file-checks/main.nf'
 include { SINGLE_WF }               from './workflows/single_wf.nf'
 include { PAIRWISE_WF }             from './workflows/pairwise_wf.nf'
+include { NEGATIVE_CONTROL_WF }     from './workflows/negative_ctrl_wf.nf'
 //include { SUMMARY_WF }              from './workflows/summary_wf.nf'
 //include { BARCODING_WF }            from './workflows/barcoding_wf.nf'
 
@@ -55,26 +56,31 @@ workflow {
 
         // Create channel from sample sheet
             Channel.fromPath(params.samplesheet)
-                    .splitCsv(header: true, sep: ',')
-                    .map { row ->
-                        if (row.sampleID == null || row.forward_path == null || row.reverse_path == null || row.type == null) {
-                            error "Missing required column in samplesheet: ${row}"
-                        }
-                        tuple( row.sampleID, 
-                                file(row.forward_path, checkIfExists: true), 
-                                file(row.reverse_path, checkIfExists: true), 
-                                row.type
-                                )
+                .splitCsv(header: true, sep: ',')
+                .map { row ->
+                    if (row.sampleID == null || row.forward_path == null || row.reverse_path == null || row.type == null) {
+                        error "Missing required column in samplesheet: ${row}"
                     }
-                    .branch {
-                        sample: it[3] == 'sample'
-                        control: it[3] == 'control'
-                    }
-                    .set { branched_samples }
+                    tuple( row.sampleID, 
+                            file(row.forward_path, checkIfExists: true), 
+                            file(row.reverse_path, checkIfExists: true), 
+                            row.type
+                            )
+                }
+                .branch {
+                    sample: it[3] == 'sample'
+                    control: it[3] == 'control'
+                }
+                .set { branched_samples_with_type }
 
-        // Create the sample_ch and control_ch
-            samples_ch = branched_samples.sample
-            controls_ch = branched_samples.control
+            // Remove the 'type' from the tuples
+                samples_ch = branched_samples_with_type.sample.map { id, forward, reverse, type -> 
+                    tuple(id, forward, reverse) 
+                }
+
+                controls_ch = branched_samples_with_type.control.map { id, forward, reverse, type -> 
+                    tuple(id, forward, reverse) 
+                }
 
         // Report the samples part of the samplesheet
             log.info "${color_green}Input samples:${color_reset}"
@@ -123,6 +129,12 @@ workflow {
             // Demonstrate the content of the channel
             comp_samples_ch.view { sample -> "Sample: $sample" }
 
+
+        /*
+            Negative controls analysis (inspect taxonomy)
+        */
+
+            NEGATIVE_CONTROL_WF(controls_ch)
 
         /*
             SINGLE sample analysis

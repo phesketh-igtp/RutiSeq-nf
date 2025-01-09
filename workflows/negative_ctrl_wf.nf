@@ -1,0 +1,70 @@
+include { INSPECT_BBDD }        from './modules/local/negative-ctrls/inspect_bbdd/main.nf'
+include { CN_READ_TAXONOMY }    from './modules/local/negative-ctrls/inspect_reads/main.nf'
+include { COMBINE_QC_RESULTS }  from '../modules/local/pre-wf-check/combine-qc-results/main.nf'
+
+workflow NEGATIVE_CONTROL_WF {
+
+    take:
+        controls_ch
+
+    main:
+
+        /*
+        Run KAIJU on the reads and get read taxonomy
+        */
+
+            INSPECT_BBDD(controls_ch)
+
+                        // After the FILE_CHECK process
+            verified_controls_ch = INSPECT_BBDD.out.controls_paths
+                .collectFile(name: 'all_controls_paths.txt', newLine: true, storeDir: params.outdir)
+                .ifEmpty { file("${params.outdir}/empty_all_controls_paths.txt") }
+
+            // Parse the controls into the desired tuple structure
+                comp_controls_ch = verified_controls_ch
+                    .splitCsv()
+                    .map { row -> 
+                        log.debug "DEBUG - Processing sample row: $row"
+                        if (row.size() == 10) {
+                            def (sampleID, forward, reverse, qc_results) = row
+                            tuple(
+                                sampleID,
+                                forward ? file(forward.trim()) : [],
+                                reverse ? file(reverse.trim()) : [],
+                                qc_results ? file(qc_results.trim()) : [],
+                            )   
+                        } else {
+                            log.warn "Error with channel: $row"
+                            null
+                        }
+                    }
+                    .filter { it != null }
+
+                // Demonstrate the content of the channel
+                comp_controls_ch.view { sample -> "Sample: $sample" }
+
+            // Branch the channel into those with outputs and those without:
+                branched_channel = comp_controls_ch.branch {
+                with_reads: it[1] != [] && it[2] != [] // zero-indexed so [1] is the second value in the tuple, ect
+                without_reads: it[1] == [] || it[2] == [] }
+
+
+        /*
+        Run KAIJU on the reads and get read taxonomy
+        */
+
+            CN_READ_TAXONOMY(branched_channel.with_reads)
+
+        // collect all the results
+            all_cn_wc_results = CN_READ_TAXONOMY.out.cn_qc_results.map { it[1] }.collect()
+
+        /*
+        Combine the results into a single csv file
+        */
+
+        //    COMBINE_QC_RESULTS()
+
+emit:
+        negative_ctrl_wf_summary = all_cn_wc_results
+
+}
