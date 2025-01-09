@@ -42,6 +42,8 @@ workflow SINGLE_WF {
                 with_reads: it[1] != [] && it[2] != [] // zero-indexed so [1] is the second value in the tuple, ect
                 without_reads: it[1] == [] || it[2] == [] }
 
+            sample_ch_skip = branched_channel.without_reads
+
             /*
             // DEBUG:: View the results
             branched_channel.with_reads.view { "With reads: $it" }
@@ -76,12 +78,17 @@ workflow SINGLE_WF {
                 SNP_PROFILING_SINGLE(MTBSEQ_SINGLE.out.mtbseq_mpileup,
                                     MTBSEQ_SINGLE.out.updated_sample_ch)
 
-            // Merge the processed samples with the samples without reads
+                // create updated channel
                 branched_channel_with_reads_updated = SNP_PROFILING_SINGLE.out.updated_sample_ch
-                final_updated_sample_ch = branched_channel_with_reads_updated.mix(branched_channel.without_reads)
 
+            // Merge the processed samples with the samples without reads
+            /// TODO: not a 100% certain that the channels are being merged, but will come back and troubleshoot this
+                final_updated_sample_ch = branched_channel_with_reads_updated.mix(sample_ch_skip)
+
+            /*
             // View the merged results
-                final_updated_sample_ch.view { "Merged sample: $it" }
+                final_updated_sample_ch.view { "Final channel: $it" }
+            */
 
     emit:
         single_updated_samples_ch = final_updated_sample_ch

@@ -148,8 +148,10 @@ workflow {
                 }
                 .filter { it != null }
 
-            // Demonstrate the content of the channel
+            /*
+            // DEBUG:: Demonstrate the content of the channel
             comp_samples_ch.view { sample -> "Sample: $sample" }
+            */
 
         /*
         ······································································································
@@ -158,14 +160,17 @@ workflow {
         ······································································································
         */
 
-        /*
-            SINGLE sample analysis
-        */
-
             SINGLE_WF( comp_samples_ch,
                     )
-                // Demonstrate the content of the channel
-                SINGLE_WF.out.single_updated_samples_ch.view { sample -> "Sample: $sample" }
+                    
+                /*
+                // DEBUG: Demonstrate the content of the channel
+                SINGLE_WF.out.single_updated_samples_ch.view { sample -> "Sample: $sampleID" }
+                */
+
+            pairwise_samples_ch = SINGLE_WF.out.single_updated_samples_ch
+
+            pairwise_samples_ch.subscribe { println "Debug - pairwise_samples_ch: $it" }
 
         /*
         ······································································································
@@ -174,12 +179,11 @@ workflow {
         ······································································································
         */
 
-/*
-        // Call the PAIRWISE_WF con
-            PAIRWISE_WF( SINGLE_WF.out.single_updated_samples_ch,
+            /*
+            PAIRWISE_WF( pairwise_samples_ch,
                             params.runID
                         )
-*/
+            */
 
         /*
         ······································································································

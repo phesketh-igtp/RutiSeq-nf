@@ -10,7 +10,7 @@ workflow PAIRWISE_WF {
     
     take:
         runID
-        single_updated_samples_ch
+        pairwise_samples_ch
 
     main:
         def color_purple = '\u001B[35m'
@@ -26,52 +26,35 @@ workflow PAIRWISE_WF {
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${no_color}
         """
 
-        // Create channels of just the necessary outputs contained within the tuple
-            mtbseq_stats_files = single_updated_samples_ch.map { tuple ->
-                    def (sampleID, forward, reverse, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
-                    return mtbseq_stats
-                }
+        // Structure of the channel : pairwise_samples_ch
+        /// [0] sampleID        [1] forward         [2] reverse     [3] mtbseq_class    [4] mtbseq_stats
+        /// [5] mtbseq_pos      [6] mtbseq_vars     [7] tbdb_out    [8] who_out         [9] mtbseq_vcf
 
-            mtbseq_class_files = single_updated_samples_ch.map { tuple ->
-                    def (sampleID, forward, reverse, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
-                    return mtbseq_class
-                }
-
-            tbdb_out_files = single_updated_samples_ch.map { tuple ->
-                    def (sampleID, forward, reverse,  mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
-                    return tbdb_out
-                }
-
-            who_out_files = single_updated_samples_ch.map { tuple ->
-                    def (sampleID, forward, reverse,  mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = tuple
-                    return who_out
-                }
+        // filter channels of just the necessary output files contained within the tuple (by calling the index)
+            mtbseq_class_files  =   pairwise_samples_ch.map { it -> it[3] ?: null }
+            mtbseq_stats_files  =   pairwise_samples_ch.map { it -> it[4] ?: null }
+            tbdb_out_files      =   pairwise_samples_ch.map { it -> it[7] ?: null }
+            who_out_files       =   pairwise_samples_ch.map { it -> it[8] ?: null }
 
             // make the channels
-            mtbseq_stats_ch     =       mtbseq_stats_files.collect()
-            mtbseq_class_ch     =       mtbseq_class_files.collect()
-            tbdb_out_ch         =       tbdb_out_files.collect()
-            who_out_ch          =       who_out_files.collect()
+            mtbseq_stats_ch     =   mtbseq_stats_files.collect()
+            mtbseq_class_ch     =   mtbseq_class_files.collect()
+            tbdb_out_ch         =   tbdb_out_files.collect()
+            who_out_ch          =   who_out_files.collect()
 
         // Compile TB-Profiler results
-            TBPROFILER_COMPILE_TBDB( runID, 
-                                        tbdb_out_ch
-                                    )
+            TBPROFILER_COMPILE_TBDB( runID, tbdb_out_ch )
 
-            TBPROFILER_COMPILE_WHO( runID, 
-                                        who_out_ch
-                                    )
+            TBPROFILER_COMPILE_WHO( runID, who_out_ch )
 
-            
+            /*
             // DEBUG:
                 TBPROFILER_COMPILE_TBDB.out.tbdb_results.view()
                 TBPROFILER_COMPILE_WHO.out.who_results.view()
-            
+            */
 
         // Compile stats and classifications from MTBSeq
-            MTBSEQ_STATS_COMPILE( mtbseq_stats_ch, 
-                                    mtbseq_class_ch
-                                )
+            MTBSEQ_STATS_COMPILE( mtbseq_stats_ch, mtbseq_class_ch )
             
         // Determine infection type (Mixed vs Clonal using both tbprofiler and mtbseq outputs)
         //// and filter genomes based on quality parameters (min coverage)
@@ -87,14 +70,13 @@ workflow PAIRWISE_WF {
                     .splitCsv(header:false)
                     .map { row -> tuple(row[0], file(row[1])) }
 
+            /*
             // DEBUG: Now you can use lineage_samples_tuple in subsequent processes
                 lineage_samples_ch.view()
+            */
 
         // Run the pairwise analysis by lineages
-            MTBSEQ_LINEAGE_PAIRWISE(    
-                                        runID, 
-                                        lineage_samples_ch
-                                    )
+            MTBSEQ_LINEAGE_PAIRWISE( runID, lineage_samples_ch )
 
             MTBSEQ_LINEAGE_GROUPING(
                                         runID, 

@@ -25,7 +25,7 @@ workflow NEGATIVE_CONTROL_WF {
                     .splitCsv()
                     .map { row -> 
                         log.debug "DEBUG - Processing sample row: $row"
-                        if (row.size() == 10) {
+                        if (row.size() == 4) {
                             def (sampleID, forward, reverse, qc_results) = row
                             tuple(
                                 sampleID,

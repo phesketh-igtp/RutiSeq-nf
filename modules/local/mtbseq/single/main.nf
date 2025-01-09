@@ -68,7 +68,8 @@ process MTBSEQ_SINGLE {
         for f in */${sampleID}_mtbc.*; do renamed=\$( echo \${f} | sed 's/_mtbc//g'); mv \$f \$renamed; done
 
         # restore the symbolic links so nextflow doesnt halt as it expects everything 
-        # that was inputted to the module to remain unchanged (I think - and strange and annoying if that is the case)
+        # that was inputted to the module to remain unchanged 
+        # (I think ... and its strange and annoying if that is the case)
         mv tmp_for_name \${for_name}; mv tmp_rev_name \${rev_name}
 
         """
