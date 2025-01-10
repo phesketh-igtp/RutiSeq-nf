@@ -3,7 +3,7 @@ process INSPECT_BBDD {
     tag "$sampleID"
 
     input:
-        tuple val(sampleID), path(forward), path(reverse), path(empty)
+        tuple val(sampleID), path(forward), path(reverse)
 
     output:
         path("controls.tuple.csv"), emit: controls_paths

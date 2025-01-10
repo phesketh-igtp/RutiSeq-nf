@@ -27,14 +27,6 @@ workflow SINGLE_WF {
         def color_cyan = '\u001B[36m'
         def no_color = '\u001B[0m'
 
-        log.info """
-        ${color_purple}
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        ${color_red}Workflow: ${color_green}Single genome analysis${color_purple}
-        2024-12-09
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${no_color}
-        """
-
         // Check if the input channel is empty
 
         // Use the branch operator to split the channel

@@ -20,11 +20,11 @@ process TBPROFILER_COMPILE_TBDB {
 
     output:
         path("tbprofiler.txt"),                 emit: tbdb_results
-        //path("tbprofiler.dr.indiv.itol.txt")
-        //path("tbprofiler.dr.itol.txt")
-        //path("tbprofiler.lineage.itol.txt")
-        //path("tbprofiler.variants.csv")
-        //path("tbprofiler.variants.txt")
+        path("tbprofiler.dr.indiv.itol.txt")
+        path("tbprofiler.dr.itol.txt")
+        path("tbprofiler.lineage.itol.txt")
+        path("tbprofiler.variants.csv")
+        path("tbprofiler.variants.txt")
 
     script:
         """
@@ -36,5 +36,13 @@ process TBPROFILER_COMPILE_TBDB {
         ln -s ${params.outdir}/bbdd/tbprofiler/vcf/* vcf/
 
         tb-profiler collate --full --mark_missing --all_variants --itol
+
+        sed -i 's/tbdb-//g' tbprofiler.txt
+        sed -i 's/tbdb-//g' tbprofiler.dr.indiv.itol.txt
+        sed -i 's/tbdb-//g' tbprofiler.dr.itol.txt
+        sed -i 's/tbdb-//g' tbprofiler.lineage.itol.txt
+        sed -i 's/tbdb-//g' tbprofiler.variants.csv
+        sed -i 's/tbdb-//g' tbprofiler.variants.txt
+        
         """
 }

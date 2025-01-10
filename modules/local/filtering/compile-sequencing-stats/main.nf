@@ -8,10 +8,10 @@ process COMPILE_SEQUENCING_STATS {
 
     input:
         val(runID)
-        path(tbdb_results)
-        path(who_results)
-        path(mtbseq_compiled_strains)
-        path(mtbseq_compiled_map_stats)
+        path tbdb_results
+        path who_results
+        path mtbseq_compiled_strains
+        path mtbseq_compiled_map_stats
 
     output:
         path("${runID}.sequencing_summary.csv")

@@ -16,23 +16,21 @@ workflow PAIRWISE_WF {
         who_out_ch
 
     main:
+    
         def color_purple = '\u001B[35m'
         def color_green = '\u001B[32m'
         def color_red = '\u001B[31m'
         def color_cyan = '\u001B[36m'
         def no_color = '\u001B[0m'
 
-        log.info """
-        ${color_purple}
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        ${color_red}Workflow: ${color_green}Comparative/Pairwise genome analysis${color_purple}
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${no_color}
-        """
-
         // Compile TB-Profiler results
             TBPROFILER_COMPILE_TBDB( runID, tbdb_out_ch )
 
+            TBPROFILER_COMPILE_TBDB.out.tbdb_results.view
+
             TBPROFILER_COMPILE_WHO( runID, who_out_ch )
+
+            TBPROFILER_COMPILE_WHO.out.who_results.view
 
             /*
             // DEBUG:
