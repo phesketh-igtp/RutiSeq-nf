@@ -59,8 +59,6 @@ workflow {
         ······································································································
         */
 
-
-
         // Create channel from sample sheet
             Channel.fromPath(params.samplesheet)
                 .splitCsv(header: true, sep: ',')
@@ -80,22 +78,26 @@ workflow {
                 }
                 .set { branched_samples_with_type }
 
-            // Remove the 'type' from the tuples
-                samples_ch = branched_samples_with_type.sample.map { it -> 
-                    tuple(it[0], it[1], it[2]) // keep only the sampleID, forward and reverse reads
-                }
+            // Remove the 'type' from the tuples and ensure only 3 elements
+            samples_ch = branched_samples_with_type.sample.map { it -> 
+                tuple(it[0], it[1], it[2]) // keep only the sampleID, forward and reverse reads
+            }
 
-                controls_ch = branched_samples_with_type.control.map { it -> 
-                    tuple(it[0], it[1], it[2]) // keep only the sampleID, forward and reverse reads
-                }
+            controls_ch = branched_samples_with_type.control.map { it -> 
+                tuple(it[0], it[1], it[2]) // keep only the sampleID, forward and reverse reads
+            }
 
-        /*
-            // DEBUG:: Report the samples part of the samplesheet
+            // Report the samples part of the samplesheet
                 log.info "${color_green}Input samples:${color_reset}"
                 samples_ch.view { sampleID, forward, reverse ->
                     "${color_red}Sample: ${color_green}$sampleID${color_red} | Forward: ${color_green}$forward${color_red} | Reverse: ${color_green}$reverse${color_reset}"
                 }
-        */
+                
+             // Report the controls part of the samplesheet
+                log.info "${color_green}Control samples:${color_reset}"
+                controls_ch.view { sampleID, forward, reverse ->
+                    "${color_red}Control: ${color_green}$sampleID${color_red} | Forward: ${color_green}$forward${color_red} | Reverse: ${color_green}$reverse${color_reset}"
+                }
 
         /*
         ······································································································
@@ -172,6 +174,7 @@ workflow {
                 // DEBUG: Demonstrate the content of the channel
                 ///     SINGLE_WF.out.single_updated_samples_ch.view { sample -> "Sample: $sampleID" }
 
+            // prepare the channel for the pairwise analysis
             pairwise_samples_ch = SINGLE_WF.out.single_updated_samples_ch
 
             // pairwise_samples_ch.subscribe { println "Debug - pairwise_samples_ch: $it" }
