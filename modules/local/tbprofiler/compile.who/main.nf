@@ -16,33 +16,33 @@ process TBPROFILER_COMPILE_WHO {
 
     output:
         path("tbprofiler.txt"),               emit: who_results
-        path "tbprofiler.dr.indiv.itol.txt"
-        path "tbprofiler.dr.itol.txt"
-        path "tbprofiler.lineage.itol.txt"
-        path "tbprofiler.variants.csv"
-        path "tbprofiler.variants.txt"
+        path("tbprofiler.dr.indiv.itol.txt")
+        path("tbprofiler.dr.itol.txt")
+        path("tbprofiler.lineage.itol.txt")
+        path("tbprofiler.variants.csv")
+        path("tbprofiler.variants.txt")
 
 
     script:
 
-    """
-    mkdir -p results/; mkdir -p  bam/; mkdir -p vcf/
+        """
+        mkdir -p results/; mkdir -p  bam/; mkdir -p vcf/
 
-    for file in ${params.outdir}/bbdd/tbprofiler/who-only/results/*; do
-        ln -s "\$file" results/
-    done
+        # create the symbolic links to the result directories
+        ln -s ${params.outdir}/bbdd/tbprofiler/results .
+        ln -s ${params.outdir}/bbdd/tbprofiler/bam .
+        ln -s ${params.outdir}/bbdd/tbprofiler/vcf .
 
-    for file in ${params.outdir}/bbdd/tbprofiler/who-only/vcf/*; do
-        ln -s "\$file" vcf/
-    done
+        tb-profiler collate --full --mark_missing --all_variants --itol
 
-    for file in ${params.outdir}/bbdd/tbprofiler/who-only/bam/*; do
-        ln -s "\$file" bam/
-    done
+        sed -i 's/tbdb-//g' tbprofiler.txt
+        sed -i 's/tbdb-//g' tbprofiler.dr.indiv.itol.txt
+        sed -i 's/tbdb-//g' tbprofiler.dr.itol.txt
+        sed -i 's/tbdb-//g' tbprofiler.lineage.itol.txt
+        sed -i 's/tbdb-//g' tbprofiler.variants.csv
+        sed -i 's/tbdb-//g' tbprofiler.variants.txt
 
-    tb-profiler collate --full --mark_missing --all_variants --itol
-
-    """
+        """
 
 
 }

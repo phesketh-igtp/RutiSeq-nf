@@ -20,14 +20,21 @@ process TBPROFILER_COMPILE_TBDB {
 
     output:
         path("tbprofiler.txt"),                 emit: tbdb_results
-        path("tbprofiler.dr.indiv.itol.txt")
-        path("tbprofiler.dr.itol.txt")
-        path("tbprofiler.lineage.itol.txt")
-        path("tbprofiler.variants.csv")
-        path("tbprofiler.variants.txt")
+        //path("tbprofiler.dr.indiv.itol.txt")
+        //path("tbprofiler.dr.itol.txt")
+        //path("tbprofiler.lineage.itol.txt")
+        //path("tbprofiler.variants.csv")
+        //path("tbprofiler.variants.txt")
 
     script:
         """
+        mkdir -p results/; mkdir -p  bam/; mkdir -p vcf/
+
+        # create the symbolic links to the result directories
+        ln -s ${params.outdir}/bbdd/tbprofiler/results/* results/
+        ln -s ${params.outdir}/bbdd/tbprofiler/bam/* bam/
+        ln -s ${params.outdir}/bbdd/tbprofiler/vcf/* vcf/
+
         tb-profiler collate --full --mark_missing --all_variants --itol
         """
 }
