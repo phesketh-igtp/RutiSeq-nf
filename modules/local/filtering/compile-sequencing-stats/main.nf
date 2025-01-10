@@ -43,7 +43,7 @@ process COMPILE_SEQUENCING_STATS {
                 --minimum_coverage      ${params.mtbseq.min_cov} \\
                 --runID                 ${runID} \\
                 --dictionary_path       ${params.r_script_dir} \\
-                ${additional_args} \\
+                ${additional_args}
                 
 
     # Create sample list of all the MTB lineages to be analyzed
