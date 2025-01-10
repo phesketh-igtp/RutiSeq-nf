@@ -19,8 +19,7 @@ process COMPILE_SEQUENCING_STATS {
         path("sequencing_summary.csv"),                 emit: analysis_summary
         path("who_resistance_summary.csv"),             emit: who_resistance
         path("tbdb_resistance_summary.csv"),            emit: tbdb_resistance
-        path("pairwise_analysis_lineage_split.list"),   emit: pairwise_list
-        path("lineage_samples_tuple.csv"),              emit: lineage_sample_path
+        path("lineage_samples_tuple.csv"),              emit: lineage_sample_tuple
 
     script:
     def additional_args = task.ext.compile_sequencing_stats ?: ''
