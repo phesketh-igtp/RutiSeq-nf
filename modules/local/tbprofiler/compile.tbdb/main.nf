@@ -56,12 +56,12 @@ process TBPROFILER_COMPILE_TBDB {
 
         # Get the fractions of all the lineages
         for file in results/*txt; do
-            id=$(basename \$file .results.txt)
+            id=\$(basename \$file .results.txt)
             # Process the file once and pipe through a series of sed commands
             sed -e '/Resistance report/,\$d' \
                 -e '1,/Lineage report/d' \
                 -e 's@-@@g' \
-                -e '/^$/d' \
+                -e '/^\$/d' \
                 -e "s@^@\${id}\t@" \
                 \$file | sort >> lineages.fractions.txt
         done; sed -i '1i\SampleID\tLineage\tFraction\tFamily\tRd' lineages.fractions.txt
