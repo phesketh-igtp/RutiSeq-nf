@@ -63,7 +63,7 @@ write.csv2(sequencing_summary.df,
             quote=FALSE, row.names=FALSE)
 
 write.csv2(sequencing_summary.df,
-            paste(runID, ".sequencing_summary.csv"),
+            paste(runID, ".sequencing_summary.csv", sep = ""),
             quote=FALSE, row.names=FALSE)
 
 write.csv2(resistance_profiles_TBDB.df,

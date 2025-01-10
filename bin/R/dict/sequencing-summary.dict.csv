@@ -62,3 +62,5 @@ ethionamide,ETH,character,N
 para.aminosalicylic_acid,PAC,character,N
 cycloserine,CYR,character,N
 infection_type,Infection type,character,Y
+Lineage_frac,Lineages (fractions),character,Y
+Mixed_90perc,Lineages (mixed fractions > 90),character,Y

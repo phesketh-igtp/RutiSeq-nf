@@ -12,6 +12,7 @@ process COMPILE_SEQUENCING_STATS {
         path who_results
         path mtbseq_compiled_strains
         path mtbseq_compiled_map_stats
+        path lineage_fractions
 
     output:
         path("${runID}.sequencing_summary.csv")
@@ -25,19 +26,22 @@ process COMPILE_SEQUENCING_STATS {
     def additional_args = task.ext.compile_sequencing_stats ?: ''
 
     """
-    #TODO:
-    # Need to write the script that generates the
-    ## Infection type perfentages for distinct lineages
+    # Create the 
+    Rscript ${params.r_script_dir}/tbprofiler_lineage_fractions.R \\
+                    --tbprofiler    tbdb-tbprofiler.txt \\
+                    --lineages      lineages.fractions.txt
 
+    # Generate summary statistics and create the sampleID,lineage df for
+    ## creating into a channel 
     Rscript ${params.r_script_dir}/compile-sequencing-statistics.R \\
                 --mtbseq_statistics     Mapping_and_Variant_Statistics.tab \\
                 --mtbseq_classification Strain_Classification.tab \\
                 --tbprofiler_tbdb       tbdb-tbprofiler.txt \\
                 --tbprofiler_who        who-tbprofiler.txt \\
+                --lineage_fractions     tbprofiler.lineages.fractions.txt \\
                 --minimum_coverage ${params.mtbseq.min_cov} \\
                 ${additional_args} \\
-                --dictionary_path ${params.r_script_dir} \\
-                --output ${runID}.sequencing_summary.csv
+                --dictionary_path ${params.r_script_dir}
 
     # Create sample list of all the MTB lineages to be analyzed
     if [[ -f lineage_samples_paths.csv ]]; then rm lineage_samples_paths.csv; fi

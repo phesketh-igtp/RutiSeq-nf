@@ -11,7 +11,7 @@ parser$add_argument("--tbprofiler_tbdb", required=TRUE, help="Path to TBProfiler
 parser$add_argument("--tbprofiler_who", required=TRUE, help="Path to TBProfiler TBDB results file")
 parser$add_argument("--minimum_coverage", required=TRUE, type="integer", help="Minimum coverage threshold")
 parser$add_argument("--dictionary_path", default=NULL, help="Path to R dictioanry for renaming files")
-parser$add_argument("--output", required=TRUE, help="Output file name for sequencing summary CSV")
+parser$add_argument("--lineage_fractions", required=TRUE, help="Lineage fractions dataframe")
 
 ## parser$add_argument("--additional_args", default=NULL, help="Optional additional arguments from config file")
 
@@ -26,6 +26,7 @@ tbprofiler_who        <- args$tbprofiler_who
 output_file           <- args$output
 minimum_coverage      <- args$minimum_coverage
 dictionary_path       <- args$dictionary_path
+lineage_fractions     <- args$lineage_fractions
 ## additional_args <- args$additional_args
 
 # Debugging: Print the arguments (optional)
@@ -41,6 +42,8 @@ mtbseq_stats       <- read.delim(mtbseq_statistics, header = FALSE)
 mtbseq_class       <- read.delim(mtbseq_classification, header = FALSE)
 tbprofiler_tbdb.df <- read.delim(tbprofiler_tbdb, header = TRUE)
 tbprofiler_who     <- read.delim(tbprofiler_who, header = TRUE)
+lineage_frac       <- read.delim(lineage_fractions, header = TRUE) |> 
+                                select(sampleID, Lineage_frac, Mixed_90perc)
 
 # Add appropriate headers to dataframes using dictionaries
 
@@ -57,7 +60,8 @@ mtbseq_classification.df <- dictionary_rename(df = mtbseq_class,
 
 merge1 <- left_join(mtbseq_statistics.df, mtbseq_classification.df)
 merge2 <- left_join(merge1, tbprofiler_tbdb.df, by = c("FullID" = "sample"))
-full.df <- merge2 # rename the dataframe
+merge3 <- left_join(merge2, lineage_frac, by = c("FullID" = "SampleID"))
+full.df <- merge3 # rename the dataframe
 
 # Filter out the genomes using a minimum coverage 
 full.df.final <- full.df |>

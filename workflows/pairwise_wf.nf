@@ -45,8 +45,9 @@ workflow PAIRWISE_WF {
             
         // Determine infection type (Mixed vs Clonal using both tbprofiler and mtbseq outputs)
         //// and filter genomes based on quality parameters (min coverage)
-            COMPILE_SEQUENCING_STATS(   runID, 
+            COMPILE_SEQUENCING_STATS(   runID,
                                         TBPROFILER_COMPILE_TBDB.out.tbdb_results,
+                                        TBPROFILER_COMPILE_TBDB.out.lineage_fractions,
                                         TBPROFILER_COMPILE_WHO.out.who_results,
                                         MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_strains,
                                         MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_map_stats
