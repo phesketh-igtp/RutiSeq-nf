@@ -24,7 +24,7 @@ process MTBSEQ_SINGLE {
         tuple val(sampleID), path("Bam/${sampleID}.bamlog")
         tuple val(sampleID), path("Called/${sampleID}.gatk_position_uncovered_*.tab")
         tuple val(sampleID), path("Called/${sampleID}.gatk_position_variants_*.tab")
-        tuple val(sampleID), path("Classification/Strain_Classification.tab")
+        tuple val(sampleID), path("Classification/${sampleID}.Strain_Classification.tab")
         tuple val(sampleID), path("GATK_Bam/${sampleID}.gatk.bam")
         tuple val(sampleID), path("GATK_Bam/${sampleID}.gatk.bai")
         tuple val(sampleID), path("GATK_Bam/${sampleID}.gatk.bamlog")
@@ -33,7 +33,7 @@ process MTBSEQ_SINGLE {
         tuple val(sampleID), path("Mpileup/${sampleID}.gatk.mpileup"),                  emit: mtbseq_mpileup
         tuple val(sampleID), path("Mpileup/${sampleID}.gatk.mpileuplog")
         tuple val(sampleID), path("Position_Tables/${sampleID}.gatk_position_table.tab")
-        tuple val(sampleID), path("Statistics/Mapping_and_Variant_Statistics.tab")
+        tuple val(sampleID), path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab")
 
         // tuple for updating the sample_ch
         tuple val(sampleID), path(forward), path(reverse), 
@@ -71,6 +71,11 @@ process MTBSEQ_SINGLE {
         # that was inputted to the module to remain unchanged 
         # (I think ... and its strange and annoying if that is the case)
         mv tmp_for_name \${for_name}; mv tmp_rev_name \${rev_name}
+
+        # Rename the stats and class outputs to have unique names
+        ## this prevent clashes later on
+        mv Classification/Strain_Classification.tab Classification/${sampleID}.Strain_Classification.tab
+        mv Statistics/Mapping_and_Variant_Statistics.tab Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
 
         """
 

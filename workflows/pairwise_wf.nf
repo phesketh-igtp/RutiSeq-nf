@@ -10,7 +10,10 @@ workflow PAIRWISE_WF {
     
     take:
         runID
-        pairwise_samples_ch
+        mtbseq_stats_ch
+        mtbseq_class_ch
+        tbdb_out_ch
+        who_out_ch
 
     main:
         def color_purple = '\u001B[35m'
@@ -25,22 +28,6 @@ workflow PAIRWISE_WF {
         ${color_red}Workflow: ${color_green}Comparative/Pairwise genome analysis${color_purple}
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${no_color}
         """
-
-        // Structure of the channel : pairwise_samples_ch
-        /// [0] sampleID        [1] forward         [2] reverse     [3] mtbseq_class    [4] mtbseq_stats
-        /// [5] mtbseq_pos      [6] mtbseq_vars     [7] tbdb_out    [8] who_out         [9] mtbseq_vcf
-
-        // filter channels of just the necessary output files contained within the tuple (by calling the index)
-            mtbseq_class_files  =   pairwise_samples_ch.map { it -> it[3] ?: null }
-            mtbseq_stats_files  =   pairwise_samples_ch.map { it -> it[4] ?: null }
-            tbdb_out_files      =   pairwise_samples_ch.map { it -> it[7] ?: null }
-            who_out_files       =   pairwise_samples_ch.map { it -> it[8] ?: null }
-
-            // make the channels
-            mtbseq_stats_ch     =   mtbseq_stats_files.collect()
-            mtbseq_class_ch     =   mtbseq_class_files.collect()
-            tbdb_out_ch         =   tbdb_out_files.collect()
-            who_out_ch          =   who_out_files.collect()
 
         // Compile TB-Profiler results
             TBPROFILER_COMPILE_TBDB( runID, tbdb_out_ch )

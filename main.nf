@@ -100,7 +100,9 @@ workflow {
         /*
         ······································································································
             NEGATIVE CONTROL WORKFLOW (NEGATIVE_CONTROL_WF)
-                From the controls_ch, the samples are taxonomically classified with Kaiju
+
+                - From the controls_ch, the samples are taxonomically classified with Kaiju
+                - Taxonomically classified sample reads and produces a summary of the reads
         ······································································································
         */
 
@@ -110,7 +112,7 @@ workflow {
         /*
         ······································································································
             INSPECT BBDD FOR INTERMEDIATE FILES
-                (i.e. sample has been previously analyzed)
+                - Inspects the BBDD for the sampleID and SINGLE_WF outputs and creates a channel containins paths
         ······································································································
         */
 
@@ -155,52 +157,78 @@ workflow {
 
         /*
         ······································································································
-            SINGLE SAMPLE ANALYSIS (SINGLE_WF)
-
+            SINGLE SAMPLE ANALYSIS (SINGLE_WF):
+                
+                - Taxonomically classified sample reads and produces a summary read stats
+                - Paritions MTBc reads for downstream analysis
+                - Performs TB-Profiler analysis on MTBc reads (using both WHO and TBDB databases)
+                - Performs  MTBSeq analysis on MTBc reads
+                - Creates correctly formatted VCF files using MTBseq mpileup files
         ······································································································
         */
 
-            SINGLE_WF( comp_samples_ch,
-                    )
+            SINGLE_WF( comp_samples_ch )
                     
-                /*
                 // DEBUG: Demonstrate the content of the channel
-                SINGLE_WF.out.single_updated_samples_ch.view { sample -> "Sample: $sampleID" }
-                */
+                ///     SINGLE_WF.out.single_updated_samples_ch.view { sample -> "Sample: $sampleID" }
 
             pairwise_samples_ch = SINGLE_WF.out.single_updated_samples_ch
 
-            pairwise_samples_ch.subscribe { println "Debug - pairwise_samples_ch: $it" }
+            // pairwise_samples_ch.subscribe { println "Debug - pairwise_samples_ch: $it" }
 
         /*
         ······································································································
-            PAIRWISE SAMPLE ANALYSIS (PAIRWISE_WF)
-                PAIRWISE_WF performs comparative analysis of 
+            PAIRWISE SAMPLE ANALYSIS (PAIRWISE_WF):
+
+                - PAIRWISE_WF performs comparative analysis of
+                - Performs pairwise SNP clustering
+                - Creates concatenated variant positions alignments
+                - Produces ML phylogenetic trees (with reference and ancestral reconstruction)
+                - Produces molecular clock, with ML trees (with reference and ancestral reconstruction)
         ······································································································
         */
 
+            // Structure of the channel : pairwise_samples_ch
+            /// [0] sampleID        [1] forward         [2] reverse     [3] mtbseq_class    [4] mtbseq_stats
+            /// [5] mtbseq_pos      [6] mtbseq_vars     [7] tbdb_out    [8] who_out         [9] mtbseq_vcf
 
-            PAIRWISE_WF( pairwise_samples_ch,
-                            params.runID
+            // filter channels of just the necessary output files contained within the tuple (by calling the index)
+                mtbseq_class_files  =   pairwise_samples_ch.map { it -> it[3] ?: null }
+                mtbseq_stats_files  =   pairwise_samples_ch.map { it -> it[4] ?: null }
+                tbdb_out_files      =   pairwise_samples_ch.map { it -> it[7] ?: null }
+                who_out_files       =   pairwise_samples_ch.map { it -> it[8] ?: null }
+
+                // make the channels
+                mtbseq_stats_ch     =   mtbseq_stats_files.collect()
+                mtbseq_class_ch     =   mtbseq_class_files.collect()
+                tbdb_out_ch         =   tbdb_out_files.collect()
+                who_out_ch          =   who_out_files.collect()
+
+
+            PAIRWISE_WF( params.runID,
+                            mtbseq_stats_ch,
+                            mtbseq_class_ch,
+                            tbdb_out_ch,
+                            who_out_ch
                         )
-
 
         /*
         ······································································································
             SUMMARY WORKFLOW (SUMMARU_WF):
-                SUMMARY_WF to generate the XCEL summary tables, produce ML phylogenetic trees 
-                and visualise them, and generate MJN files for visualisation in PopArt, and
-                interactive python networks
+
+                - Produces the EXCEL summary tables
+                - Visualise phylogenetic trees 
+                - Generate MJN files for visualisation in PopArt
         ······································································································
         */
 
 /*
-            SUMMARY_WF(     params.runID,
-                            PAIRWISE_WF.out.pairwise_clusters,
-                            PAIRWISE_WF.out.pairwise_matrix,
-                            PAIRWISE_WF.out.analysis_summary,
-                            PAIRWISE_WF.out.who_resistance,
-                            PAIRWISE_WF.out.tbdb_resistance
+            SUMMARY_WF( params.runID,
+                        PAIRWISE_WF.out.pairwise_clusters,
+                        PAIRWISE_WF.out.pairwise_matrix,
+                        PAIRWISE_WF.out.analysis_summary,
+                        PAIRWISE_WF.out.who_resistance,
+                        PAIRWISE_WF.out.tbdb_resistance
                     )
 */
 
