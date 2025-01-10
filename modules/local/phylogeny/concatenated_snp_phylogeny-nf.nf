@@ -1,12 +1,12 @@
-process MTBSEQ_LINEAGE_PAIRWISE {
+process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
 
     tag "${runID}: ${lineage}"
 
-    conda params.mtbseq_env
+    conda params.phylogeny_env
 
-    container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data'
-            } else { 'quay.io/biocontainers/mtbseq' }
-    }
+    // TODO: container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data'
+    ///        } else { 'quay.io/biocontainers/mtbseq' }
+    ///}
                 
     publishDir "${params.outdir}/bbdd/mtbseq/pairwise/", mode: 'copy'
 
@@ -38,7 +38,7 @@ process MTBSEQ_LINEAGE_PAIRWISE {
         path("Join/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.tab")
 
         // Groups
-        Amend/${LINEAGE}*_joint_*_phylo_w10.fasta
+        
 
         //Matrix ouput
         tuple val(lineage), path("Group/"),                                      emit: join_dir
