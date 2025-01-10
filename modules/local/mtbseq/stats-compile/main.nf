@@ -14,18 +14,14 @@ process MTBSEQ_STATS_COMPILE {
         """
 
         # Concatenate all files, excluding the header
-            for file in ${stats_files[0]}; do
-
-                tail -n +2 \$file >> Strain_Classification.tab
-
-            done
+        cat ${params.outdir}/bbdd/mtbseq/samples/*/Statistics/* \\
+                            | sed '/^Date/d' \\
+                            | sed "s/'//g" > Mapping_and_Variant_Statistics.tab
 
         # Concatenate all files, excluding the header
-            for file in ${mtbseq_class_files[0]}; do
-
-                tail -n +2 \$file >> Mapping_and_Variant_Statistics.tab
-
-            done
+        cat ${params.outdir}/bbdd/mtbseq/samples/*/Classification/* \\
+                            | sed '/^Date/d' \\
+                            | sed "s/'//g" > Strain_Classification.tab
 
         """
 

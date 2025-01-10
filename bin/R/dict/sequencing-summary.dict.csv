@@ -5,7 +5,6 @@ FullID,Sample,character,Y
 LibraryID,Library,character,Y
 main_lineage,Main lineage,character,Y
 sub_lineage,Sub-lineage,character,Y
-infection_type,Infection type,character,Y
 Total Reads,Total Reads,numeric,Y
 Mapped Reads,Mapped Reads,numeric,N
 Mapped Reads (%),Mapped Reads (%),numeric,N
@@ -62,3 +61,4 @@ clofazimine,CFZ,character,N
 ethionamide,ETH,character,N
 para.aminosalicylic_acid,PAC,character,N
 cycloserine,CYR,character,N
+infection_type,Infection type,character,Y

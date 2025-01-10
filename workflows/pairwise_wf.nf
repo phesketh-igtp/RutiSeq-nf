@@ -25,12 +25,14 @@ workflow PAIRWISE_WF {
 
         // Compile TB-Profiler results
             TBPROFILER_COMPILE_TBDB( runID, tbdb_out_ch )
-
-            TBPROFILER_COMPILE_TBDB.out.tbdb_results.view
+            // DEBUG: 
+            ///TBPROFILER_COMPILE_TBDB.out.tbdb_results.view { file -> 
+            ///"Content of ${file.name}:\n${file.text}" }
 
             TBPROFILER_COMPILE_WHO( runID, who_out_ch )
-
-            TBPROFILER_COMPILE_WHO.out.who_results.view
+            // DEBUG: 
+            ///TBPROFILER_COMPILE_WHO.out.who_results.view { file -> 
+            ///"Content of ${file.name}:\n${file.text}" }
 
             /*
             // DEBUG:
@@ -55,10 +57,8 @@ workflow PAIRWISE_WF {
                     .splitCsv(header:false)
                     .map { row -> tuple(row[0], file(row[1])) }
 
-            /*
             // DEBUG: Now you can use lineage_samples_tuple in subsequent processes
-                lineage_samples_ch.view()
-            */
+                lineage_samples_ch.collect().println()
 
         // Run the pairwise analysis by lineages
             MTBSEQ_LINEAGE_PAIRWISE( runID, lineage_samples_ch )

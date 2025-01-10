@@ -15,12 +15,12 @@ process TBPROFILER_COMPILE_WHO {
         path (tbprofiler_who_results)
 
     output:
-        path("tbprofiler.txt"),               emit: who_results
-        //path("tbprofiler.dr.indiv.itol.txt")
-        //path("tbprofiler.dr.itol.txt")
-        //path("tbprofiler.lineage.itol.txt")
-        path("tbprofiler.variants.csv")
-        path("tbprofiler.variants.txt")
+        path("who-tbprofiler.txt"),               emit: who_results
+        path("who-tbprofiler.variants.csv")
+        path("who-tbprofiler.variants.txt")
+        //path("who-tbprofiler.dr.indiv.itol.txt")
+        //path("who-tbprofiler.dr.itol.txt")
+        //path("who-tbprofiler.lineage.itol.txt")
 
 
     script:
@@ -35,12 +35,21 @@ process TBPROFILER_COMPILE_WHO {
 
         tb-profiler collate
 
+        # rm the prefix in the files to enable merging later
         sed -i 's/who-//g' tbprofiler.txt
+        sed -i 's/who-//g' tbprofiler.variants.csv
+        sed -i 's/who-//g' tbprofiler.variants.txt
         #sed -i 's/who-//g' tbprofiler.dr.indiv.itol.txt
         #sed -i 's/who-//g' tbprofiler.dr.itol.txt
         #sed -i 's/who-//g' tbprofiler.lineage.itol.txt
-        sed -i 's/who-//g' tbprofiler.variants.csv
-        sed -i 's/who-//g' tbprofiler.variants.txt
+
+        # Move the files to give them unique names
+        mv tbprofiler.txt                   who-tbprofiler.txt
+        mv tbprofiler.variants.csv          who-tbprofiler.variants.csv
+        mv tbprofiler.variants.txt          who-tbprofiler.variants.txt
+        #mv tbprofiler.dr.indiv.itol.txt    who-tbprofiler.dr.indiv.itol.txt
+        #mv tbprofiler.dr.itol.txt          who-tbprofiler.dr.itol.txt
+        #mv tbprofiler.lineage.itol.txt     who-tbprofiler.lineage.itol.txt
 
         """
 

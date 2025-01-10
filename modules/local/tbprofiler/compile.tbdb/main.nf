@@ -19,12 +19,12 @@ process TBPROFILER_COMPILE_TBDB {
         path(tbprofiler_results)
 
     output:
-        path("tbprofiler.txt"),                 emit: tbdb_results
-        path("tbprofiler.dr.indiv.itol.txt")
-        path("tbprofiler.dr.itol.txt")
-        path("tbprofiler.lineage.itol.txt")
-        path("tbprofiler.variants.csv")
-        path("tbprofiler.variants.txt")
+        path("tbdb-tbprofiler.txt"),                 emit: tbdb_results
+        path("tbdb-tbprofiler.dr.indiv.itol.txt")
+        path("tbdb-tbprofiler.dr.itol.txt")
+        path("tbdb-tbprofiler.lineage.itol.txt")
+        path("tbdb-tbprofiler.variants.csv")
+        path("tbdb-tbprofiler.variants.txt")
 
     script:
         """
@@ -38,11 +38,21 @@ process TBPROFILER_COMPILE_TBDB {
         tb-profiler collate --full --mark_missing --all_variants --itol
 
         sed -i 's/tbdb-//g' tbprofiler.txt
+        sed -i 's/tbdb-//g' tbprofiler.variants.csv
+        sed -i 's/tbdb-//g' tbprofiler.variants.txt
         sed -i 's/tbdb-//g' tbprofiler.dr.indiv.itol.txt
         sed -i 's/tbdb-//g' tbprofiler.dr.itol.txt
         sed -i 's/tbdb-//g' tbprofiler.lineage.itol.txt
-        sed -i 's/tbdb-//g' tbprofiler.variants.csv
-        sed -i 's/tbdb-//g' tbprofiler.variants.txt
+
+
+        # Move the files to give them unique names
+        mv tbprofiler.txt tbdb-tbprofiler.txt
+        mv tbprofiler.variants.csv          tbdb-tbprofiler.variants.csv
+        mv tbprofiler.variants.txt          tbdb-tbprofiler.variants.txt
+        mv tbprofiler.dr.indiv.itol.txt     tbdb-tbprofiler.dr.indiv.itol.txt
+        mv tbprofiler.dr.itol.txt           tbdb-tbprofiler.dr.itol.txt
+        mv tbprofiler.lineage.itol.txt      tbdb-tbprofiler.lineage.itol.txt
+
         
         """
 }
