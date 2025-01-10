@@ -16,7 +16,7 @@ process MTBSEQ_LINEAGE_PAIRWISE {
 
     output:
         // Amend outputs
-        tuple val(lineage), path("Amend/"),                                                  emit: amended_dir
+        tuple val(lineage), path("Amend/"),                                                  emit: amend_dir
         tuple val(lineage), path("Amend/${lineage}_joint_*_amended.tab")
         tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo.fasta")
         tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo.plainIDs.fasta")

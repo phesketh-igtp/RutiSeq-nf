@@ -29,11 +29,11 @@ process TBPROFILER_COMPILE_TBDB {
 
     script:
         """
-        mkdir -p results/; mkdir -p  bam/; mkdir -p vcf/
+        mkdir results/; mkdir bam/; mkdir vcf/
 
         # create the symbolic links to the result directories
-        ln -s ${params.outdir}/bbdd/tbprofiler/results/* results/
-        ln -s ${params.outdir}/bbdd/tbprofiler/bam/* bam/
+        ln -s ${params.outdir}/bbdd/tbprofiler/results/* results/;
+        ln -s ${params.outdir}/bbdd/tbprofiler/bam/* bam/;
         ln -s ${params.outdir}/bbdd/tbprofiler/vcf/* vcf/
 
         tb-profiler collate --full --mark_missing --all_variants --itol
@@ -55,18 +55,19 @@ process TBPROFILER_COMPILE_TBDB {
         mv tbprofiler.lineage.itol.txt      tbdb-tbprofiler.lineage.itol.txt
 
         # Get the fractions of all the lineages
-        for file in results/*txt; do
+        for file in results/tbdb-*.txt; do
             id=\$(basename \$file .results.txt)
-            # Process the file once and pipe through a series of sed commands
-            sed -e '/Resistance report/,\$d' \
-                -e '1,/Lineage report/d' \
-                -e 's@-@@g' \
-                -e '/^\$/d' \
-                -e "s@^@\${id}\t@" \
+            sed -e '/Resistance report/,\$d' \\
+                -e '1,/Lineage report/d' \\
+                -e 's@-@@g' \\
+                -e '/^\$/d' \\
+                -e "s@^@\${id}\t@" \\
                 \$file | sort >> lineages.fractions.txt
-        done; sed -i '1i\SampleID\tLineage\tFraction\tFamily\tRd' lineages.fractions.txt
+        done
+
+        # Add header to lineages.fractions.txt
+        sed -i '1iSampleID\\tLineage\\tFraction\\tFamily\\tRd' lineages.fractions.txt
 
         sed -i 's/tbdb-//g' lineages.fractions.txt
-        
         """
 }

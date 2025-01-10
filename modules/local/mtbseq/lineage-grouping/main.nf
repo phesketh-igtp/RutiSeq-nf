@@ -13,7 +13,7 @@ process MTBSEQ_LINEAGE_GROUPING {
     input:
         val runID
         tuple val(lineage), path(samples_file)
-        path amended_dir
+        path amend_dir
         path join_dir
 
 

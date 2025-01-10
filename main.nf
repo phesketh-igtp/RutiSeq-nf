@@ -11,9 +11,10 @@ include { NEGATIVE_CONTROL_WF }     from './workflows/negative_ctrl_wf.nf'
 workflow {
     
     def color_purple = '\u001B[35m'
-    def color_green = '\u001B[32m'
-    def color_red = '\u001B[31m'
-    def color_reset = '\u001B[0m'
+    def color_green  = '\u001B[32m'
+    def color_red    = '\u001B[31m'
+    def color_reset  = '\u001B[0m'
+    def color_cyan   = '\u001B[36m'
 
     log.info """
     ${color_purple}
@@ -23,8 +24,8 @@ workflow {
     ║  ██████╔╝██║   ██║   ██║   ██║███████╗█████╗  ██║   ██║                ║
     ║  ██╔══██╗██║   ██║   ██║   ██║╚════██║██╔══╝  ██║▄▄ ██║                ║
     ║  ██║  ██║╚██████╔╝   ██║   ██║███████║███████╗╚██████╔╝                ║
-    ║  ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝╚══════╝╚══════╝ ╚══▀▀═╝  v.1.0.0-alpha  ║
-    ║ ${color_green}Pre-release testing version${color_purple}                                            ║    
+    ║  ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝╚══════╝╚══════╝ ╚══▀▀═╝  v.1.0.0-beta   ║
+    ║ ${color_green}Pre-release development version${color_purple}                                            ║    
     ╚════════════════════════════════════════════════════════════════════════╝
     ${color_reset}
     """
@@ -90,13 +91,13 @@ workflow {
             // Report the samples part of the samplesheet
                 log.info "${color_green}Input samples:${color_reset}"
                 samples_ch.view { sampleID, forward, reverse ->
-                    "${color_red}Sample: ${color_green}$sampleID${color_red} | Forward: ${color_green}$forward${color_red} | Reverse: ${color_green}$reverse${color_reset}"
+                    "${color_cyan}Sample: ${color_green}$sampleID${color_reset} | ${color_cyan}Forward: ${color_green}$forward${color_reset} | ${color_cyan}Reverse: ${color_green}$reverse${color_reset}"
                 }
                 
              // Report the controls part of the samplesheet
                 log.info "${color_green}Control samples:${color_reset}"
                 controls_ch.view { sampleID, forward, reverse ->
-                    "${color_red}Control: ${color_green}$sampleID${color_red} | Forward: ${color_green}$forward${color_red} | Reverse: ${color_green}$reverse${color_reset}"
+                    "${color_red}Control: ${color_green}$sampleID${color_reset} | ${color_red}Forward: ${color_green}$forward${color_reset} | ${color_red}Reverse: ${color_green}$reverse${color_reset}"
                 }
 
         /*
@@ -109,7 +110,8 @@ workflow {
         */
 
         // Call the workflow
-            NEGATIVE_CONTROL_WF(controls_ch)
+        // TODO: need to figure out if this is working as intended and correct the channel to not have that empty index [4]
+            ///NEGATIVE_CONTROL_WF(controls_ch)
 
         /*
         ······································································································

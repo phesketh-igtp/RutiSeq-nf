@@ -26,14 +26,14 @@ process TBPROFILER_COMPILE_WHO {
     script:
 
         """
-        mkdir -p results/; mkdir -p  bam/; mkdir -p vcf/
+        mkdir results/; mkdir bam/; mkdir vcf/
 
         # create the symbolic links to the result directories
-        ln -s ${params.outdir}/bbdd/tbprofiler/results/* results/
-        #ln -s ${params.outdir}/bbdd/tbprofiler/bam/* bam/
-        #ln -s ${params.outdir}/bbdd/tbprofiler/vcf/* vcf/
+        ln -s ${params.outdir}/bbdd/tbprofiler/who-only/results/* results/
+        #ln -s ${params.outdir}/bbdd/tbprofiler/who-only/bam/* bam/
+        #ln -s ${params.outdir}/bbdd/tbprofiler/who-only/vcf/* vcf/
 
-        tb-profiler collate
+        tb-profiler collate # --full --mark_missing --all_variants --itol
 
         # rm the prefix in the files to enable merging later
         sed -i 's/who-//g' tbprofiler.txt

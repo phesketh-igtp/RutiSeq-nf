@@ -60,14 +60,14 @@ workflow PAIRWISE_WF {
 
             // DEBUG: Now you can use lineage_samples_tuple in subsequent processes
                 lineage_samples_ch.collect().println()
-
+/*
         // Run the pairwise analysis by lineages
             MTBSEQ_LINEAGE_PAIRWISE( runID, lineage_samples_ch )
 
             MTBSEQ_LINEAGE_GROUPING(
                                         runID, 
                                         lineage_samples_ch,
-                                        MTBSEQ_LINEAGE_PAIRWISE.out.amended_dir,
+                                        MTBSEQ_LINEAGE_PAIRWISE.out.amend_dir,
                                         MTBSEQ_LINEAGE_PAIRWISE.out.join_dir
                                     )
 
@@ -75,9 +75,9 @@ workflow PAIRWISE_WF {
             all_clusters = MTBSEQ_LINEAGE_GROUPING.out.clusters.collect()
             all_matrices = MTBSEQ_LINEAGE_GROUPING.out.matrices.collect()
 
+
         // Compile the pairwise analysis results into a single cluster file
             MTBSEQ_PAIRWISE_RESULTS(all_clusters, all_matrices)
-
 
     emit:
         pairwise_clusters       =       MTBSEQ_PAIRWISE_RESULTS.out.master_clusters
@@ -85,5 +85,5 @@ workflow PAIRWISE_WF {
         analysis_summary        =       COMPILE_SEQUENCING_STATS.out.analysis_summary
         who_resistance          =       COMPILE_SEQUENCING_STATS.out.who_resistance
         tbdb_resistance         =       COMPILE_SEQUENCING_STATS.out.tbdb_resistance
-
+*/
 }
