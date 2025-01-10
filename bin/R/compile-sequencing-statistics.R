@@ -87,28 +87,25 @@ pairwise_analysis.df <- full.df.final |>
                 filter(sub_lineage != "NA") |> # no unclassified genomes
                 select(SampleID=FullID,sub_lineage)
 
-pairwise_analysis.df
-
 # export all the ouputs (broken!)
 write.csv2(sequencing_summary.df,
             "sequencing_summary.csv",
             quote=FALSE, row.names=FALSE)
 
 write.csv2(sequencing_summary.df,
-            paste(runID, ".sequencing_summary.csv"),
+            paste0(runID, ".sequencing_summary.csv", sep = ""),
             quote=FALSE, row.names=FALSE)
 
 write.csv2(resistance_profiles_TBDB.df,
-            "resistance_profiles_TBDB.csv",
+            "tbdb_resistance_summary.csv",
             quote=FALSE, row.names=FALSE)
 
 write.csv2(resistance_profiles_WHO.df,
-            "resistance_profiles_WHO.csv",
+            "who_resistance_summary.csv",
             quote=FALSE, row.names=FALSE)
 
 write.csv2(pairwise_analysis.df,
             "pairwise_analysis.list.csv",
             quote=FALSE, row.names=FALSE)
-
 
 cat("Finished: R/compile-sequencing-statistics copy.R\n")

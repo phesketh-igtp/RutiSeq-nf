@@ -25,7 +25,7 @@ workflow {
     ║  ██╔══██╗██║   ██║   ██║   ██║╚════██║██╔══╝  ██║▄▄ ██║                ║
     ║  ██║  ██║╚██████╔╝   ██║   ██║███████║███████╗╚██████╔╝                ║
     ║  ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝╚══════╝╚══════╝ ╚══▀▀═╝  v.1.0.0-beta   ║
-    ║ ${color_green}Pre-release development version${color_purple}                                            ║    
+    ║ ${color_green}Pre-release development version${color_purple}                                        ║    
     ╚════════════════════════════════════════════════════════════════════════╝
     ${color_reset}
     """
