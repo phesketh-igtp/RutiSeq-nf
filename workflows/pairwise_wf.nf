@@ -54,13 +54,15 @@ workflow PAIRWISE_WF {
                                     )
 
             // Create tuple and data channel from lineage_samples_paths.csv
-                lineage_samples_ch = COMPILE_SEQUENCING_STATS.out.lineage_sample_path
-                    .splitCsv(header:false)
-                    .map { row -> tuple(row[0], file(row[1])) }
+            /// the channel needs to be grouped by the lineage
+                lineage_samples_ch = COMPILE_SEQUENCING_STATS.out.lineage_sample_tuple
+                    .splitCsv(header: false)
+                    .map { row -> tuple(row[0], row[1]) }
+                    .groupTuple()
 
-            // DEBUG: Now you can use lineage_samples_tuple in subsequent processes
-                lineage_samples_ch.collect().println()
-/*
+                // DEBUG: View the grouped channel
+                lineage_samples_ch.view()
+            /*
         // Run the pairwise analysis by lineages
             MTBSEQ_LINEAGE_PAIRWISE( runID, lineage_samples_ch )
 
