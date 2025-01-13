@@ -230,10 +230,10 @@ workflow {
 /*
             SUMMARY_WF( params.runID,
                         PAIRWISE_WF.out.pairwise_clusters,
-                        PAIRWISE_WF.out.pairwise_matrix,
                         PAIRWISE_WF.out.analysis_summary,
                         PAIRWISE_WF.out.who_resistance,
-                        PAIRWISE_WF.out.tbdb_resistance
+                        PAIRWISE_WF.out.tbdb_resistance,
+                        PAIRWISE_WF.out.phylogeny_plotting_ch
                     )
 */
 

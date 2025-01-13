@@ -1,0 +1,10 @@
+name: phylogeny_env
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - iqtree
+  - mafft
+  - snp-sites
+  - seqkit

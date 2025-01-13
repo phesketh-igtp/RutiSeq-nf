@@ -1,10 +1,10 @@
-include { TBPROFILER_COMPILE_TBDB }     from '../modules/local/tbprofiler/compile.tbdb/main.nf'
-include { TBPROFILER_COMPILE_WHO }      from '../modules/local/tbprofiler/compile.who/main.nf'
-include { MTBSEQ_STATS_COMPILE }        from '../modules/local/mtbseq/stats-compile/main.nf'
-include { COMPILE_SEQUENCING_STATS }    from '../modules/local/filtering/compile-sequencing-stats/main.nf'
-include { MTBSEQ_LINEAGE_PAIRWISE }     from '../modules/local/mtbseq/lineage_pairwise/main.nf'
-include { MTBSEQ_LINEAGE_GROUPING }     from '../modules/local/mtbseq/lineage-grouping/main.nf'
-include { MTBSEQ_PAIRWISE_RESULTS  }    from '../modules/local/mtbseq/compile-pairwise/main.nf'
+include { TBPROFILER_COMPILE_TBDB }                 from '../modules/local/tbprofiler/compile.tbdb/main.nf'
+include { TBPROFILER_COMPILE_WHO }                  from '../modules/local/tbprofiler/compile.who/main.nf'
+include { MTBSEQ_STATS_COMPILE }                    from '../modules/local/mtbseq/stats-compile/main.nf'
+include { COMPILE_SEQUENCING_STATS }                from '../modules/local/filtering/compile-sequencing-stats/main.nf'
+include { MTBSEQ_LINEAGE_PAIRWISE }                 from '../modules/local/mtbseq/lineage_pairwise/main.nf'
+include { CONCATENATED_VARIABLE_REGION_PHYLOGENY }  from '../modules/local/phylogeny/concatenated_snp_phylogeny-nf'
+include { CONCATENATE_CLUSTERS }                    from '../modules/local/pairwise/concatenate-cluster-file/main.nf'
 
 workflow PAIRWISE_WF {
     
@@ -62,30 +62,24 @@ workflow PAIRWISE_WF {
 
                 // DEBUG: View the grouped channel
                 lineage_samples_ch.view()
-            /*
+
         // Run the pairwise analysis by lineages
             MTBSEQ_LINEAGE_PAIRWISE( runID, lineage_samples_ch )
 
-            MTBSEQ_LINEAGE_GROUPING(
-                                        runID, 
-                                        lineage_samples_ch,
-                                        MTBSEQ_LINEAGE_PAIRWISE.out.amend_dir,
-                                        MTBSEQ_LINEAGE_PAIRWISE.out.join_dir
-                                    )
+            CONCATENATED_VARIABLE_REGION_PHYLOGENY( runID, 
+                                    MTBSEQ_LINEAGE_PAIRWISE.out.snp_phylogeny_ch )
 
             // Collect all cluster and matrix outputs
-            all_clusters = MTBSEQ_LINEAGE_GROUPING.out.clusters.collect()
-            all_matrices = MTBSEQ_LINEAGE_GROUPING.out.matrices.collect()
+            bbdd_clusters = MTBSEQ_LINEAGE_PAIRWISE.out.clusters.collect()
 
-
-        // Compile the pairwise analysis results into a single cluster file
-            MTBSEQ_PAIRWISE_RESULTS(all_clusters, all_matrices)
+            CONCATENATE_CLUSTERS(bbdd_clusters)
 
     emit:
-        pairwise_clusters       =       MTBSEQ_PAIRWISE_RESULTS.out.master_clusters
-        pairwise_matrix         =       MTBSEQ_PAIRWISE_RESULTS.out.master_matrices
-        analysis_summary        =       COMPILE_SEQUENCING_STATS.out.analysis_summary
-        who_resistance          =       COMPILE_SEQUENCING_STATS.out.who_resistance
-        tbdb_resistance         =       COMPILE_SEQUENCING_STATS.out.tbdb_resistance
-*/
+        pairwise_clusters       =   CONCATENATE_CLUSTERS.out.bbdd_clusters
+        analysis_summary        =   COMPILE_SEQUENCING_STATS.out.analysis_summary
+        who_resistance          =   COMPILE_SEQUENCING_STATS.out.who_resistance
+        tbdb_resistance         =   COMPILE_SEQUENCING_STATS.out.tbdb_resistance
+        phylogeny_plotting_ch   =   CONCATENATED_VARIABLE_REGION_PHYLOGENY.out.phylogeny_plotting_ch
+
+
 }

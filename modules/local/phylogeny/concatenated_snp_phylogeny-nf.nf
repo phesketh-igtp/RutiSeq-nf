@@ -12,119 +12,97 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
 
     input:
         val runID
-        tuple val(lineage), val(sampleIDs)
+        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.fasta"),
+                            path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.tab")
+
+
 
     output:
-        path("${lineage}_samples.txt")
-
-        // Amend outputs
-        tuple val(lineage), path("Amend/"),                                             emit: amend_dir
-        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.fasta"),
-                            path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.tab"),   emit: phylogeny_ch
+        path("Phylogeny/*")
         
-        path("Amend/")                    
-        path("Amend/${lineage}_joint_*_amended.tab")
-        path("Amend/${lineage}_joint_*_amended_u*_phylo.fasta")
-        path("Amend/${lineage}_joint_*_amended_u*_phylo.plainIDs.fasta")
-        path("Amend/${lineage}_joint_*_amended_u*_phylo.tab")
-        path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.fasta")
-        path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.plainIDs.fasta")
-        path("Amend/${lineage}_joint_*_amended_u*_phylo_w*_removed.tab")
-        path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.tab")
-
-        // Join output
-        tuple val(lineage), path("Join/"),                                      emit: join_dir                                             
-        path("Join/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.log") 
-        path("Join/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.tab")
-
-        // Groups
-        
-
-        //Matrix ouput
-        tuple val(lineage), path("Group/"),                                      emit: join_dir
-        path
+        tuple val(lineage), path("Phylogeny/${lineage}_ML.contree"),
+                            path("Phylogeny/${lineage}_timetree/timetree.nexus"),
+                            path("Phylogeny/${lineage}_timetree/ancestral_sequences.fasta"), emit: phylogeny_plotting_ch
 
     script:
 
     def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
     """
-    # make the expected directories
-        mkdir Position_Tables/ Called/ Groups/ Matrices
+        mkdir Phylogeny/
 
-    # create the list of the sampleIDs within that lineage
-        echo "${sampleIDs.join('\n')}" > samplesID.list
+        cat Amend/${lineage}_joint_*_amended_u*_phylo_w*.fasta > Phylogeny/${lineage}.phylo_w10.fasta
+        cat Amend/${lineage}_joint_*_amended_u*_phylo_w*.tab > Phylogeny/${lineage}.phylo_w10.tab
 
-        sed 's@\t@_@g' samplesID.list > ${lineage}_samples.txt
+        # Need to make the respective SNP alignment for the H37Rv and the Ancestral sequence for the phylogeny
+            
+        # 1. grab a single sequence in the fasta file (first) to get the positions
+            seqkit sample -n 1 Phylogeny/${lineage}.phylo_w10.fasta > ${lineage}.tmp.fasta
+            
+        # 2. create list of how many positions there are in the seq.)
+            awk '
+                BEGIN {position = 0}
+                /^>/ {next}  # Skip header lines
+                {
+                    # Process sequence lines
+                    for (i = 1; i <= length(\$0); i++) {
+                        position++
+                        print position "\t" substr(\$0, i, 1) >> "'"${lineage}.tmp.fasta_positions.tab"'"
+                    }
+                }' "${lineage}.tmp.fasta"
+                cut -f1 ${lineage}.tmp.fasta_positions.tab > ${lineage}.tmp.fasta_positions
+                rm ${lineage}.tmp.fasta_positions.tab
+        
+        # 3. obtain the reference positions (H37Rv) for the cluster positions
+            for i in `cat ${lineage}.tmp.fasta_positions`; do 
+                sed -n $((i+2))'p' Phylogeny/${lineage}.phylo_w10.tab | cut -f3
+            done > ${lineage}.tmp_refseq
+        
+        # 4. convert column into fasta
+            paste -s -d "" ${lineage}.tmp_refseq | sed '1i >H37Rv' > Phylogeny/${lineage}.ref-H37Rv.fasta
+            
+        # 5. get the genomic positions of the SNPs
+            while read -r position; do
+                sed -n $((position+2))'p' Phylogeny/${lineage}.phylo_w10.tab | cut -f 1; 
+            done < ${lineage}.tmp.fasta_positions > Phylogeny/${lineage}_genomic_positions
+            cp ${params.MTBSEQ_ancestor} ${lineage}.tmp.MTB_anc.pos.gz; gunzip ${lineage}.tmp.MTB_anc.pos.gz
+            
+        # 6. Get the same SNPs for the 'ancestor' genomes
+            for i in `cat Phylogeny/${lineage}_genomic_positions`; do 
+                sed -n ${i}'p' ${lineage}.tmp.MTB_anc.pos | cut -f3 # doesnt need to +2 as the tsv file has no header
+            done > ${lineage}.tmp.MTB_anc
+        
+        # 7. convert the column in fasta
+            paste -s -d "" ${lineage}.tmp.MTB_anc | sed '1i >MTB_anc' > Phylogeny/${lineage}.ref-MTB_anc.fasta
 
-        while IFS=',' read -r sampleID; do
-            ln -s ${params.outdir}/bbdd/mtbseq/pairwise/\${sampleID}/Position_Tables/* Position_Tables/
-            ln -s ${params.outdir}/bbdd/mtbseq/pairwise/\${sampleID}/Called/* Called/
-        done < samplesID.list
+        # 8. Merge all the sequences into a single fasta file
+            cat Phylogeny/${lineage}.phylo_w10.fasta \\
+                Phylogeny/${lineage}.ref-H37Rv.fasta \\
+                Phylogeny/${lineage}.ref-MTB_anc.fasta \\
+                > Phylogeny/${lineage}.phylo_w10.ref-H37Rv_MTBc-anc.fasta
+        
+        # remove all temporary files
+        rm ${lineage}.tmp.*
 
-        MTBseq --step TBjoin \\
-            --thread ${task.cpus} \\
-            --project ${lineage} \\
-            --samples samplesID.list \\
-            ${additional_args} \\
-            1>>.command.out \\
-            2>>.command.err \\
-            || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
+        # Perform alignment of sequences 
+        mafft --auto --thread ${params.cpu} \\
+                Phylogeny/${lineage}.phylo_w10.ref-H37Rv_MTBc-anc.fasta \\
+                > Phylogeny/${lineage}.phylo_w10.ref-H37Rv_MTBc-anc.aln.fasta
 
-        MTBseq --step TBamend \\
-            --thread ${task.cpus} \\
-            --project ${lineage} \\
-            --samples samplesID.list \\
-            ${additional_args} \\
-            1>>.command.out \\
-            2>>.command.err \\
-            || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
+        # Perform phylogeny
+        iqtree -s Phylogeny/${lineage}.phylo_w10.ref-H37Rv_MTBc-anc.aln.fasta \\
+                -m GTR+G4 -T AUTO \\
+                -ntmax ${params.cpu} \\
+                -B ${params.bootstraps} \\
+                --prefix ${lineage}_ML
 
-    # Get the list of SNP distances to analyse
-        echo '${params.lineage_pairwise.join('\n')}' > snp_distances
+        # Create molecular timetree
+        treetime --aln Phylogeny/${lineage}.phylo_w10.ref-H37Rv_MTBc-anc.aln.fasta \\
+                --tree Phylogeny/${lineage}_ML.contree \\
+                --dates ${params.metadata} \\
+                --outdir Phylogeny/${lineage}_timetree
 
-        while read -r distance; do
-
-                MTBseq --step TBgroup \\
-                    --thread ${task.cpus} \\
-                    --project ${lineage} \\
-                    --samples samplesID.list \\
-                    --distance \${distance} \\
-                    ${additional_args} \\
-                    1>>.command.out \\
-                    2>>.command.err \\
-                    || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
-
-        done < snp_distances
-
-    # Move and rename the matrices
-        mv Groups/${lineage}*.matrix Matrices/${lineage}.matrix
-
-
-    ## Correct the format of the matrix for importing to R
-
-        # cut the headers column from the matrix
-        cut -f1 Matrices/${lineage}.matrix > Matrices/${lineage}.matrix
-
-        # transpose the first colum long to wide (tab seperated)
-        awk '                                         
-        {
-            for (i = 1; i <= NF; i++) {
-                arr[i] = (arr[i] ? arr[i] "\t" : "") \$i;
-            }
-        }
-        END {
-            for (i = 1; i in arr; i++) {
-                print arr[i];
-            }
-        }
-        ' Matrices/${lineage}.matrix.ids | sed 's/^/sampleID\t/g' > Matrices/${lineage}.matrix.head
-
-        cat Matrices/${lineage}.matrix.head Matrices/${lineage}.matrix > Matrices/${lineage}.matrix.tsv
-
-        # remove the intermediates
-        rm Matrices/${lineage}.matrix.head Matrices/${lineage}.matrix
-
+        mv ${lineage}_ML* Phylogeny/
 
     """
 }

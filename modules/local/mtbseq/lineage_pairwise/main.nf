@@ -2,11 +2,11 @@ process MTBSEQ_LINEAGE_PAIRWISE {
 
     tag "${runID}: ${lineage}"
 
-    conda params.mtbseq_env
+    conda params.phylogeny_env
 
-    container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data'
-            } else { 'quay.io/biocontainers/mtbseq' }
-    }
+    // TODO: container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data'
+    ///        } else { 'quay.io/biocontainers/mtbseq' }
+    ///}
                 
     publishDir "${params.outdir}/bbdd/mtbseq/pairwise/", mode: 'copy'
 
@@ -20,7 +20,7 @@ process MTBSEQ_LINEAGE_PAIRWISE {
         // Amend outputs
         tuple val(lineage), path("Amend/"),                                             emit: amend_dir
         tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.fasta"),
-                            path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.tab"),   emit: phylogeny_ch
+                            path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.tab"),   emit: snp_phylogeny_ch
         
         path("Amend/")                    
         path("Amend/${lineage}_joint_*_amended.tab")
@@ -33,16 +33,20 @@ process MTBSEQ_LINEAGE_PAIRWISE {
         path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.tab")
 
         // Join output
-        tuple val(lineage), path("Join/"),                                      emit: join_dir                                             
+        tuple val(lineage), path("Join/"),                                               emit: join_dir                                             
         path("Join/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.log") 
         path("Join/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.tab")
 
         // Groups
-        Amend/${LINEAGE}*_joint_*_phylo_w10.fasta
+        tuple val(lineage), path("Group/"),                                              emit: group_dir
+        path("Groups/${lineage}_joint_*.groups")
+        path("Groups/${lineage}_joint_*.matrix")
+        path("Groups/${lineage}_*.list")
+        path("Groups/${lineage}_clusters.tsv"),                                         emit: clusters
 
         //Matrix ouput
-        tuple val(lineage), path("Group/"),                                      emit: join_dir
-        path
+
+        path("Matrices/${lineage}.matrix"),                                              emit: matrix_dir
 
     script:
 
@@ -95,10 +99,19 @@ process MTBSEQ_LINEAGE_PAIRWISE {
                     2>>.command.err \\
                     || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 
+            # Wrangle the group list into a useful format
+                sed '0,/### Output as lists:/d' Groups/${lineage}_joint_*_\${distance}.groups \\
+                                                            > Groups/${lineage}_\${distance}.list
+                
+                # Add lineage and SNP distance the tsv file
+                sed -i "s@^@${lineage}\t\${distance}\t@g" Groups/${lineage}_\${distance}.list
+
         done < snp_distances
 
     # Move and rename the matrices
         mv Groups/${lineage}*.matrix Matrices/${lineage}.matrix
+
+        cat Groups/${lineage}_*.list > Groups/${lineage}_clusters.tsv
 
 
     ## Correct the format of the matrix for importing to R
@@ -124,7 +137,6 @@ process MTBSEQ_LINEAGE_PAIRWISE {
 
         # remove the intermediates
         rm Matrices/${lineage}.matrix.head Matrices/${lineage}.matrix
-
 
     """
 }
