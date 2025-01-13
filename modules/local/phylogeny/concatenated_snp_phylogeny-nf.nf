@@ -65,11 +65,11 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
             while read -r position; do
                 sed -n $((position+2))'p' Phylogeny/${lineage}.phylo_w10.tab | cut -f 1; 
             done < ${lineage}.tmp.fasta_positions > Phylogeny/${lineage}_genomic_positions
-            cp ${params.MTBSEQ_ancestor} ${lineage}.tmp.MTB_anc.pos.gz; gunzip ${lineage}.tmp.MTB_anc.pos.gz
+            cp ${params.mtbc_ancestor} ${lineage}.tmp.MTB_anc.pos.gz; gunzip ${lineage}.tmp.MTB_anc.pos.gz
             
         # 6. Get the same SNPs for the 'ancestor' genomes
             for i in `cat Phylogeny/${lineage}_genomic_positions`; do 
-                sed -n ${i}'p' ${lineage}.tmp.MTB_anc.pos | cut -f3 # doesnt need to +2 as the tsv file has no header
+                sed -n \${i}'p' ${lineage}.tmp.MTB_anc.pos | cut -f3 # doesnt need to +2 as the tsv file has no header
             done > ${lineage}.tmp.MTB_anc
         
         # 7. convert the column in fasta
