@@ -1,6 +1,6 @@
 process MTBSEQ_LINEAGE_PAIRWISE {
 
-    tag "${runID}: ${lineage}"
+    tag " ${runID}: ${lineage} "
 
     conda params.mtbseq_env
 
@@ -61,9 +61,15 @@ process MTBSEQ_LINEAGE_PAIRWISE {
 
         sed 's@_@\t@g' samplesID.list > ${lineage}_samples.txt
 
+    # Create symbolic links to the apprpriate files
         while IFS=',' read -r samples; do
-            ln -s ${params.outdir}/bbdd/mtbseq/pairwise/\${samples}/Position_Tables/*.tab Position_Tables/
-            ln -s ${params.outdir}/bbdd/mtbseq/pairwise/\${samples}/Called/*.tab Called/
+
+            for file in ${params.outdir}/bbdd/mtbseq/samples/\${samples}/Position_Tables/*.tab; do
+                ln -s \${file} Position_Tables/\$(basename \$file}); done
+
+            for file in ${params.outdir}/bbdd/mtbseq/samples/\${samples}/Called/*.tab; do
+                ln -s \${file} Called/\$(basename \$file}); done
+
         done < samplesID.list
 
         MTBseq --step TBjoin \\
