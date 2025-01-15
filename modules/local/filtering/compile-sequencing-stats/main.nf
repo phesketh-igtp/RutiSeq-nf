@@ -39,7 +39,7 @@ process COMPILE_SEQUENCING_STATS {
                 --tbprofiler_tbdb       "tbdb-tbprofiler.txt" \\
                 --tbprofiler_who        "who-tbprofiler.txt" \\
                 --lineage_fractions     "tbprofiler.lineages.fractions.txt" \\
-                --minimum_coverage      ${params.mtbseq.min_cov} \\
+                --minimum_coverage      ${params.mtbseq_min_cov} \\
                 --runID                 ${runID} \\
                 --dictionary_path       ${params.r_script_dir} \\
                 ${additional_args}
