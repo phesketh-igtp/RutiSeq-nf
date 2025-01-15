@@ -5,6 +5,7 @@ include { TBPROFILER_PROFILE_WHO }    from '../modules/local/tbprofiler/profile.
 include { MTBSEQ_SINGLE }             from '../modules/local/mtbseq/single/main.nf'
 include { SNP_PROFILING_SINGLE }      from '../modules/local/snp-barcoding/single.profiling/main.nf'
 include { SNP_ANNOTATING_SINGLE }     from '../modules/local/snp-barcoding/single.annotating/main.nf'
+include { POST_SINGLE_BBDD_CLEANUP }  from '../modules/local/prowst-wf-cleaup/single-bbdd-cleanup/main.nf'
 
 workflow SINGLE_WF {
 
@@ -81,6 +82,10 @@ workflow SINGLE_WF {
             // View the merged results
                 final_updated_sample_ch.view { "Final channel: $it" }
             */
+
+            // Cleanup to reduce storage usage in the publish directory
+                sampleid_list_ch = final_updated_sample_ch.map(it[0])
+                POST_SINGLE_BBDD_CLEANUP(sampleid_list_ch)
 
     emit:
         single_updated_samples_ch = final_updated_sample_ch
