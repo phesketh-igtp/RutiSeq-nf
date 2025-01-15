@@ -59,7 +59,6 @@ process MTBSEQ_SINGLE {
         # Run MTBseq for a single sample
         MTBseq --step TBfull \\
             --thread ${task.cpus} \\
-            --project ${sampleID} \\
             ${additional_args} \\
             1>>.command.out \\
             2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
