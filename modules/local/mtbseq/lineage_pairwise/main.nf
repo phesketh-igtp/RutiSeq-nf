@@ -65,10 +65,10 @@ process MTBSEQ_LINEAGE_PAIRWISE {
         while IFS=',' read -r samples; do
 
             for file in ${params.outdir}/bbdd/mtbseq/samples/\${samples}/Position_Tables/*.tab; do
-                ln -s \${file} Position_Tables/\$(basename \$file}); done
+                ln -s \${file} Position_Tables/\$(basename \$file); done
 
             for file in ${params.outdir}/bbdd/mtbseq/samples/\${samples}/Called/*.tab; do
-                ln -s \${file} Called/\$(basename \$file}); done
+                ln -s \${file} Called/\$(basename \$file); done
 
         done < samplesID.list
 
