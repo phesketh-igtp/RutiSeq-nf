@@ -57,7 +57,7 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
             
         # 5. get the genomic positions of the SNPs
             while read -r position; do
-                sed -n $((position+2))'p' ${tab} | cut -f 1; 
+                sed -n \$((position+2))'p' ${tab} | cut -f 1; 
             done < ${lineage}.tmp.fasta_positions > Phylogeny/${lineage}_genomic_positions
             cp ${params.mtbc_ancestor_path} ${lineage}.tmp.MTB_anc.pos.gz; gunzip ${lineage}.tmp.MTB_anc.pos.gz
             
