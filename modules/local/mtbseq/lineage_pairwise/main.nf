@@ -61,9 +61,9 @@ process MTBSEQ_LINEAGE_PAIRWISE {
 
         sed 's@\t@_@g' samplesID.list > ${lineage}_samples.txt
 
-        while IFS=',' read -r sampleID; do
-            ln -s ${params.outdir}/bbdd/mtbseq/pairwise/\${sampleID}/Position_Tables/* Position_Tables/
-            ln -s ${params.outdir}/bbdd/mtbseq/pairwise/\${sampleID}/Called/* Called/
+        while IFS=',' read -r samples; do
+            ln -s ${params.outdir}/bbdd/mtbseq/pairwise/\${samples}/Position_Tables/* Position_Tables/
+            ln -s ${params.outdir}/bbdd/mtbseq/pairwise/\${samples}/Called/* Called/
         done < samplesID.list
 
         MTBseq --step TBjoin \\
@@ -89,7 +89,7 @@ process MTBSEQ_LINEAGE_PAIRWISE {
 
         while read -r distance; do
 
-                MTBseq --step TBgroup \\
+                MTBseq --step TBgroups \\
                     --thread ${task.cpus} \\
                     --project ${lineage} \\
                     --samples samplesID.list \\

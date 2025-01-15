@@ -11,11 +11,8 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
     publishDir "${params.outdir}/bbdd/mtbseq/pairwise/", mode: 'copy'
 
     input:
-        val runID
-        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.fasta"),
-                            path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.tab")
-
-
+        val(runID)
+        tuple val(lineage), path(fasta), path(tab)
 
     output:
         path("Phylogeny/*")
@@ -31,13 +28,10 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
     """
         mkdir Phylogeny/
 
-        cat Amend/${lineage}_joint_*_amended_u*_phylo_w*.fasta > Phylogeny/${lineage}.phylo_w10.fasta
-        cat Amend/${lineage}_joint_*_amended_u*_phylo_w*.tab > Phylogeny/${lineage}.phylo_w10.tab
-
         # Need to make the respective SNP alignment for the H37Rv and the Ancestral sequence for the phylogeny
             
         # 1. grab a single sequence in the fasta file (first) to get the positions
-            seqkit sample -n 1 Phylogeny/${lineage}.phylo_w10.fasta > ${lineage}.tmp.fasta
+            seqkit sample -n 1 ${fasta} > ${lineage}.tmp.fasta
             
         # 2. create list of how many positions there are in the seq.)
             awk '
@@ -55,7 +49,7 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
         
         # 3. obtain the reference positions (H37Rv) for the cluster positions
             for i in `cat ${lineage}.tmp.fasta_positions`; do 
-                sed -n $((i+2))'p' Phylogeny/${lineage}.phylo_w10.tab | cut -f3
+                sed -n $((i+2))'p' ${tab} | cut -f3
             done > ${lineage}.tmp_refseq
         
         # 4. convert column into fasta
@@ -63,9 +57,9 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
             
         # 5. get the genomic positions of the SNPs
             while read -r position; do
-                sed -n $((position+2))'p' Phylogeny/${lineage}.phylo_w10.tab | cut -f 1; 
+                sed -n $((position+2))'p' ${tab} | cut -f 1; 
             done < ${lineage}.tmp.fasta_positions > Phylogeny/${lineage}_genomic_positions
-            cp ${params.mtbc_ancestor} ${lineage}.tmp.MTB_anc.pos.gz; gunzip ${lineage}.tmp.MTB_anc.pos.gz
+            cp ${params.mtbc_ancestor_path} ${lineage}.tmp.MTB_anc.pos.gz; gunzip ${lineage}.tmp.MTB_anc.pos.gz
             
         # 6. Get the same SNPs for the 'ancestor' genomes
             for i in `cat Phylogeny/${lineage}_genomic_positions`; do 
@@ -76,7 +70,7 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
             paste -s -d "" ${lineage}.tmp.MTB_anc | sed '1i >MTB_anc' > Phylogeny/${lineage}.ref-MTB_anc.fasta
 
         # 8. Merge all the sequences into a single fasta file
-            cat Phylogeny/${lineage}.phylo_w10.fasta \\
+            cat ${fasta} \\
                 Phylogeny/${lineage}.ref-H37Rv.fasta \\
                 Phylogeny/${lineage}.ref-MTB_anc.fasta \\
                 > Phylogeny/${lineage}.phylo_w10.ref-H37Rv_MTBc-anc.fasta
