@@ -75,16 +75,15 @@ workflow SINGLE_WF {
                 branched_channel_with_reads_updated = SNP_PROFILING_SINGLE.out.updated_sample_ch
 
             // Merge the processed samples with the samples without reads
-            /// TODO: not a 100% certain that the channels are being merged, but will come back and troubleshoot this
                 final_updated_sample_ch = branched_channel_with_reads_updated.mix(sample_ch_skip)
 
-            /*
-            // View the merged results
-                final_updated_sample_ch.view { "Final channel: $it" }
-            */
+                /*
+                // DEBUG:: 
+                    final_updated_sample_ch.view { "Final channel: $it" }
+                */
 
             // Cleanup to reduce storage usage in the publish directory
-                sampleid_list_ch = final_updated_sample_ch.map(it[0])
+                sampleid_list_ch = final_updated_sample_ch.map { it[0] }
                 POST_SINGLE_BBDD_CLEANUP(sampleid_list_ch)
 
     emit:
