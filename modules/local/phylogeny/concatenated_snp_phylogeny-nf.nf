@@ -49,7 +49,7 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
         
         # 3. obtain the reference positions (H37Rv) for the cluster positions
             for i in `cat ${lineage}.tmp.fasta_positions`; do 
-                sed -n $((i+2))'p' ${tab} | cut -f3
+                sed -n \$((i+2))'p' ${tab} | cut -f3
             done > ${lineage}.tmp_refseq
         
         # 4. convert column into fasta
