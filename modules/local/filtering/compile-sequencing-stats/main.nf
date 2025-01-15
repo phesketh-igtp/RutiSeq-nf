@@ -45,7 +45,7 @@ process COMPILE_SEQUENCING_STATS {
                 ${additional_args}
                 
     # extract the lineages from the params.config file
-    echo '${params.mtbseq_snp_distance.join('\n')}' > selected_lineage_split.list
+    echo '${params.lineage_pairwise.join('\n')}' > selected_lineage_split.list
 
     while read -r lineage; do
         # Use grep to find matching lines from pairwise_analysis.list.csv
