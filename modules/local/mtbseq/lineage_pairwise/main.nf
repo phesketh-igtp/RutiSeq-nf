@@ -18,11 +18,11 @@ process MTBSEQ_LINEAGE_PAIRWISE {
         path("${lineage}_samples.txt")
 
         // Amend outputs
-        tuple val(lineage), path("Amend/"),                                             emit: amend_dir
+        tuple val(lineage), path("Amend/*"),                                             emit: amend_dir
         tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.fasta"),
                             path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.tab"),   emit: snp_phylogeny_ch
         
-        path("Amend/")                    
+        path("Amend/*")                    
         path("Amend/${lineage}_joint_*_amended.tab")
         path("Amend/${lineage}_joint_*_amended_u*_phylo.fasta")
         path("Amend/${lineage}_joint_*_amended_u*_phylo.plainIDs.fasta")
@@ -33,7 +33,7 @@ process MTBSEQ_LINEAGE_PAIRWISE {
         path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.tab")
 
         // Join output
-        tuple val(lineage), path("Join/"),                                               emit: join_dir                                             
+        tuple val(lineage), path("Join/*"),                                               emit: join_dir                                             
         path("Join/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.log") 
         path("Join/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.tab")
 
@@ -54,7 +54,7 @@ process MTBSEQ_LINEAGE_PAIRWISE {
 
     """
     # make the expected directories
-        mkdir Position_Tables/ Called/ Groups/ Matrices
+        mkdir -p Position_Tables/ Called/ Groups/ Matrices/ Amend/ Joint/
 
     # create the list of the sampleIDs within that lineage
         echo "${sampleIDs.join('\n')}" > samplesID.list
@@ -72,6 +72,7 @@ process MTBSEQ_LINEAGE_PAIRWISE {
 
         done < samplesID.list
 
+    ## MTBseq Join
         MTBseq --step TBjoin \\
             --thread ${task.cpus} \\
             --project ${lineage} \\
@@ -81,6 +82,7 @@ process MTBSEQ_LINEAGE_PAIRWISE {
             2>>.command.err \\
             || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 
+    ## MTBseq Amend
         MTBseq --step TBamend \\
             --thread ${task.cpus} \\
             --project ${lineage} \\

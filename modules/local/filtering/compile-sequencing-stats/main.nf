@@ -58,7 +58,21 @@ process COMPILE_SEQUENCING_STATS {
         done
     done < selected_lineage_split.list
 
-    cat lineage_samples_tuple.csv
+    # Remove that lineage is there are less than 4 genomes (minimum needewd for MTBSeq pairwise analysis)
+        if [ -f "lineage_samples_tuple.csv" ]; then
+                line_count=\$(wc -l < "lineage_samples_tuple.csv")  # Count the number of lines in the file
+            
+            if [ \${line_count} -lt 4 ]; then
+                rm "lineage_samples_tuple.csv"  # Delete the file if it has fewer than 4 lines
+                echo "File 'lineage_samples_tuple.csv' has less than 4 genomes and has been deleted."
+            else
+                echo "File 'lineage_samples_tuple.csv' has \$line_count genomes and was not deleted."
+            fi
+        else
+            echo "File 'lineage_samples_tuple.csv' does not exist."
+        fi
+
+    touch lineage_samples_tuple.csv
 
     """
 }
