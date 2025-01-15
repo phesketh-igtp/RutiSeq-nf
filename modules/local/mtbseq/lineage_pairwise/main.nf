@@ -59,7 +59,7 @@ process MTBSEQ_LINEAGE_PAIRWISE {
     # create the list of the sampleIDs within that lineage
         echo "${sampleIDs.join('\n')}" > samplesID.list
 
-        sed 's@\t@_@g' samplesID.list > ${lineage}_samples.txt
+        sed 's@_@\t@g' samplesID.list > ${lineage}_samples.txt
 
         while IFS=',' read -r samples; do
             ln -s ${params.outdir}/bbdd/mtbseq/pairwise/\${samples}/Position_Tables/* Position_Tables/
@@ -85,7 +85,7 @@ process MTBSEQ_LINEAGE_PAIRWISE {
             || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 
     # Get the list of SNP distances to analyse
-        echo '${params.lineage_pairwise.join('\n')}' > snp_distances
+        echo '${params.mtbseq_snp_distance.join('\n')}' > snp_distances
 
         while read -r distance; do
 
