@@ -1,6 +1,4 @@
 process TBPROFILER_COMPILE_WHO {
-    
-    tag "$params.runID"
 
     conda params.tbprofiler_env
 

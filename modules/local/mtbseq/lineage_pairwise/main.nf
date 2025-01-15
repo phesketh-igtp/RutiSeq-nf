@@ -72,18 +72,10 @@ process MTBSEQ_LINEAGE_PAIRWISE {
 
         done < samplesID.list
 
-    ## MTBseq Join
-        MTBseq --step TBjoin \\
-            --thread ${task.cpus} \\
-            --project ${lineage} \\
-            --samples samplesID.list \\
-            ${additional_args} \\
-            1>>.command.out \\
-            2>>.command.err \\
-            || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
+    echo '${params.mtbseq_snp_distance.join('\n')}' > snp_distances; first_snp_distance=\$(head -1 snp_distances)
 
-    ## MTBseq Amend
-        MTBseq --step TBamend \\
+    ## MTBseq Join
+        MTBseq --step TBjoin --continue \\
             --thread ${task.cpus} \\
             --project ${lineage} \\
             --samples samplesID.list \\
@@ -93,7 +85,7 @@ process MTBSEQ_LINEAGE_PAIRWISE {
             || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 
     # Get the list of SNP distances to analyse
-        echo '${params.mtbseq_snp_distance.join('\n')}' > snp_distances
+        echo '${params.mtbseq_snp_distance.join('\n')}' | tail -n +2 > snp_distances
 
         while read -r distance; do
 

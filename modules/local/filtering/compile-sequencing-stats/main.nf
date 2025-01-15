@@ -1,7 +1,5 @@
 process COMPILE_SEQUENCING_STATS {
 
-    tag "${runID}"
-
     conda params.r_stats_env
 
     publishDir "${params.outdir}/bbdd/tbprofiler/pairwise/", mode: 'copy'
@@ -58,21 +56,27 @@ process COMPILE_SEQUENCING_STATS {
         done
     done < selected_lineage_split.list
 
-    # Remove that lineage is there are less than 4 genomes (minimum needewd for MTBSeq pairwise analysis)
-        if [ -f "lineage_samples_tuple.csv" ]; then
-                line_count=\$(wc -l < "lineage_samples_tuple.csv")  # Count the number of lines in the file
-            
-            if [ \${line_count} -lt 4 ]; then
-                rm "lineage_samples_tuple.csv"  # Delete the file if it has fewer than 4 lines
-                echo "File 'lineage_samples_tuple.csv' has less than 4 genomes and has been deleted."
-            else
-                echo "File 'lineage_samples_tuple.csv' has \$line_count genomes and was not deleted."
-            fi
-        else
-            echo "File 'lineage_samples_tuple.csv' does not exist."
-        fi
+    # Remove that lineage is there are less than 3 genomes (minimum needewd for MTBSeq pairwise analysis)
+        
+        awk -F',' '
+            {
+                count[\$1]++      # Count occurrences of each lineage in column 1
+                lines[NR] = \$0   # Store the entire line
+                lineage[NR] = \$1 # Store the lineage (column 1)
+            }
+            END {
+                for (i = 1; i <= NR; i++) {
+                    if (count[lineage[i]] >= 3) {
+                        print lines[i] # Print lines for lineages with >= 3 entries
+                    }
+                }
+            }' "lineage_samples_tuple.csv" > "lineage_samples_tuple.csv.tmp"
 
-    touch lineage_samples_tuple.csv
+    mv lineage_samples_tuple.csv lineage_samples_tuple.unfiltered.csv
+
+    mv lineage_samples_tuple.csv.tmp lineage_samples_tuple.csv
+
+    cat lineage_samples_tuple.csv
 
     """
 }

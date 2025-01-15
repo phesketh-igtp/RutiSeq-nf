@@ -1,7 +1,5 @@
 process TBPROFILER_COMPILE_TBDB {
 
-    tag "${runID}"
-
     conda params.tbprofiler_env
 
     container { 
