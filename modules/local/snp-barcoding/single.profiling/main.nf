@@ -11,21 +11,21 @@ process SNP_PROFILING_SINGLE {
     publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/", mode: 'copy'
 
     input:
-    tuple val(sampleID), path(mtbseq_mpileup)
-    
-    tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
+        tuple val(sampleID), 
+                path(forward), path(reverse), path(mtbseq_class), 
                 path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
-                path(tbdb_out), path(who_out), path(mtbseq_vcf)
+                path(tbdb_out), path(who_out), path(mtbseq_vcf), path(mtbseq_mpileup)
 
     output:
-        tuple val(sampleID), path("${sampleID}.gatk.vcf.gz")
-        tuple val(sampleID), path("${sampleID}.gatk.vcf.gz.tbi")
+        tuple val(sampleID), 
+                path("${sampleID}.gatk.vcf.gz"), 
+                path("${sampleID}.gatk.vcf.gz.tbi"),                emit: gatk_vcf_ch
 
         // tuple for updating the sample ch
         tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
                 path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars),  
                 path(tbdb_out), path(who_out), 
-                path("${sampleID}.gatk.vcf.gz"),                     emit: updated_sample_ch
+                path("${sampleID}.gatk.vcf.gz"),                     emit: updated_sample_ch5
 
     script:
     def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file

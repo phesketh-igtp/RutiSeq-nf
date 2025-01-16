@@ -4,28 +4,34 @@ process MTBC_READ_QC {
     
     conda params.kaiju_env
 
-    container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/0f/0f00cd356ee92f5211e5941beeb4bcab6abfb341e0e5fa7ace8c043406c13381/data'
-        } else { 'community.wave.seqera.io/library/kaiju_seqkit:6e4140ab47bd567e' }
-    }
+    container { 
+            if (workflow.containerEngine == 'singularity') return params.singularity_kaiju
+            else if (workflow.containerEngine == 'docker') return params.docker_kaiju
+            else if (workflow.containerEngine == 'apptainer') return params.apptainer_kaiju
+            else return null
+        }
 
     publishDir "${params.outdir}/bbdd/read-qc", mode: 'link'
 
     input:
-        tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
+        tuple val(sampleID), 
+                path(forward), path(reverse), path(mtbseq_class), 
                 path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
                 path(tbdb_out), path(who_out), path(mtbseq_vcf)
 
     output:
-        tuple val(sampleID), 
-            path("mtbc_reads/${sampleID}_mtbc_R1.fastq.gz"), 
-            path("mtbc_reads/${sampleID}_mtbc_R2.fastq.gz"),                emit: mtbc_reads, optional: true
-        tuple val(sampleID), path("${sampleID}.qc.out"),                    emit: qc_results, optional: true
         path("${sampleID}.kaiju.out"), optional: true
         path("${sampleID}.kaiju_summary.tsv"), optional: true
 
-        tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
-                path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
-                path(tbdb_out), path(who_out), path(mtbseq_vcf),            emit: updated_sample_ch
+        // Emit ch for compiling read-QC
+        tuple val(sampleID), path("${sampleID}.qc.out"),                    emit: qc_results, optional: true
+
+        // Emit ch for the updated channel with all the outputs
+        tuple val(sampleID), 
+                path("mtbc_reads/${sampleID}_mtbc_R1.fastq.gz"), 
+                path("mtbc_reads/${sampleID}_mtbc_R2.fastq.gz"), 
+                path(mtbseq_class), path(mtbseq_stats), path(mtbseq_pos), 
+                path(mtbseq_vars), path(tbdb_out), path(who_out), path(mtbseq_vcf),            emit: updated_sample_ch1
 
 
     script:

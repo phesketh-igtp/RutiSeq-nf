@@ -12,9 +12,7 @@ process MTBSEQ_SINGLE {
     publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}", mode: 'copy'
 
     input:
-        tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse)
-        
-        tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
+        tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse), path(mtbseq_class), 
                 path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
                 path(tbdb_out), path(who_out), path(mtbseq_vcf)
                 
@@ -27,30 +25,21 @@ process MTBSEQ_SINGLE {
         path("Position_Tables/*")
         path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab")
 
-        // emit output for creating vcf files
-        tuple val(sampleID), path("Mpileup/${sampleID}.gatk.mpileup"),                  emit: mtbseq_mpileup
-        
         // tuple for updating the sample_ch
-        tuple val(sampleID), path(forward), path(reverse), 
+        tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse), 
                 path("Classification/${sampleID}.Strain_Classification.tab"), 
                 path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab"), 
                 path("Position_Tables/${sampleID}.gatk_position_table.tab"), 
                 path("Called/${sampleID}.gatk_position_variants_*.tab"),  
                 path(tbdb_out), path(who_out), 
-                path(mtbseq_vcf),                                                       emit: updated_sample_ch
+                path(mtbseq_vcf),path("Mpileup/${sampleID}.gatk.mpileup"),              emit: updated_sample_ch4
 
     script:
 
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
-        # remove the default symbolic links that nextflow creates due to 
-        ## having the long main channel as an input to the module - 
-        ### this prevents mtbseq from using the pre-filtered reads in the analysis
-
-            Fname=\$(ls ${forward}); Rname=\$(ls ${reverse})
-            mv \${Fname} tmp_Fname; mv \${Rname} tmp_Rname
-
+        # Brfiedly rename the reads to the intended name without the "_mtbc"
             mtbc_Fname1=\$(ls ${mtbc_forward}); mtbc_Rname1=\$(ls ${mtbc_reverse})
             mtbc_Fname2=\$(ls ${mtbc_forward} | sed 's/_mtbc//g'); mtbc_Rname2=\$(ls ${mtbc_reverse} | sed 's/_mtbc//g')
             mv \${mtbc_Fname1} \${mtbc_Fname2}; mv \${mtbc_Rname1} \${mtbc_Rname2}
@@ -64,17 +53,11 @@ process MTBSEQ_SINGLE {
                 1>>.command.out \\
                 2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 
-
-        # restore the symbolic links so nextflow doesnt halt as it expects all the inputs to remain
-        ## (I think ... and its strange and annoying if that is the case)
-
-            mv tmp_Fname \${Fname}; mv tmp_Rname \${Rname}
+        # restore the symbolic link names
             mv \${mtbc_Fname2} \${mtbc_Fname1}; mv \${mtbc_Rname2} \${mtbc_Rname1}
-
 
         # Rename the stats and class outputs to have unique names
         ## this prevent clashes later on
-
             mv Classification/Strain_Classification.tab Classification/${sampleID}.Strain_Classification.tab
             mv Statistics/Mapping_and_Variant_Statistics.tab Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
 

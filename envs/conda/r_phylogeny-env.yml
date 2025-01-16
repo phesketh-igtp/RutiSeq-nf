@@ -1,4 +1,4 @@
-name: r-env
+name: r_phylogeny-env
 channels:
   - bioconda
   - conda-forge
@@ -10,13 +10,7 @@ dependencies:
 - conda-forge::r-argparse=2.2.5
 - conda-forge::r-base=4.4.2
 - conda-forge::r-dplyr=1.1.4
-- conda-forge::r-ggrepel=0.9.6
 - conda-forge::r-optparse=1.7.5
-- conda-forge::r-patchwork=1.3.0
 - conda-forge::r-randomcolor=1.1.0.1
 - conda-forge::r-rcolorbrewer=1.1_3
-- conda-forge::r-stringi=1.8.4
-- conda-forge::r-stringr=1.5.1
 - conda-forge::r-tidyverse=2.0.0
-#- bioconda::bioconductor-snprelate=1.40.0
-#- conda-forge::r-tidyr=1.3.1

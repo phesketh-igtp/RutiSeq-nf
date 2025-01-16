@@ -11,9 +11,8 @@ process TBPROFILER_PROFILE_TBDB {
     publishDir "${params.outdir}/bbdd/tbprofiler/", mode: 'copy'
 
     input:
-        tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse)
-        
-        tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
+        tuple val(sampleID), 
+                path(mtbc_forward), path(mtbc_reverse), path(mtbseq_class), 
                 path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
                 path(tbdb_out), path(who_out), path(mtbseq_vcf)
 
@@ -24,10 +23,11 @@ process TBPROFILER_PROFILE_TBDB {
         path("results/tbdb-${sampleID}.results.txt")
 
         // tuple for updating the sample ch
-        tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
+        tuple val(sampleID), 
+                path(mtbc_forward), path(mtbc_reverse), path(mtbseq_class), 
                 path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars),  
                 path("results/tbdb-${sampleID}.results.txt"), // generated in this module
-                path(who_out), path(mtbseq_vcf),                            emit: updated_sample_ch
+                path(who_out), path(mtbseq_vcf),                            emit: updated_sample_ch2
 
     script:
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file

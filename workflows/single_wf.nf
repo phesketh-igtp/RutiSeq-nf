@@ -53,37 +53,29 @@ workflow SINGLE_WF {
         // Combine QC results
             COMBINE_QC_RESULTS(all_qc_results, params.runID)
 
-        // Explicitly capture the mtbc_reads output
-            mtbc_reads_ch = MTBC_READ_QC.out.mtbc_reads
-
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
-            TBPROFILER_PROFILE_TBDB(mtbc_reads_ch,
-                                    MTBC_READ_QC.out.updated_sample_ch)
+            TBPROFILER_PROFILE_TBDB( MTBC_READ_QC.out.updated_sample_ch1 )
 
-            TBPROFILER_PROFILE_WHO(mtbc_reads_ch,
-                                    TBPROFILER_PROFILE_TBDB.out.updated_sample_ch)
+            TBPROFILER_PROFILE_WHO( TBPROFILER_PROFILE_TBDB.out.updated_sample_ch2 )
 
         // Run MTBSEQ_SINGLE
-            MTBSEQ_SINGLE(mtbc_reads_ch,
-                            TBPROFILER_PROFILE_WHO.out.updated_sample_ch)
+            MTBSEQ_SINGLE( TBPROFILER_PROFILE_WHO.out.updated_sample_ch3 )
 
         // Run SNP_PROFILING_SINGLE using the mpileup output
-            SNP_PROFILING_SINGLE(MTBSEQ_SINGLE.out.mtbseq_mpileup,
-                                MTBSEQ_SINGLE.out.updated_sample_ch)
+            SNP_PROFILING_SINGLE( MTBSEQ_SINGLE.out.updated_sample_ch4 )
 
             // create updated channel
-            branched_channel_with_reads_updated = SNP_PROFILING_SINGLE.out.updated_sample_ch
+            branched_channel_with_reads_updated = SNP_PROFILING_SINGLE.out.updated_sample_ch5
 
         // Merge the processed samples with the samples without reads
             final_updated_sample_ch = branched_channel_with_reads_updated.mix(sample_ch_skip)
 
-            /*
             // DEBUG:: 
                 final_updated_sample_ch.view { "Final channel: $it" }
-            */
+            
 
         // Cleanup to reduce storage usage in the publish directory
-            sampleid_list_ch = final_updated_sample_ch.map { it[0] }
+            sampleid_list_ch = branched_channel_with_reads_updated.map { it[0] }
             POST_SINGLE_BBDD_CLEANUP(sampleid_list_ch)
 
     emit:
