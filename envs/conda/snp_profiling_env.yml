@@ -5,5 +5,5 @@ channels:
 dependencies:
 - bioconda::bcftools=1.21
 - bioconda::snpeff=5.2
-- bioconda::varscan=2.4.6
+- bioconda::varscan=2.4.3
 - bioconda::vcftools=0.1.16

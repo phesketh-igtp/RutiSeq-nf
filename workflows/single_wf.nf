@@ -43,15 +43,13 @@ workflow SINGLE_WF {
         */
 
         // Taxonomically classify and partition the MTBC reads
-            MTBC_READ_QC(
-                        branched_channel.with_reads,
-                        )
+            MTBC_READ_QC( branched_channel.with_reads )
 
-        // Collect all QC results
-            all_qc_results = MTBC_READ_QC.out.qc_results.map { it[1] }.collect()
+                // Collect all QC results
+                    all_qc_results = MTBC_READ_QC.out.qc_results.map { it[1] }.collect()
 
-        // Combine QC results
-            COMBINE_QC_RESULTS(all_qc_results, params.runID)
+                // Combine QC results
+                    COMBINE_QC_RESULTS(all_qc_results, params.runID)
 
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
             TBPROFILER_PROFILE_TBDB( MTBC_READ_QC.out.updated_sample_ch1 )
@@ -72,7 +70,6 @@ workflow SINGLE_WF {
 
             // DEBUG:: 
                 final_updated_sample_ch.view { "Final channel: $it" }
-            
 
         // Cleanup to reduce storage usage in the publish directory
             sampleid_list_ch = branched_channel_with_reads_updated.map { it[0] }
