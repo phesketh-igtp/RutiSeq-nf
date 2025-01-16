@@ -10,7 +10,7 @@ process POST_SINGLE_BBDD_CLEANUP {
         """
         # Check and remove files only if they exist
 
-        for file in \
+        for file in \\
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/*R1*fastq.gz" \\
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/*R2*fastq.gz" \\
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/tbdb-${sampleID}.results.txt" \\
@@ -29,8 +29,8 @@ process POST_SINGLE_BBDD_CLEANUP {
             "${params.outdir}/bbdd/tbprofiler/who-${sampleID}.results.txt" \\
             "${params.outdir}/bbdd/tbprofiler/Mapping_and_Variant_Statistics.tab" \\
             "${params.outdir}/bbdd/tbprofiler/Strain_Classification.tab" \\
-            "${params.outdir}/bbdd/read-qc/mtbc_reads/*R1*fastq.gz" \\
-            "${params.outdir}/bbdd/read-qc/mtbc_reads/*R2*fastq.gz"; 
+            "${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R1.fastq.gz" \\
+            "${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R2.fastq.gz"; 
         do
             if [ -f \$file ] || [ -e \$file ]; then rm \$file; fi
         done
