@@ -37,8 +37,8 @@ process MTBSEQ_SINGLE {
 
         // tuple for updating the sample_ch
         tuple val(sampleID), path(forward), path(reverse), 
-                path("Classification/Strain_Classification.tab"), 
-                path("Statistics/Mapping_and_Variant_Statistics.tab"), 
+                path("Classification/${sampleID}.Strain_Classification.tab"), 
+                path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab"), 
                 path("Position_Tables/${sampleID}.gatk_position_table.tab"), 
                 path("Called/${sampleID}.gatk_position_variants_*.tab"),  
                 path(tbdb_out), path(who_out), 
