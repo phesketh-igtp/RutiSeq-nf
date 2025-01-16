@@ -19,22 +19,17 @@ process MTBSEQ_SINGLE {
                 path(tbdb_out), path(who_out), path(mtbseq_vcf)
                 
     output:
-        tuple val(sampleID), path("Bam/${sampleID}.bam")
-        tuple val(sampleID), path("Bam/${sampleID}.bam.bai")
-        tuple val(sampleID), path("Bam/${sampleID}.bamlog")
-        tuple val(sampleID), path("Called/${sampleID}.gatk_position_uncovered_*.tab")
-        tuple val(sampleID), path("Called/${sampleID}.gatk_position_variants_*.tab")
-        tuple val(sampleID), path("Classification/${sampleID}.Strain_Classification.tab")
-        tuple val(sampleID), path("GATK_Bam/${sampleID}.gatk.bam")
-        tuple val(sampleID), path("GATK_Bam/${sampleID}.gatk.bai")
-        tuple val(sampleID), path("GATK_Bam/${sampleID}.gatk.bamlog")
-        tuple val(sampleID), path("GATK_Bam/${sampleID}.gatk.grp")
-        tuple val(sampleID), path("GATK_Bam/${sampleID}.gatk.intervals")
-        tuple val(sampleID), path("Mpileup/${sampleID}.gatk.mpileup"),                  emit: mtbseq_mpileup
-        tuple val(sampleID), path("Mpileup/${sampleID}.gatk.mpileuplog")
-        tuple val(sampleID), path("Position_Tables/${sampleID}.gatk_position_table.tab")
-        tuple val(sampleID), path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab")
+        path("Bam/*")
+        path("Called/*")
+        path("Classification/${sampleID}.Strain_Classification.tab")
+        path("GATK_Bam/*")
+        path("Mpileup/*")
+        path("Position_Tables/*")
+        path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab")
 
+        // emit output for creating vcf files
+        tuple val(sampleID), path("Mpileup/${sampleID}.gatk.mpileup"),                  emit: mtbseq_mpileup
+        
         // tuple for updating the sample_ch
         tuple val(sampleID), path(forward), path(reverse), 
                 path("Classification/${sampleID}.Strain_Classification.tab"), 
