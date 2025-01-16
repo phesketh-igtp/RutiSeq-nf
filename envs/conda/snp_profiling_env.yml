@@ -1,10 +1,9 @@
 name: snp-profiling
 channels:
-  - bioconda
-  - conda-forge
-  - defaults
+- conda-forge
+- bioconda
 dependencies:
-  - bcftools=1.21
-  - vcftools=0.1.16
-  - varscan=2.4.6
-  - snpeff=5.2
+- bioconda::bcftools=1.21
+- bioconda::snpeff=5.2
+- bioconda::varscan=2.4.6
+- bioconda::vcftools=0.1.16

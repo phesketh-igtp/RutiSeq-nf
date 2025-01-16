@@ -4,7 +4,8 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - iqtree
-  - mafft
-  - snp-sites
-  - seqkit
+  - bioconda::iqtree=2.3.6
+  - bioconda::mafft=7.525
+  - bioconda::seqkit=2.9.0
+  - bioconda::snp-sites=2.5.1
+  - bioconda::treetime=0.11.4

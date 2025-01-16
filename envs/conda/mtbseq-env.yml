@@ -4,5 +4,5 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - openjdk=8.0.412  # This specifies Java 1.8
-  - mtbseq=1.1.0
+  - conda-forge::openjdk=8.0.412  # This specifies Java 1.8
+  - bioconda::mtbseq=1.1.0

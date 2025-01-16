@@ -4,4 +4,4 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - tb-profiler=6.5.0
+  - bioconda::tb-profiler=6.5.0

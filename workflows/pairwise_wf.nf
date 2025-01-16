@@ -81,5 +81,4 @@ workflow PAIRWISE_WF {
         tbdb_resistance         =   COMPILE_SEQUENCING_STATS.out.tbdb_resistance
         phylogeny_plotting_ch   =   CONCATENATED_VARIABLE_REGION_PHYLOGENY.out.phylogeny_plotting_ch
 
-
 }

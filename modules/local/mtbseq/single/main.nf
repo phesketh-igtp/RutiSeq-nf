@@ -50,31 +50,38 @@ process MTBSEQ_SINGLE {
 
         """
         # remove the default symbolic links that nextflow creates due to 
-        # having the long main channel as an input to the module - 
-        # this prevents mtbseq from using the pre-filtered reads
+        ## having the long main channel as an input to the module - 
+        ### this prevents mtbseq from using the pre-filtered reads in the analysis
 
-        for_name=\$(ls ${forward}); rev_name=\$(ls ${reverse})
-        mv \${for_name} tmp_for_name; mv \${rev_name} tmp_rev_name
+            Fname=\$(ls ${forward}); Rname=\$(ls ${reverse})
+            mv \${Fname} tmp_Fname; mv \${Rname} tmp_Rname
+
+            mtbc_Fname1=\$(ls ${mtbc_forward}); mtbc_Rname1=\$(ls ${mtbc_reverse})
+            mtbc_Fname2=\$(ls ${mtbc_forward} | sed 's/_mtbc//g'); mtbc_Rname2=\$(ls ${mtbc_reverse} | sed 's/_mtbc//g')
+            mv \${mtbc_Fname1} \${mtbc_Fname2}; mv \${mtbc_Rname1} \${mtbc_Rname2}
+
 
         # Run MTBseq for a single sample
-        MTBseq --step TBfull \\
-            --thread ${task.cpus} \\
-            ${additional_args} \\
-            1>>.command.out \\
-            2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
-            ## --prefix ${sampleID}  \\ (sometimes doesnt work)
 
-        for f in */${sampleID}_mtbc.*; do renamed=\$( echo \${f} | sed 's/_mtbc//g'); mv \$f \$renamed; done
+            MTBseq --step TBfull \\
+                --thread ${task.cpus} \\
+                ${additional_args} \\
+                1>>.command.out \\
+                2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 
-        # restore the symbolic links so nextflow doesnt halt as it expects everything 
-        # that was inputted to the module to remain unchanged 
-        # (I think ... and its strange and annoying if that is the case)
-        mv tmp_for_name \${for_name}; mv tmp_rev_name \${rev_name}
+
+        # restore the symbolic links so nextflow doesnt halt as it expects all the inputs to remain
+        ## (I think ... and its strange and annoying if that is the case)
+
+            mv tmp_Fname \${Fname}; mv tmp_Rname \${Rname}
+            mv \${mtbc_Fname2} \${mtbc_Fname1}; mv \${mtbc_Rname2} \${mtbc_Rname1}
+
 
         # Rename the stats and class outputs to have unique names
         ## this prevent clashes later on
-        mv Classification/Strain_Classification.tab Classification/${sampleID}.Strain_Classification.tab
-        mv Statistics/Mapping_and_Variant_Statistics.tab Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
+
+            mv Classification/Strain_Classification.tab Classification/${sampleID}.Strain_Classification.tab
+            mv Statistics/Mapping_and_Variant_Statistics.tab Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
 
         """
 

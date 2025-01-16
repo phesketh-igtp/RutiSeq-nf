@@ -4,5 +4,5 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - kaiju=1.10.1
-  - seqkit=2.9.0
+- bioconda::kaiju=1.10.1
+- bioconda::seqkit=2.9.0
