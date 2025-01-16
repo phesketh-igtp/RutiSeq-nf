@@ -5,7 +5,7 @@ include { TBPROFILER_PROFILE_WHO }    from '../modules/local/tbprofiler/profile.
 include { MTBSEQ_SINGLE }             from '../modules/local/mtbseq/single/main.nf'
 include { SNP_PROFILING_SINGLE }      from '../modules/local/snp-barcoding/single.profiling/main.nf'
 include { SNP_ANNOTATING_SINGLE }     from '../modules/local/snp-barcoding/single.annotating/main.nf'
-include { POST_SINGLE_BBDD_CLEANUP }  from '../modules/local/prowst-wf-cleaup/single-bbdd-cleanup/main.nf'
+include { POST_SINGLE_BBDD_CLEANUP }  from '../modules/local/post-wf-cleaup/single-bbdd-cleanup/main.nf'
 
 workflow SINGLE_WF {
 
@@ -37,54 +37,54 @@ workflow SINGLE_WF {
 
             sample_ch_skip = branched_channel.without_reads
 
-            /*
-            // DEBUG:: View the results
+        /*
+        // DEBUG:: View the results
             branched_channel.with_reads.view { "With reads: $it" }
+        */
+
+        // Taxonomically classify and partition the MTBC reads
+            MTBC_READ_QC(
+                        branched_channel.with_reads,
+                        )
+
+        // Collect all QC results
+            all_qc_results = MTBC_READ_QC.out.qc_results.map { it[1] }.collect()
+
+        // Combine QC results
+            COMBINE_QC_RESULTS(all_qc_results, params.runID)
+
+        // Explicitly capture the mtbc_reads output
+            mtbc_reads_ch = MTBC_READ_QC.out.mtbc_reads
+
+        // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
+            TBPROFILER_PROFILE_TBDB(mtbc_reads_ch,
+                                    MTBC_READ_QC.out.updated_sample_ch)
+
+            TBPROFILER_PROFILE_WHO(mtbc_reads_ch,
+                                    TBPROFILER_PROFILE_TBDB.out.updated_sample_ch)
+
+        // Run MTBSEQ_SINGLE
+            MTBSEQ_SINGLE(mtbc_reads_ch,
+                            TBPROFILER_PROFILE_WHO.out.updated_sample_ch)
+
+        // Run SNP_PROFILING_SINGLE using the mpileup output
+            SNP_PROFILING_SINGLE(MTBSEQ_SINGLE.out.mtbseq_mpileup,
+                                MTBSEQ_SINGLE.out.updated_sample_ch)
+
+            // create updated channel
+            branched_channel_with_reads_updated = SNP_PROFILING_SINGLE.out.updated_sample_ch
+
+        // Merge the processed samples with the samples without reads
+            final_updated_sample_ch = branched_channel_with_reads_updated.mix(sample_ch_skip)
+
+            /*
+            // DEBUG:: 
+                final_updated_sample_ch.view { "Final channel: $it" }
             */
 
-            // Taxonomically classify and partition the MTBC reads
-                MTBC_READ_QC(
-                            branched_channel.with_reads,
-                            )
-
-            // Collect all QC results
-                all_qc_results = MTBC_READ_QC.out.qc_results.map { it[1] }.collect()
-
-            // Combine QC results
-                COMBINE_QC_RESULTS(all_qc_results, params.runID)
-
-            // Explicitly capture the mtbc_reads output
-                mtbc_reads_ch = MTBC_READ_QC.out.mtbc_reads
-
-            // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
-                TBPROFILER_PROFILE_TBDB(mtbc_reads_ch,
-                                        MTBC_READ_QC.out.updated_sample_ch)
-
-                TBPROFILER_PROFILE_WHO(mtbc_reads_ch,
-                                        TBPROFILER_PROFILE_TBDB.out.updated_sample_ch)
-
-            // Run MTBSEQ_SINGLE
-                MTBSEQ_SINGLE(mtbc_reads_ch,
-                                TBPROFILER_PROFILE_WHO.out.updated_sample_ch)
-
-            // Run SNP_PROFILING_SINGLE using the mpileup output
-                SNP_PROFILING_SINGLE(MTBSEQ_SINGLE.out.mtbseq_mpileup,
-                                    MTBSEQ_SINGLE.out.updated_sample_ch)
-
-                // create updated channel
-                branched_channel_with_reads_updated = SNP_PROFILING_SINGLE.out.updated_sample_ch
-
-            // Merge the processed samples with the samples without reads
-                final_updated_sample_ch = branched_channel_with_reads_updated.mix(sample_ch_skip)
-
-                /*
-                // DEBUG:: 
-                    final_updated_sample_ch.view { "Final channel: $it" }
-                */
-
-            // Cleanup to reduce storage usage in the publish directory
-                sampleid_list_ch = final_updated_sample_ch.map { it[0] }
-                POST_SINGLE_BBDD_CLEANUP(sampleid_list_ch)
+        // Cleanup to reduce storage usage in the publish directory
+            sampleid_list_ch = final_updated_sample_ch.map { it[0] }
+            POST_SINGLE_BBDD_CLEANUP(sampleid_list_ch)
 
     emit:
         single_updated_samples_ch = final_updated_sample_ch

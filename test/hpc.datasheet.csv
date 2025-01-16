@@ -1,0 +1,17 @@
+old_name,sampleID,forward_path,reverse_path,type
+05-109-MT_L18,05-109-MT_L18,/imppc/labs/emlab/share/TBSEQ/FASTQ/05-109-MT_L18_S177_L001_R1_001.fastq.gz,/imppc/labs/emlab/share/TBSEQ/FASTQ/05-109-MT_L18_S177_L001_R2_001.fastq.gz,sample
+05-012_L1,05-012_L1,/imppc/labs/emlab/share/TBSEQ/FASTQ/05-012_L1_R1.fastq.gz,/imppc/labs/emlab/share/TBSEQ/FASTQ/05-012_L1_R2.fastq.gz,sample
+05-053_L2,05-053_L2,/imppc/labs/emlab/share/TBSEQ/FASTQ/05-053_L2_R1.fastq.gz,/imppc/labs/emlab/share/TBSEQ/FASTQ/05-053_L2_R2.fastq.gz,sample
+06-010_L2,06-010_L2,/imppc/labs/emlab/share/TBSEQ/FASTQ/06-010_L2_R1.fastq.gz,/imppc/labs/emlab/share/TBSEQ/FASTQ/06-010_L2_R2.fastq.gz,sample
+20-055_L9,20-055_L9,/imppc/labs/emlab/share/TBSEQ/FASTQ/20-055_L9_S13_L001_R1_001.fastq.gz,/imppc/labs/emlab/share/TBSEQ/FASTQ/20-055_L9_S13_L001_R2_001.fastq.gz,sample
+51-027_L10,51-027_L10,/imppc/labs/emlab/share/TBSEQ/FASTQ/51-027-L10_S10_L001_R1_001.fastq.gz,/imppc/labs/emlab/share/TBSEQ/FASTQ/51-027-L10_S10_L001_R2_001.fastq.gz,sample
+CN-205-MT_L29,CN-205-MT_L29,/imppc/labs/emlab/share/TBSEQ/RUNS/20241213_TBSEQ_Run29/CN-205-MT_L29_S105_L001_R1_001.fastq.gz,/imppc/labs/emlab/share/TBSEQ/RUNS/20241213_TBSEQ_Run29/CN-205-MT_L29_S105_L001_R2_001.fastq.gz,control
+CN-204-MT_L29,CN-204-MT_L29,/imppc/labs/emlab/share/TBSEQ/RUNS/20241213_TBSEQ_Run29/CN-204-MT_L29_S164_L001_R1_001.fastq.gz,/imppc/labs/emlab/share/TBSEQ/RUNS/20241213_TBSEQ_Run29/CN-204-MT_L29_S164_L001_R2_001.fastq.gz,control
+08-067-MT_L25,08-067-MT_L25,/imppc/labs/emlab/share/TBSEQ/RUNS/20240726_TBSEQ_Run25/08-067-MT_L25_S105_L001_R1_001.fastq.gz,/imppc/labs/emlab/share/TBSEQ/RUNS/20240726_TBSEQ_Run25/08-067-MT_L25_S105_L001_R2_001.fastq.gz,sample
+20-037_L2,20-037_L2,/imppc/labs/emlab/share/TBSEQ/FASTQ/20-037_L2_R1.fastq.gz,/imppc/labs/emlab/share/TBSEQ/FASTQ/20-037_L2_R2.fastq.gz,sample
+20-049_L9,20-049_L9,/imppc/labs/emlab/share/TBSEQ/FASTQ/20-049_L9_S7_L001_R1_001.fastq.gz,/imppc/labs/emlab/share/TBSEQ/FASTQ/20-049_L9_S7_L001_R2_001.fastq.gz,sample
+05-255-MT_L22,05-255-MT_L22,/imppc/labs/emlab/share/TBSEQ/FASTQ/05-255-MT_L22_S104_L001_R1_001.fastq.gz,/imppc/labs/emlab/share/TBSEQ/FASTQ/05-255-MT_L22_S104_L001_R2_001.fastq.gz,sample
+05-236-MT_L22,05-236-MT_L22,/imppc/labs/emlab/share/TBSEQ/FASTQ/05-236-MT_L22_S49_L001_R1_001.fastq.gz,/imppc/labs/emlab/share/TBSEQ/FASTQ/05-236-MT_L22_S49_L001_R2_001.fastq.gz,sample
+04-042_L517,04-042_L517,/imppc/labs/emlab/share/TBSEQ/FASTQ/04-042_L517_R1.fastq.gz,/imppc/labs/emlab/share/TBSEQ/FASTQ/04-042_L517_R2.fastq.gz,sample
+05-135_L9,05-135_L9,/imppc/labs/emlab/share/TBSEQ/FASTQ/05-135_L9_S139_L001_R1_001.fastq.gz,/imppc/labs/emlab/share/TBSEQ/FASTQ/05-135_L9_S139_L001_R2_001.fastq.gz,sample
+47-125-MT_L21,47-125-MT_L21,/imppc/labs/emlab/share/TBSEQ/FASTQ/47-125-MT_L21_S75_L001_R1_001.fastq.gz,/imppc/labs/emlab/share/TBSEQ/FASTQ/47-125-MT_L21_S75_L001_R2_001.fastq.gz,sample
