@@ -8,7 +8,7 @@ dependencies:
 - bioconda::bioconductor-treeio=1.30.0
 - conda-forge::r-ape=5.8_1
 - conda-forge::r-argparse=2.2.5
-- conda-forge::r-base=4.4.2
+- conda-forge::r-base=4.1
 - conda-forge::r-dplyr=1.1.4
 - conda-forge::r-ggrepel=0.9.6
 - conda-forge::r-optparse=1.7.5
