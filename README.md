@@ -11,7 +11,7 @@ This pipeline is build to be *additive*, meaning new genomes can be analysed and
 
 ![image](png/pipeline.png)
 
-##### Main workflow (<code>--workflow main-wf</code>)
+## Main workflow (<code>--workflow main-wf</code>)
 
 ##### Sub-wf 1: Single genomes analsysis
 The workflow partitions *Mycobacterium tuberculosis* complex reads using Kaiju (RefSeq-nr database) for classification, and only MTBC reads are utilised for downstream processing. Reads are parsed through the tools [TB-Profiler](https://github.com/jodyphelan/TBProfiler) and [MTBSeq](https://github.com/ngs-fzb/MTBseq_source), for resistance profiling, lineage classification and variant calling. This will populate a database (RutiSeq-BBDD) of analysed genomes that will be utulised for downstream analysis.
@@ -26,8 +26,8 @@ During this sub-workflow all the outputs from sub-wf 1 and 2 are compile by thei
 
 Additional outputs include PDFs of SNP phylogeny (ML tree generated with IQ-Tree) colored by cluster identity, and NEX files for upload into [PopArt](https://popart.maths.otago.ac.nz/) for visualisation.
 
-##### Sub-wf 4: Cluster SNP barcoding (<code>--workflow barcoding</code>) [TBD]
-This is an experimental aspect of the workflow that aims to begin characterizing individual SNPs that are designated uniquely to a particular 5 SNP pairwise distance cluster (<code>--distance 5</code> in MTBseq). The plan with this sub-wf is to quickly being identifying which genomic cluster a particular genome may belong to prior to SNP clustering with the goal of reducing computational resources and speeding up the analysis. All genomes as part of the sub-wf 1 will have their SNP profiles compared to the cluster barcode SNPs and pre allocated a preliminary cluster for clustering in sub-wf 2.
+##### Sub-wf 4: Cluster SNP barcoding [TBD]
+This is an experimental aspect of the workflow that aims to begin characterizing individual SNPs that are designated uniquely to a particular 5 SNP pairwise distance cluster (<code>--distance 5</code> in MTBseq). The plan with this sub-wf is to quickly identifying which genomic cluster a particular genome may belong to prior to SNP clustering with the goal of reducing computational resources and speeding up the analysis. All genomes as part of the sub-wf 1 will have their SNP profiles compared to the cluster barcode SNPs and pre allocated a preliminary cluster for clustering in sub-wf 2.
 
 In this workflow, all genomes SNP profiles merged into a single VCF (grouped by lineage), and the SNP profiles of genomes belonging to the same cluster are compared to all other genomes within the same lineage, to calculate the F~TS~ value (fixation index) for each SNP within the cluster population. SNPs that fulfill the following criteria are classified as a cluster specific SNP:
 - F~TS~ = 1
@@ -41,11 +41,17 @@ The script will generate a <code>BED</code> file for each unique SNP and its clu
 
 #### <u>Sub-utilities:</u> [WIP]
 
+##### <code>--workflow manual-inspection</code> [TBD]
+A large part of validating outbreak genomic clusters requires manual validation and curation, utilising the phylogeny, median-joining networks and results tables. Clusters can be renamed to correspond to a specific naming convention, large clusters may be broken up into smaller due to the clsuters being non-monophyletic. Whaterver the motivation, this workflow updates the database to include your specific naming convention and manual modifications of declared clusters. Future analysis will perform a comparison with these results to rename clusters following this convention. **Note:** new clusters will be named by the default system (i.e. [*Lineage*]-[*SNP distance*]-[*ClusterID*], such as L4.3-5-58).
+
+This workflow will update the names of the clusters in the database and re-produce the final HTML report, Excel and TSV files.
+
 ##### <code>--workflow erase</code> [TBD]
-Occasionally you may find that a genome has gone through the entire workflow that should not have, or you sequence the genome more and now have more reads and want to re-analyse it. In these situations the genome needs to be completely erased from the database (all intermediate files, all records of this genome.). The sub-utility erase (<code>--workflow erase</code>) performs this. You provide a csv file containing identifies of genomes you want remove, same as the sample <code>CSV</code> for running the workflow, and RutiSeq will remove all record of this genome.
+Occasionally you may find that a genome has gone through the entire workflow that should not have, or you sequence the genome more and now have more reads and want to re-analyse it. In these situations the genome needs to be completely erased from the database (all intermediate files, all records of this genome.). The sub-utility erase (<code>--workflow erase</code>) performs this. You provide a file containing a list of alliases of genomes you want removed, and RutiSeq will remove all record of this genome in RutiSeq-BBDD.
 
 ##### <code>--workflow barcoding-only</code> [TBD]
 This is a rought and fast clustering analysis. If you have an RutiSeq-BBDD (>1,000 genomes) and have observed that the K-means between cluster-specific SNP profiles and MTBseq clustering then this could be a possible method for achieiving a fast preliminary cluster identity respective to the known clusters. This workflow will the action of sub-wf 1 perform with the exception that only TB-profiler using your RutiSeq-BBDD of cluster-specific SNPs profiles.
+
 
 #### Requirements:
 The following software needs to be available on your path.
@@ -75,25 +81,27 @@ The workflow is built to enable to usage of three principle software managers *c
 ## <u>Inputs</u>
 
 **<u>Sample sheet:</u>** This must be a <code>CSV</code> file that contains the following information, including the header:
-| name               | alias        | forward_path         | reverse_path         | type   |
-| ------------------ | ------------ | -------------------- | -------------------- | -------|
-| sample1_123-AAA-R1 | 1-123-AAA_L1 | /path/to/R1.fastq.gz | /path/to/R2.fastq.gz | sample |
-| sample2-456-AAA-R1 | 2-456-AAA_L1 | /path/to/R1.fastq.gz | /path/to/R2.fastq.gz | sample |
+| name               | alias        | forward_path         | reverse_path         | type    |
+| ------------------ | ------------ | -------------------- | -------------------- | --------|
+| sample1_123-AAA-R1 | 1-123-AAA_L1 | /path/to/R1.fastq.gz | /path/to/R2.fastq.gz | sample  |
+| sample2-456-AAA-R1 | 2-456-AAA_L1 | /path/to/R1.fastq.gz | /path/to/R2.fastq.gz | sample  |
+| sampleCN-1-AAA-R1  | CN-1-AAA_L1  | /path/to/R1.fastq.gz | /path/to/R2.fastq.gz | control |
 
 ```{sh}
 $ cat samples.csv
 name,alias,forward_path,reverse_path
 sample1_XXX-AAA,1-XXX-AAA_LX,/path/to/R1.fastq.gz,/path/to/R2.fastq.gz
-sample1_XXX-AAA,2-XXX-AAA_LX,/path/to/R1.fastq.gz,/path/to/R2.fastq.gz
+sample2_XXX-AAA,2-XXX-AAA_LX,/path/to/R1.fastq.gz,/path/to/R2.fastq.gz
+sampleCN-1-AAA-R1,CN-1-AAA_L1,/path/to/R1.fastq.gz,/path/to/R2.fastq.gz
 ```
   
-**name** : Name of the sample. Retaining the original name of your sample in the file is for your own records and will not be used in the pipeline untill the very end for the results tables.
+**<u>name</u>** : Name of the sample. Retaining the original name of your sample in the file is for your own records and will not be used in the pipeline untill the very end for the results tables.
 
-**alias** : The alias MUST have the following structure - **[SampleID]_[LibraryID]**. The sampleID can be have information separated by hyphens ( - ), BUT the undescore ( \_ ) must be reserve by distinguishing between the SampleID and the LibraryID. This is to satisfy a data naming convention required by MTBseq, which requires reads are name: **[SampleID]\_[LibID]\_[\*]_[Direction].fastq.gz**. If the sampleID's happen to follow this structure, you can duplicate same value in **name** and **alias**. If a alias in your sample sheet is duplicated, or that alias already exists in the database, then that sample will no be analyzed, and an alert will be produced informing you of this. Ensure that each alias is unique within the entire database.
+**<u>alias</u>** : The alias MUST have the following structure - **[SampleID]_[LibraryID]**. The sampleID can be have information separated by hyphens ( - ), BUT the undescore ( \_ ) must be reserve by distinguishing between the SampleID and the LibraryID. This is to satisfy a data naming convention required by MTBseq, which requires reads are name: **[SampleID]\_[LibID]\_[\*]_[Direction].fastq.gz**. If the sampleID's happen to follow this structure, you can duplicate same value in **name** and **alias**. If a alias in your sample sheet is duplicated, or that alias already exists in the database, then that sample will no be analyzed, and an alert will be produced informing you of this. Ensure that each alias is unique within the entire database.
 
-**forward_path/reverse_path** : full path of reads available to the system for accessing the reads. Reads must be gzipped and with the full suffix of <code>fastq.gz</code>, not <code>fq.gz</code>.  
+**<u>forward_path/reverse_path</u>** : full path of reads available to the system for accessing the reads. Reads must be gzipped and with the full suffix of <code>fastq.gz</code>, not <code>fq.gz</code>.  
 
-**type** : denotes wether reads correspond to a sample *or* control. An error will be produced if a sample is not declared as a *sample* or *control*.
+**<u>type</u>** : denotes wether reads correspond to a sample *or* control. An error will be produced if a sample is not declared as a *sample* or *control*.
 
 **<u>Metadata [optional]:</u>** Metadata, if provided, is only utilized at the summary step when the nexus files are generated for visualising the median-joining networks. If the following metadata is provided with the correct headers, then the nexus files will also contain relevant metadata.
 'detection_date' is the estimated date for the onset of infection, or diagnosis. 'location' can be anything you want, the district of the patient, the hospital that performed the diagnosis, country of sample origin.
