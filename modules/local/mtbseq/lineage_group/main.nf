@@ -19,10 +19,10 @@ process MTBSEQ_LINEAGE_GROUP {
         // Groups
         path("Group/")
         path("Groups/${lineage}_d${distance}.groups")
-        path("Groups/${lineage}_clusters.d${distance}.tsv"),                            emit: clusters
+        path("Groups/${lineage}_clusters.d${distance}.tsv"),            emit: clusters
 
         //Matrix ouput
-        path("Matrices/${lineage}.d${distance}.matrix.tsv"),                             emit: matrix_dir
+        path("Matrices/${lineage}.d${distance}.matrix.tsv"),            emit: matrix_dir
 
     script:
 

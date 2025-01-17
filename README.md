@@ -74,7 +74,7 @@ The following software needs to be available on your path.
 wget https://kaiju-idx.s3.eu-central-1.amazonaws.com/2023/kaiju_db_refseq_ref_2023-07-05.tgz
 ```
 
-Modify the nextflow.config file to update the paths. You will need to modify <code>kaiju_fmi</code>, <code>kaiju_nodes</code>, and <code>kaiju_names</code> with the path of the kaiju database being utilised. You may also 'hardcode' the output directory with <code>outdir</code>, if youre system has a scratch drive you can set yourt working directory to produce all the intermediate temporary files there using the <code>workDir</code>.
+Modify the nextflow.config file to update the paths. You will need to modify <code>kaiju_fmi</code>, <code>kaiju_nodes</code>, and <code>kaiju_names</code> with the path of the kaiju database being utilised. You may also 'hardcode' the output directory with <code>outdir</code>, if youre system has a scratch drive you can set yourt working directory to produce all the intermediate temporary files there using the <code>workDir</code>.  Analsis specific parameters include the minimum depth of coverage each genomes must satisfy to be utilised in the pairwise analysis (<code>mtbseq_min_cov</code>), which lienages you want to survey (<code>lineage_pairwise</code>), and the SNP distances to be used for pairwise comparisons and generate clusters (<code>mtbseq_snp_distance</code>).
 
 ![image](png/figure1.png)
 
