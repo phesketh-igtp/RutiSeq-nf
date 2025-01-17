@@ -32,11 +32,11 @@ process MTBSEQ_LINEAGE_GROUP {
 
         ## MTBseq Join using the first SNP distance
             MTBseq --step TBgroups \\
-                --thread ${task.cpus} \\
-                --project ${lineage} \\
-                --samples ${lineage}_samples.txt \\
-                --distance ${distance} \\
-                ${additional_args} \\
+                --thread    ${task.cpus} \\
+                --project   ${lineage} \\
+                --samples   ${sample_txt} \\
+                --distance  ${distance} \\
+                            ${additional_args} \\
                 1>>.command.out \\
                 2>>.command.err \\
                 || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
