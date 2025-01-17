@@ -62,15 +62,19 @@ The following software needs to be available on your path.
 - Miniconda3/Anaconda/Miniforge - however you want <code>conda</code> to be available
 
 1. First you need to clone the github repository and pull all the necessary scripts
+
  ```{sh}
   git clone https://github.com/phesketh-igtp/TBSEQ.cat-nf.git
   ```
+
 2. Download a kaiju database and add full paths to the <code>nextflow.config</code> file
+
 ```{sh}
 # Example for downloading the pre-build kaiju RefSeq-rn (bacteria/archaea and fungi only)
 wget https://kaiju-idx.s3.eu-central-1.amazonaws.com/2023/kaiju_db_refseq_ref_2023-07-05.tgz
 ```
-Modify the nextflow.config file to update the paths. You will need to modify <code>kaiju_fmi</code>, <code>kaiju_nodes</code>, and <code>kaiju_names</code> with the path of the kaiju database being utilised.
+
+Modify the nextflow.config file to update the paths. You will need to modify <code>kaiju_fmi</code>, <code>kaiju_nodes</code>, and <code>kaiju_names</code> with the path of the kaiju database being utilised. You may also 'hardcode' the output directory with <code>outdir</code>, if youre system has a scratch drive you can set yourt working directory to produce all the intermediate temporary files there using the <code>workDir</code>.
 
 ![image](png/figure1.png)
 
