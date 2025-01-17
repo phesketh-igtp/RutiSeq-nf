@@ -1,4 +1,4 @@
-process MTBSEQ_LINEAGE_PAIRWISE {
+process MTBSEQ_LINEAGE_JOIN_AMEND {
 
     tag " ${runID}: ${lineage} "
 
@@ -54,7 +54,7 @@ process MTBSEQ_LINEAGE_PAIRWISE {
 
     """
     # make the expected directories
-        mkdir -p Position_Tables/ Called/ Groups/ Matrices/ Amend/ Joint/
+        mkdir -p Position_Tables/ Called/ Amend/ Joint/
 
     # create the list of the sampleIDs within that lineage
         echo "${sampleIDs.join('\n')}" > samplesID.list

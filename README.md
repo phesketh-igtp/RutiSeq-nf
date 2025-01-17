@@ -45,12 +45,12 @@ Occasionally you may find that a genome has gone through the entire workflow tha
 ## Installation
 
 Requirements:
-The following software needs to be available on your path
+The following software needs to be available on your path.
 - Nextflow
   - On the IGTP HPC conda is available in /soft/bin/nextflow, just add the path to your <code>~/.bashrc</code>. 
 - Singularity
   - On the IGTP HPC conda is available in /soft/bin/singularity, just add the path to your <code>~/.bashrc</code>. You will also need to specify a cache that nextflow stores all the images (this is useful if you are re-running the workflow too as it wont have to rebuild each time and just access it from the cache.)
-- Miniconda3/Anaconda/Condaforge - however you want <code>conda</code> to be available
+- Miniconda3/Anaconda/Miniforge - however you want <code>conda</code> to be available
 
 1. First you need to clone the github repository and pull all the necessary scripts
  ```{sh}
@@ -64,36 +64,22 @@ wget https://kaiju-idx.s3.eu-central-1.amazonaws.com/2023/kaiju_db_refseq_ref_20
 Modify the nextflow.config file to update the paths. You will need to modify <code>kaiju_fmi</code>, <code>kaiju_nodes</code>, and <code>kaiju_names</code> with the path of the kaiju database being utilised.
 
 ![image](png/figure1.png)
-3. If using conda, you will need to create the conda enviornments Create all the necessary conda environent.
 
-```{sh}
+## <u>Usage</u>
 
-```
+On the IGTP HPC, the nextflow scripts need to be submitted as a job, and from there nextflow will spawn all the jobs submissions. Bear in mind that when you run this a lot of your fair-use weight will be occupied, so you are unlikely to be able to run anything else for some time.
 
-## Usage
+### Software package managers
 
-On the IGTP HPC, the nextflow scripts need to be submitted as a job, and from there nextflow will spawn all the jobs as part of its workflow. Bear in mind that when you run this a lot of your fair-use weight will be occupied, so you are unlikely to be able to run anything else for some time. 
+The workflow is built to enable to usage of three principle software managers *conda*, *apptator*, *singularity*, and *docker*. Only *conda*, *singularity* and *apptator* have been tested on the IGTP-HPC, due to security reasons *docker* cannot be run, but the docker images created in seqera container builder are present and theoretically it should be able to run.
 
-To run the workflow test, run the following:
-```{sh}
-qsub -S /bin/bash -cwd -V -N nf-main \
-        -o qsub-nf.out -l mem_free=6G  \
-        /path/to/RutiSeq-nf/submit-nf.sh \
-        /path/to/RutiSeq-nf/main.nf \
-        --samplesheet /path/to/RutiSeq-nf/test/samples.hpc.csv \
-        --outdir /path/to/RutiSeq-nf/RutiSeq-test \
-        -profile igtp,singularity_on # this specifies that the job should be submitted to the IGTP HPC using singularity, can also designate it to use conda with 'conda_on'
-```
+## <u>Inputs</u>
 
-If you are adding new data to an existing database generated with this pipeline, the <code>--outdir</code> MUST be be given the path to that database.
-
-## Inputs
-
-**<u>Sample sheet:</u>** This must be a <code>CSV</code> file that contains the following information:
-| name | alias | forward_path | reverse_path |
-| ------------- | ----- | ------------ | ------------ |
-| sample1_XXX-AAA- | 1-XXX-AAA_LX | /path/to/R1.fastq.gz | /path/to/R2.fastq.gz |
-| sample1_XXX-AAA- | 2-XXX-AAA_LX | /path/to/R1.fastq.gz | /path/to/R2.fastq.gz |
+**<u>Sample sheet:</u>** This must be a <code>CSV</code> file that contains the following information, including the header:
+| name               | alias        | forward_path         | reverse_path         | type   |
+| ------------------ | ------------ | -------------------- | -------------------- | -------|
+| sample1_123-AAA-R1 | 1-123-AAA_L1 | /path/to/R1.fastq.gz | /path/to/R2.fastq.gz | sample |
+| sample2-456-AAA-R1 | 2-456-AAA_L1 | /path/to/R1.fastq.gz | /path/to/R2.fastq.gz | sample |
 
 ```{sh}
 $ cat samples.csv
@@ -102,15 +88,13 @@ sample1_XXX-AAA,1-XXX-AAA_LX,/path/to/R1.fastq.gz,/path/to/R2.fastq.gz
 sample1_XXX-AAA,2-XXX-AAA_LX,/path/to/R1.fastq.gz,/path/to/R2.fastq.gz
 ```
   
-The alias MUST have the following structure - **[SampleID]_[LibraryID]**. The sampleID can be have information separated by hyphens ( - ), BUT the undescore ( \_ ) must be reserve by distinguishing between the SampleID and the LibraryID. This is to satisfy a data naming convention requires by MTBseq, which requires reads are name: **\[SampleID]\_[LibID]\_[\*]_[Direction].f(ast)q.gz**.
+**name** : Name of the sample. Retaining the original name of your sample in the file is for your own records and will not be used in the pipeline untill the very end for the results tables.
 
-If you sampleID's happen to follow this structure, you can just have the same value in **name** and **alias**.
+**alias** : The alias MUST have the following structure - **[SampleID]_[LibraryID]**. The sampleID can be have information separated by hyphens ( - ), BUT the undescore ( \_ ) must be reserve by distinguishing between the SampleID and the LibraryID. This is to satisfy a data naming convention required by MTBseq, which requires reads are name: **[SampleID]\_[LibID]\_[\*]_[Direction].fastq.gz**. If the sampleID's happen to follow this structure, you can duplicate same value in **name** and **alias**. If a alias in your sample sheet is duplicated, or that alias already exists in the database, then that sample will no be analyzed, and an alert will be produced informing you of this. Ensure that each alias is unique within the entire database.
 
-Retaining the original name of your sample in the file is for your own records and wont be used in the pipeline.
+**forward_path/reverse_path** : full path of reads available to the system for accessing the reads. Reads must be gzipped and with the full suffix of <code>fastq.gz</code>, not <code>fq.gz</code>.  
 
-The complete path of the sample sheet use used for the following flag <code>--samplesheet /path/to/samples.csv</code>. It is recommended that you keep a dated record of all the samples ran.
-
-If a sample in your sample sheet is duplicated, or that SampleID already exists in the database, then that sample will no be analyzed, and an alert will be produced informing you of this.
+**type** : denotes wether reads correspond to a sample *or* control. An error will be produced if a sample is not declared as a *sample* or *control*.
 
 **<u>Metadata [optional]:</u>** Metadata, if provided, is only utilized at the summary step when the nexus files are generated for visualising the median-joining networks. If the following metadata is provided with the correct headers, then the nexus files will also contain relevant metadata.
 'detection_date' is the estimated date for the onset of infection, or diagnosis. 'location' can be anything you want, the district of the patient, the hospital that performed the diagnosis, country of sample origin.
@@ -120,6 +104,25 @@ If a sample in your sample sheet is duplicated, or that SampleID already exists 
 | sample1_XXX-AAA- | 1-XXX-AAA_LX | 2024-01-01 | Hospital A |
 | sample1_XXX-AAA- | 2-XXX-AAA_LX | 2022-01-02 | Hospital B |
 
+### Common usage
+
+There is a running script that is responciple for submitting the <code>main.nf</code> script to the server called [submit-nf.sh](./submit-nf.sh). This script can be modified to include additional features but for now it functions as needed.
+
+The complete path of the sample sheet use used for the following flag <code>--samplesheet /path/to/samples.csv</code>. It is recommended that you keep a dated record of all the samples ran.
+
+To run the workflow test, run the following:
+```{sh}
+qsub -S /bin/bash -cwd -V -N nf-main \
+        -o qsub-nf.out -l mem_free=6G  \
+        /path/to/RutiSeq-nf/submit-nf.sh \
+        /path/to/RutiSeq-nf/main.nf \
+        --samplesheet /path/to/RutiSeq-nf/test/samples.hpc.csv \
+        --outdir /path/to/RutiSeq-nf/RutiSeq-test \
+        -profile igtp,conda_on # this specifies that the job should be submitted to the IGTP HPC using singularity, can also designate it to use conda with 'conda_on'
+```
+
+If you are adding new data to an existing database generated with this pipeline, the <code>--outdir</code> MUST be be given the path to that database.
+
+
 # To do 
-- Test <code>--workflow pairwise</code>
-- Write <code>--workflow summay</code> and <code>--workflow barcode</code>
+- Ensure that the resistance type for each genomes (from TB-Profiler) is sources from the who-only results from TB-profiler
