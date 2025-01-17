@@ -47,7 +47,7 @@ process MTBSEQ_LINEAGE_GROUP {
         # Wrangle the group list into a useful format
             cat Groups/${lineage}_joint_*_${distance}.groups \\
                     | sed '0,/### Output as lists:/d' \\
-                            > Groups/${lineage}_d${distance}.clusters.tsv
+                        > Groups/${lineage}_d${distance}.clusters.tsv
                     
         # Add lineage and SNP distance the tsv file
             sed -i "s@^@${lineage}\t${distance}\t@g" Groups/${lineage}_${distance}.list
@@ -63,23 +63,23 @@ process MTBSEQ_LINEAGE_GROUP {
             cut -f1 Matrices/${lineage}.matrix > Matrices/${lineage}.matrix
 
             # transpose the first colum long to wide (tab seperated)
-            awk '                                         
-            {
-                for (i = 1; i <= NF; i++) {
-                    arr[i] = (arr[i] ? arr[i] "\t" : "") \$i;
+                awk '                                         
+                {
+                    for (i = 1; i <= NF; i++) {
+                        arr[i] = (arr[i] ? arr[i] "\t" : "") \$i;
+                    }
                 }
-            }
-            END {
-                for (i = 1; i in arr; i++) {
-                    print arr[i];
+                END {
+                    for (i = 1; i in arr; i++) {
+                        print arr[i];
+                    }
                 }
-            }
-            ' Matrices/${lineage}.matrix.ids | sed 's/^/sampleID\t/g' > Matrices/${lineage}.matrix.head
+                ' Matrices/${lineage}.matrix.ids | sed 's/^/sampleID\t/g' > Matrices/${lineage}.matrix.head
 
-            cat Matrices/${lineage}.matrix.head Matrices/${lineage}.matrix > Matrices/${lineage}.d${distance}.matrix.tsv
+                cat Matrices/${lineage}.matrix.head Matrices/${lineage}.matrix > Matrices/${lineage}.d${distance}.matrix.tsv
 
             # remove the intermediates
-            rm Matrices/${lineage}.matrix.head Matrices/${lineage}.matrix
+                rm Matrices/${lineage}.matrix.head Matrices/${lineage}.matrix
 
         """
 }

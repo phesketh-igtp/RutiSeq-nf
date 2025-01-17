@@ -42,7 +42,7 @@ process MTBSEQ_LINEAGE_JOIN_AMEND {
     
     script:
 
-        //def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
+        def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
         # make the expected directories
@@ -65,20 +65,20 @@ process MTBSEQ_LINEAGE_JOIN_AMEND {
 
         ## MTBseq Join using the first SNP distance
             MTBseq --step TBjoin \\
-                --continue \\
-                --thread ${task.cpus} \\
-                --project ${lineage} \\
-                --samples ${lineage}_samples.txt \\
+                --thread    ${task.cpus} \\
+                --project   ${lineage} \\
+                --samples   ${lineage}_samples.txt \\
+                            ${additional_args} \\
                 1>>.command.out \\
                 2>>.command.err \\
                 || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 
         ## MTBseq Join using the first SNP distance
         MTBseq --step TBamend \\
-                --continue \\
-                --thread ${task.cpus} \\
-                --project ${lineage} \\
-                --samples ${lineage}_samples.txt \\
+                --thread    ${task.cpus} \\
+                --project   ${lineage} \\
+                --samples   ${lineage}_samples.txt \\
+                            ${additional_args} \\
                 1>>.command.out \\
                 2>>.command.err \\
                 || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq

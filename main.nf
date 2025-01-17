@@ -89,13 +89,11 @@ workflow {
             }
 
             // Report the samples part of the samplesheet
-                log.info "${color_green}Input samples:${color_reset}"
                 samples_ch.view { sampleID, forward, reverse ->
                     "${color_cyan}Sample: ${color_green}$sampleID${color_reset} | ${color_cyan}Forward: ${color_green}$forward${color_reset} | ${color_cyan}Reverse: ${color_green}$reverse${color_reset}"
                 }
-                
+
              // Report the controls part of the samplesheet
-                log.info "${color_green}Control samples:${color_reset}"
                 controls_ch.view { sampleID, forward, reverse ->
                     "${color_red}Control: ${color_green}$sampleID${color_reset} | ${color_red}Forward: ${color_green}$forward${color_reset} | ${color_red}Reverse: ${color_green}$reverse${color_reset}"
                 }

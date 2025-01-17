@@ -36,7 +36,7 @@ process MTBSEQ_SINGLE {
 
     script:
 
-        def additional_args = task.ext.additional_mtbseq_single_args ?: '' // defined in the nextflow.config file
+        def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
         # Brfiedly rename the reads to the intended name without the "_mtbc"
