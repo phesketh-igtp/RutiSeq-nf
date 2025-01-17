@@ -68,7 +68,7 @@ process MTBSEQ_LINEAGE_JOIN_AMEND {
                 --continue \\
                 --thread ${task.cpus} \\
                 --project ${lineage} \\
-                --samples samplesID.list \\
+                --samples ${lineage}_samples.txt \\
                 1>>.command.out \\
                 2>>.command.err \\
                 || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
@@ -78,11 +78,10 @@ process MTBSEQ_LINEAGE_JOIN_AMEND {
                 --continue \\
                 --thread ${task.cpus} \\
                 --project ${lineage} \\
-                --samples samplesID.list \\
+                --samples ${lineage}_samples.txt \\
                 1>>.command.out \\
                 2>>.command.err \\
                 || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
-
 
         ### create lineage csv for creating new channels
             echo '${params.mtbseq_snp_distance.join('\n')}' > snp_distances

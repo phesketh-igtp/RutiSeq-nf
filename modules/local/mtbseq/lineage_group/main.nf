@@ -34,7 +34,7 @@ process MTBSEQ_LINEAGE_GROUP {
             MTBseq --step TBgroups \\
                 --thread ${task.cpus} \\
                 --project ${lineage} \\
-                --samples ${sample_txt} \\
+                --samples ${lineage}_samples.txt \\
                 --distance ${distance} \\
                 ${additional_args} \\
                 1>>.command.out \\
