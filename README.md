@@ -103,13 +103,15 @@ sampleCN-1-AAA-R1,CN-1-AAA_L1,/path/to/R1.fastq.gz,/path/to/R2.fastq.gz
 
 **<u>type</u>** : denotes wether reads correspond to a sample *or* control. An error will be produced if a sample is not declared as a *sample* or *control*.
 
-**<u>Metadata [optional]:</u>** Metadata, if provided, is only utilized at the summary step when the nexus files are generated for visualising the median-joining networks. If the following metadata is provided with the correct headers, then the nexus files will also contain relevant metadata.
-'detection_date' is the estimated date for the onset of infection, or diagnosis. 'location' can be anything you want, the district of the patient, the hospital that performed the diagnosis, country of sample origin.
+**<u>Metadata [optional]:</u>** Metadata (<code>CSV</code>), if provided, is utilized at the summary step when the nexus files are generated for visualising the median-joining networks and performing the molecular clock on concatenated variable possitions within a lineage. If the following metadata is provided with the correct headers, then the nexus files will also contain relevant metadata. If no metadata is provided then these analyses will be omitted.
 
-| detailed_name | alias | detection_date | location |
-| ------------- | ----- | ------------ | ------------ |
-| sample1_XXX-AAA- | 1-XXX-AAA_LX | 2024-01-01 | Hospital A |
-| sample1_XXX-AAA- | 2-XXX-AAA_LX | 2022-01-02 | Hospital B |
+- The 'date' represents the estimated onset of infection or diagnosis and should follow the **YYYY-MM-DD** format. If the exact date is unknown, you can use partial placeholders (e.g.year only: *2020-XX-XX* or *202X-XX-XX*; year and month: *2024-05-XX*). Providing the full date ensures greater accuracy in predicting ancestral variable positions for each tree node in the phylogenetic tree, which will improve interpretation of median-joining networks outbeak direction.
+- The 'location' can be anything you want, the district of the patient, the hospital that performed the diagnosis, country of sample origin.
+
+| name             | alias        | date           | location     |
+| ---------------- | ------------ | -------------- | ------------ |
+| sample1_XXX-AAA- | 1-XXX-AAA_LX | 2024-01-01     | District A   |
+| sample1_XXX-AAA- | 2-XXX-AAA_LX | 2022-01-02     | District B   |
 
 ## <u>Usage</u>
 
@@ -124,7 +126,8 @@ On a HPC, the nextflow scripts need to be submitted as a job, and from there nex
 ### Optional arguments:
 - <code>--workflow</code> : If unspecified, the default is the main-wf. Alternative workflows are described in the (Sub-utilities)[] section.
 
-To run the workflow test, run the following:
+### Example submission to a SGE computing server:
+
 ```{sh}
 qsub -S /bin/bash -cwd -V -N nf-main \
         -o qsub-nf.out -l mem_free=6G  \
@@ -137,5 +140,17 @@ qsub -S /bin/bash -cwd -V -N nf-main \
 
 If you are adding new data to an existing database generated with this pipeline, the <code>--outdir</code> MUST be be given the path to that database.
 
-# To do 
-- Ensure that the resistance type for each genomes (from TB-Profiler) is sources from the who-only results from TB-profiler
+# <u>To be done</u>
+- **Pairwise workflow**:
+  - trubleshoot MTBseq running in the final pairwise analysis
+- **Summary workflow**
+  - Create modules for all individual components
+  - Write HTML Quatro results for the summary workflow
+  - Ensure that the resistance type for each genomes (from TB-Profiler) is sources from the who-only results from TB-profiler
+  - Create datbase summary figures:
+    - number of genomes
+    - distribution of lineages
+    - number of clusters
+    - identification of new clsuters
+    - expanding clusters
+    - merging clusters (at higher SNP levels)
