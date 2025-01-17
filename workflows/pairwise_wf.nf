@@ -2,7 +2,8 @@ include { TBPROFILER_COMPILE_TBDB }                 from '../modules/local/tbpro
 include { TBPROFILER_COMPILE_WHO }                  from '../modules/local/tbprofiler/compile.who/main.nf'
 include { MTBSEQ_STATS_COMPILE }                    from '../modules/local/mtbseq/stats-compile/main.nf'
 include { COMPILE_SEQUENCING_STATS }                from '../modules/local/filtering/compile-sequencing-stats/main.nf'
-include { MTBSEQ_LINEAGE_PAIRWISE }                 from '../modules/local/mtbseq/lineage_pairwise/main.nf'
+include { MTBSEQ_LINEAGE_JOIN_AMEND }               from '../modules/local/mtbseq/lineage_join-amend/main.nf'
+include { MTBSEQ_LINEAGE_GROUP }                    from '../modules/local/mtbseq/lineage_group/main.nf'
 include { CONCATENATED_VARIABLE_REGION_PHYLOGENY }  from '../modules/local/phylogeny/concatenated_snp_phylogeny-nf'
 include { CONCATENATE_CLUSTERS }                    from '../modules/local/pairwise/concatenate-cluster-file/main.nf'
 
@@ -25,24 +26,11 @@ workflow PAIRWISE_WF {
 
         // Compile TB-Profiler results
             TBPROFILER_COMPILE_TBDB( runID, tbdb_out_ch )
-            // DEBUG: 
-            ///TBPROFILER_COMPILE_TBDB.out.tbdb_results.view { file -> 
-            ///"Content of ${file.name}:\n${file.text}" }
-
             TBPROFILER_COMPILE_WHO( runID, who_out_ch )
-            // DEBUG: 
-            ///TBPROFILER_COMPILE_WHO.out.who_results.view { file -> 
-            ///"Content of ${file.name}:\n${file.text}" }
-
-            /*
-            // DEBUG:
-                TBPROFILER_COMPILE_TBDB.out.tbdb_results.view()
-                TBPROFILER_COMPILE_WHO.out.who_results.view()
-            */
 
         // Compile stats and classifications from MTBSeq
             MTBSEQ_STATS_COMPILE( mtbseq_stats_ch, mtbseq_class_ch )
-            
+
         // Determine infection type (Mixed vs Clonal using both tbprofiler and mtbseq outputs)
         //// and filter genomes based on quality parameters (min coverage)
             COMPILE_SEQUENCING_STATS(   runID,
@@ -64,13 +52,20 @@ workflow PAIRWISE_WF {
                 lineage_samples_ch.view()
 
         // Run the pairwise analysis by lineages
-            MTBSEQ_LINEAGE_PAIRWISE( runID, lineage_samples_ch )
+            MTBSEQ_LINEAGE_JOIN_AMEND( runID, lineage_samples_ch )
 
-            CONCATENATED_VARIABLE_REGION_PHYLOGENY( runID, 
-                                    MTBSEQ_LINEAGE_PAIRWISE.out.snp_phylogeny_ch )
+            mtbseq_group_ch = MTBSEQ_LINEAGE_JOIN_AMEND.out.mtbseq_group_tuple_csv
+                                .splitCsv(header: true)
+                                .map { row -> 
+                                    tuple(row.lineage, row.distance, row.join_dir, row.amend_dir, row.samples_txt)
+                                }
+
+            MTBSEQ_LINEAGE_GROUP( runID, mtbseq_group_ch )
+
+            CONCATENATED_VARIABLE_REGION_PHYLOGENY( runID, MTBSEQ_LINEAGE_JOIN_AMEND.out.snp_phylogeny_ch )
 
             // Collect all cluster and matrix outputs
-            bbdd_clusters = MTBSEQ_LINEAGE_PAIRWISE.out.clusters.collect()
+            bbdd_clusters = MTBSEQ_LINEAGE_GROUP.out.clusters.collect()
 
             CONCATENATE_CLUSTERS(bbdd_clusters)
 

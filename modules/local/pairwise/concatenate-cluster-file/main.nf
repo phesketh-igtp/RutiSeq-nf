@@ -3,21 +3,18 @@ process CONCATENATE_CLUSTERS {
     publishDir "${params.outdir}/bbdd/mtbseq/pairwise/", mode: 'copy'
 
     input:
-        path(bbdd_clusters)
+        path(clusters)
 
     output:
-        path("pairwise_clusters.tsv"),      emit: bbdd_clusters
+        path("pairwise_clusters.tsv"),          emit: bbdd_clusters
 
     script:
 
         """
+        # Create a header
+            echo "lineage,distance,genomes,group" > pairwise_clusters.tsv
 
-        # Concatenate all files, excluding the header from subsequent files
-
-        for file in ${bbdd_clusters}; do
-
-            cat \$file >> pairwise_clusters.tsv
-
-        done
-        """
+        # Concatenate all files
+            for file in ${clusters}; do cat \$file >> pairwise_clusters.tsv; done
+        """  
 }
