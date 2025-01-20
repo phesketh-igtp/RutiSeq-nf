@@ -20,7 +20,7 @@ process MTBSEQ_LINEAGE_JOIN_AMEND {
         // Amend outputs
         tuple val(lineage), path("Amend/*")
         tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo__w10.fasta"),
-                            path("Amend/${lineage}_joint_*_amended_u*_phylo__w10.tab"),   emit: snp_phylogeny_ch
+                            path("Amend/${lineage}_joint_*_amended_u*_phylo_w10.fasta"),   emit: snp_phylogeny_ch
 
         path("Amend/*")                    
         path("Amend/${lineage}_joint_*_amended.tab")
@@ -38,7 +38,7 @@ process MTBSEQ_LINEAGE_JOIN_AMEND {
         path("Joint/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.tab")
         
         // Tuple for creating MTBSeq --step TBgroup channel
-        path("mtbseq-group.tuple.csv"),                                                  emit: mtbseq_group_tuple_csv
+        path("mtbseq-group.tuple.csv"),                                                     emit: mtbseq_group_tuple_csv
     
     script:
 
