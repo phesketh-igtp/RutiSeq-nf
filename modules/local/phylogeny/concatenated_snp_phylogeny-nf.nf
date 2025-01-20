@@ -56,11 +56,12 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
         # 5. get the genomic positions of the SNPs
             while read -r position; do
                 sed -n \$((position+2))'p' ${tab} | cut -f 1; 
-            done < ${lineage}.tmp.fasta_positions > Phylogeny/${lineage}_genomic_positions
+            done < ${lineage}.tmp.fasta_positions > Phylogeny/${lineage}_genomic_positions.tab
+
             cp ${params.mtbc_ancestor_path} ${lineage}.tmp.MTB_anc.pos.gz; gunzip ${lineage}.tmp.MTB_anc.pos.gz
             
         # 6. Get the same SNPs for the 'ancestor' genomes
-            for i in `cat Phylogeny/${lineage}_genomic_positions`; do 
+            for i in `cat Phylogeny/${lineage}_genomic_positions.tab`; do 
                 sed -n \${i}'p' ${lineage}.tmp.MTB_anc.pos | cut -f3 # doesnt need to +2 as the tsv file has no header
             done > ${lineage}.tmp.MTB_anc
         
@@ -87,6 +88,8 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
                     -ntmax ${params.cpu} \\
                     -B ${params.iqtree_bootstraps} \\
                     --prefix ${lineage}_ML
+
+            mv ${lineage}_ML.* Phylogeny/
 
         # Create molecular timetree
             #treetime --aln Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta \\
