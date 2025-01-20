@@ -19,8 +19,8 @@ process MTBSEQ_LINEAGE_JOIN_AMEND {
 
         // Amend outputs
         tuple val(lineage), path("Amend/*")
-        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.fasta"),
-                            path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.tab"),   emit: snp_phylogeny_ch
+        tuple val(lineage), path("Amend/${lineage}_joint_*_amended_u*_phylo__w10.fasta"),
+                            path("Amend/${lineage}_joint_*_amended_u*_phylo__w10.tab"),   emit: snp_phylogeny_ch
 
         path("Amend/*")                    
         path("Amend/${lineage}_joint_*_amended.tab")
