@@ -23,10 +23,12 @@ process POST_SINGLE_BBDD_CLEANUP {
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/who-${sampleID}.results.txt" \\
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/Mapping_and_Variant_Statistics.tab" \\
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/Strain_Classification.tab" \\
-            "${params.outdir}/bbdd/tbprofiler/*R1*fastq.gz" \\
-            "${params.outdir}/bbdd/tbprofiler/*R2*fastq.gz" \\
+            "${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R1.fastq.gz" \\
+            "${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R2.fastq.gz" \\
             "${params.outdir}/bbdd/tbprofiler/tbdb-${sampleID}.results.txt" \\
-            "${params.outdir}/bbdd/tbprofiler/who-${sampleID}.results.txt" \\
+            "${params.outdir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R1.fastq.gz" \\
+            "${params.outdir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R2.fastq.gz" \\
+            "${params.outdir}/bbdd/tbprofiler/who-only/who-${sampleID}.results.txt" \\
             "${params.outdir}/bbdd/tbprofiler/Mapping_and_Variant_Statistics.tab" \\
             "${params.outdir}/bbdd/tbprofiler/Strain_Classification.tab" \\
             "${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R1.fastq.gz" \\

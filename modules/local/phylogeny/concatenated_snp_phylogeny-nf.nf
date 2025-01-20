@@ -4,7 +4,7 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
 
     conda params.phylogeny_env
 
-    publishDir "${params.outdir}/bbdd/mtbseq/pairwise/", mode: 'copy'
+    publishDir "${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/", mode: 'copy'
 
     input:
         val(runID)

@@ -18,7 +18,7 @@ process GENERATE_SUMMARY_REPORT {
     script:
 
         """
-        Rscript ./bin/R/generate_summary_report.R \\
+        Rscript ${params.r_script_dir}/generate_summary_report.R \\
                 --summary ${analysis_summary} \\
                 --who_res ${who_resistance} \\
                 --tbdb_res ${tbdb_resistance} \\
