@@ -1,4 +1,5 @@
 process FILE_CHECK {
+
     tag "$sampleID"
 
     input:
@@ -13,7 +14,7 @@ process FILE_CHECK {
         def mtbseq_class = "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Classification/${sampleID}.Strain_Classification.tab"
         def mtbseq_stats = "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab"
         def mtbseq_pos   = "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Position_Tables/${sampleID}.gatk_position_table.tab"
-        def mtbseq_vars  = "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Called/${sampleID}.gatk_position_variants_cf4_cr4_fr75_ph4_outmode011.tab"
+        def mtbseq_vars  = "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Called/${sampleID}.gatk_position_variants_cf4_cr4_fr75_ph4_outmode000.tab"
         def tbdb_out     = "${params.outdir}/bbdd/tbprofiler/results/tbdb-${sampleID}.results.txt"
         def who_out      = "${params.outdir}/bbdd/tbprofiler/who-only/results/who-${sampleID}.results.txt"
         def mtbseq_vcf   = "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/${sampleID}.gatk.vcf.gz"
@@ -30,4 +31,5 @@ process FILE_CHECK {
         # Ensure the process doesn't fail if one of the files doesn't exist
         touch samples.tuple.csv
         """
+
 }

@@ -33,9 +33,9 @@ process MTBSEQ_LINEAGE_JOIN_AMEND {
         path("Amend/${lineage}_joint_*_amended_u*_phylo_w*.tab")
 
         // Join output
-        tuple val(lineage), path("Join/*")      
-        path("Join/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.log") 
-        path("Join/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.tab")
+        tuple val(lineage), path("Joint/*")      
+        path("Joint/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.log") 
+        path("Joint/${lineage}_joint_cf*_cr*_fr*_ph*_samples*.tab")
         
         // Tuple for creating MTBSeq --step TBgroup channel
         path("mtbseq-group.tuple.csv"),                                                  emit: mtbseq_group_tuple_csv
