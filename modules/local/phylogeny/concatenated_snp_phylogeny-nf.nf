@@ -4,15 +4,13 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
 
     conda params.phylogeny_env
 
-    // TODO: container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data'
-    ///        } else { 'quay.io/biocontainers/mtbseq' }
-    ///}
-                
     publishDir "${params.outdir}/bbdd/mtbseq/pairwise/", mode: 'copy'
 
     input:
         val(runID)
-        tuple val(lineage), path(fasta), path(tab)
+        tuple val(lineage), 
+                path(fasta), 
+                path(tab)
 
     output:
         path("Phylogeny/*")
@@ -74,16 +72,16 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
                 Phylogeny/${lineage}.ref-H37Rv.fasta \\
                 Phylogeny/${lineage}.ref-MTB_anc.fasta \\
                 > Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.fasta
-        
-        # remove all temporary files
-            rm ${lineage}.tmp.*
+            
+            # remove all temporary files
+                rm ${lineage}.tmp.*
 
-        # Perform alignment of sequences 
+        # 9. Perform alignment of sequences 
             mafft --auto --thread ${params.cpu} \\
                     Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.fasta \\
                     > Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta
 
-        # Perform phylogeny
+        # 10. Perform phylogeny
             iqtree -s Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta \\
                     -m GTR+G4 -T AUTO \\
                     -ntmax ${params.cpu} \\
