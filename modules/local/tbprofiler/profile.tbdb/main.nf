@@ -33,15 +33,15 @@ process TBPROFILER_PROFILE_TBDB {
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
-
-        tb-profiler profile \\
-                -1 ${mtbc_forward} \\
-                -2 ${mtbc_reverse} \\
-            -p tbdb-${sampleID} \\
-            --txt --dir . \\
-            --db ${params.tbprofiler_tbdb} \\
-            --threads ${task.cpus} \\
-            ${additional_args}
+        # Run TB-Proiler using TBDB database
+            tb-profiler profile \\
+                    -1 ${mtbc_forward} \\
+                    -2 ${mtbc_reverse} \\
+                -p tbdb-${sampleID} \\
+                --txt --dir . \\
+                --db ${params.tbprofiler_tbdb} \\
+                --threads ${task.cpus} \\
+                ${additional_args}
 
         """
 }
