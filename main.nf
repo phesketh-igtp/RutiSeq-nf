@@ -8,6 +8,45 @@ include { NEGATIVE_CONTROL_WF }     from './workflows/negative_ctrl_wf.nf'
 //include { SUMMARY_WF }              from './workflows/summary_wf.nf'
 //include { BARCODING_WF }            from './workflows/barcoding_wf.nf'
 
+/* 
+    Help Message
+*/
+def helpMessage() {
+    log.info"""
+    Usage:
+
+    Mandatory arguments:
+        --samplesheet   [CSV]       Path to input data (must be surrounded with quotes)
+        --outdir        [path]      The output directory where the results will be saved
+
+    Optional arguments:
+        --metadata      [CSV]       Metadata file containing the sampleID,sampling_data;loc data.
+
+    MTBseq optional arguments:
+        --mtbseq_minbqual   [num]   Defines minimum positional mapping quality during variant calling (default: 20).
+        --mtbseq_mincovf    [num]   Defines minimum forward read coverage for a putative variant position (default: 4).
+        --mtbseq_mincovr    [num]   Defines minimum reverse read coverage for a putative variant position (default: 4).
+        --mtbseq_minphred20 [num]   Defines the minimum number of reads having a phred score above or equal 20 to be considered as a putative variant (default: 4).
+        --mtbseq_minfreq    [num]   Defines minimum allele frequency for majority allele (default: 75).
+        --mtbseq_unambig    [num]   Defines minimum percentage of samples having unambigous base call in TBamend analysi (default: 95)
+        --mtbseq_window     [num]   Defines window for SNP cluster look up. Reduces putative false positives in TBamend (default: 10).
+        --mtbseq_distance   [num]   Defines SNP distance for the single linkage clustering in TBgroups. Tuple containing a range of values (default: "[5, 10, 15]").
+
+    TBProfiler optional arguments:
+        --tbprof_
+        --tbprof_
+        --tbprof_
+        --tbprof_
+        --tbprof_
+        --tbprof_
+
+    """
+}
+
+/* 
+    MAIN WORKFLOW
+*/
+
 workflow {
     
     def color_purple = '\u001B[35m'

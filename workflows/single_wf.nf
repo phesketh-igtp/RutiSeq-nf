@@ -72,7 +72,7 @@ workflow SINGLE_WF {
                 final_updated_sample_ch.view { "Final channel: $it" }
 
         // Cleanup to reduce storage usage in the publish directory
-            sampleid_list_ch = branched_channel_with_reads_updated.map { it[0] }
+            sampleid_list_ch = final_updated_sample_ch.map { it[0] }
             POST_SINGLE_BBDD_CLEANUP(sampleid_list_ch)
 
     emit:

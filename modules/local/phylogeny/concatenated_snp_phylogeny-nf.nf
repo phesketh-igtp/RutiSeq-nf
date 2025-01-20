@@ -18,8 +18,8 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
         path("Phylogeny/*")
         
         tuple val(lineage), path("Phylogeny/${lineage}_ML.contree"),
-                            path("Phylogeny/${lineage}_timetree/timetree.nexus"),
-                            path("Phylogeny/${lineage}_timetree/ancestral_sequences.fasta"), emit: phylogeny_plotting_ch
+                            //path("Phylogeny/${lineage}_timetree/timetree.nexus"),
+                            path("Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta"), emit: phylogeny_plotting_ch
 
     script:
 
@@ -73,30 +73,28 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
             cat ${fasta} \\
                 Phylogeny/${lineage}.ref-H37Rv.fasta \\
                 Phylogeny/${lineage}.ref-MTB_anc.fasta \\
-                > Phylogeny/${lineage}.phylo_w10.ref-H37Rv_MTBc-anc.fasta
+                > Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.fasta
         
         # remove all temporary files
-        rm ${lineage}.tmp.*
+            rm ${lineage}.tmp.*
 
         # Perform alignment of sequences 
-        mafft --auto --thread ${params.cpu} \\
-                Phylogeny/${lineage}.phylo_w10.ref-H37Rv_MTBc-anc.fasta \\
-                > Phylogeny/${lineage}.phylo_w10.ref-H37Rv_MTBc-anc.aln.fasta
+            mafft --auto --thread ${params.cpu} \\
+                    Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.fasta \\
+                    > Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta
 
         # Perform phylogeny
-        iqtree -s Phylogeny/${lineage}.phylo_w10.ref-H37Rv_MTBc-anc.aln.fasta \\
-                -m GTR+G4 -T AUTO \\
-                -ntmax ${params.cpu} \\
-                -B ${params.bootstraps} \\
-                --prefix ${lineage}_ML
+            iqtree -s Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta \\
+                    -m GTR+G4 -T AUTO \\
+                    -ntmax ${params.cpu} \\
+                    -B ${params.iqtree_bootstraps} \\
+                    --prefix ${lineage}_ML
 
         # Create molecular timetree
-        treetime --aln Phylogeny/${lineage}.phylo_w10.ref-H37Rv_MTBc-anc.aln.fasta \\
-                --tree Phylogeny/${lineage}_ML.contree \\
-                --dates ${params.metadata} \\
-                --outdir Phylogeny/${lineage}_timetree
-
-        mv ${lineage}_ML* Phylogeny/
+            #treetime --aln Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta \\
+            #        --tree Phylogeny/${lineage}_ML.contree \\
+            #        --dates ${params.metadata} \\
+            #        --outdir Phylogeny/${lineage}_timetree
 
     """
 }

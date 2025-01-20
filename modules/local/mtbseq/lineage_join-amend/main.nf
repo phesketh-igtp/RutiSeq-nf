@@ -19,17 +19,17 @@ process MTBSEQ_LINEAGE_JOIN_AMEND {
 
         // Amend outputs
         tuple val(lineage), path("Amend/*")
-        tuple val(lineage), path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u*_phylo_w*.fasta"),
-                            path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u*_phylo.tab"),   emit: snp_phylogeny_ch
+        tuple val(lineage), path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta"),
+                            path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo.tab"),   emit: snp_phylogeny_ch
 
         path("Amend/*")                    
         path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended.tab")
-        path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u*_phylo.fasta")
-        path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u*_phylo.plainIDs.fasta")
-        path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u*_phylo_w*.fasta")
-        path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u*_phylo_w*.plainIDs.fasta")
-        path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u*_phylo_w*_removed.tab")
-        path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u*_phylo.tab")
+        path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo.fasta")
+        path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo.plainIDs.fasta")
+        path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta")
+        path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.plainIDs.fasta")
+        path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}_removed.tab")
+        path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo.tab")
 
         // Join output
         tuple val(lineage), path("Joint/*")      
