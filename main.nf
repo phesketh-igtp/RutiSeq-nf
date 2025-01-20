@@ -3,7 +3,6 @@ nextflow.enable.dsl = 2
 
 include { FILE_CHECK }                  from './modules/local/file-checks/main.nf'
 include { SINGLE_WF }                   from './workflows/single_wf.nf'
-include { POST_SINGLE_BBDD_CLEANUP }    from './modules/local/post-wf-cleaup/single-bbdd-cleanup/main.nf'
 include { PAIRWISE_WF }                 from './workflows/pairwise_wf.nf'
 include { NEGATIVE_CONTROL_WF }         from './workflows/negative_ctrl_wf.nf'
 include { SUMMARY_WF }                  from './workflows/summary_wf.nf'
@@ -246,11 +245,6 @@ workflow {
                 mtbseq_class_ch     =   mtbseq_class_files.collect()
                 tbdb_out_ch         =   tbdb_out_files.collect()
                 who_out_ch          =   who_out_files.collect()
-
-            // Perform a final cleanup of the bbdd to remove files
-            sampleid_list_ch        =   pairwise_samples_ch.map { it -> it[0] ?: null }
-            POST_SINGLE_BBDD_CLEANUP(sampleid_list_ch)
-
 
             PAIRWISE_WF( params.runID,
                             mtbseq_stats_ch,

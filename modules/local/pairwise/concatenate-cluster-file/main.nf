@@ -1,6 +1,6 @@
 process CONCATENATE_CLUSTERS {
 
-    publishDir "${params.outdir}/bbdd/mtbseq/pairwise/", mode: 'copy'
+    publishDir "${params.outdir}/bbdd/results/", mode: 'copy'
 
     input:
         path(clusters)
@@ -16,5 +16,6 @@ process CONCATENATE_CLUSTERS {
 
         # Concatenate all files
             for file in ${clusters}; do cat \$file >> pairwise_clusters.tsv; done
-        """  
+        """
+
 }

@@ -18,6 +18,8 @@ process GENERATE_SUMMARY_REPORT {
     script:
 
         """
+        ln -s ${params.outdir}/bbdd/results/main/*.csv .
+
         Rscript ${params.r_script_dir}/generate_summary_report.R \\
                 --summary ${analysis_summary} \\
                 --who_res ${who_resistance} \\

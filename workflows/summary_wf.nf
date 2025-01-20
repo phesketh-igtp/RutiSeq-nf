@@ -17,7 +17,8 @@ workflow SUMMARY_WF{
     main:
 
         // Perform a final BBDD cleanup
-            POST_SINGLE_BBDD_CLEANUP(runID)
+            POST_SINGLE_BBDD_CLEANUP(pairwise_clusters,
+                                    runID)
 
         // Generate summary XLSX and CSV files for final results    
             GENERATE_SUMMARY_REPORT(runID,
@@ -27,8 +28,6 @@ workflow SUMMARY_WF{
                                     who_resistance,
                                     tbdb_resistance
                                     )
-
-                    
 
 /*
         if (params.metadata) {

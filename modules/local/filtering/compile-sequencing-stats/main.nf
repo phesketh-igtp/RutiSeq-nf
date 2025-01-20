@@ -2,7 +2,7 @@ process COMPILE_SEQUENCING_STATS {
 
     conda params.r_stats_env
 
-    publishDir "${params.outdir}/bbdd/tbprofiler/pairwise/", mode: 'copy'
+    publishDir "${params.outdir}/bbdd/results/", mode: 'copy'
 
     input:
         val(runID)
@@ -13,10 +13,10 @@ process COMPILE_SEQUENCING_STATS {
         path lineage_fractions
 
     output:
-        path("${runID}.sequencing_summary.csv")
-        path("sequencing_summary.csv"),                 emit: analysis_summary
-        path("who_resistance_summary.csv"),             emit: who_resistance
-        path("tbdb_resistance_summary.csv"),            emit: tbdb_resistance
+        path("archive/${runID}.sequencing_summary.csv")
+        path("main/sequencing_summary.csv"),                 emit: analysis_summary
+        path("main/who_resistance_summary.csv"),             emit: who_resistance
+        path("main/tbdb_resistance_summary.csv"),            emit: tbdb_resistance
         path("lineage_samples_tuple.csv"),              emit: lineage_sample_tuple
 
     script:
@@ -72,11 +72,16 @@ process COMPILE_SEQUENCING_STATS {
                 }
             }' "lineage_samples_tuple.csv" > "lineage_samples_tuple.csv.tmp"
 
-    mv lineage_samples_tuple.csv lineage_samples_tuple.unfiltered.csv
+        mv lineage_samples_tuple.csv lineage_samples_tuple.unfiltered.csv
+        mv lineage_samples_tuple.csv.tmp lineage_samples_tuple.csv
+        cat lineage_samples_tuple.csv
 
-    mv lineage_samples_tuple.csv.tmp lineage_samples_tuple.csv
-
-    cat lineage_samples_tuple.csv
+    # Move the outputs into folders
+        mkdir -p main archive
+        mv sequencing_summary.csv main/
+        mv tbdb_resistance_summary.csv main/
+        mv who_resistance_summary.csv main/
+        mv ${runID}.sequencing_summary.csv archive/
 
     """
 }

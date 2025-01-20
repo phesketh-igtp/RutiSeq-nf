@@ -3,7 +3,8 @@ process POST_SINGLE_BBDD_CLEANUP {
     tag "${runID}"
 
     input:
-        val(runID)
+        val runID
+        path pairwise_clusters 
 
     script:
 
