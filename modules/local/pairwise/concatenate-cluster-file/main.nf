@@ -6,6 +6,7 @@ process CONCATENATE_CLUSTERS {
         path(clusters)
 
     output:
+        path("pairwise_clusters.tsv")
         path("pairwise_clusters.tsv"),          emit: bbdd_clusters
 
     script:

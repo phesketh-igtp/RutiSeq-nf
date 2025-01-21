@@ -24,7 +24,7 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
     def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
     """
-        mkdir Phylogeny/
+        mkdir -p Phylogeny/
 
         # Need to make the respective SNP alignment for the H37Rv and the Ancestral sequence for the phylogeny
             
@@ -91,11 +91,11 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
 
             mv ${lineage}_ML.* Phylogeny/
 
-        # Create molecular timetree
-            #treetime --aln Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta \\
-            #        --tree Phylogeny/${lineage}_ML.contree \\
-            #        --dates ${params.metadata} \\
-            #        --outdir Phylogeny/${lineage}_timetree
-
     """
+
+    //        # Create molecular timetree
+    //        #treetime --aln Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta \\
+    //        #        --tree Phylogeny/${lineage}_ML.contree \\
+    //        #        --dates ${params.metadata} \\
+    //        #        --outdir Phylogeny/${lineage}_timetree
 }

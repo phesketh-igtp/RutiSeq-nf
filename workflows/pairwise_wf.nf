@@ -59,6 +59,7 @@ workflow PAIRWISE_WF {
                                 .map { row -> 
                                     tuple(row.lineage, row.distance, row.join_dir, row.amend_dir, row.samples_txt)
                                 }
+            mtbseq_group_ch.view()
 
             MTBSEQ_LINEAGE_GROUP( runID, mtbseq_group_ch )
 

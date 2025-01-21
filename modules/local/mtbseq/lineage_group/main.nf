@@ -17,11 +17,12 @@ process MTBSEQ_LINEAGE_GROUP {
 
     output:
         // Groups
-        path("Group/")
+        path("Group/*")
         path("Groups/${lineage}_d${distance}.groups")
         path("Groups/${lineage}_clusters.d${distance}.tsv"),            emit: clusters
 
         //Matrix ouput
+        path("Matrices/")
         path("Matrices/${lineage}.d${distance}.matrix.tsv"),            emit: matrix_dir
 
     script:

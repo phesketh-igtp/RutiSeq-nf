@@ -85,7 +85,7 @@ process MTBSEQ_LINEAGE_JOIN_AMEND {
         ### create lineage csv for creating new channels
             echo '${params.mtbseq_snp_distance.join('\n')}' > snp_distances
 
-            for distance in snp_distances; do
+            for distance in \$(cat snp_distances); do
             echo "${lineage},\${distance},${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Join/*,${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Amend/*,${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/${lineage}_samples.txt" >> mtbseq-group.tuple.csv
             done                
 
