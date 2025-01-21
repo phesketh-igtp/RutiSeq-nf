@@ -66,9 +66,8 @@ workflow PAIRWISE_WF {
 
             CONCATENATED_VARIABLE_REGION_PHYLOGENY( runID, MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch )
 
-            // Collect all cluster and matrix outputs
+        // Collect all cluster and matrix outputs
             bbdd_clusters = MTBSEQ_LINEAGE_GROUP.out.clusters.collect()
-
             CONCATENATE_CLUSTERS(bbdd_clusters)
 
     emit:

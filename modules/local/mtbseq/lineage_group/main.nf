@@ -94,5 +94,7 @@ process MTBSEQ_LINEAGE_GROUP {
             # remove the intermediates
                 rm Matrices/${lineage}.matrix.head Matrices/${lineage}.matrix
 
+                gzip --best Matrices/${lineage}.d${distance}.matrix.tsv
+
         """
 }
