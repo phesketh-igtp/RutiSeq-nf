@@ -54,11 +54,11 @@ workflow PAIRWISE_WF {
         // Run the pairwise analysis by lineages
             MTBSEQ_LINEAGE_JOIN_AMEND( runID, lineage_samples_ch )
 
-            mtbseq_group_ch = MTBSEQ_LINEAGE_JOIN_AMEND.out.mtbseq_group_tuple_csv
-                                .splitCsv(header: true)
-                                .map { row -> 
-                                    tuple(row.lineage, row.distance, row.join_dir, row.amend_dir, row.samples_txt)
-                                }
+            // row[0] lineage   row[1] distance     row[2] join_dir     
+            // row[3] amend_dir    row[4] samples_txt 
+            mtbseq_group_ch = MTBSEQ_LINEAGE_JOIN_AMEND.out.mtbseq_group_tuple_csv.collect()
+                                .splitCsv(header: false)
+                                .map { row -> tuple(row[0] }
             mtbseq_group_ch.view()
 
             MTBSEQ_LINEAGE_GROUP( runID, mtbseq_group_ch )

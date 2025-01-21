@@ -1,6 +1,6 @@
 process MTBSEQ_LINEAGE_GROUP {
 
-    tag " ${runID}: ${lineage}, SNP-distance = ${distance} "
+    tag "${runID}: ${lineage} | d${distance}"
 
     conda params.mtbseq_env
 
@@ -22,7 +22,7 @@ process MTBSEQ_LINEAGE_GROUP {
         path("Groups/${lineage}_clusters.d${distance}.tsv"),            emit: clusters
 
         //Matrix ouput
-        path("Matrices/")
+        path("Matrices/*")
         path("Matrices/${lineage}.d${distance}.matrix.tsv"),            emit: matrix_dir
 
     script:
