@@ -32,8 +32,8 @@ process MTBSEQ_LINEAGE_GROUP {
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
-        ln -s ${joint_dir}/* Joint/
-        ln -s ${amend_dir}/* Amend/
+        #ln -s ${joint_dir}/* Joint/
+        #ln -s ${amend_dir}/* Amend/
         mkdir -p Groups/
 
         ## MTBseq TBgroups using the first SNP distance
