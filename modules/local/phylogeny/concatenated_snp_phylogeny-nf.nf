@@ -78,14 +78,14 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
                 rm ${lineage}.tmp.*
 
         # 9. Perform alignment of sequences 
-            mafft --auto --thread ${params.cpu} \\
+            mafft --auto --thread ${params.cpus} \\
                     Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.fasta \\
                     > Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta
 
         # 10. Perform phylogeny
             iqtree -s Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta \\
                     -m GTR+G4 -T AUTO \\
-                    -ntmax ${params.cpu} \\
+                    -ntmax ${params.cpus} \\
                     -B ${params.iqtree_bootstraps} \\
                     --prefix ${lineage}_ML
 
