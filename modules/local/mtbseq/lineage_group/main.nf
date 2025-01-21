@@ -13,8 +13,8 @@ process MTBSEQ_LINEAGE_GROUP {
     input:
         val runID
         tuple val(lineage), val(distance), 
-                path("Joint/*"), 
-                path("Amend/*"),
+                path(joint_dir), 
+                path(amend_dir),
                 path(sample_txt)
 
     output:
@@ -32,6 +32,9 @@ process MTBSEQ_LINEAGE_GROUP {
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
+        ln -s ${joint_dir}/* Joint/
+        ln -s ${amend_dir}/* Amend/
+        mkdir -p Groups/
 
         ## MTBseq TBgroups using the first SNP distance
             MTBseq --step TBgroups \\
