@@ -13,7 +13,7 @@ process CONCATENATE_CLUSTERS {
 
         """
         # Create a header
-            echo "lineage,distance,genomes,group" > pairwise_clusters.tsv
+            echo "lineage\tdistance\tgenomes\tgroup" > pairwise_clusters.tsv
 
         # Concatenate all files
             for file in ${clusters}; do cat \$file >> pairwise_clusters.tsv; done

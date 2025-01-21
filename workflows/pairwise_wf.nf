@@ -2,7 +2,7 @@ include { TBPROFILER_COMPILE_TBDB }                 from '../modules/local/tbpro
 include { TBPROFILER_COMPILE_WHO }                  from '../modules/local/tbprofiler/compile.who/main.nf'
 include { MTBSEQ_STATS_COMPILE }                    from '../modules/local/mtbseq/stats-compile/main.nf'
 include { COMPILE_SEQUENCING_STATS }                from '../modules/local/filtering/compile-sequencing-stats/main.nf'
-include { MTBSEQ_LINEAGE_JOINT_AMEND }               from '../modules/local/mtbseq/lineage_joint-amend/main.nf'
+include { MTBSEQ_LINEAGE_JOINT_AMEND }              from '../modules/local/mtbseq/lineage_joint-amend/main.nf'
 include { MTBSEQ_LINEAGE_GROUP }                    from '../modules/local/mtbseq/lineage_group/main.nf'
 include { CONCATENATED_VARIABLE_REGION_PHYLOGENY }  from '../modules/local/phylogeny/concatenated_snp_phylogeny-nf'
 include { CONCATENATE_CLUSTERS }                    from '../modules/local/pairwise/concatenate-cluster-file/main.nf'
@@ -54,12 +54,13 @@ workflow PAIRWISE_WF {
         // Run the pairwise analysis by lineages
             MTBSEQ_LINEAGE_JOINT_AMEND( runID, lineage_samples_ch )
 
-            // row[0] lineage, distance, join_dir, amend_dir, samples_txt  
-            /// .collect() doesnt need to be there but since they files are collected at the end it doesnt really matter where it 
-            /// is bottlenecked
-            mtbseq_group_ch = MTBSEQ_LINEAGE_JOINT_AMEND.out.mtbseq_group_tuple_csv.collect()
-                                .splitCsv(header: false)
-                                .map { row -> tuple(row[0]) }
+            // row[0] lineage, distance, join_dir, amend_dir, samples_txt
+            mtbseq_group_ch = MTBSEQ_LINEAGE_JOINT_AMEND.out.mtbseq_group_tuple_csv
+                            .splitCsv(header: false, sep: ',')
+                            .map { row ->
+                                def (lineage, threshold, joint_path, amend_path, samples_path) = row
+                                tuple(lineage, threshold.toInteger(), file(joint_path), file(amend_path), file(samples_path))
+                            }
             mtbseq_group_ch.view()
 
             MTBSEQ_LINEAGE_GROUP( runID, mtbseq_group_ch )
