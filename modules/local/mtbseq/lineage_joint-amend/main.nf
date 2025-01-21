@@ -1,4 +1,4 @@
-process MTBSEQ_LINEAGE_JOIN_AMEND {
+process MTBSEQ_LINEAGE_JOINT_AMEND {
 
     tag " ${runID}: ${lineage} "
 
@@ -64,20 +64,34 @@ process MTBSEQ_LINEAGE_JOIN_AMEND {
 
         ## MTBseq Join using the first SNP distance
             MTBseq --step TBjoin \\
-                --thread    ${task.cpus} \\
-                --project   ${lineage} \\
-                --samples   ${lineage}_samples.txt \\
-                            ${additional_args} \\
+                --thread        ${task.cpus} \\
+                --project       ${lineage} \\
+                --samples       ${lineage}_samples.txt \\
+                --minbqual      ${params.mtbseq_minbqual} \\
+                --mincovf       ${params.mtbseq_mtbseq_mincovf} \\
+                --mincovr       ${params.mtbseq_mtbseq_mincovr} \\
+                --minphred20    ${params.mtbseq_mtbseq_minphred20} \\
+                --minfreq       ${params.mtbseq_mtbseq_minfreq} \\
+                --unambig       ${params.mtbseq_mtbseq_unambig} \\
+                --window        ${params.mtbseq_mtbseq_window} \\
+                ${additional_args} \\
                 1>>.command.out \\
                 2>>.command.err \\
                 || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 
         ## MTBseq Join using the first SNP distance
         MTBseq --step TBamend \\
-                --thread    ${task.cpus} \\
-                --project   ${lineage} \\
-                --samples   ${lineage}_samples.txt \\
-                            ${additional_args} \\
+                --thread        ${task.cpus} \\
+                --project       ${lineage} \\
+                --samples       ${lineage}_samples.txt \\
+                --minbqual      ${params.mtbseq_minbqual} \\
+                --mincovf       ${params.mtbseq_mtbseq_mincovf} \\
+                --mincovr       ${params.mtbseq_mtbseq_mincovr} \\
+                --minphred20    ${params.mtbseq_mtbseq_minphred20} \\
+                --minfreq       ${params.mtbseq_mtbseq_minfreq} \\
+                --unambig       ${params.mtbseq_mtbseq_unambig} \\
+                --window        ${params.mtbseq_mtbseq_window} \\
+                ${additional_args} \\
                 1>>.command.out \\
                 2>>.command.err \\
                 || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
@@ -86,7 +100,7 @@ process MTBSEQ_LINEAGE_JOIN_AMEND {
             echo '${params.mtbseq_snp_distance.join('\n')}' > snp_distances
 
             for distance in \$(cat snp_distances); do
-            echo "${lineage},\${distance},${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Join/*,${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Amend/*,${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/${lineage}_samples.txt" >> mtbseq-group.tuple.csv
+            echo "${lineage},\${distance},${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Joint/*,${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Amend/*,${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/${lineage}_samples.txt" >> mtbseq-group.tuple.csv
             done                
 
         """

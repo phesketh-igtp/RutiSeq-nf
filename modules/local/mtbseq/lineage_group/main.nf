@@ -12,8 +12,10 @@ process MTBSEQ_LINEAGE_GROUP {
 
     input:
         val runID
-        tuple val(lineage), val(distance), path(join_dir),
-                path(amend_dir), path(sample_txt)
+        tuple val(lineage), val(distance), 
+                path("Joint/*"), 
+                path("Amend/*"),
+                path(sample_txt)
 
     output:
         // Groups
@@ -31,12 +33,19 @@ process MTBSEQ_LINEAGE_GROUP {
 
         """
 
-        ## MTBseq Join using the first SNP distance
+        ## MTBseq TBgroups using the first SNP distance
             MTBseq --step TBgroups \\
                 --thread    ${task.cpus} \\
                 --project   ${lineage} \\
                 --samples   ${sample_txt} \\
                 --distance  ${distance} \\
+                --minbqual ${params.mtbseq_minbqual} \\
+                --mincovf ${params.mtbseq_mtbseq_mincovf} \\
+                --mincovr ${params.mtbseq_mtbseq_mincovr} \\
+                --minphred20 ${params.mtbseq_mtbseq_minphred20} \\
+                --minfreq ${params.mtbseq_mtbseq_minfreq} \\
+                --unambig ${params.mtbseq_mtbseq_unambig} \\
+                --window ${params.mtbseq_mtbseq_window} \\
                             ${additional_args} \\
                 1>>.command.out \\
                 2>>.command.err \\
