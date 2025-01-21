@@ -32,8 +32,6 @@ process MTBSEQ_LINEAGE_GROUP {
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
-        #ln -s ${joint_dir}/* Joint/
-        #ln -s ${amend_dir}/* Amend/
         mkdir -p Groups/
 
         ## MTBseq TBgroups using the first SNP distance
@@ -55,7 +53,7 @@ process MTBSEQ_LINEAGE_GROUP {
                 || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 
         # Rename the groups file for simplicity
-            cat Groups/${lineage}_joint_*_${distance}.groups > Groups/${lineage}_d${distance}.groups
+            cat Groups/${lineage}_*d${distance}.groups > Groups/${lineage}_d${distance}.groups
 
         # Wrangle the group list into a useful format
             cat Groups/${lineage}_joint_*_${distance}.groups \\
