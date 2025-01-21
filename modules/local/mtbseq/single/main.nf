@@ -50,12 +50,12 @@ process MTBSEQ_SINGLE {
             MTBseq --step TBfull \\
                 --thread        ${task.cpus} \\
                 --minbqual      ${params.mtbseq_minbqual} \\
-                --mincovf       ${params.mtbseq_mtbseq_mincovf} \\
-                --mincovr       ${params.mtbseq_mtbseq_mincovr} \\
-                --minphred20    ${params.mtbseq_mtbseq_minphred20} \\
-                --minfreq       ${params.mtbseq_mtbseq_minfreq} \\
-                --unambig       ${params.mtbseq_mtbseq_unambig} \\
-                --window        ${params.mtbseq_mtbseq_window} \\
+                --mincovf       ${params.mtbseq_mincovf} \\
+                --mincovr       ${params.mtbseq_mincovr} \\
+                --minphred20    ${params.mtbseq_minphred20} \\
+                --minfreq       ${params.mtbseq_minfreq} \\
+                --unambig       ${params.mtbseq_unambig} \\
+                --window        ${params.mtbseq_window} \\
                 ${additional_args} \\
                 1>>.command.out \\
                 2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
