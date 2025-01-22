@@ -1,10 +1,16 @@
 process GENERATE_NEXUS {
 
+    conda 
+
+    tag "${lineage}"
+
     publishDir "${params.outdir}/bbdd/results/networks", mode: 'copy'
 
     input:
         path pairwise_clusters
-        path analysis_summary
+        tuple val(lineage), 
+                path(joint_dir), 
+                path(amend_dir)
 
     output:
 
@@ -14,6 +20,7 @@ process GENERATE_NEXUS {
 
     script:
         """
+
         """
 
 }

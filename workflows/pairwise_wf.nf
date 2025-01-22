@@ -71,11 +71,21 @@ workflow PAIRWISE_WF {
             bbdd_clusters = MTBSEQ_LINEAGE_GROUP.out.clusters.collect()
             CONCATENATE_CLUSTERS(bbdd_clusters)
 
+        // Create a channel to emit for the nexus generation
+            nexus_creation_ch = MTBSEQ_LINEAGE_JOINT_AMEND.out.mtbseq_group_tuple_csv
+                            .splitCsv(header: false, sep: ',')
+                            .map { row ->
+                                def (lineage, distance, joint_path, amend_path, samples_path) = row
+                                tuple(lineage, joint_path, amend_path)
+                            }
+            nexus_creation_ch.view()
+
     emit:
         pairwise_clusters       =   CONCATENATE_CLUSTERS.out.bbdd_clusters
         analysis_summary        =   COMPILE_SEQUENCING_STATS.out.analysis_summary
         who_resistance          =   COMPILE_SEQUENCING_STATS.out.who_resistance
         tbdb_resistance         =   COMPILE_SEQUENCING_STATS.out.tbdb_resistance
         phylogeny_plotting_ch   =   CONCATENATED_VARIABLE_REGION_PHYLOGENY.out.phylogeny_plotting_ch
+        nexus_creation_ch       =   nexus_creation_ch
 
 }

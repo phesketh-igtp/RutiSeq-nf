@@ -1,13 +1,10 @@
 process GENERATE_SUMMARY_REPORT {
 
-    publishDir "${params.outdir}/bbdd/results/", mode: 'copy'
-
-    tag "${runID}"
+    publishDir "${params.outdir}/bbdd/results/${runID}", mode: 'copy'
 
     input:
         val runID
-        path pairwise_clusters
-        path pairwise_matrix
+        path pairwise_clusters_processed
         path analysis_summary
         path who_resistance
         path tbdb_resistance
@@ -18,14 +15,11 @@ process GENERATE_SUMMARY_REPORT {
     script:
 
         """
-        ln -s ${params.outdir}/bbdd/results/main/*.csv .
-
         Rscript ${params.r_script_dir}/generate_summary_report.R \\
                 --summary ${analysis_summary} \\
                 --who_res ${who_resistance} \\
                 --tbdb_res ${tbdb_resistance} \\
-                --clusters ${pairwise_clusters} \\
-                --matrices ${pairwise_matrix} \\
+                --clusters ${pairwise_clusters_processed} \\
                 --output ${runID}_RutiSeq-results.xlsx
         """
 }

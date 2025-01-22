@@ -1,45 +1,72 @@
-# load libraries
+library(dplyr,      quietly = TRUE)
+library(tidyverse,  quietly = TRUE)
+library(argparse,   quietly = TRUE)
+library(openxlsx,   quietly = TRUE)
 
-library(optparse)
-library(tidyverse)
+#··············································································#
+#··············································································#
 
-#··········································································#
-#··········· DEFINE INPUT AND OUTPUT FLAGS FOR THE SCRIPT ·················#
-#··········································································#
+# Define command-line options
+parser$add_argument("--summary",     required=TRUE,help="Path to the summary file")
+parser$add_argument("--who_res", required=TRUE,help="TB-Profiler WHO results")
+parser$add_argument("--tbdb_res",  required=TRUE,help="TB-Profiler TBDB results")
+parser$add_argument("--clusters",    required=TRUE,help="Path to processed cluster file")
+parser$add_argument("--output", required=TRUE,help="Path of output file")
+parser$add_argument("--rlibrary", required=TRUE,help="Path to directory containing R scripts and functions")
 
-# Define the command-line options
-option_list <- list(
-    make_option(c("--summary"), type="character", help="Path to analysis summary file", metavar="FILE"),
-    make_option(c("--who_res"), type="character", help="Path to WHO resistance file", metavar="FILE"),
-    make_option(c("--tbdb_res"), type="character", help="Path to TBDB resistance file", metavar="FILE"),
-    make_option(c("--clusters"), type="character", help="Path to pairwise clusters file", metavar="FILE"),
-    make_option(c("--matrices"), type="character", help="Path to pairwise matrix file", metavar="FILE"),
-    make_option(c("--output"), type="character", help="Output file name", metavar="FILE")
-)
+# Parse command-line arguments
+# Parse the arguments
+args <- parser$parse_args()
 
-# Parse the options
-parser <- OptionParser(option_list=option_list)
-args <- parse_args(parser)
+# Import the function for creating the palette
+#source("/home/phesketh/Documents/GitHub/TBSEQ.cat-nf/bin/R/functions/dictionary-rename.R")
+#rlibrary <- "/home/phesketh/Documents/GitHub/TBSEQ.cat-nf/bin/R"
+rlibrary <- args$rlibrary
+source(paste(args$rlibrary, "/functions/dictionary-rename.R", sep=""))
 
-# Validate required arguments
-if (is.null(args$summary) || is.null(args$who_res) || is.null(args$tbdb_res) ||
-    is.null(args$clusters) || is.null(args$matrices) || is.null(args$output)) {
-    print_help(parser)
-    stop("All arguments are required.")
-}
+#··············································································#
+#··············································································#
 
-# Assign arguments to variables
-analysis_summary <- read_csv(args$summary, header = TRUE)
-who_resistance <- read_csv(args$who_res, header = TRUE)
-tbdb_resistance <- read_csv(args$tbdb_res, header = TRUE)
-pairwise_clusters <- read_csv(args$clusters, header = TRUE)
-pairwise_matrix <- read_csv(args$matrices, header = TRUE)
-output_file <- args$output
+# Import all dataframes
 
-# Import the dataframes
+#summary   <- read.delim("sequencing_summary.csv", header=T, sep=";",check.names = FALSE);who_res   <- read.delim("who_resistance_summary.csv", header=T, sep=";",check.names = FALSE);tbdb_res  <- read.delim("tbdb_resistance_summary.csv", header=T, sep=";",check.names = FALSE);clusters  <- read.delim("processed_clusters.tsv", header=T, sep="\t",check.names = FALSE);output="test"
+summary   <- read.delim(args$summary,  header=T, sep=";",  check.names = FALSE)
+who_res   <- read.delim(args$who_res,  header=T, sep=";",  check.names = FALSE)
+tbdb_res  <- read.delim(args$tbdb_res, header=T, sep=";",  check.names = FALSE)
+clusters  <- read.delim(args$clusters, header=T, sep="\t", check.names = FALSE)
 
-#··········································································#
-#································ MAIN ····································#
-#··········································································#
+#··············································································#
+#··············································································#
 
-# Create the
+# Create the final results summary of the dataframe
+who_res.min <- who_res |> select(Sample=sample,`DR type`)
+head(summary);head(who_res)
+summary.tmp <- left_join(summary, who_res.min)
+summary_xlsx <- dictionary_rename(df = summary.tmp,
+                                dict_path = paste(rlibrary,
+                                        "/dict/xlsx_sheet1.dict.csv",
+                                        sep=""))
+
+#··············································································#
+#··············································································#
+
+# Assemble the XLSX spreadsheet
+
+# Create a new workbook
+wb <- createWorkbook()
+
+# Add each sheet to the workbook
+addWorksheet(wb, "sequencing_summary")
+writeData(wb, "sequencing_summary", summary_xlsx, rowNames=FALSE)
+
+addWorksheet(wb, "resistance_table_who")
+writeData(wb, "resistance_table_who", who_res, rowNames=FALSE)
+
+addWorksheet(wb, "resistance_table_tbdb")
+writeData(wb, "resistance_table_tbdb", tbdb_res, rowNames=FALSE)
+
+addWorksheet(wb, "transmission_clusters")
+writeData(wb, "transmission_clusters", clusters, rowNames=FALSE)
+
+# Save the workbook
+saveWorkbook(wb, file = output, overwrite = TRUE)

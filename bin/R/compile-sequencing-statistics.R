@@ -82,7 +82,7 @@ resistance_profiles_WHO.df <- dictionary_rename(df = tbprofiler_who,
 # Create the list of genomes for pairwise analysis
 
 pairwise_analysis.df <- full.df.final |>
-                filter(`(Unambiguous) Coverage median` >= minimum_coverage) |>
+                filter(`Unambiguous Coverage median` >= minimum_coverage) |>
                 filter(infection_type == "Clonal") |> #only clonal genomes
                 filter(sub_lineage != "NA") |> # no unclassified genomes
                 select(SampleID=FullID,sub_lineage)

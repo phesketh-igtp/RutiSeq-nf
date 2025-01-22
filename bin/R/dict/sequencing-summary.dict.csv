@@ -10,20 +10,21 @@ Mapped Reads,Mapped Reads,numeric,N
 Mapped Reads (%),Mapped Reads (%),numeric,N
 Genome Size,Genome size,numeric,N
 Genome GC,Genome (GC),numeric,N
-(Any) Total Bases,(Any) Total Bases,numeric,N
-(Any) Total Bases (%),(Any) Total Bases (%),numeric,N
-(Any) GC-Content,(Any) GC Content,numeric,N
-(Any) Coverage mean,(Any) Coverage mean,numeric,N
-(Any) Coverage median,(Any) Coverage median,numeric,N
-(Unambiguous) Total Bases,(Unambiguous) Total Bases,numeric,Y
-(Unambiguous) Total Bases (%),(Unambiguous) Total Bases (%),numeric,Y
-(Unambiguous) GC-Content,(Unambiguous) GC Content,numeric,Y
-(Unambiguous) Coverage mean,(Unambiguous) Coverage mean,numeric,N
-(Unambiguous) Coverage median,(Unambiguous) Coverage median,numeric,Y
+Any Total Bases,Any Total Bases,numeric,N
+Any Total Bases (%),Any Total Bases (%),numeric,N
+Any GC-Content,Any GC Content,numeric,N
+Any Coverage mean,Any Coverage mean,numeric,N
+Any Coverage median,Any Coverage median,numeric,N
+Unambiguous Total Bases,Unambiguous Total Bases,numeric,Y
+Unambiguous Total Bases (%),Unambiguous Total Bases (%),numeric,Y
+Unambiguous GC-Content,Unambiguous GC Content,numeric,Y
+Unambiguous Coverage mean,Unambiguous Coverage mean,numeric,N
+Unambiguous Coverage median,Unambiguous Coverage median,numeric,Y
 SNPs,nSNPs,numeric,Y
 Deletions,Deletions,numeric,N
 Insertions,Insertions,numeric,N
-Uncovered Substitutions (Including Stop Codons),Substitutions (including stop codons),numeric,N
+Uncovered,Uncovered,numeric,N
+Substitutions (Including Stop Codons),Substitutions (including stop codons),numeric,N
 Homolka species,Homolka species,character,N
 Homolka lineage,Homolka lineage,character,N
 Homolka group,Homolka group,character,N
