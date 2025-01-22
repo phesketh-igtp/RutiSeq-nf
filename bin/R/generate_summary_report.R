@@ -6,6 +6,9 @@ library(openxlsx,   quietly = TRUE)
 #··············································································#
 #··············································································#
 
+# Initialize the argument parser
+parser <- ArgumentParser(description = "Create summary XLSX file for results")
+
 # Define command-line options
 parser$add_argument("--summary",     required=TRUE,help="Path to the summary file")
 parser$add_argument("--who_res", required=TRUE,help="TB-Profiler WHO results")
