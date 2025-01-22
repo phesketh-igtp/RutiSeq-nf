@@ -1,6 +1,6 @@
 process GENERATE_NEXUS {
 
-    conda 
+    conda params.snp_profiling_env 
 
     tag "${lineage}"
 
@@ -15,8 +15,6 @@ process GENERATE_NEXUS {
     output:
         path("mj-networks/*")
         path("mj-networks/nexus/*"),            emit: nexus_dir
-        path("mj-networks/fasta/*")
-        path("mj-networks/positions/*")
 
     script:
         """

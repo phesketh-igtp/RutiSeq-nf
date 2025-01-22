@@ -1,5 +1,7 @@
 process GENERATE_SUMMARY_REPORT {
 
+    conda params.r_stats_env
+
     publishDir "${params.outdir}/bbdd/results/${runID}", mode: 'copy'
 
     input:
