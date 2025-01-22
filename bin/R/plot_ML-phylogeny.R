@@ -11,9 +11,11 @@ library(argparse,       quietly = TRUE)
 
 #··············································································#
 #··············································································#
+# Initialize the argument parser
+parser <- ArgumentParser(description = "Plot Maximum-likelihood phylogeny")
 
 # Define command-line options
-parser$add_argument("--tree",     required=TRUE,help="Path to the tree file (contre format)")
+parser$add_argument("--contree",     required=TRUE,help="Path to the tree file (contre format)")
 parser$add_argument("--clusters", required=TRUE,help="Path to the cluster file")
 parser$add_argument("--lineageID",  required=TRUE,help="Name of the lineage - short (i.e. L4.1, or L4.3)")
 parser$add_argument("--fasta",    required=TRUE,help="Path to fasta files used for phylogeny")
@@ -51,7 +53,7 @@ clusters <- read.delim(options$cluster, header = TRUE) |>
             SNP_d15_L,SNP_nd5.id10.vd15)
 
 ### Read trees
-tree <- read.tree(options$tree)  # Assuming the tree file is in Newick format
+tree <- read.tree(options$contree)  # Assuming the tree file is in Newick format
 tree_rooted <- root(tree, "MTB_anc", resolve.root=TRUE, edgelabel=TRUE)
 
 # Filter clusters to the correct analysis group lineage

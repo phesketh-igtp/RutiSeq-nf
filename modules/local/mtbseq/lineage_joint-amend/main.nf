@@ -44,6 +44,9 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
+
+        rm -rf ${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/*
+
         # make the expected directories
             mkdir -p Position_Tables/ Called/ Amend/ Joint/
 

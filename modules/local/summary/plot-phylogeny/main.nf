@@ -15,10 +15,13 @@ process PLOT_MAIN_PHYLOGENY {
         path("${lineage}_ML.contree.pdf")
 
     script:
+    
         """
         Rscript ${params.r_script_dir}/plot_ML-phylogeny.R \\
                 --contree ${contree} \\
-                --clusters ${pairwise_clusters}
+                --clusters ${pairwise_clusters} \\
+                --lineageID ${lineage} \\
+                --rlibrary ${params.r_script_dir}
         """
 
 }

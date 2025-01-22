@@ -2,7 +2,7 @@ include { POST_SINGLE_BBDD_CLEANUP }    from '../modules/local/post-wf-cleaup/pa
 include { PROCESS_CLUSTERS }            from '../modules/local/summary/process-clusters/main.nf'
 include { GENERATE_SUMMARY_REPORT }     from '../modules/local/summary/summary-report/main.nf'
 include { PLOT_MAIN_PHYLOGENY }         from '../modules/local/summary/plot-phylogeny/main.nf'
-include { GENERATE_NEXUS }              from '../modules/local/summary/generate-nexus/main.nf'
+//include { GENERATE_NEXUS }              from '../modules/local/summary/generate-nexus/main.nf'
 //include { GENERATE_TIMETREES }          from '../modules/local/summary/generate-timetrees/main.nf'
 //include { PLOT_TIMETREES }              from '../modules/local/summary/plot-timetrees/main.nf'
 
