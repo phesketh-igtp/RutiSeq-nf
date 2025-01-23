@@ -9,7 +9,6 @@ include { CONCATENATED_VARIANT_FILES}   from '../modules/local/summary/concatena
 //include { GENERATE_TIMETREES }          from '../modules/local/summary/generate-timetrees/main.nf'
 //include { PLOT_TIMETREES }              from '../modules/local/summary/plot-timetrees/main.nf'
 
-
 workflow SUMMARY_WF{
 
     take:
@@ -19,7 +18,6 @@ workflow SUMMARY_WF{
         who_resistance
         tbdb_resistance
         phylogeny_plotting_ch
-        nexus_creation_ch
 
     main:
 
@@ -31,15 +29,21 @@ workflow SUMMARY_WF{
                                         phylogeny_plotting_ch )
 
         // Generate base NEXUS files for each cluster
-            PREPARE_NEXUS_PATHS( nexus_creation_ch, 
+            lineage_ch = phylogeny_plotting_ch.first()
+            lineage_ch.view()
+
+            PREPARE_NEXUS_PATHS( lineage_ch, 
                                     PROCESS_CLUSTERS.out.pairwise_clusters_processed
                             )
+
                 nexus_ch = PREPARE_NEXUS_PATHS.out.nexus_tuple
                                 .splitCsv(header: false, sep: ',')
                                 .map { row ->
                                     def (lineage, cluster, fasta, tab) = row
                                     tuple(lineage, cluster, fasta, tab)
                                 }
+                //nexus_ch.view()
+
             GENERATE_NEXUS( nexus_ch, 
                             PROCESS_CLUSTERS.out.pairwise_clusters_processed
                             )
@@ -66,21 +70,20 @@ workflow SUMMARY_WF{
             // Channel for metadata file
             ch_metadata = Channel.fromPath(params.metadata)
 
-            GENERATE_TIMETREES( pairwise_clusters,
-                                    analysis_summary,
-                                    ch_metadata
-                    )
-            
-            // Processes that depend on metadata
-            PLOT_TIMETREES( pairwise_clusters,
-                                    analysis_summary,
-                                    ch_metadata
+            // Generate base NEXUS files for each cluster
+                NEXUS_WITH_METADATA( GENERATE_NEXUS.out.nexus_w_no_metadata,
+                                        ch_metadata
+                                    )
+            // Create timetrees
+                GENERATE_TIMETREES( pairwise_clusters,
+                                        analysis_summary,
+                                        ch_metadata
                                     )
 
-            NEXUS_WITH_METADATA( pairwise_clusters,
-                            analysis_summary,
-                            ch_metadata
-                            )
+                PLOT_TIMETREES( pairwise_clusters,
+                                        analysis_summary,
+                                        ch_metadata
+                                        )
 
                 } 
             }
