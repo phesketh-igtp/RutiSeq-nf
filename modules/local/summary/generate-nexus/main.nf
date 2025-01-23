@@ -68,8 +68,8 @@ process GENERATE_NEXUS {
         #·················································································#
 
         # Valencian ancestor (MTB_anc) variance positions
-            # get the genomic positions+allels for the MTBC_anc genomes
-            cp ${params.mtbc_ancestor_path} ${lineage}.tmp.MTB_anc.pos.gz; gunzip ${lineage}.tmp.MTB_anc.pos.gz
+            cp ${params.mtbc_ancestor_path} ${lineage}.tmp.MTB_anc.pos.gz
+            gunzip ${lineage}.tmp.MTB_anc.pos.gz
 
             for i in `cat positions/${clusterID}_genomic_positions.tab`; do 
                 sed -n \${i}'p' ${lineage}.tmp.MTB_anc.pos | cut -f3

@@ -8,3 +8,5 @@ dependencies:
 - bioconda::varscan=2.4.3
 - bioconda::vcftools=0.1.16
 - bioconda::seqkit=2.9.0
+- bioconda::snp-sites=2.5.1
+- bioconda::emboss=6.6.0
