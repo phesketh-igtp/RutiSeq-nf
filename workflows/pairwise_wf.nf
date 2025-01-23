@@ -49,7 +49,7 @@ workflow PAIRWISE_WF {
                     .groupTuple()
 
                 // DEBUG: View the grouped channel
-                lineage_samples_ch.view()
+                //lineage_samples_ch.view()
 
         // Run the pairwise analysis by lineages
             MTBSEQ_LINEAGE_JOINT_AMEND( runID, lineage_samples_ch )
@@ -61,7 +61,8 @@ workflow PAIRWISE_WF {
                                 def (lineage, distance, joint_path, amend_path, samples_path) = row
                                 tuple(lineage, distance, joint_path, amend_path, samples_path)
                             }
-            mtbseq_group_ch.view()
+                // DEBUG: View the channel
+                //mtbseq_group_ch.view()
 
             MTBSEQ_LINEAGE_GROUP( runID, mtbseq_group_ch )
 
@@ -78,7 +79,8 @@ workflow PAIRWISE_WF {
                                 def (lineage, distance, joint_path, amend_path, samples_path) = row
                                 tuple(lineage, joint_path, amend_path)
                             }
-            nexus_creation_ch.view()
+                // DEBUG: View the channel
+                //nexus_creation_ch.view()
 
     emit:
         pairwise_clusters       =   CONCATENATE_CLUSTERS.out.bbdd_clusters

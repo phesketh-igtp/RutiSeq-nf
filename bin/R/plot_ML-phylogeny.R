@@ -1,13 +1,11 @@
-library(ape,            quietly = TRUE)
-library(ggtree,         quietly = TRUE)
-library(ggrepel,        quietly = TRUE)
-library(tidyverse,      quietly = TRUE)
-library(patchwork,      quietly = TRUE)
-library(randomcoloR,    quietly = TRUE)
-library(tidytree,       quietly = TRUE)
-library(Biostrings,     quietly = TRUE)
-
-library(argparse,       quietly = TRUE)
+library(ape)
+library(ggtree)
+library(ggrepel)
+library(tidyverse)
+library(patchwork)
+library(randomcoloR)
+library(tidytree)
+library(argparse)
 
 #··············································································#
 #··············································································#
@@ -18,11 +16,9 @@ parser <- ArgumentParser(description = "Plot Maximum-likelihood phylogeny")
 parser$add_argument("--contree",     required=TRUE,help="Path to the tree file (contre format)")
 parser$add_argument("--clusters", required=TRUE,help="Path to the cluster file")
 parser$add_argument("--lineageID",  required=TRUE,help="Name of the lineage - short (i.e. L4.1, or L4.3)")
-parser$add_argument("--fasta",    required=TRUE,help="Path to fasta files used for phylogeny")
 parser$add_argument("--rlibrary", required=TRUE,help="Path to directory containing R scripts and functions")
 
 # Parse command-line arguments
-# Parse the arguments
 args <- parser$parse_args()
 
 # Import the function for creating the palette
@@ -33,10 +29,11 @@ source(paste(args$rlibrary, "/functions/create-ggtree-palette.R", sep=""))
 #··············································································#
 
 ## Test commands
-#lineageID <- "lineage4"
+#lineageID <- "lineage4.8"
 #clusters <- read.delim("processed_clusters.tsv", header=T) |> select(SampleID,SNP_d5_L,SNP_d10_L,SNP_d15_L,SNP_nd5.id10.vd15)
-#tree <- read.tree("lineage4_ML.contree")
+#tree <- read.tree("lineage4.8_ML.contree")
 #rlibrary="/home/phesketh/Documents/GitHub/TBSEQ.cat-nf/bin/R"
+#rlibrary="/imppc/labs/emlab/share/GitHub/RutiSeq-nf/bin/R"
 #source(paste(rlibrary, "/functions/isolate_cluster_ancestal_sequence.R", sep=""))
 #source(paste(rlibrary, "/functions/create-ggtree-palette.R", sep=""))
 
@@ -44,16 +41,15 @@ source(paste(args$rlibrary, "/functions/create-ggtree-palette.R", sep=""))
 #··············································································#
 #··············································································#
 
-lineageID <- options$lineageID
+lineageID <- args$lineageID
 lineage <- gsub("lineage", "L", lineageID)
 
 ## Import the CSV file for clusters
-clusters <- read.delim(options$cluster, header = TRUE) |> 
-        select(SampleID,SNP_d5_L,SNP_d10_L,
-            SNP_d15_L,SNP_nd5.id10.vd15)
+clusters <- read.delim(args$cluster, header = TRUE) |> 
+        select(SampleID,SNP_d5_L,SNP_d10_L,SNP_d15_L,SNP_nd5.id10.vd15)
 
 ### Read trees
-tree <- read.tree(options$contree)  # Assuming the tree file is in Newick format
+tree <- read.tree(args$contree)  # Assuming the tree file is in Newick format
 tree_rooted <- root(tree, "MTB_anc", resolve.root=TRUE, edgelabel=TRUE)
 
 # Filter clusters to the correct analysis group lineage
@@ -64,7 +60,7 @@ filtered_clusters <- clusters[
         grepl(pattern, clusters$SNP_d10_L) |
         grepl(pattern, clusters$SNP_d15_L) |
         grepl(pattern, clusters$SNP_nd5.id10.vd15),
-    ]; clusters <- filtered_clusters
+    ]; clusters <- filtered_clusters; rm(filtered_clusters)
 
 #··············································································#
 #··············································································#
@@ -73,7 +69,6 @@ filtered_clusters <- clusters[
 
 # parsing tree tip names
 tree.tips <- tree$tip.label
-
 
 # Get the custer information only for tips in the tree
 tree.clusters <- clusters %>% filter(SampleID %in% tree.tips) |> distinct()
@@ -86,17 +81,11 @@ tree.clusters <- tree.clusters |>
                 SNP_d5_L,SNP_d10_L,SNP_d15_L,SNP_nd5.id10.vd15
                 )
 
-tree.clusters
-
 # Create the additional rows as a data frame
 additional_rows <- data.frame(SampleID = c("H37Rv", "MTB_anc"),Tip_lable = c("H37Rv", "MTB_anc"),
         SNP_d5_L = NA,SNP_d10_L = NA,SNP_d15_L = NA,SNP_nd5.id10.vd15 = NA)
-
 # Add the new rows to the tree.clusters data frame
 tree.clusters <- rbind(tree.clusters, additional_rows)
-
-# View the updated data frame
-print(tree.clusters)
 
 # Create a matrix of the clusters
 tree.clusters.df <- tree.clusters |>
@@ -121,6 +110,8 @@ pattern <- paste0("nX.iX.vX-", lineage)
 # Create tree specific metadata palette
 color_palette <- create_tree_palette(
         input=tree.clusters.df, lin = lineage)
+color_palette <- trimws(color_palette)        
+color_palette
 
 #··············································································#
 #··············································································#
@@ -137,7 +128,6 @@ outgroups <- data.frame(sampleID = c("MTB_anc", "H37Rv"),
 
 tree.clusters.df <- rbind(tree.clusters.df.tmp, outgroups)
 rm(tree.clusters.df.tmp); rm(outgroups)
-
 outgroups <- c("MTB_anc","H37Rv")
 
 #··············································································#
@@ -154,7 +144,7 @@ tree.p.r <- ggtree(tree_rooted, linewidth=0.5,
                 color = label %in% outgroups),
                 size = 2.5, align = TRUE
                 ) +
-            scale_color_manual(values=c("black", "red")
+            scale_color_manual(values=c("#000000", "#FF0000")
             )
 
 p1 <-   gheatmap(tree.p.r, tree.clusters.df,
@@ -163,8 +153,8 @@ p1 <-   gheatmap(tree.p.r, tree.clusters.df,
                 colnames_angle = 0,
                 colnames_offset_y = -0.8,
                 font.size = 2,
-                color = "#3a3a3a
-                ") +
+                color = "#3a3a3a"
+                ) +
         scale_fill_manual(values = color_palette,
                 na.value = "white", 
                 name = "Unique\nclusterID\n(with lineage)"
@@ -197,8 +187,6 @@ p1.L <-     gheatmap(tree.p.r, tree.clusters.df,
             guides(fill = guide_legend(ncol = 10)
             )
 
-
-
 # Circular (dendrogram) trees
 tree.p.c <- ggtree(tree_rooted,
                 linewidth=0.1,
@@ -210,7 +198,7 @@ tree.p.c <- ggtree(tree_rooted,
                 color = label %in% outgroups),
                 size = 2.5, align = TRUE
                 ) +
-            scale_color_manual(values=c("black", "red")
+            scale_color_manual(values=c("#000000", "#FF0000")
             )
 
 p2 <-       gheatmap(tree.p.c, tree.clusters.df, 
@@ -250,7 +238,7 @@ p2.L <-     gheatmap(tree.p.c, tree.clusters.df,
 
 #·············· Export trees ··············#
 
-pdf(file= paste0(lineage,"_ML.contree.pdf"))
+pdf(file = paste0(lineageID,"_ML.contree.pdf"))
 p1
 p1.L
 p2

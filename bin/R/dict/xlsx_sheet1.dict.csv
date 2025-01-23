@@ -1,16 +1,16 @@
 old.name,new.name,value,final
-FullID,Sample,character,Y
-LibraryID,Library,character,Y
-main_lineage,Main lineage,character,Y
-sub_lineage,Sub-lineage,character,Y
+Sample,Sample,character,Y
+Library,Library,character,Y
+Main lineage,Main lineage,character,Y
+Sub-lineage,Sub-lineage,character,Y
+DR type,DR type (WHO),chr,Y
+Drug resistance type,DR type (TBDB),chr,N
 Total Reads,Total Reads,numeric,Y
 Unambiguous Total Bases,Unambiguous Total Bases,numeric,Y
 Unambiguous Total Bases (%),Unambiguous Total Bases (%),numeric,Y
-Unambiguous GC-Content,Unambiguous GC Content,numeric,Y
+Unambiguous GC Content,Unambiguous GC Content,numeric,Y
 Unambiguous Coverage median,Unambiguous Coverage median,numeric,Y
-SNPs,nSNPs,numeric,Y
-drtype,Drug resistance type,character,Y
-infection_type,Infection type,character,Y
-Lineage_frac,Lineages (fractions),character,Y
-Mixed_90perc,Lineages (mixed fractions > 90),character,Y
-DR.type,DR type,chr,Y
+nSNPs,nSNPs,numeric,Y
+Infection type,Infection type,chr,Y
+Lineages (fractions),Lineages (fractions),chr,Y
+Lineages (mixed fractions > 90),Lineages (mixed fractions >90%),chr,Y

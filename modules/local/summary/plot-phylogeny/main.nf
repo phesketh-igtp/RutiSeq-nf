@@ -4,7 +4,7 @@ process PLOT_MAIN_PHYLOGENY {
 
     conda params.r_stats_env
 
-    publishDir "${params.outdir}/bbdd/results/Phylogeny", mode: 'copy'
+    publishDir "${params.outdir}/bbdd/results/Phylogeny/", mode: 'copy'
 
     input:
         path(pairwise_clusters)
@@ -21,7 +21,7 @@ process PLOT_MAIN_PHYLOGENY {
                 --contree ${contree} \\
                 --clusters ${pairwise_clusters} \\
                 --lineageID ${lineage} \\
-                --rlibrary ${params.r_script_dir}
+                --rlibrary ${params.r_script_dir}      
         """
 
 }
