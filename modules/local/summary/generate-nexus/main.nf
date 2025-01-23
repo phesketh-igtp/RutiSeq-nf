@@ -32,9 +32,10 @@ process GENERATE_NEXUS {
             mkdir -p nexus/ fasta/ positions/
 
         # create the list of genomes within the cluster
-            grep "${clusterID}" ${pairwise_clusters} > ${clusterID}.genomes.list
+            grep "${clusterID}" ${pairwise_clusters} \\
+                | cut -f1 > ${clusterID}.genomes.list
 
-        #··················································································································#
+        #·················································································#
 
         # create cluster directory and split up fasta file in cluster fastas
             while IFS=";" read -r genome; do
@@ -43,9 +44,10 @@ process GENERATE_NEXUS {
 
         # run snp-sites on the fastas
             snp-sites ${clusterID}.fasta > ${clusterID}.snpsites.fasta
-            snp-sites ${clusterID}.fasta -v | cut -f2 | sed '1,4d' > positions/${clusterID}_positions.tab
+            snp-sites ${clusterID}.fasta -v | cut -f2 \\
+                | sed '1,4d' > positions/${clusterID}_positions.tab
 
-        #··················································································································#
+        #·················································································#
 
         # H37Rv variance positions 
             for i in `cat positions/${clusterID}_positions.tab`; do 
@@ -53,16 +55,17 @@ process GENERATE_NEXUS {
             done > ${clusterID}_tmp_refseq
 
                 # convert column into fasta
-                paste -s -d "" ${clusterID}_tmp_refseq | sed '1i >H37Rv' > ${clusterID}_H37Rv.fasta
+                paste -s -d "" ${clusterID}_tmp_refseq \\
+                    | sed '1i >H37Rv' > ${clusterID}_H37Rv.fasta
 
-        #··················································································································#
+        #·················································································#
 
         # Get genomic positions
             while read -r position; do
                 sed -n \$((position+2))'p' ${snp_tab} | cut -f 1; 
             done < positions/${clusterID}_positions.tab > positions/${clusterID}_genomic_positions.tab
 
-        #··················································································································#
+        #·················································································#
 
         # Valencian ancestor (MTB_anc) variance positions
             # get the genomic positions+allels for the MTBC_anc genomes
@@ -79,7 +82,7 @@ process GENERATE_NEXUS {
         # remove the large tab file
             rm -rf ${lineage}.tmp.MTB_anc.pos.gz
 
-        #··················································································································#
+        #·················································································#
 
         # Create final FASTA file
             cat ${clusterID}.snpsites.fasta ${clusterID}_H37Rv.fasta \\
