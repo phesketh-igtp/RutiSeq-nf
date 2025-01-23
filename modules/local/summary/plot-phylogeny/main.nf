@@ -7,9 +7,8 @@ process PLOT_MAIN_PHYLOGENY {
     publishDir "${params.outdir}/bbdd/results/Phylogeny/", mode: 'copy'
 
     input:
+        tuple val(lineage), path(contree), path(alignments)
         path(pairwise_clusters)
-        tuple val(lineage), path(contree),
-                            path(alignments)
 
     output:
         path("${lineage}_ML.contree.pdf")

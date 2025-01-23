@@ -1,6 +1,6 @@
 process MTBSEQ_LINEAGE_GROUP {
 
-    tag "${runID}: ${lineage}   |   SNP dist: ${distance}"
+    tag "${runID}: ${lineage} | SNP dist: ${distance}"
 
     conda params.mtbseq_env
 

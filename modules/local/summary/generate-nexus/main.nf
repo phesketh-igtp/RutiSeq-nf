@@ -7,11 +7,11 @@ process GENERATE_NEXUS {
     publishDir "${params.outdir}/bbdd/results/networks/${lineage}/", mode: 'copy'
 
     input:
-        path pairwise_clusters
+        file(pairwise_clusters)
         tuple val(lineage), 
                 val(clusterID),
-                path(snp_fasta),
-                path(snp_tab)
+                file(snp_fasta),
+                file(snp_tab)
 
     output:
         tuple val(clusterID),
