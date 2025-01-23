@@ -4,7 +4,7 @@ process GENERATE_NEXUS {
 
     tag "cluster: ${clusterID}"
 
-    publishDir "${params.outdir}/bbdd/results/networks/${lineage}/", mode: 'copy'
+    publishDir "${params.outdir}/results/networks/", mode: 'copy'
 
     input:
         file(pairwise_clusters)

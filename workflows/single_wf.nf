@@ -69,7 +69,7 @@ workflow SINGLE_WF {
             final_updated_sample_ch = branched_channel_with_reads_updated.mix(sample_ch_skip)
 
             // DEBUG:: 
-                final_updated_sample_ch.view { "Final channel: $it" }
+                //final_updated_sample_ch.view { "Final channel: $it" }
 
         // Cleanup to reduce storage usage in the publish directory
             sampleid_list_ch = final_updated_sample_ch.map { it[0] }

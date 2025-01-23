@@ -6,6 +6,7 @@ include { PREPARE_NEXUS_PATHS        }   from '../modules/local/summary/prepare-
 include { GENERATE_NEXUS             }   from '../modules/local/summary/generate-nexus/main.nf'
 include { TABULATE_VARIANT_SITES     }   from '../modules/local/summary/tabulate-variant-positions/main.nf'
 include { CONCATENATED_VARIANT_FILES }   from '../modules/local/summary/concatenate-variant-positions/main.nf'
+include { POST_SUMMARY_CLEANUP       }   from '../modules/local/summary/post-summary-cleanup-handover/main.nf'
 //include { GENERATE_TIMETREES }          from '../modules/local/summary/generate-timetrees/main.nf'
 //include { PLOT_TIMETREES }              from '../modules/local/summary/plot-timetrees/main.nf'
 
@@ -24,9 +25,19 @@ workflow SUMMARY_WF{
         // Process clusters
             PROCESS_CLUSTERS( runID, pairwise_clusters, analysis_summary )
 
+        // Generate summary XLSX and CSV files for final results    
+            GENERATE_SUMMARY_REPORT( runID,
+                                        PROCESS_CLUSTERS.out.pairwise_clusters_processed,
+                                        analysis_summary,
+                                        who_resistance,
+                                        tbdb_resistance
+                                    )
+
         // Plot main ML phylogeny
             PLOT_MAIN_PHYLOGENY( phylogeny_plotting_ch,
                                     PROCESS_CLUSTERS.out.pairwise_clusters_processed )
+
+        
 
         // Generate base NEXUS files for each cluster
             PREPARE_NEXUS_PATHS( phylogeny_plotting_ch,
@@ -38,8 +49,8 @@ workflow SUMMARY_WF{
                                     def (lineage, clusterID, fasta, tab) = row
                                     tuple(lineage, clusterID, file(fasta), file(tab))
                                     }
-
-                nexus_ch.view()
+                // DEBUG: view the channel 
+                ///nexus_ch.view()
 
             GENERATE_NEXUS( PROCESS_CLUSTERS.out.pairwise_clusters_processed,
                             nexus_ch
@@ -52,13 +63,8 @@ workflow SUMMARY_WF{
                     TABULATE_VARIANT_SITES.out.tabular_var_counts.collect()
                     )
 
-        // Generate summary XLSX and CSV files for final results    
-            GENERATE_SUMMARY_REPORT( runID,
-                                        PROCESS_CLUSTERS.out.pairwise_clusters_processed,
-                                        analysis_summary,
-                                        who_resistance,
-                                        tbdb_resistance
-                                    )
+        // Cleanup unwanted files
+            POST_SUMMARY_CLEANUP( CONCATENATED_VARIANT_FILES.out.cleanup_handover )
 
 }
 

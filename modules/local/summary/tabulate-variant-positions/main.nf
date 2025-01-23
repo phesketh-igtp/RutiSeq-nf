@@ -4,7 +4,7 @@ process TABULATE_VARIANT_SITES{
 
     conda params.r_stats_env
 
-    publishDir "${params.outdir}/bbdd/results/networks/${lineage}/", mode: 'copy'
+    publishDir "${params.outdir}/results/snps/variants-tab/", mode: 'copy'
 
     input:
         tuple val(lineage), val(clusterID), 

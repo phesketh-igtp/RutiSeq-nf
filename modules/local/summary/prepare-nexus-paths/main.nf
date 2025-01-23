@@ -4,7 +4,7 @@ process PREPARE_NEXUS_PATHS{
 
     tag "${lineage}"
 
-    publishDir "${params.outdir}/bbdd/results/networks/${lineage}/", mode: 'copy'
+    publishDir "${params.outdir}/results/networks/${lineage}/", mode: 'copy'
 
     input:
         tuple val(lineage), path(contree), path(alignments)

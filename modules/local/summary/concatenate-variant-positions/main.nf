@@ -1,6 +1,6 @@
 process CONCATENATED_VARIANT_FILES {
 
-    publishDir "${params.outdir}/bbdd/results/snps/", mode: 'copy'
+    publishDir "${params.outdir}/results/snps/", mode: 'copy'
 
     input:
         path("tabular_vars_*.csv")
@@ -9,6 +9,7 @@ process CONCATENATED_VARIANT_FILES {
     output:
         path("variant-positions.csv")
         path("variant-positions.counts.csv")
+        path("cleanup-handover"),   emit: cleanup_handover
 
 
     script:
@@ -23,6 +24,8 @@ process CONCATENATED_VARIANT_FILES {
             echo "positions;allel;cluster;genome_type;freq;ID;name;start;stop;frame;product;description;function;cogcats;status_region;status_function;type;region_number;function_number" > variant-positions.counts.csv
             
             cat tabular_var_counts_*.csv | sed '1!{/^positions/d;}' >> variant-positions.counts.csv
+
+            touch cleanup-handover
         """
 
 }
