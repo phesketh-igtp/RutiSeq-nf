@@ -10,8 +10,9 @@ process GENERATE_NEXUS_W_ANCESTOR {
         tuple val(lineage), 
                 val(clusterID),
                 file(snp_fasta),
-                file(snp_tab)
+                file(snp_tab),
                 file(ancestor)
+                
         file(pairwise_clusters)
 
     output:

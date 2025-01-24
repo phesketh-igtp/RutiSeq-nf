@@ -10,7 +10,7 @@ include { POST_SUMMARY_CLEANUP       }   from '../modules/local/summary/post-sum
 include { GENERATE_TIMETREES         }   from '../modules/local/summary/generate-timetrees/main.nf'
 include { PLOT_TIMETREES             }   from '../modules/local/summary/plot-timetrees/main.nf'
 include { GENERATE_NEXUS_W_ANCESTOR  }   from '../modules/local/summary/generate-nexus-with-ancestor/main.nf'
-//include { NEXUS_WITH_METADATA        }   from '../modules/local/summary/generate-nexus-with-metadata/main.nf'
+//include { GENERATE_NEXUS_W_METADATA  }   from '../modules/local/summary/generate-nexus-with-metadata/main.nf'
 
 workflow SUMMARY_WF{
 
@@ -86,9 +86,10 @@ workflow SUMMARY_WF{
                                     }
 
                 GENERATE_NEXUS_W_ANCESTOR( timetree_ch, clusters_ch )
+
 /*
-                NEXUS_WITH_METADATA( GENERATE_NEXUS_W_ANCESTOR.out.nexus_w_o_meta,
-                                        ch_metadata 
+                GENERATE_NEXUS_W_METADATA( GENERATE_NEXUS_W_ANCESTOR.out.nexus_w_no_metadata,
+                                        ch_metadata, clusters_ch
                                     )
 */
             } 
