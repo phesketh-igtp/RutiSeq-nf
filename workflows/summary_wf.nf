@@ -9,7 +9,7 @@ include { CONCATENATED_VARIANT_FILES }   from '../modules/local/summary/concaten
 include { POST_SUMMARY_CLEANUP       }   from '../modules/local/summary/post-summary-cleanup-handover/main.nf'
 include { GENERATE_TIMETREES         }   from '../modules/local/summary/generate-timetrees/main.nf'
 include { PLOT_TIMETREES             }   from '../modules/local/summary/plot-timetrees/main.nf'
-include { GENERATE_NEXUS_W_ANCESTOR  }   from '../modules/local/summary/generate-nexus-with-ancestor/main.nf'
+include { GENERATE_NEXUS_W_MRCA      }   from '../modules/local/summary/generate-nexus-with-ancestor/main.nf'
 //include { GENERATE_NEXUS_W_METADATA  }   from '../modules/local/summary/generate-nexus-with-metadata/main.nf'
 
 workflow SUMMARY_WF{
@@ -85,7 +85,7 @@ workflow SUMMARY_WF{
                                     tuple(lineage, clusterID, file(fasta), file(tab), file(ancestor))
                                     }
 
-                GENERATE_NEXUS_W_ANCESTOR( timetree_ch, clusters_ch )
+                GENERATE_NEXUS_W_MRCA( timetree_ch, clusters_ch )
 
 /*
                 GENERATE_NEXUS_W_METADATA( GENERATE_NEXUS_W_ANCESTOR.out.nexus_w_no_metadata,
@@ -95,7 +95,7 @@ workflow SUMMARY_WF{
             } 
 
         // Cleanup unwanted files
-            POST_SUMMARY_CLEANUP( CONCATENATED_VARIANT_FILES.out.cleanup_handover )
+            //POST_SUMMARY_CLEANUP( CONCATENATED_VARIANT_FILES.out.cleanup_handover )
 
 }
 

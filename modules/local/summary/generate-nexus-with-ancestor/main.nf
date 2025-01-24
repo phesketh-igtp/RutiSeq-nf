@@ -1,4 +1,4 @@
-process GENERATE_NEXUS_W_ANCESTOR {
+process GENERATE_NEXUS_W_MRCA {
 
     conda params.snp_profiling_env 
 
