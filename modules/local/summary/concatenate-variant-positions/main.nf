@@ -7,9 +7,9 @@ process CONCATENATED_VARIANT_FILES {
         path("tabular_var_counts_*.csv")
 
     output:
-        path("variant-positions.csv")
+        path("variant-positions.csv"),          emit: variant_positions
         path("variant-positions.counts.csv")
-        path("cleanup-handover"),   emit: cleanup_handover
+        path("cleanup-handover"),               emit: cleanup_handover
 
 
     script:

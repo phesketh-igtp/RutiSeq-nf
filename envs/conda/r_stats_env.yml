@@ -6,6 +6,7 @@ channels:
 dependencies:
 - bioconductor-ggtree=3.14.0
 - bioconductor-treeio=1.30.0
+- bioconductor-biostrings
 - r-ape=5.8_1
 - r-argparse=2.2.5
 - r-base=4.4

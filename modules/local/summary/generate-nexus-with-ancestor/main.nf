@@ -1,4 +1,4 @@
-process GENERATE_NEXUS {
+process GENERATE_NEXUS_W_ANCESTOR {
 
     conda params.snp_profiling_env 
 
@@ -7,21 +7,19 @@ process GENERATE_NEXUS {
     publishDir "${params.outdir}/results/networks/", mode: 'copy'
 
     input:
-        file(pairwise_clusters)
         tuple val(lineage), 
                 val(clusterID),
                 file(snp_fasta),
                 file(snp_tab)
+                file(ancestor)
+        file(pairwise_clusters)
 
     output:
+        tuple val(clusterID),
+                path("nexus/${clusterID}_refseq_mrca.nex"),            emit: nexus_w_no_metadata
         path("fasta/*")
         path("positions/*")
-
-        tuple val(lineage), 
-                val(clusterID), 
-                path("fasta/${clusterID}_refseq.fasta"),
-                path("positions/${clusterID}_genomic_positions.tab"),
-                path(snp_tab),                                   emit: variant_sites_for_tabulation
+        path("nexus/*")
 
     script:
 
@@ -44,6 +42,19 @@ process GENERATE_NEXUS {
             snp-sites ${clusterID}.fasta > ${clusterID}.snpsites.fasta
             snp-sites ${clusterID}.fasta -v | cut -f2 \\
                 | sed '1,4d' > positions/${clusterID}_positions.tab
+
+
+        #·················································································#
+
+        # Create the variant alignment for the NODE ancestor
+
+            for i in `cat positions/${clusterID}_positions.tab`; do 
+                sed -n \${i}'p' ${ancestor} | cut -f4
+            done > ${clusterID}_node_anc
+
+            # convert the column in fasta
+                paste -s -d "" ${clusterID}_node_anc \\
+                    | sed "1i >MRCA" > ${clusterID}_MRCA.fasta
 
         #·················································································#
 
@@ -86,11 +97,12 @@ process GENERATE_NEXUS {
             cat ${clusterID}.snpsites.fasta \\
                 ${clusterID}_H37Rv.fasta \\
                 ${clusterID}_MTB_anc.fasta \\
-                > fasta/${clusterID}_refseq.fasta
+                ${clusterID}_MRCA.fasta \\
+                > fasta/${clusterID}_refseq_mrca.fasta
 
         # convert to nexus for visualisation
-            seqret -osformat2 nexus -sequence fasta/${clusterID}_refseq.fasta \\
-                -outseq nexus/${clusterID}_refseq.nex
+            seqret -osformat2 nexus -sequence fasta/${clusterID}_refseq_mrca.fasta \\
+                -outseq nexus/${clusterID}_refseq_mrca.nex
         """
 
 }

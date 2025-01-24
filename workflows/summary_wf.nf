@@ -7,8 +7,10 @@ include { GENERATE_NEXUS             }   from '../modules/local/summary/generate
 include { TABULATE_VARIANT_SITES     }   from '../modules/local/summary/tabulate-variant-positions/main.nf'
 include { CONCATENATED_VARIANT_FILES }   from '../modules/local/summary/concatenate-variant-positions/main.nf'
 include { POST_SUMMARY_CLEANUP       }   from '../modules/local/summary/post-summary-cleanup-handover/main.nf'
-//include { GENERATE_TIMETREES }          from '../modules/local/summary/generate-timetrees/main.nf'
-//include { PLOT_TIMETREES }              from '../modules/local/summary/plot-timetrees/main.nf'
+include { GENERATE_TIMETREES         }   from '../modules/local/summary/generate-timetrees/main.nf'
+include { PLOT_TIMETREES             }   from '../modules/local/summary/plot-timetrees/main.nf'
+include { GENERATE_NEXUS_W_ANCESTOR  }   from '../modules/local/summary/generate-nexus-with-ancestor/main.nf'
+//include { NEXUS_WITH_METADATA        }   from '../modules/local/summary/generate-nexus-with-metadata/main.nf'
 
 workflow SUMMARY_WF{
 
@@ -43,6 +45,8 @@ workflow SUMMARY_WF{
             PREPARE_NEXUS_PATHS( phylogeny_plotting_ch,
                                     PROCESS_CLUSTERS.out.pairwise_clusters_processed )
 
+                clusters_ch = PROCESS_CLUSTERS.out.pairwise_clusters_processed
+
                 nexus_ch = PREPARE_NEXUS_PATHS.out.nexus_tuple
                                 .splitCsv(header: false, sep: ',')
                                 .map { row ->
@@ -52,8 +56,7 @@ workflow SUMMARY_WF{
                 // DEBUG: view the channel 
                 ///nexus_ch.view()
 
-            GENERATE_NEXUS( PROCESS_CLUSTERS.out.pairwise_clusters_processed,
-                            nexus_ch
+            GENERATE_NEXUS( clusters_ch, nexus_ch
                             )
 
             TABULATE_VARIANT_SITES( GENERATE_NEXUS.out.variant_sites_for_tabulation )
@@ -63,31 +66,38 @@ workflow SUMMARY_WF{
                     TABULATE_VARIANT_SITES.out.tabular_var_counts.collect()
                     )
 
+        // If there is metadata: time trees and ancestral sequences can be created
+            if (params.metadata) {
+                // Channel for metadata file
+                ch_metadata = Channel.fromPath(params.metadata)
+
+                // Create timetrees
+                    GENERATE_TIMETREES( phylogeny_plotting_ch,
+                                            ch_metadata
+                                        )
+
+                    PLOT_TIMETREES( GENERATE_TIMETREES.out.timetrees_ch, clusters_ch
+                                            )
+                    timetree_ch = PLOT_TIMETREES.out.timetree_tuple
+                                    .splitCsv(header: false, sep: ',')
+                                    .map { row ->
+                                    def (lineage, clusterID, fasta, tab, ancestor) = row
+                                    tuple(lineage, clusterID, file(fasta), file(tab), file(ancestor))
+                                    }
+
+                GENERATE_NEXUS_W_ANCESTOR( timetree_ch, clusters_ch )
+/*
+                NEXUS_WITH_METADATA( GENERATE_NEXUS_W_ANCESTOR.out.nexus_w_o_meta,
+                                        ch_metadata 
+                                    )
+*/
+            } 
+
         // Cleanup unwanted files
             POST_SUMMARY_CLEANUP( CONCATENATED_VARIANT_FILES.out.cleanup_handover )
 
 }
 
 /*        
-        if (params.metadata) {
-            // Channel for metadata file
-            ch_metadata = Channel.fromPath(params.metadata)
 
-            // Generate base NEXUS files for each cluster
-                NEXUS_WITH_METADATA( GENERATE_NEXUS.out.nexus_w_no_metadata,
-                                        ch_metadata
-                                    )
-            // Create timetrees
-                GENERATE_TIMETREES( pairwise_clusters,
-                                        analysis_summary,
-                                        ch_metadata
-                                    )
-
-                PLOT_TIMETREES( pairwise_clusters,
-                                        analysis_summary,
-                                        ch_metadata
-                                        )
-
-                } 
-            }
 */

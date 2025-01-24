@@ -6,17 +6,19 @@ library(patchwork)
 library(randomcoloR)
 library(tidytree)
 library(argparse)
+library(Biostrings)
 
 #··············································································#
 #··············································································#
 # Initialize the argument parser
-parser <- ArgumentParser(description = "Plot Maximum-likelihood phylogeny")
+parser <- ArgumentParser(description = "Plot Maximum-likelihood TimeTree phylogeny")
 
 # Define command-line options
-parser$add_argument("--contree",     required=TRUE,help="Path to the tree file (contre format)")
-parser$add_argument("--clusters", required=TRUE,help="Path to the cluster file")
-parser$add_argument("--lineageID",  required=TRUE,help="Name of the lineage - short (i.e. L4.1, or L4.3)")
-parser$add_argument("--rlibrary", required=TRUE,help="Path to directory containing R scripts and functions")    
+parser$add_argument("--timetree", required=TRUE, help="Path to the tree file (contre format)")
+parser$add_argument("--clusters", required=TRUE, help="Path to the cluster file")
+parser$add_argument("--lineageID",required=TRUE, help="Name of the lineage - short (i.e. L4.1, or L4.3)")
+parser$add_argument("--fasta",    required=TRUE, help="Path to file containing the ancestral node outputs FASTA file")
+parser$add_argument("--rlibrary", required=TRUE, help="Path to directory containing R scripts and functions")
 
 # Parse command-line arguments
 args <- parser$parse_args()
@@ -37,7 +39,6 @@ source(paste(args$rlibrary, "/functions/create-ggtree-palette.R", sep=""))
 #source(paste(rlibrary, "/functions/isolate_cluster_ancestal_sequence.R", sep=""))
 #source(paste(rlibrary, "/functions/create-ggtree-palette.R", sep=""))
 
-
 #··············································································#
 #··············································································#
 
@@ -49,7 +50,7 @@ clusters <- read.delim(args$cluster, header = TRUE) |>
         select(SampleID,SNP_d5_L,SNP_d10_L,SNP_d15_L,SNP_nd5.id10.vd15)
 
 ### Read trees
-tree <- read.tree(args$contree)  # Assuming the tree file is in Newick format
+tree <- read.tree(args$timetree)  # Assuming the tree file is in Newick format
 tree_rooted <- root(tree, "MTB_anc", resolve.root=TRUE, edgelabel=TRUE)
 
 # Filter clusters to the correct analysis group lineage
@@ -133,114 +134,72 @@ outgroups <- c("MTB_anc","H37Rv")
 #··············································································#
 #··············································································#
 
-# Rectangular trees
+# Timetree corrected phylogeny
 
-# Plot base trees - rectangular and circular
-tree.p.r <- ggtree(tree_rooted, linewidth=0.5,
-                layout = "rectangular"
-                ) %<+% 
+tree.p.c <- ggtree(tree_rooted, 
+                    linewidth=0.1, 
+                    layout = "circular",
+                    branch.length = 'none'
+                    ) %<+% 
             tree.clusters +
-            geom_tiplab(aes(label=Tip_lable,
-                color = label %in% outgroups),
-                size = 2.5, align = TRUE
-                ) +
-            scale_color_manual(values=c("#000000", "#FF0000")
+            geom_tiplab(aes(
+                    label=Tip_lable,
+                    color = label %in% outgroups),
+                    size = 2, 
+                    align = TRUE
+                    ) +
+            scale_color_manual(
+                    values=c("#000000", "#FF0000")
             )
 
-p1 <-   gheatmap(tree.p.r, tree.clusters.df,
-                offset = 0.1,
-                width = 1,
-                colnames_angle = 0,
-                colnames_offset_y = -0.8,
-                font.size = 2,
-                color = "#3a3a3a"
-                ) +
-        scale_fill_manual(values = color_palette,
-                na.value = "white", 
-                name = "Unique\nclusterID\n(with lineage)"
-                ) + 
-        ggtitle(paste0("IQ-Tree ML Phylogeny | ", lineageID)
-        ) +
-        theme(legend.position = "none"
-        )
-
-# Add the cluster informations
-p1.L <-     gheatmap(tree.p.r, tree.clusters.df,
-                    offset = 0.1, 
-                    width = 1,
-                    colnames_angle = 0, 
-                    colnames_offset_y = -0.8,
-                    font.size = 2, 
-                    color = "#3a3a3a"
-                    ) +
-            scale_fill_manual(values = color_palette,
-                    na.value = "white", 
-                    name = "Unique\nclusterID\n(with lineage)"
-                    ) +
-            ggtitle(paste0("IQ-Tree ML Phylogeny | ", lineageID)
-            ) +
-            theme(legend.position = "bottom", 
-                    legend.title = element_text(size = 4),
-                    legend.text=element_text(size=4),
-                    legend.key.size = unit(0.1, "cm")
-                    ) +
-            guides(fill = guide_legend(ncol = 10)
-            )
-
-# Circular (dendrogram) trees
-tree.p.c <- ggtree(tree_rooted,
-                linewidth=0.1,
-                layout = "circular",
-                branch.length = 'none'
-                ) %<+%
-            tree.clusters +
-            geom_tiplab(aes(label=Tip_lable,
-                color = label %in% outgroups),
-                size = 2.5, align = TRUE
-                ) +
-            scale_color_manual(values=c("#000000", "#FF0000")
-            )
-
-p2 <-       gheatmap(tree.p.c, tree.clusters.df, 
+p3 <- gheatmap(tree.p.c, 
+                tree.clusters.df,
                 offset = 10, 
                 width = 0.3,
                 colnames_angle = 45, 
                 colnames_offset_y = -0.8,
                 font.size = 5, 
-                color = "#3a3a3a"
+                color = "#3a3a3a",
                 ) +
-            scale_fill_manual(values = color_palette,
+        scale_fill_manual(
+                values = color_palette,
                 na.value = "white", 
-                name = "Unique\nclusterID\n(with lineage)"
-                ) +
-            ggtitle(paste0("IQ-Tree ML Phylogeny | Branch-length ignored | ", lineageID)) +
-            theme(legend.position = "none"
-            )
+                name = "Unique\nclusterID\n(with lineage)") +  # Default color for unmatched values
+        ggtitle(paste0("IQ-Tree ML TimeTree | Branch-length ignored | ", lineage)) +
+        theme(legend.position = "none")
+p3
 
-p2.L <-     gheatmap(tree.p.c, tree.clusters.df, 
-                offset = 10, width = 0.3,
-                colnames_angle = 0, colnames_offset_y = -0.8,
-                font.size = 2, color = "#3a3a3a"
-                ) +
-            scale_fill_manual(values = color_palette,
-                na.value = "white", 
-                name = "Unique\nclusterID\n(with lineage)"
-                ) +
-            ggtitle(paste0("IQ-Tree ML Phylogeny | Branch-length ignored | ", lineageID)) +
-            theme(legend.position = "bottom",
-                legend.title = element_text(size = 6),
-                legend.text=element_text(size=6),
-                legend.key.size = unit(0.2, "cm")
-                )
+
+#··············································································#
+#··············································································#
+
+fasta_sequences <- readDNAStringSet(args$fasta)
+
+d5.tree.clusters <- clusters |> 
+                filter(SampleID %in% tree.tips) |> 
+                filter(!grepl("nX\\-", SNP_d5_L)) |>
+                distinct() |>
+                select(SampleID,cluster=SNP_d5_L)
+
+d5.tree.clusters.groups <- d5.tree.clusters |> 
+                select(cluster) |> 
+                distinct()
+
+d5.tree.clusters.groups.deframed <- deframe(d5.tree.clusters.groups)
+
+# Apply the function to each clusterID in the dataframe
+for (unique_cluster in d5.tree.clusters.groups.deframed) {
+    process_cluster(
+        clusterID = unique_cluster,
+        df    = d5.tree.clusters
+        )
+    }
 
 #··············································································#
 #··············································································#
 
 #·············· Export trees ··············#
 
-pdf(file = paste0(lineageID,"_ML.contree.pdf"))
-p1
-p1.L
-p2
-p2.L
+pdf(file = paste0(lineageID,"_TimeTree.contree.pdf"))
+p3
 dev.off()

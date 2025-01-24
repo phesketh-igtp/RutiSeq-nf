@@ -4,7 +4,7 @@ process PLOT_MAIN_PHYLOGENY {
 
     conda params.r_stats_env
 
-    publishDir "${params.outdir}/bbdd/results/Phylogeny/", mode: 'copy'
+    publishDir "${params.outdir}/bbdd/results/phylogeny/", mode: 'copy'
 
     input:
         tuple val(lineage), path(contree), path(alignments)
