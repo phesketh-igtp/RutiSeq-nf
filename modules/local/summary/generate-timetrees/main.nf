@@ -21,9 +21,14 @@ process GENERATE_TIMETREES {
 
     script:
     """
-    # Isolate the sames and sampleIDs
-        cut --delimiter="," -f1,3 ${metadata} > dates.csv
+    # get genome IDs from fasta
+        grep '>' ${alignments} | sed 's@>@@g' > genomes.list
 
+    # Isolate the sames and sampleIDs
+        grep -f genomes.list  ${metadata} \\
+                | awk -F ',' '{print $2,$3}' \\
+                | sed 's@,@\t@g' > dates.csv
+                
     # Run the timetree
         treetime --aln ${alignments} \\
                 --tree ${contree} \\

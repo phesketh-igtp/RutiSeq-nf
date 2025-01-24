@@ -1,0 +1,67 @@
+---
+title: "RutiSeq-nf BBDD Report"
+date: "`r Sys.Date()`"
+format: 
+  html:
+    fig-width: 8
+    fig-height: 4
+    code-fold: true
+
+params:
+  projectDir: "."
+  summary: "sequencing_summary.csv" # Path to the summary
+  who_resistance: "bbdd/results/main/who_resistance_summary.csv"  # Path to the resistance
+  clusters: "processed_clusters.tsv" # clusters lists
+  output_dir: "."                         # Output directory for results
+  functions_dir: "."                       # Function dataframe for all the comples scripts
+---
+
+## Database summary
+
+The RutiSeq dataset consists of `r nrow(summary_df)` genomes, spanning `r n_lineages$n` main lineages and `r n_sublineages$n` sublineages, the most abundant of which is `r top_lineages[1, "lineage"]` (`r top_lineages[1, "count"]`), followed by `r top_lineages[2, "lineage"]` (`r top_lineages[2, "count"]`), then `r top_lineages[3, "lineage"]` (`r top_lineages[3, "count"]`).
+
+```{r}
+#| label: fig-database_summary
+#| fig-cap: "Summary of taxonomic classification of MTBc genomes within the RutiSeq BBDD. (a) Genomic taxonomy by month-year of culture isolation. (b) Distribution of sublineages grouped by lineage. (c) Proportion of lineages over time."
+#| warning: false
+library(tidyverse)
+# Load data
+summary_df <- read.delim(file.path(params$projectDir, params$summary), 
+                        header = TRUE, check.names = FALSE, sep = ",")
+
+# Calculate number of lineages and sublineages
+n_lineages <- summary_df |> select(lineages) |> distinct() |> count()
+n_sublineages <- summary_df |> select(`Sub-lineages`) |> distinct() |> count()
+
+# Identify the most abundant lineages
+top_lineages <- summary_df |> 
+  count(lineages, name = "count") |> 
+  arrange(desc(count)) |> 
+  head(3)
+```
+
+### Drug-resistance profiles
+MTBc drug resistance for all genomes are characterised using TB-Profiler utilising the WHO database (2023). The most commond type of DR was... (@fig-dr_type_summary)
+
+```{r}
+#| label: fig-dr_type_summary
+#| fig-cap: ""
+#| warning: false
+who_df <- read.delim(paste0(params$projectDir,params$summary,sep=""), 
+                        header=TRUE, check.names=FALSE, sep = ",")
+
+
+```
+
+### Infection clusters
+MTBc drug resistance for all genomes are characterised using TB-Profiler and the WHO database (@fig-infections_clusters)
+
+```{r}
+#| label: fig-infections_clusters
+#| fig-cap: ""
+#| warning: false
+clusters_df <- read.delim(paste0(params$projectDir,params$summary,sep=""), 
+                        header=TRUE, check.names=FALSE, sep = "\t")
+
+
+```

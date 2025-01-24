@@ -1,0 +1,15 @@
+Sample;Library;Main lineage;Sub-lineage;Total Reads;Unambiguous Total Bases;Unambiguous Total Bases (%);Unambiguous GC Content;Unambiguous Coverage median;nSNPs;Drug resistance type;Infection type;Lineages (fractions);Lineages (mixed fractions > 90)
+04-042_L517;L517;lineage4;lineage4.3.2;1761225;3963290;0,9;65,41;61;724;Other;Clonal;L4.3.2 (99.7%);NA
+05-012_L1;L1;La1;La1.2.BCG;5565692;4037944;0,92;65,42;192;2243;HR-TB;Clonal;La1.2.BCG (99.9%);NA
+05-053_L2;L2;La1;La1.2.BCG;2102143;3910883;0,89;65,5;73;2086;HR-TB;Clonal;La1.2.BCG (100%);NA
+05-109-MT_L18;L18;lineage4;lineage4.3;2943786;3970308;0,9;65,42;93;700;Sensitive;Clonal;L4.3 (100%);NA
+05-135_L9;L9;lineage4;lineage4.8;2060297;3962724;0,9;65,41;73;445;Sensitive;Clonal;L4.8 (100%);NA
+05-236-MT_L22;L22;lineage4;lineage4.3.4.2;3112116;4015199;0,91;65,43;111;769;Sensitive;Clonal;L4.3.4.2 (100%);NA
+05-255-MT_L22;L22;lineage4;lineage4.3.3;2218594;3922612;0,89;65,43;76;699;Sensitive;Clonal;L4.3.3 (100%);NA
+06-010_L2;L2;lineage4;lineage4.8;2387828;4038930;0,92;65,41;81;438;Sensitive;Clonal;L4.8 (100%);NA
+08-067-MT_L25;L25;lineage4;lineage4.3.3;3520911;4002992;0,91;65,43;122;725;HR-TB;Clonal;L4.3.3 (100%);NA
+20-037_L2;L2;lineage4;lineage4.3.3;2614819;4045264;0,92;65,39;91;660;HR-TB;Clonal;L4.3.3 (99.8%);NA
+20-049_L9;L9;lineage4;lineage4.3.3;2837636;4079856;0,92;65,4;100;787;Other;Clonal;L4.3.3 (99.9%);NA
+20-055_L9;L9;lineage4;lineage4.8;2810431;4089020;0,93;65,41;98;460;Sensitive;Clonal;L4.8 (100%);NA
+47-125-MT_L21;L21;lineage4;lineage4.8;1232281;3722375;0,84;65,5;39;361;Sensitive;Clonal;L4.8 (99.7%);NA
+51-027_L10;L10;lineage4;lineage4.8;2749009;4197113;0,95;65,43;163;483;Sensitive;Clonal;L4.8 (100%);NA

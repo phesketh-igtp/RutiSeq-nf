@@ -66,33 +66,38 @@ workflow SUMMARY_WF{
                     TABULATE_VARIANT_SITES.out.tabular_var_counts.collect()
                     )
 
-        // If there is metadata: time trees and ancestral sequences can be created
+
+        // If metadata is provided then the following modules are run
             if (params.metadata) {
+                log.info "Metadata provided. Generating time trees and ancestral sequences."
+                
                 // Channel for metadata file
                 ch_metadata = Channel.fromPath(params.metadata)
+                    .ifEmpty { error "Metadata file not found/empty: ${params.metadata}.
+                    Correct your metadata path/file and resume the analysis with '-resume'" }
 
                 // Create timetrees
-                    GENERATE_TIMETREES( phylogeny_plotting_ch,
-                                            ch_metadata
-                                        )
+                GENERATE_TIMETREES(phylogeny_plotting_ch, ch_metadata)
 
-                    PLOT_TIMETREES( GENERATE_TIMETREES.out.timetrees_ch, clusters_ch
-                                            )
-                    timetree_ch = PLOT_TIMETREES.out.timetree_tuple
-                                    .splitCsv(header: false, sep: ',')
-                                    .map { row ->
-                                    def (lineage, clusterID, fasta, tab, ancestor) = row
-                                    tuple(lineage, clusterID, file(fasta), file(tab), file(ancestor))
-                                    }
+                PLOT_TIMETREES(GENERATE_TIMETREES.out.timetrees_ch, clusters_ch)
+                
+                timetree_ch = PLOT_TIMETREES.out.timetree_tuple
+                    .splitCsv(header: false, sep: ',')
+                    .map { row ->
+                        def (lineage, clusterID, fasta, tab, ancestor) = row
+                        tuple(lineage, clusterID, file(fasta), file(tab), file(ancestor))
+                    }
 
-                GENERATE_NEXUS_W_MRCA( timetree_ch, clusters_ch )
+                GENERATE_NEXUS_W_MRCA(timetree_ch, clusters_ch)
 
-/*
-                GENERATE_NEXUS_W_METADATA( GENERATE_NEXUS_W_ANCESTOR.out.nexus_w_no_metadata,
+                /*
+                GENERATE_NEXUS_W_METADATA(GENERATE_NEXUS_W_ANCESTOR.out.nexus_w_no_metadata,
                                         ch_metadata, clusters_ch
                                     )
-*/
-            } 
+                */
+            } else {
+                log.info "No metadata provided. Skipping time tree and ancestral sequence generation."
+            }
 
         // Cleanup unwanted files
             //POST_SUMMARY_CLEANUP( CONCATENATED_VARIANT_FILES.out.cleanup_handover )

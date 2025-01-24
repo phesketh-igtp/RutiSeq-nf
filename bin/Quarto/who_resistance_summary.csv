@@ -1,0 +1,15 @@
+sample;Main lineage;Sub-lineage;DR type;DR variants;RIF;INH;EMB;PZA;MXF;LEV;BDQ;DLM;Pa;LZD;STR;AMI;KAN;CAP;CFZ;ETH;PAC;CYR
+47-125-MT_L21;lineage4;lineage4.8;Sensitive;0;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-
+05-236-MT_L22;lineage4;lineage4.3.4.2;Sensitive;0;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-
+20-049_L9;lineage4;lineage4.3.3;Other;1;-;-;-;-;-;-;-;-;-;-;gid c.319dupG (0.99);-;-;-;-;-;-;-
+04-042_L517;lineage4;lineage4.3.2;Other;1;-;-;-;-;-;-;-;-;-;-;-;-;-;tlyA c.368_369dupGC (0.93);-;-;-;-
+05-053_L2;La1;La1.2.BCG;Other;1;-;-;-;pncA p.His57Asp (1.00);-;-;-;-;-;-;-;-;-;-;-;-;-;-
+51-027_L10;lineage4;lineage4.8;Sensitive;0;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-
+20-055_L9;lineage4;lineage4.8;Sensitive;0;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-
+20-037_L2;lineage4;lineage4.3.3;HR-TB;3;-;inhA c.-777C>T (0.58);-;pncA p.His51Arg (0.59);-;-;-;-;-;-;gid c.319dupG (0.37);-;-;-;-;inhA c.-777C>T (0.58);-;-
+05-012_L1;La1;La1.2.BCG;Other;1;-;-;-;pncA p.His57Asp (1.00);-;-;-;-;-;-;-;-;-;-;-;-;-;-
+05-109-MT_L18;lineage4;lineage4.3;Sensitive;0;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-
+05-255-MT_L22;lineage4;lineage4.3.3;Sensitive;0;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-
+06-010_L2;lineage4;lineage4.8;Sensitive;0;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-
+08-067-MT_L25;lineage4;lineage4.3.3;HR-TB;2;-;inhA c.-777C>T (1.00);-;pncA p.His51Arg (1.00);-;-;-;-;-;-;-;-;-;-;-;inhA c.-777C>T (1.00);-;-
+05-135_L9;lineage4;lineage4.8;Sensitive;0;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-
