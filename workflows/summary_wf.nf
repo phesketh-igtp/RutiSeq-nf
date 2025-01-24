@@ -73,8 +73,7 @@ workflow SUMMARY_WF{
                 
                 // Channel for metadata file
                 ch_metadata = Channel.fromPath(params.metadata)
-                    .ifEmpty { error "Metadata file not found/empty: ${params.metadata}.
-                    Correct your metadata path/file and resume the analysis with '-resume'" }
+                    .ifEmpty { error "Metadata file not found/empty: ${params.metadata}. Correct your metadata path/file and resume the analysis with '-resume'" }
 
                 // Create timetrees
                 GENERATE_TIMETREES(phylogeny_plotting_ch, ch_metadata)

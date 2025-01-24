@@ -25,14 +25,19 @@ process GENERATE_TIMETREES {
         grep '>' ${alignments} | sed 's@>@@g' > genomes.list
 
     # Isolate the sames and sampleIDs
+        echo "name\tdate" > dates.tsv
+        
         grep -f genomes.list  ${metadata} \\
-                | awk -F ',' '{print $2,$3}' \\
-                | sed 's@,@\t@g' > dates.csv
-                
+                | awk -F ',' '{print \$2,\$3}' \\
+                | sed 's@,@\t@g' >> dates.tsv
+
+        sed -i 's@ @\t@g' dates.tsv
+
     # Run the timetree
         treetime --aln ${alignments} \\
                 --tree ${contree} \\
-                --dates dates.csv \\
+                --dates dates.tsv \\
                 --outdir ${lineage}_timetree
     """
+
 }
