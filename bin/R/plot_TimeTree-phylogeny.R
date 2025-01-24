@@ -50,7 +50,7 @@ clusters <- read.delim(args$cluster, header = TRUE) |>
         select(SampleID,SNP_d5_L,SNP_d10_L,SNP_d15_L,SNP_nd5.id10.vd15)
 
 ### Read trees
-tree <- read.tree(args$timetree)  # Assuming the tree file is in Newick format
+tree <- read.nexus(args$timetree)  # Assuming the tree file is in Newick format
 tree_rooted <- root(tree, "MTB_anc", resolve.root=TRUE, edgelabel=TRUE)
 
 # Filter clusters to the correct analysis group lineage
@@ -61,7 +61,7 @@ filtered_clusters <- clusters[
         grepl(pattern, clusters$SNP_d10_L) |
         grepl(pattern, clusters$SNP_d15_L) |
         grepl(pattern, clusters$SNP_nd5.id10.vd15),
-    ]; clusters <- filtered_clusters; rm(filtered_clusters)
+        ]; clusters <- filtered_clusters; rm(filtered_clusters)
 
 #··············································································#
 #··············································································#
@@ -97,13 +97,13 @@ tree.clusters.df <- tree.clusters |>
 # Replace unclustered values with NA so that there is no legend for those values and improves
 # readability of the trees
 pattern <- paste0("nX-", lineage)
-    tree.clusters.df$d5[tree.clusters.df$d5 == pattern] <- NA
+        tree.clusters.df$d5[tree.clusters.df$d5 == pattern] <- NA
 pattern <- paste0("iX-", lineage)
-    tree.clusters.df$d10[tree.clusters.df$d10 == pattern] <- NA
+        tree.clusters.df$d10[tree.clusters.df$d10 == pattern] <- NA
 pattern <- paste0("vX-", lineage)
-    tree.clusters.df$d15[tree.clusters.df$d15 == pattern] <- NA
+        tree.clusters.df$d15[tree.clusters.df$d15 == pattern] <- NA
 pattern <- paste0("nX.iX.vX-", lineage)
-    tree.clusters.df$d5.10.15[tree.clusters.df$d5.10.15 == pattern] <- NA
+        tree.clusters.df$d5.10.15[tree.clusters.df$d5.10.15 == pattern] <- NA
 
 #··············································································#
 #··············································································#
@@ -137,20 +137,20 @@ outgroups <- c("MTB_anc","H37Rv")
 # Timetree corrected phylogeny
 
 tree.p.c <- ggtree(tree_rooted, 
-                    linewidth=0.1, 
-                    layout = "circular",
-                    branch.length = 'none'
-                    ) %<+% 
-            tree.clusters +
-            geom_tiplab(aes(
-                    label=Tip_lable,
-                    color = label %in% outgroups),
-                    size = 2, 
-                    align = TRUE
-                    ) +
-            scale_color_manual(
-                    values=c("#000000", "#FF0000")
-            )
+                linewidth=0.1, 
+                layout = "circular",
+                branch.length = 'none'
+                ) %<+% 
+        tree.clusters +
+        geom_tiplab(aes(
+                label=Tip_lable,
+                color = label %in% outgroups),
+                size = 2, 
+                align = TRUE
+                ) +
+        scale_color_manual(
+                values=c("#000000", "#FF0000")
+        )
 
 p3 <- gheatmap(tree.p.c, 
                 tree.clusters.df,
@@ -177,7 +177,7 @@ fasta_sequences <- readDNAStringSet(args$fasta)
 
 d5.tree.clusters <- clusters |> 
                 filter(SampleID %in% tree.tips) |> 
-                filter(!grepl("nX\\-", SNP_d5_L)) |>
+                filter(!grepl("nX-", SNP_d5_L)) |>
                 distinct() |>
                 select(SampleID,cluster=SNP_d5_L)
 
@@ -189,11 +189,11 @@ d5.tree.clusters.groups.deframed <- deframe(d5.tree.clusters.groups)
 
 # Apply the function to each clusterID in the dataframe
 for (unique_cluster in d5.tree.clusters.groups.deframed) {
-    process_cluster(
-        clusterID = unique_cluster,
-        df    = d5.tree.clusters
-        )
-    }
+        process_cluster(
+                clusterID = unique_cluster,
+                df    = d5.tree.clusters
+                )
+        }
 
 #··············································································#
 #··············································································#

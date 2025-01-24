@@ -20,10 +20,12 @@ process PLOT_TIMETREES {
     script:
     
         """
+        mkdir ancestors/
+        
         Rscript ${params.r_script_dir}/plot_TimeTree-phylogeny.R \\
                 --timetree ${timetree} \\
                 --clusters ${pairwise_clusters} \\
-                --fasta ${ancestral_fasta}
+                --fasta ${ancestral_fasta} \\
                 --lineageID ${lineage} \\
                 --rlibrary ${params.r_script_dir}
 
