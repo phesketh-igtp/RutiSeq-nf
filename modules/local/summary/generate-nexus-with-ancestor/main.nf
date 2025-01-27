@@ -4,6 +4,8 @@ process GENERATE_NEXUS_W_MRCA {
 
     tag "cluster: ${clusterID}"
 
+    array 100
+
     publishDir "${params.outdir}/results/networks/", mode: 'copy'
 
     input:

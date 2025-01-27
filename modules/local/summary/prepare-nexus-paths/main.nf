@@ -4,6 +4,8 @@ process PREPARE_NEXUS_PATHS{
 
     tag "${lineage}"
 
+    array 100
+
     publishDir "${params.outdir}/results/networks/${lineage}/", mode: 'copy'
 
     input:
