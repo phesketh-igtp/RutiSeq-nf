@@ -34,7 +34,8 @@ process POST_SINGLE_BBDD_CLEANUP {
             "${params.outdir}/bbdd/tbprofiler/Mapping_and_Variant_Statistics.tab" \\
             "${params.outdir}/bbdd/tbprofiler/Strain_Classification.tab" \\
             "${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R1.fastq.gz" \\
-            "${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R2.fastq.gz"; 
+            "${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R2.fastq.gz" \\
+            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.mpileup; 
         do
             if [ -f \$file ] || [ -e \$file ]; then rm \$file; fi
         done

@@ -1,7 +1,7 @@
 process TBPROFILER_PROFILE_WHO {
     
     tag "$sampleID"
-    
+
     conda params.tbprofiler_env
 
     container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/cb/cbf8de71c4b6e9b044bbbf6ef573ab58e14bf75a846c7bc84dfbe03ac0e278c1/data'
@@ -16,8 +16,6 @@ process TBPROFILER_PROFILE_WHO {
                 path(tbdb_out), path(who_out), path(mtbseq_vcf)
 
     output:
-        path("bam/who-${sampleID}.bam")
-        path("vcf/who-${sampleID}.targets.vcf.gz")
         path("results/who-${sampleID}.results.json")
         path("results/who-${sampleID}.results.txt")
 

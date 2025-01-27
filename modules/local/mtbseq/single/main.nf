@@ -17,10 +17,8 @@ process MTBSEQ_SINGLE {
                 path(tbdb_out), path(who_out), path(mtbseq_vcf)
                 
     output:
-        path("Bam/*")
         path("Called/*")
         path("Classification/${sampleID}.Strain_Classification.tab")
-        path("GATK_Bam/*")
         path("Mpileup/*")
         path("Position_Tables/*")
         path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab")
