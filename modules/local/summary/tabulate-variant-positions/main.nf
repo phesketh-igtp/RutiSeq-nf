@@ -7,10 +7,11 @@ process TABULATE_VARIANT_SITES{
     publishDir "${params.outdir}/results/snps/variants-tab/", mode: 'copy'
 
     input:
-        tuple val(lineage), val(clusterID), 
+        tuple val(lineage), 
+                val(clusterID), 
                 path(snp_alignments),
                 path(genomic_possitions),
-                path(variant_sites_fasta)
+                path(snp_tab)
 
     output:
         path("${clusterID}.variant-positions.csv"),        emit: tabular_vars
@@ -22,7 +23,7 @@ process TABULATE_VARIANT_SITES{
         """
         Rscript ${params.r_script_dir}/tabulate_variant_sites.R \\
             --cluster   ${clusterID} \\
-            --fasta     ${variant_sites_fasta} \\
+            --fasta     ${snp_alignments} \\
             --positions ${genomic_possitions} \\
             --H37Rv     ${params.mtbseq_gene_annotations}
         """

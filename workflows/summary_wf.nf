@@ -102,7 +102,3 @@ workflow SUMMARY_WF{
             //POST_SUMMARY_CLEANUP( CONCATENATED_VARIANT_FILES.out.cleanup_handover )
 
 }
-
-/*        
-
-*/
