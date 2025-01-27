@@ -2,6 +2,8 @@ process POST_SINGLE_BBDD_CLEANUP {
 
     tag "${sampleID}"
 
+    array 250
+
     input:
         tuple val(sampleID)
 

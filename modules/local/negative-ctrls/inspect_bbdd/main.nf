@@ -2,6 +2,8 @@ process INSPECT_BBDD {
 
     tag "$sampleID"
 
+    array 10
+
     input:
         tuple val(sampleID), path(forward), path(reverse)
 

@@ -2,6 +2,8 @@ process FILE_CHECK {
 
     tag "$sampleID"
 
+    array 250
+
     input:
         tuple val(sampleID), path(forward), path(reverse)
 

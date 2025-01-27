@@ -1,6 +1,8 @@
 process CN_READ_TAXONOMY {
     
     tag "$sampleID"
+
+    array 10
     
     conda params.kaiju_env
 
