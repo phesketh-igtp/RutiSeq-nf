@@ -11,7 +11,7 @@ process MTBC_READ_QC {
             else return null
         }
 
-    publishDir "${params.outdir}/bbdd/read-qc", mode: 'link'
+    publishDir "${params.outdir}/bbdd/read-qc", mode: 'move'
 
     input:
         tuple val(sampleID), 

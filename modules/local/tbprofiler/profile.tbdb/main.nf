@@ -8,7 +8,7 @@ process TBPROFILER_PROFILE_TBDB {
                 } else { 'quay.io/biocontainers/tb-profiler' }
         }
 
-        publishDir "${params.outdir}/bbdd/tbprofiler/", mode: 'copy'
+        publishDir "${params.outdir}/bbdd/tbprofiler/", mode: 'move'
 
         input:
                 tuple val(sampleID), 

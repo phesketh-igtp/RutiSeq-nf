@@ -4,7 +4,7 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
 
     conda params.phylogeny_env
 
-    publishDir "${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/", mode: 'copy'
+    publishDir "${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/", mode: 'move'
 
     input:
         val(runID)
@@ -90,7 +90,6 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
                     --prefix ${lineage}_ML
 
             mv ${lineage}_ML.* Phylogeny/
-
     """
 
     //        # Create molecular timetree

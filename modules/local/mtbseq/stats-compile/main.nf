@@ -1,6 +1,6 @@
 process MTBSEQ_STATS_COMPILE {
 
-    publishDir "${params.outdir}/bbdd/mtbseq/pairwise/", mode: 'copy'
+    publishDir "${params.outdir}/bbdd/mtbseq/pairwise/", mode: 'move'
 
     input:
         path stats_files

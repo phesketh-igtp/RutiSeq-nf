@@ -8,7 +8,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
     ///        } else { 'quay.io/biocontainers/mtbseq' }
     ///}
                 
-    publishDir "${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/", mode: 'copy'
+    publishDir "${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/", mode: 'move'
 
     input:
         val runID

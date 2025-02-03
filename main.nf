@@ -16,12 +16,11 @@ def helpMessage() {
     Usage:
 
     Mandatory arguments:
-        --samplesheet       [CSV]   Path to input data (must be surrounded with quotes)
-        --outdir            [path]  The output directory where the results will be saved
+        --samplesheet           [CSV]   Path to input data (must be surrounded with quotes)
+        --outdir                [path]  The output directory where the results will be saved
 
     Optional arguments:
-        --metadata          [CSV]   Metadata file containing the sampleID,sampling_data;loc data.
-
+        --metadata              [CSV]   Metadata file containing the sampleID,sampling_data;loc data.
 
     Additional parameters:
 
@@ -36,10 +35,6 @@ def helpMessage() {
             --mtbseq_distance   [num]   Defines SNP distance for the single linkage clustering in TBgroups. Tuple containing a range of values (default: "[5, 10, 15]").
 
         TBProfiler optional arguments
-            --tbprof_
-            --tbprof_
-            --tbprof_
-            --tbprof_
             --tbprof_
             --tbprof_
 
@@ -71,7 +66,7 @@ workflow {
     ║  ██╔══██╗██║   ██║   ██║   ██║╚════██║██╔══╝  ██║▄▄ ██║                ║
     ║  ██║  ██║╚██████╔╝   ██║   ██║███████║███████╗╚██████╔╝                ║
     ║  ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝╚══════╝╚══════╝ ╚══▀▀═╝  v.1.0.0-beta   ║
-    ║ ${color_green}Pre-release development version${color_cyan}                                         ║    
+    ║ ${color_green}Pre-release development version${color_cyan}                                        ║    
     ╚════════════════════════════════════════════════════════════════════════╝
     ${color_reset}
     """
@@ -110,14 +105,16 @@ workflow {
             Channel.fromPath(params.samplesheet)
                 .splitCsv(header: true, sep: ',')
                 .map { row ->
-                    if (row.sampleID == null || row.forward_path == null || row.reverse_path == null || row.type == null) {
-                        error "Missing required column in samplesheet: ${row}"
+                    def requiredColumns = ['originalID', 'sampleID', 'forward_path', 'reverse_path', 'type']
+                    def missingColumns = requiredColumns.findAll { !row.containsKey(it) }
+                    if (missingColumns) {
+                        error "Missing required column(s) in samplesheet: ${missingColumns.join(', ')}"
                     }
-                    tuple( row.sampleID, 
-                            file(row.forward_path, checkIfExists: true), 
-                            file(row.reverse_path, checkIfExists: true), 
-                            row.type
-                            )
+                    tuple(row.sampleID.trim(), 
+                        file(row.forward_path.trim(), checkIfExists: true), 
+                        file(row.reverse_path.trim(), checkIfExists: true), 
+                        row.type.trim()
+                    )
                 }
                 .branch {
                     sample: it[3] == 'sample'
