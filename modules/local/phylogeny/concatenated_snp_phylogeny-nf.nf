@@ -84,7 +84,8 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
 
         # 10. Perform phylogeny
             iqtree -s Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta \\
-                    -m GTR+G4 -T AUTO \\
+                    -m ${params.iqtree_model} \\
+                    -T AUTO \\
                     -ntmax ${params.cpus} \\
                     -B ${params.iqtree_bootstraps} \\
                     --prefix ${lineage}_ML

@@ -35,12 +35,12 @@ def helpMessage() {
             --mtbseq_distance   [num]   Defines SNP distance for the single linkage clustering in TBgroups. Tuple containing a range of values (default: "[5, 10, 15]").
 
         TBProfiler optional arguments
-            --tbprof_
+            --tbprof_           
             --tbprof_
 
         IQ-Tree optional arguments
             --iqtree_bootstraps [num]   Defines the number of bootstraps used by IQ-Tree for variant positions phylogeny (default: 1000).
-            --iqtree_model      [chr]   Defines the maximum-likelihood model used by ID-Tree for variant position phylogeny 
+            --iqtree_model      [chr]   Defines the maximum-likelihood model used by ID-Tree for variant position phylogeny (default: GTR+G4).
 
     """
 }
@@ -120,14 +120,14 @@ workflow {
                     sample: it[3] == 'sample'
                     control: it[3] == 'control'
                 }
-                .set { branched_samples_with_type }
+                .set { branched_samples_by_type }
 
             // Remove the 'type' from the tuples and ensure only 3 elements
-            samples_ch = branched_samples_with_type.sample.map { it -> 
+            samples_ch = branched_samples_by_type.sample.map { it -> 
                 tuple(it[0], it[1], it[2]) // keep only the sampleID, forward and reverse reads
             }
 
-            controls_ch = branched_samples_with_type.control.map { it -> 
+            controls_ch = branched_samples_by_type.control.map { it -> 
                 tuple(it[0], it[1], it[2]) // keep only the sampleID, forward and reverse reads
             }
 
