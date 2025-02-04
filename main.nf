@@ -34,10 +34,6 @@ def helpMessage() {
             --mtbseq_window     [num]   Defines window for SNP cluster look up. Reduces putative false positives in TBamend (default: 10).
             --mtbseq_distance   [num]   Defines SNP distance for the single linkage clustering in TBgroups. Tuple containing a range of values (default: "[5, 10, 15]").
 
-        TBProfiler optional arguments
-            --tbprof_           
-            --tbprof_
-
         IQ-Tree optional arguments
             --iqtree_bootstraps [num]   Defines the number of bootstraps used by IQ-Tree for variant positions phylogeny (default: 1000).
             --iqtree_model      [chr]   Defines the maximum-likelihood model used by ID-Tree for variant position phylogeny (default: GTR+G4).
@@ -164,7 +160,7 @@ workflow {
 
         // Call the workflow
         // TODO: need to figure out if this is working as intended and correct the channel to not have that empty index [4]
-            ///NEGATIVE_CONTROL_WF(controls_ch)
+            ///NEGATIVE_CONTROL_WF( controls_ch )
 
         /*
         ······································································································
