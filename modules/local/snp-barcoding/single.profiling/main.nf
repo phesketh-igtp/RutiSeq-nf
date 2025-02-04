@@ -8,7 +8,7 @@ process SNP_PROFILING_SINGLE {
             } else { 'community.wave.seqera.io/library/bcftools_snpeff_varscan_vcftools:3fa84761d1a9bed3' }
     }
     
-    publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/", mode: 'move'
+    publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/", mode: 'move', pattern: '*.{gatk.vcf.gz,gatk.vcf.gz.tbi}'
 
     input:
         tuple val(sampleID), 
