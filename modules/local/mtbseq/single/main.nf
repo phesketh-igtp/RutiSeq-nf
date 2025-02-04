@@ -6,10 +6,12 @@ process MTBSEQ_SINGLE {
 
     array 25
 
-    container { if (workflow.containerEngine == 'singularity') { 
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data'
-            } else { 'quay.io/biocontainers/mtbseq' }
-    }
+    container { 
+            if (workflow.containerEngine == 'singularity') return params.singularity_mtbseq
+            else if (workflow.containerEngine == 'docker') return params.docker_mtbseq
+            else if (workflow.containerEngine == 'apptainer') return params.apptainer_mtbseq
+            else return null
+        }
     
     publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}", mode: 'move', pattern:'*.{bam,vcf.gz,json,tab,mpileup}'
 

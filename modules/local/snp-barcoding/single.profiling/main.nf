@@ -4,9 +4,12 @@ process SNP_PROFILING_SINGLE {
 
     conda params.snp_profiling_env
     
-    container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/5e/5e1dc9586886df729616e7af235efe76cc2d31b5fa2a6afe0b0656efee6d983a/data'
-            } else { 'community.wave.seqera.io/library/bcftools_snpeff_varscan_vcftools:3fa84761d1a9bed3' }
-    }
+    container { 
+            if (workflow.containerEngine == 'singularity') return params.singularity_snp_profiling
+            else if (workflow.containerEngine == 'docker') return params.docker_snp_profiling
+            else if (workflow.containerEngine == 'apptainer') return params.apptainer_snp_profiling
+            else return null
+        }
     
     publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/", mode: 'move', pattern: '*.{gatk.vcf.gz,gatk.vcf.gz.tbi}'
 

@@ -6,11 +6,14 @@ process TBPROFILER_PROFILE_WHO {
 
     array 50
 
-    container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/cb/cbf8de71c4b6e9b044bbbf6ef573ab58e14bf75a846c7bc84dfbe03ac0e278c1/data'
-            } else { 'quay.io/biocontainers/tb-profiler' }
-    }
+    container { 
+            if (workflow.containerEngine == 'singularity') return params.singularity_tbprofiler
+            else if (workflow.containerEngine == 'docker') return params.docker_tbprofiler
+            else if (workflow.containerEngine == 'apptainer') return params.apptainer_tbprofiler
+            else return null
+        }
     
-    publishDir "${params.outdir}/bbdd/tbprofiler/who-only", mode: 'move', pattern:'*.{bam,vcf.gz,json,txt}'
+    publishDir "${params.outdir}/bbdd/tbprofiler/who-only", mode: 'move', pattern: '*.{results.json,results.txt}'
 
     input:
         tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse), path(mtbseq_class), 
