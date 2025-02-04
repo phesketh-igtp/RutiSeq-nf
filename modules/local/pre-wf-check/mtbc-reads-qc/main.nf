@@ -24,14 +24,14 @@ process MTBC_READ_QC {
         path("${sampleID}.kaiju_summary.tsv"), optional: true
 
         // Emit ch for compiling read-QC
-        tuple val(sampleID), path("${sampleID}.qc.out"),                    emit: qc_results, optional: true
+        tuple val(sampleID), path("${sampleID}.qc.out"),                                emit: qc_results, optional: true
 
         // Emit ch for the updated channel with all the outputs
         tuple val(sampleID), 
                 path("mtbc_reads/${sampleID}_mtbc_R1.fastq.gz"), 
                 path("mtbc_reads/${sampleID}_mtbc_R2.fastq.gz"), 
                 path(mtbseq_class), path(mtbseq_stats), path(mtbseq_pos), 
-                path(mtbseq_vars), path(tbdb_out), path(who_out), path(mtbseq_vcf),            emit: updated_sample_ch1
+                path(mtbseq_vars), path(tbdb_out), path(who_out), path(mtbseq_vcf),     emit: updated_sample_ch1
 
 
     script:
