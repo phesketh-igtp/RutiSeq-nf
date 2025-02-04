@@ -42,59 +42,54 @@ process MTBC_READ_QC {
         def kaiju_fmi                   = params.kaiju_fmi
 
         """
-        gunzip -c ${forward} > R1.fq; gunzip -c ${reverse} > R2.fq
+            grep 'Mycobacterium tuberculosis ' ${kaiju_names} | cut -f1 | sort | uniq > MTBC.list
 
+            seqkit stats -abT -j ${task.cpus} ${forward} | sed "1d" > tmp.stats.r1.orig
+            seqkit stats -abT -j ${task.cpus} ${reverse} | sed "1d" > tmp.stats.r2.orig
 
-        fastq-pair R1.fq R2.fq
+            cut -f4 tmp.stats.r1.orig > tmp.r1_num; cut -f17 tmp.stats.r1.orig > tmp.r1_qual
+            cut -f4 tmp.stats.r2.orig > tmp.r2_num; cut -f17 tmp.stats.r2.orig > tmp.r2_qual
 
-        grep 'Mycobacterium tuberculosis ' ${kaiju_names} | cut -f1 | sort | uniq > MTBC.list
+            kaiju -t ${kaiju_nodes} -f ${kaiju_fmi} \\
+                    -i ${forward} -j ${reverse} \\
+                    -z ${task.cpus} \\
+                    ${additional_args_kaiju} \\
+                    -o ${sampleID}.kaiju.out
 
-        seqkit stats -abT -j ${task.cpus} ${forward} | sed "1d" > tmp.stats.r1.orig
-        seqkit stats -abT -j ${task.cpus} ${reverse} | sed "1d" > tmp.stats.r2.orig
+            kaiju2table -t "${kaiju_nodes}" -n ${kaiju_names} \\
+                        ${additional_args_kaiju2table} \\
+                        -o ${sampleID}.kaiju_summary.tsv \\
+                        ${sampleID}.kaiju.out
 
-        cut -f4 tmp.stats.r1.orig > tmp.r1_num; cut -f17 tmp.stats.r1.orig > tmp.r1_qual
-        cut -f4 tmp.stats.r2.orig > tmp.r2_num; cut -f17 tmp.stats.r2.orig > tmp.r2_qual
+            grep -f MTBC.list "${sampleID}.kaiju.out" | cut -f2 > tmp.${sampleID}.list
 
-        kaiju -t ${kaiju_nodes} -f ${kaiju_fmi} \\
-                -i ${forward} -j ${reverse} \\
-                -z ${task.cpus} \\
-                ${additional_args_kaiju} \\
-                -o ${sampleID}.kaiju.out
+            mkdir -p mtbc_reads/
+            seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${forward} -o mtbc_reads/${sampleID}_mtbc_R1.fastq.gz
+            seqkit stats -abT -j ${task.cpus} mtbc_reads/${sampleID}_mtbc_R1.fastq.gz | sed "1d" > tmp.stats.r1.filt
 
-        kaiju2table -t "${kaiju_nodes}" -n ${kaiju_names} \\
-                    ${additional_args_kaiju2table} \\
-                    -o ${sampleID}.kaiju_summary.tsv \\
-                    ${sampleID}.kaiju.out
+            seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${reverse} -o mtbc_reads/${sampleID}_mtbc_R2.fastq.gz
+            seqkit stats -abT -j ${task.cpus} mtbc_reads/${sampleID}_mtbc_R2.fastq.gz | sed "1d" > tmp.stats.r2.filt
 
-        grep -f MTBC.list "${sampleID}.kaiju.out" | cut -f2 > tmp.${sampleID}.list
+            cut -f4 tmp.stats.r1.filt > tmp.r1_num.filt ; cut -f17 tmp.stats.r1.filt > tmp.r1_qual.filt
+            cut -f4 tmp.stats.r2.filt > tmp.r2_num.filt ; cut -f17 tmp.stats.r2.filt > tmp.r2_qual.filt    
 
-        mkdir -p mtbc_reads/
-        seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${forward} -o mtbc_reads/${sampleID}_mtbc_R1.fastq.gz
-        seqkit stats -abT -j ${task.cpus} mtbc_reads/${sampleID}_mtbc_R1.fastq.gz | sed "1d" > tmp.stats.r1.filt
+            grep 'Mycobacterium' "${sampleID}.kaiju_summary.tsv" | cut -f2 > tmp.MTB.perc
+            echo -e ${sampleID} > tmp.sampleID
 
-        seqkit grep -j ${task.cpus} -f tmp.${sampleID}.list ${reverse} -o mtbc_reads/${sampleID}_mtbc_R2.fastq.gz
-        seqkit stats -abT -j ${task.cpus} mtbc_reads/${sampleID}_mtbc_R2.fastq.gz | sed "1d" > tmp.stats.r2.filt
+            # Create the output file of the results
+            paste -d '\t' tmp.sampleID \\
+                        tmp.r1_num \\
+                        tmp.r1_qual \\
+                        tmp.r2_num \\
+                        tmp.r2_qual \\
+                        tmp.MTB.perc \\
+                        tmp.r1_num.filt \\
+                        tmp.r1_qual.filt \\
+                        tmp.r2_num.filt \\
+                        tmp.r2_qual.filt \\
+                        > ${sampleID}.qc.out
 
-        cut -f4 tmp.stats.r1.filt > tmp.r1_num.filt ; cut -f17 tmp.stats.r1.filt > tmp.r1_qual.filt
-        cut -f4 tmp.stats.r2.filt > tmp.r2_num.filt ; cut -f17 tmp.stats.r2.filt > tmp.r2_qual.filt    
-
-        grep 'Mycobacterium' "${sampleID}.kaiju_summary.tsv" | cut -f2 > tmp.MTB.perc
-        echo -e ${sampleID} > tmp.sampleID
-
-        # Create the output file of the results
-        paste -d '\t' tmp.sampleID \\
-                    tmp.r1_num \\
-                    tmp.r1_qual \\
-                    tmp.r2_num \\
-                    tmp.r2_qual \\
-                    tmp.MTB.perc \\
-                    tmp.r1_num.filt \\
-                    tmp.r1_qual.filt \\
-                    tmp.r2_num.filt \\
-                    tmp.r2_qual.filt \\
-                    > ${sampleID}.qc.out
-
-        # Clean up temporary files
-        rm tmp.*
+            # Clean up temporary files
+            rm tmp.*
         """
 }
