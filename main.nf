@@ -101,26 +101,38 @@ workflow {
         ······································································································
         */
 
-        // Create channel from sample sheet
-            Channel.fromPath(params.samplesheet)
-                .splitCsv(header: true, sep: ',')
-                .map { row ->
-                    def requiredColumns = ['originalID', 'sampleID', 'forward_path', 'reverse_path', 'type']
-                    def missingColumns = requiredColumns.findAll { !row.containsKey(it) }
-                    if (missingColumns) {
-                        error "Missing required column(s) in samplesheet: ${missingColumns.join(', ')}"
+            // Create channel from sample sheet
+                Channel
+                    .fromPath(params.samplesheet)
+                    .ifEmpty { error "Sample sheet file '${params.samplesheet}' not found or empty" }
+                    .splitCsv(header: true, sep: ',')
+                    .map { row ->
+                        def requiredColumns = ['originalID', 'sampleID', 'forward_path', 'reverse_path', 'type']
+                        def missingColumns = requiredColumns.findAll { !row.containsKey(it) }
+                        if (missingColumns) {
+                            error "Missing required column(s) in samplesheet: ${missingColumns.join(', ')}"
+                        }
+                        
+                        // Check for empty paths
+                        if (!row.forward_path.trim() || !row.reverse_path.trim()) {
+                            error "Empty file path found for sample ${row.sampleID}. Both forward and reverse paths must be provided."
+                        }
+                        
+                        // Use the file function with error checking
+                        def forwardFile = file(row.forward_path.trim(), checkIfExists: true)
+                        def reverseFile = file(row.reverse_path.trim(), checkIfExists: true)
+                        
+                        tuple(row.sampleID.trim(), 
+                            forwardFile, 
+                            reverseFile, 
+                            row.type.trim()
+                        )
                     }
-                    tuple(row.sampleID.trim(), 
-                        file(row.forward_path.trim(), checkIfExists: true), 
-                        file(row.reverse_path.trim(), checkIfExists: true), 
-                        row.type.trim()
-                    )
-                }
-                .branch {
-                    sample: it[3] == 'sample'
-                    control: it[3] == 'control'
-                }
-                .set { branched_samples_by_type }
+                    .branch {
+                        sample: it[3] == 'sample'
+                        control: it[3] == 'control'
+                    }
+                    .set { branched_samples_by_type }
 
             // Remove the 'type' from the tuples and ensure only 3 elements
             samples_ch = branched_samples_by_type.sample.map { it -> 
