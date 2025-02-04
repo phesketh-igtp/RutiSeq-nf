@@ -10,7 +10,7 @@ process TBPROFILER_PROFILE_WHO {
             } else { 'quay.io/biocontainers/tb-profiler' }
     }
     
-    publishDir "${params.outdir}/bbdd/tbprofiler/who-only", mode: 'move'
+    publishDir "${params.outdir}/bbdd/tbprofiler/who-only", mode: 'move', pattern:'*.{bam,vcf.gz,json,txt}'
 
     input:
         tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse), path(mtbseq_class), 

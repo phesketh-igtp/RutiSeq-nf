@@ -42,6 +42,10 @@ process MTBC_READ_QC {
         def kaiju_fmi                   = params.kaiju_fmi
 
         """
+        gunzip -c ${forward} > R1.fq; gunzip -c ${reverse} > R2.fq
+
+
+        fastq-pair R1.fq R2.fq
 
         grep 'Mycobacterium tuberculosis ' ${kaiju_names} | cut -f1 | sort | uniq > MTBC.list
 

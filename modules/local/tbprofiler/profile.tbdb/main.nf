@@ -10,7 +10,7 @@ process TBPROFILER_PROFILE_TBDB {
                 } else { 'quay.io/biocontainers/tb-profiler' }
         }
 
-        publishDir "${params.outdir}/bbdd/tbprofiler/", mode: 'move'
+        publishDir "${params.outdir}/bbdd/tbprofiler/", mode: 'move', pattern: '*.{bam,vcf.gz,json,txt}'
 
         input:
                 tuple val(sampleID), 
@@ -42,8 +42,11 @@ process TBPROFILER_PROFILE_TBDB {
                         -p tbdb-${sampleID} \\
                         --txt --dir . \\
                         --db ${params.tbprofiler_tbdb} \\
-                        --threads ${task.cpus} \\
-                        ${additional_args}
+                        --threads ${task.cpus} ${additional_args}
 
+                touch bam/tbdb-${sampleID}.bam
+                touch vcf/tbdb-${sampleID}.targets.vcf.gz
+                touch results/tbdb-${sampleID}.results.json
+                touch results/tbdb-${sampleID}.results.txt
                 """
 }

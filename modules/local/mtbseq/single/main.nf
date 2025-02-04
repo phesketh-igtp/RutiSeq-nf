@@ -11,7 +11,8 @@ process MTBSEQ_SINGLE {
             } else { 'quay.io/biocontainers/mtbseq' }
     }
     
-    publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}", mode: 'move'
+    publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}", mode: 'move', pattern:'*.{bam,vcf.gz,json,tab,mpileup}'
+
 
     input:
         tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse), path(mtbseq_class), 
