@@ -11,7 +11,7 @@ process TBPROFILER_PROFILE_WHO {
             else return null
         }
     
-    publishDir "${params.outdir}/bbdd/tbprofiler/who-only", mode: 'move', pattern: '*.{results.json,results.txt}'
+    publishDir "${params.outdir}/bbdd/tbprofiler/who-only", mode: 'move', pattern: '*.{bam,targets.vcf.gz,results.json,results.txt}'
 
     input:
         tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse), path(mtbseq_class), 

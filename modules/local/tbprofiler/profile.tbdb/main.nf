@@ -11,7 +11,7 @@ process TBPROFILER_PROFILE_TBDB {
                 else return null
         }
         
-        publishDir "${params.outdir}/bbdd/tbprofiler/", mode: 'move', pattern: '*.{bam,.targets.vcf.gz,results.json,results.txt}'
+        publishDir "${params.outdir}/bbdd/tbprofiler/", mode: 'move', pattern: '*.{bam,targets.vcf.gz,results.json,results.txt}'
 
         input:
                 tuple val(sampleID), 
