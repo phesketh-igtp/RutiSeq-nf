@@ -4,8 +4,6 @@ process TBPROFILER_PROFILE_WHO {
 
     conda params.tbprofiler_env
 
-    array 50
-
     container { 
             if (workflow.containerEngine == 'singularity') return params.singularity_tbprofiler
             else if (workflow.containerEngine == 'docker') return params.docker_tbprofiler

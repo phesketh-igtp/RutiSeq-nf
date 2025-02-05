@@ -4,8 +4,6 @@ process MTBSEQ_SINGLE {
 
     conda params.mtbseq_env
 
-    array 25
-
     container { 
             if (workflow.containerEngine == 'singularity') return params.singularity_mtbseq
             else if (workflow.containerEngine == 'docker') return params.docker_mtbseq
