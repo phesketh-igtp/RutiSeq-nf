@@ -1,8 +1,6 @@
 process MTBC_READ_QC {
     
     tag "$sampleID"
-
-    array 10
     
     conda params.kaiju_env
 
