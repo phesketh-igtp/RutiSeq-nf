@@ -34,8 +34,7 @@ process POST_SINGLE_BBDD_CLEANUP {
             "${params.outdir}/bbdd/tbprofiler/Mapping_and_Variant_Statistics.tab" \\
             "${params.outdir}/bbdd/tbprofiler/Strain_Classification.tab" \\
             "${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R1.fastq.gz" \\
-            "${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R2.fastq.gz" \\
-            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.mpileup";
+            "${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R2.fastq.gz";
         do
             if [ -f \$file ] || [ -e \$file ]; then rm \$file; fi
         done
@@ -47,6 +46,17 @@ process POST_SINGLE_BBDD_CLEANUP {
 
         if [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileuplog" ]; then
             gzip --best "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileuplog"
+        fi
+
+        if [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileup" ]; then
+            gzip --best "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileup"
+        fi
+
+        # Compress the outputs from MTBSeq mpileup
+        if [ -f "${params.outdir}/bbdd/read-qc/tables/${sampleID}.qc.out" ]; then
+            gzip --best "${params.outdir}/bbdd/read-qc/tables/${sampleID}.qc.out"
+            gzip --best "${params.outdir}/bbdd/read-qc/tables/${sampleID}.kaiju.out"
+            gzip --best "${params.outdir}/bbdd/read-qc/tables/${sampleID}.kaiju_summary.tsv"
         fi
 
         """

@@ -95,6 +95,6 @@ process MTBC_READ_QC {
             mkdir tables/
             mv ${sampleID}.kaiju.out tables/
             mv ${sampleID}.kaiju_summary.tsv tables/
-            mv tables/${sampleID}.qc.out tables/
+            mv ${sampleID}.qc.out tables/
         """
 }

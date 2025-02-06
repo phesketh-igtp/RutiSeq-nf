@@ -1,5 +1,4 @@
 include { MTBC_READ_QC }              from '../modules/local/pre-wf-check/mtbc-reads-qc/main.nf'
-include { COMBINE_QC_RESULTS }        from '../modules/local/pre-wf-check/combine-qc-results/main.nf'
 include { TBPROFILER_PROFILE_TBDB }   from '../modules/local/tbprofiler/profile.tbdb/main.nf'
 include { TBPROFILER_PROFILE_WHO }    from '../modules/local/tbprofiler/profile.who/main.nf'
 include { MTBSEQ_SINGLE }             from '../modules/local/mtbseq/single/main.nf'
@@ -44,12 +43,6 @@ workflow SINGLE_WF {
 
         // Taxonomically classify and partition the MTBC reads
             MTBC_READ_QC( branched_channel.with_reads )
-
-                // Collect all QC results
-                    all_qc_results = MTBC_READ_QC.out.qc_results.map { it[1] }.collect()
-
-                // Combine QC results
-                    COMBINE_QC_RESULTS(all_qc_results, params.runID)
 
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
             TBPROFILER_PROFILE_TBDB( MTBC_READ_QC.out.updated_sample_ch1 )
