@@ -16,20 +16,13 @@ process COMBINE_QC_RESULTS {
         set -e
         set -x
 
-        echo "Current directory: \$(pwd)"
-        echo "Listing input files:"
-        #ls -l ${qc_files}
-
-        echo "Creating combined QC results file"
-        echo -e "RunID\tSampleID\torig.R1_reads\torig.R1_aveQ\torig.R2_reads\torig.R1_aveQ\torig.MTB_perc\tfilt.R1_reads\tfilt.R1_aveQ\tfilt.R2_reads\tfilt.R2_aveQ" > ${runID}_combined_qc_results.csv
+        echo -e "RunID,SampleID,orig.R1_reads,orig.R1_aveQ,orig.R2_reads,orig.R1_aveQ,orig.MTB_perc,filt.R1_reads,filt.R1_aveQ,filt.R2_reads,filt.R2_aveQ" > ${runID}_combined_qc_results.csv
 
         echo "Combining QC results"
         awk -v OFS=',' -v runid="${runID}" '{print runid,\$0}' *.qc.out >> ${runID}_combined_qc_results.csv
 
-        echo "Contents of combined QC results file:"
-        cat ${runID}_combined_qc_results.csv
+        sort ${runID}_combined_qc_results.csv | uniq > tmp
+        mv tmp ${runID}_combined_qc_results.csv
 
-        echo "Final directory contents:"
-        ls -l
     """
 }
