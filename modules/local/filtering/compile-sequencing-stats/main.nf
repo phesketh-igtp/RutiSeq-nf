@@ -5,59 +5,65 @@ process COMPILE_SEQUENCING_STATS {
     publishDir "${params.outdir}/bbdd/results/", mode: 'move'
 
     input:
-        val(runID)
+        val runID
         path tbdb_results
         path who_results
         path mtbseq_compiled_strains
         path mtbseq_compiled_map_stats
         path lineage_fractions
+        val sample_ids
 
     output:
         path("archive/${runID}.sequencing_summary.csv")
         path("main/sequencing_summary.csv"),                 emit: analysis_summary
         path("main/who_resistance_summary.csv"),             emit: who_resistance
         path("main/tbdb_resistance_summary.csv"),            emit: tbdb_resistance
-        path("lineage_samples_tuple.csv"),              emit: lineage_sample_tuple
+        path("lineage_samples_tuple.csv"),                   emit: lineage_sample_tuple
 
     script:
     def additional_args = task.ext.compile_sequencing_stats ?: ''
 
     """
     # Create the lienage fraction strings
-    Rscript ${params.r_script_dir}/tbprofiler_lineage_fractions.R \\
-                    --tbprofiler    tbdb-tbprofiler.txt \\
-                    --lineages      lineages.fractions.txt
+        Rscript ${params.r_script_dir}/tbprofiler_lineage_fractions.R \\
+                        --tbprofiler    tbdb-tbprofiler.txt \\
+                        --lineages      lineages.fractions.txt
 
+    # Convert the list of sample IDs to a format suitable for grep
+        echo '${sample_ids.join("\n")}' > run_sample_ids.txt
+
+    # Use grep to find lines containing the sample IDs
+        grep -f run_sample_ids.txt ${tbdb_results} | \\
+                cut -f2 | sort | uniq > run_sample_ids_taxonomy.txt
 
     # Generate summary statistics and create the sampleID,lineage df for
     ## creating into a channel 
-    Rscript ${params.r_script_dir}/compile-sequencing-statistics.R \\
-                --mtbseq_statistics     "Mapping_and_Variant_Statistics".tab \\
-                --mtbseq_classification "Strain_Classification".tab \\
-                --tbprofiler_tbdb       "tbdb-tbprofiler.txt" \\
-                --tbprofiler_who        "who-tbprofiler.txt" \\
-                --lineage_fractions     "tbprofiler.lineages.fractions.txt" \\
-                --minimum_coverage      ${params.mtbseq_min_cov} \\
-                --runID                 ${runID} \\
-                --dictionary_path       ${params.r_script_dir} \\
-                ${additional_args}
+        Rscript ${params.r_script_dir}/compile-sequencing-statistics.R \\
+                    --mtbseq_statistics     "Mapping_and_Variant_Statistics".tab \\
+                    --mtbseq_classification "Strain_Classification".tab \\
+                    --tbprofiler_tbdb       "tbdb-tbprofiler.txt" \\
+                    --tbprofiler_who        "who-tbprofiler.txt" \\
+                    --lineage_fractions     "tbprofiler.lineages.fractions.txt" \\
+                    --minimum_coverage      ${params.mtbseq_min_cov} \\
+                    --runID                 ${runID} \\
+                    --dictionary_path       ${params.r_script_dir} \\
+                    ${additional_args}
                 
     # extract the lineages from the params.config file
-    echo '${params.lineage_pairwise.join('\n')}' > selected_lineage_split.list
+        echo '${params.lineage_pairwise.join('\n')}' > selected_lineage_split.list
 
-    while read -r lineage; do
-        # Use grep to find matching lines from pairwise_analysis.list.csv
-        grep "\${lineage}" pairwise_analysis.list.csv | while IFS=';' read -r sampleID sub_lineage; do
-            # Check if sub_lineage contains the lineage
-            if [[ "\${sub_lineage}" == *"\${lineage}"* ]]; then
-                # Append the result to the output file
-                echo "\${lineage},\${sampleID}" >> lineage_samples_tuple.csv
-            fi
-        done
-    done < selected_lineage_split.list
+        while read -r lineage; do
+            # Use grep to find matching lines from pairwise_analysis.list.csv
+            grep "\${lineage}" pairwise_analysis.list.csv | while IFS=';' read -r sampleID sub_lineage; do
+                # Check if sub_lineage contains the lineage
+                if [[ "\${sub_lineage}" == *"\${lineage}"* ]]; then
+                    # Append the result to the output file
+                    echo "\${lineage},\${sampleID}" >> lineage_samples_tuple.csv
+                fi
+            done
+        done < selected_lineage_split.list
 
-    # Remove that lineage is there are less than 3 genomes (minimum needewd for MTBSeq pairwise analysis)
-        
+    # Remove that lineage if there are less than 3 genomes (minimum needewd for MTBSeq pairwise analysis)
         awk -F',' '
             {
                 count[\$1]++      # Count occurrences of each lineage in column 1
@@ -75,6 +81,12 @@ process COMPILE_SEQUENCING_STATS {
         mv lineage_samples_tuple.csv lineage_samples_tuple.unfiltered.csv
         mv lineage_samples_tuple.csv.tmp lineage_samples_tuple.csv
         cat lineage_samples_tuple.csv
+
+
+    # Filter the lineages to contain ONLY the lineages from the newest run
+        grep -f run_sample_ids_taxonomy.txt lineage_samples_tuple.csv > tmp
+            mv tmp lineage_samples_tuple.csv
+
 
     # Move the outputs into folders
         mkdir -p main archive

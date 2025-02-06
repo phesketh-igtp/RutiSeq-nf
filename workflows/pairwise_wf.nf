@@ -15,6 +15,7 @@ workflow PAIRWISE_WF {
         mtbseq_class_ch
         tbdb_out_ch
         who_out_ch
+        sampleID_list
 
     main:
     

@@ -114,7 +114,7 @@ workflow {
                             error "Empty file path found for sample ${row.sampleID}. Both forward and reverse paths must be provided."
                         }
                         
-                        // Use the file function with error checking
+                        // Use the file function with error checking for the existance of the files
                         def forwardFile = file(row.forward_path.trim(), checkIfExists: true)
                         def reverseFile = file(row.reverse_path.trim(), checkIfExists: true)
                         
@@ -247,12 +247,14 @@ workflow {
             /// [5] mtbseq_pos      [6] mtbseq_vars     [7] tbdb_out    [8] who_out         [9] mtbseq_vcf
 
             // filter channels of just the necessary output files contained within the tuple (by calling the index)
+                sampleID_dump       =   pairwise_samples_ch.map { it -> it[0] ?: null }
                 mtbseq_class_files  =   pairwise_samples_ch.map { it -> it[3] ?: null }
                 mtbseq_stats_files  =   pairwise_samples_ch.map { it -> it[4] ?: null }
                 tbdb_out_files      =   pairwise_samples_ch.map { it -> it[7] ?: null }
                 who_out_files       =   pairwise_samples_ch.map { it -> it[8] ?: null }
 
                 // make the channels
+                sampleID_list       =   sampleID_dump.collect()
                 mtbseq_stats_ch     =   mtbseq_stats_files.collect()
                 mtbseq_class_ch     =   mtbseq_class_files.collect()
                 tbdb_out_ch         =   tbdb_out_files.collect()
@@ -262,7 +264,8 @@ workflow {
                             mtbseq_stats_ch,
                             mtbseq_class_ch,
                             tbdb_out_ch,
-                            who_out_ch
+                            who_out_ch,
+                            sampleID_dump_list
                         )
 */
         /*
