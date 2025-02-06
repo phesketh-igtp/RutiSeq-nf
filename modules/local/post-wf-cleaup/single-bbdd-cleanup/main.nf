@@ -13,8 +13,7 @@ process POST_SINGLE_BBDD_CLEANUP {
         # Check and remove files only if they exist
 
         for file in \\
-            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/*R1*fastq.gz" \\
-            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/*R2*fastq.gz" \\
+            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/*fastq.gz" \\
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/tbdb-${sampleID}.results.txt" \\
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/who-${sampleID}.results.txt" \\
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mapping_and_Variant_Statistics.tab" \\
@@ -53,10 +52,8 @@ process POST_SINGLE_BBDD_CLEANUP {
         fi
 
         # Compress the outputs from MTBSeq mpileup
-        if [ -f "${params.outdir}/bbdd/read-qc/tables/${sampleID}.qc.out" ]; then
-            gzip --best "${params.outdir}/bbdd/read-qc/tables/${sampleID}.qc.out"
+        if [ -f "${params.outdir}/bbdd/read-qc/tables/${sampleID}.kaiju.out" ]; then
             gzip --best "${params.outdir}/bbdd/read-qc/tables/${sampleID}.kaiju.out"
-            gzip --best "${params.outdir}/bbdd/read-qc/tables/${sampleID}.kaiju_summary.tsv"
         fi
 
         """
