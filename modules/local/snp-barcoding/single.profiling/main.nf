@@ -11,7 +11,7 @@ process SNP_PROFILING_SINGLE {
             else return null
         }
     
-    publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/", mode: 'move', pattern: '*.{gatk.vcf.gz,gatk.vcf.gz.tbi}'
+    publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/", mode: 'copy', pattern: '*.{gatk.vcf.gz,gatk.vcf.gz.tbi}'
 
     input:
         tuple val(sampleID), 

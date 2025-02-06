@@ -11,7 +11,7 @@ process MTBSEQ_SINGLE {
             else return null
         }
     
-    publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}", mode: 'move', pattern:'*.{bam,vcf.gz,json,tab,mpileup}'
+    publishDir "${params.outdir}/bbdd/mtbseq/samples/${sampleID}", mode: 'copy', pattern:'*.{bam,vcf.gz,json,tab,mpileup}'
 
 
     input:
