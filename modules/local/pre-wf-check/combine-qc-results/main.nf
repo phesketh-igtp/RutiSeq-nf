@@ -2,14 +2,14 @@ process COMBINE_QC_RESULTS {
 
     tag "${runID}"
 
-    publishDir "${params.outdir}/combined_qc", mode: 'copy'
+    publishDir "${params.outdir}/read-qc/combined_qc/", mode: 'copy'
 
     input:
-    path qc_files
-    val runID
+        path(qc_files)
+        val(runID)
 
     output:
-    path "${runID}_combined_qc_results.csv", emit: combined_qc
+        path "${runID}_combined_qc_results.csv", emit: combined_qc
 
     script:
     """

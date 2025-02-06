@@ -11,7 +11,7 @@ process MTBC_READ_QC {
             else return null
         }
 
-    publishDir "${params.outdir}/bbdd/read-qc", mode: 'move', pattern: '*.{out,tsv,csv}'
+    publishDir "${params.outdir}/bbdd/read-qc/", mode: 'copy'
 
     input:
         tuple val(sampleID), 
@@ -20,11 +20,11 @@ process MTBC_READ_QC {
                 path(tbdb_out), path(who_out), path(mtbseq_vcf)
 
     output:
-        path("${sampleID}.kaiju.out"), optional: true
-        path("${sampleID}.kaiju_summary.tsv"), optional: true
+        path("tables/${sampleID}.kaiju.out"), optional: true
+        path("tables/${sampleID}.kaiju_summary.tsv"), optional: true
 
         // Emit ch for compiling read-QC
-        tuple val(sampleID), path("${sampleID}.qc.out"),                                emit: qc_results, optional: true
+        tuple val(sampleID), path("tables/${sampleID}.qc.out"),                                emit: qc_results, optional: true
 
         // Emit ch for the updated channel with all the outputs
         tuple val(sampleID), 
@@ -91,5 +91,10 @@ process MTBC_READ_QC {
 
             # Clean up temporary files
             rm tmp.*
+
+            mkdir tables/
+            mv ${sampleID}.kaiju.out tables/
+            mv ${sampleID}.kaiju_summary.tsv tables/
+            mv tables/${sampleID}.qc.out tables/
         """
 }

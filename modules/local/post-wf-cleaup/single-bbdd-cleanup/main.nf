@@ -30,23 +30,23 @@ process POST_SINGLE_BBDD_CLEANUP {
             "${params.outdir}/bbdd/tbprofiler/tbdb-${sampleID}.results.txt" \\
             "${params.outdir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R1.fastq.gz" \\
             "${params.outdir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R2.fastq.gz" \\
-            "${params.outdir}/bbdd/tbprofiler/who-only/who-${sampleID}.results.txt" \\
+            "${params.outdir}/bbdd/tbprofiler/who-only/tbdb-${sampleID}.results.txt" \\
             "${params.outdir}/bbdd/tbprofiler/Mapping_and_Variant_Statistics.tab" \\
             "${params.outdir}/bbdd/tbprofiler/Strain_Classification.tab" \\
             "${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R1.fastq.gz" \\
             "${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R2.fastq.gz" \\
-            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.mpileup; 
+            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.mpileup";
         do
             if [ -f \$file ] || [ -e \$file ]; then rm \$file; fi
         done
 
         # Compress the outputs from MTBSeq mpileup
-        if [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.mpileup" ]; then
-            gzip --best "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.mpileup"
+        if [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileup" ]; then
+            gzip --best "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileup"
         fi
 
-        if [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.mpileuplog" ]; then
-            gzip --best "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.mpileuplog"
+        if [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileuplog" ]; then
+            gzip --best "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileuplog"
         fi
 
         """

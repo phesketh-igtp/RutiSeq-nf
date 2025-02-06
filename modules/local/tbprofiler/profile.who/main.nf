@@ -11,7 +11,7 @@ process TBPROFILER_PROFILE_WHO {
             else return null
         }
     
-    publishDir "${params.outdir}/bbdd/tbprofiler/who-only/results/", mode: 'copy'
+    publishDir "${params.outdir}/bbdd/tbprofiler/who-only/", mode: 'copy'
 
     input:
         tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse), path(mtbseq_class), 
