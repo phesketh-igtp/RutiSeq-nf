@@ -2,7 +2,6 @@ name: phylogeny_env
 channels:
   - bioconda
   - conda-forge
-  - defaults
 dependencies:
   - bioconda::iqtree=2.3.6
   - bioconda::mafft=7.525

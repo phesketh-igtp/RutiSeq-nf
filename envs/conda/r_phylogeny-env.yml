@@ -2,7 +2,6 @@ name: r_phylogeny-env
 channels:
   - bioconda
   - conda-forge
-  - defaults
 dependencies:
 - bioconda::bioconductor-ggtree=3.14.0
 - bioconda::bioconductor-treeio=1.30.0

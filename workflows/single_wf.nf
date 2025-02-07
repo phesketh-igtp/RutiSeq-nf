@@ -77,7 +77,7 @@ workflow SINGLE_WF {
 
         // Cleanup to reduce storage usage in the publish directory
             sampleid_list_ch = final_updated_sample_ch.map { it[0] }
-            POST_SINGLE_BBDD_CLEANUP(sampleid_list_ch)
+            POST_SINGLE_BBDD_CLEANUP(branched_channel_with_reads_updated)
 
     emit:
         single_updated_samples_ch = final_updated_sample_ch

@@ -1,6 +1,5 @@
 name: r-env
 channels:
-  - defaults
   - bioconda
   - conda-forge
 dependencies:

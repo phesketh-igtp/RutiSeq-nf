@@ -2,7 +2,6 @@ name: mtbseq
 channels:
   - conda-forge
   - bioconda
-  - defaults
 dependencies:
   - conda-forge::openjdk=8.0.412  # This specifies Java 1.8
   - bioconda::mtbseq=1.1.0
