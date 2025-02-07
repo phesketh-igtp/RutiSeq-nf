@@ -12,7 +12,7 @@ process POST_SINGLE_BBDD_CLEANUP {
 
     tag "${sampleID}"
 
-    array 250
+    array 100
 
     input:
         tuple val(sampleID)
@@ -23,13 +23,14 @@ process POST_SINGLE_BBDD_CLEANUP {
         # Check and remove files only if they exist
 
         for file in \\
-            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/*fastq.gz" \\
+            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/${sampleID}_mtbc_R1.fastq.gz" \\
+            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/${sampleID}_mtbc_R2.fastq.gz" \\
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/tbdb-${sampleID}.results.txt" \\
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/who-${sampleID}.results.txt" \\
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mapping_and_Variant_Statistics.tab" \\
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Strain_Classification.tab" \\
-            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/*R1*fastq.gz" \\
-            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/*R2*fastq.gz" \\
+            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/${sampleID}_mtbc_R1.fastq.gz" \\
+            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/${sampleID}_mtbc_R2.fastq.gz" \\
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/tbdb-${sampleID}.results.txt" \\
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/who-${sampleID}.results.txt" \\
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/Mapping_and_Variant_Statistics.tab" \\
