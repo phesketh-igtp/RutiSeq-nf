@@ -40,20 +40,20 @@ process POST_SINGLE_BBDD_CLEANUP {
 
         # Compress the outputs from MTBSeq mpileup
         if [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileup" ]; then
-            gzip --best "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileup"
+            gzip --force --best "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileup"
         fi
 
         if [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileuplog" ]; then
-            gzip --best "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileuplog"
+            gzip --force --best "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileuplog"
         fi
 
         if [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileup" ]; then
-            gzip --best "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileup"
+            gzip --force --best "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileup"
         fi
 
         # Compress the outputs from MTBSeq mpileup
         if [ -f "${params.outdir}/bbdd/read-qc/tables/${sampleID}.kaiju.out" ]; then
-            gzip --best "${params.outdir}/bbdd/read-qc/tables/${sampleID}.kaiju.out"
+            gzip --force --best "${params.outdir}/bbdd/read-qc/tables/${sampleID}.kaiju.out"
         fi
 
         """
