@@ -35,7 +35,7 @@ process POST_SINGLE_BBDD_CLEANUP {
             "${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R1.fastq.gz" \\
             "${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R2.fastq.gz";
         do
-            if [ -f \$file ] || [ -e \$file ]; then rm \$file; fi
+            if [ -f "\${file}" ] || [ -e "\${file}" ]; then rm "\${file}"; fi
         done
 
         # Compress the outputs from MTBSeq mpileup
