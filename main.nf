@@ -220,7 +220,7 @@ workflow {
         ······································································································
         */
 
-            SINGLE_WF( comp_samples_ch )
+            SINGLE_WF( params.runID, comp_samples_ch )
                     
                 // DEBUG: Demonstrate the content of the channel
                 ///     SINGLE_WF.out.single_updated_samples_ch.view { sample -> "Sample: $sampleID" }
@@ -265,7 +265,7 @@ workflow {
                             mtbseq_class_ch,
                             tbdb_out_ch,
                             who_out_ch,
-                            sampleID_dump_list
+                            sampleID_list
                         )
 */
         /*

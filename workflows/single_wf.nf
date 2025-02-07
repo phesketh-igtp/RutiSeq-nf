@@ -13,6 +13,7 @@ workflow SINGLE_WF {
     */
 
     take:
+        runID
         comp_samples_ch
 
     main:
@@ -21,11 +22,11 @@ workflow SINGLE_WF {
             Opening message for workflow
         */ 
 
-        def color_purple = '\u001B[35m'
-        def color_green = '\u001B[32m'
-        def color_red = '\u001B[31m'
-        def color_cyan = '\u001B[36m'
-        def no_color = '\u001B[0m'
+        //def purple  = '\u001B[35m'
+        def green   = '\u001B[32m'
+        def red     = '\u001B[31m'
+        def cyan    = '\u001B[36m'
+        def no_col  = '\u001B[0m'
 
         // Check if the input channel is empty
 
@@ -35,6 +36,20 @@ workflow SINGLE_WF {
                 without_reads: it[1] == [] || it[2] == [] }
 
             sample_ch_skip = branched_channel.without_reads
+
+            // Count the number of samples in each channel
+                with_reads_count = branched_channel.with_reads.count()
+                without_reads_count = sample_ch_skip.count()
+
+            // Combine the counts and log the message
+                with_reads_count.combine(without_reads_count)
+                    .map { with_reads, without_reads -> 
+                        log.info "
+                        LOGGING: ${runID}
+                            ${red}${with_reads}${green} samples for ${cyan}SINGLE_WF()${green} analysis
+                            ${red}${without_reads}${green} samples already in database and skipped until ${cyan}PAIRWISE()${green}${no_col}
+                        "
+                    }
 
         /*
         // DEBUG:: View the results

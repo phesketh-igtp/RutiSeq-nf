@@ -5,13 +5,13 @@ process COMPILE_SEQUENCING_STATS {
     publishDir "${params.outdir}/bbdd/results/", mode: 'move'
 
     input:
-        val runID
-        path tbdb_results
-        path who_results
-        path mtbseq_compiled_strains
-        path mtbseq_compiled_map_stats
-        path lineage_fractions
-        val sample_ids
+        val(runID)
+        path(tbdb_results)
+        path(who_results)
+        path(mtbseq_compiled_strains)
+        path(mtbseq_compiled_map_stats)
+        path(lineage_fractions)
+        val(sample_ids)
 
     output:
         path("archive/${runID}.sequencing_summary.csv")
@@ -21,6 +21,7 @@ process COMPILE_SEQUENCING_STATS {
         path("lineage_samples_tuple.csv"),                   emit: lineage_sample_tuple
 
     script:
+
     def additional_args = task.ext.compile_sequencing_stats ?: ''
 
     """
@@ -86,7 +87,6 @@ process COMPILE_SEQUENCING_STATS {
     # Filter the lineages to contain ONLY the lineages from the newest run
         grep -f run_sample_ids_taxonomy.txt lineage_samples_tuple.csv > tmp
             mv tmp lineage_samples_tuple.csv
-
 
     # Move the outputs into folders
         mkdir -p main archive

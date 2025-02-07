@@ -39,7 +39,8 @@ workflow PAIRWISE_WF {
                                         TBPROFILER_COMPILE_TBDB.out.lineage_fractions,
                                         TBPROFILER_COMPILE_WHO.out.who_results,
                                         MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_strains,
-                                        MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_map_stats
+                                        MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_map_stats,
+                                        sampleID_list
                                     )
 
             // Create tuple and data channel from lineage_samples_paths.csv

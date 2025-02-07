@@ -59,6 +59,14 @@ process SNP_PROFILING_SINGLE {
             if [ -f "\${file}" ] || [ -e "\${file}" ]; then rm "\${file}"; fi
         done
 
+    # Compress the outputs from MTBSeq mpileup
+        if [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileup" ]; then
+            gzip --force --best "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileup"
+        fi
+
+        if [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileuplog" ]; then
+            gzip --force --best "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileuplog"
+        fi
 
     """
 
