@@ -48,6 +48,17 @@ process SNP_PROFILING_SINGLE {
 
     rm sample.list
 
+
+    # remove the published reads from the previous module:
+        for file in \\
+            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/*fastq.gz" \\
+            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/tbdb-${sampleID}.results.txt" \\
+            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/who-${sampleID}.results.txt" \\
+        do
+            if [ -f "\${file}" ] || [ -e "\${file}" ]; then rm "\${file}"; fi
+        done
+
+
     """
 
 }

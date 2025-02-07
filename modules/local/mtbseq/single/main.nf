@@ -69,6 +69,15 @@ process MTBSEQ_SINGLE {
             mv Classification/Strain_Classification.tab Classification/${sampleID}.Strain_Classification.tab
             mv Statistics/Mapping_and_Variant_Statistics.tab Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
 
+
+        # remove the published reads from the previous module:
+            for file in \\
+                "${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R1.fastq.gz" \\
+                "${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R2.fastq.gz";
+            do
+                if [ -f "\${file}" ] || [ -e "\${file}" ]; then rm "\${file}"; fi
+            done
+
         """
 
 }

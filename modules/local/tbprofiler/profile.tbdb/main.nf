@@ -37,17 +37,32 @@ process TBPROFILER_PROFILE_TBDB {
 
                 """
                 # Run TB-Proiler using TBDB database
-                tb-profiler profile \\
-                        -1 ${mtbc_forward} \\
-                        -2 ${mtbc_reverse} \\
-                        -p tbdb-${sampleID} \\
-                        --txt --dir . \\
-                        --db ${params.tbprofiler_tbdb} \\
-                        --threads ${task.cpus} ${additional_args}
+                        tb-profiler profile \\
+                                -1 ${mtbc_forward} \\
+                                -2 ${mtbc_reverse} \\
+                                -p tbdb-${sampleID} \\
+                                --txt --dir . \\
+                                --db ${params.tbprofiler_tbdb} \\
+                                --threads ${task.cpus} ${additional_args}
 
-                touch bam/tbdb-${sampleID}.bam
-                touch vcf/tbdb-${sampleID}.targets.vcf.gz
-                touch results/tbdb-${sampleID}.results.json
-                touch results/tbdb-${sampleID}.results.txt
+                        touch bam/tbdb-${sampleID}.bam
+                        touch vcf/tbdb-${sampleID}.targets.vcf.gz
+                        touch results/tbdb-${sampleID}.results.json
+                        touch results/tbdb-${sampleID}.results.txt
+
+
+                # remove the published files from the previous module:
+                        for file in \\
+                                "${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R1.fastq.gz" \\
+                                "${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R2.fastq.gz";
+                        do
+                                if [ -f "\${file}" ] || [ -e "\${file}" ]; then rm "\${file}"; fi
+                        done
+
+                # Compress the outputs from MTBSeq mpileup
+                        if [ -f "${params.outdir}/bbdd/read-qc/tables/${sampleID}.kaiju.out" ]; then
+                                gzip --force --best "${params.outdir}/bbdd/read-qc/tables/${sampleID}.kaiju.out"
+                        fi
+
                 """
 }

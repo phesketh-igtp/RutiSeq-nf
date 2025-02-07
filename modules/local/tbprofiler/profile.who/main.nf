@@ -34,6 +34,7 @@ process TBPROFILER_PROFILE_WHO {
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
+        # Run main function
         tb-profiler profile \\
                 -1 ${mtbc_forward} \\
                 -2 ${mtbc_reverse} \\
@@ -43,5 +44,14 @@ process TBPROFILER_PROFILE_WHO {
             --threads ${task.cpus} \\
             ${additional_args}
 
+
+        # remove the published files from the previous module:
+            for file in \\
+                "${params.outdir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R1.fastq.gz" \\
+                "${params.outdir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R2.fastq.gz" \\
+                "${params.outdir}/bbdd/tbprofiler/who-only/tbdb-${sampleID}.results.txt";
+            do
+                if [ -f "\${file}" ] || [ -e "\${file}" ]; then rm "\${file}"; fi
+            done
         """
 }
