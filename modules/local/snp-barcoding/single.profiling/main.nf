@@ -56,7 +56,9 @@ process SNP_PROFILING_SINGLE {
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/tbdb-${sampleID}.results.txt" \\
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/who-${sampleID}.results.txt" \\
         do
-            if [ -f "\${file}" ] || [ -e "\${file}" ]; then rm "\${file}"; fi
+            if [ -f "\${file}" ] || [ -e "\${file}" ]; then
+                rm "\${file}"
+            fi
         done
 
     # Compress the outputs from MTBSeq mpileup

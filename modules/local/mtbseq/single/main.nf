@@ -75,7 +75,9 @@ process MTBSEQ_SINGLE {
                 "${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R1.fastq.gz" \\
                 "${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R2.fastq.gz";
             do
-                if [ -f "\${file}" ] || [ -e "\${file}" ]; then rm "\${file}"; fi
+                    if [ -f "\${file}" ] || [ -e "\${file}" ]; then
+                        rm "\${file}"
+                    fi
             done
 
         """

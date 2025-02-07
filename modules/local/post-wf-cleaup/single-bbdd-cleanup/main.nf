@@ -30,22 +30,10 @@ process POST_SINGLE_BBDD_CLEANUP {
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/Mapping_and_Variant_Statistics.tab" \\
             "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/Strain_Classification.tab" \\
         do
-            if [ -f "\${file}" ] || [ -e "\${file}" ]; then rm "\${file}"; fi
+            if [ -f "\${file}" ] || [ -e "\${file}" ]; then
+                rm "\${file}"
+            fi
         done
-
-        # Compress the outputs from MTBSeq mpileup
-            if [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileup" ]; then
-                gzip --force --best "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileup"
-            fi
-
-            if [ -f "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileuplog" ]; then
-                gzip --force --best "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileuplog"
-            fi
-
-        # Compress the outputs from MTBSeq mpileup
-            if [ -f "${params.outdir}/bbdd/read-qc/tables/${sampleID}.kaiju.out" ]; then
-                gzip --force --best "${params.outdir}/bbdd/read-qc/tables/${sampleID}.kaiju.out"
-            fi
 
         """
 
