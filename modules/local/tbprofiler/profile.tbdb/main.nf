@@ -53,8 +53,8 @@ process TBPROFILER_PROFILE_TBDB {
 
                 # remove the published files from the previous module:
                         for file in \\
-                                "${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R1.fastq.gz" \\
-                                "${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R2.fastq.gz";
+                                ${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R1.fastq.gz \\
+                                ${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R2.fastq.gz;
                         do
                                 if [ -f "\${file}" ] || [ -e "\${file}" ]; then
                                         rm "\${file}"

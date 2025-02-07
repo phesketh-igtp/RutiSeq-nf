@@ -47,9 +47,9 @@ process TBPROFILER_PROFILE_WHO {
 
         # remove the published files from the previous module:
             for file in \\
-                "${params.outdir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R1.fastq.gz" \\
-                "${params.outdir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R2.fastq.gz" \\
-                "${params.outdir}/bbdd/tbprofiler/who-only/tbdb-${sampleID}.results.txt";
+                ${params.outdir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R1.fastq.gz \\
+                ${params.outdir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R2.fastq.gz \\
+                ${params.outdir}/bbdd/tbprofiler/who-only/tbdb-${sampleID}.results.txt;
             do
                     if [ -f "\${file}" ] || [ -e "\${file}" ]; then
                         rm "\${file}"

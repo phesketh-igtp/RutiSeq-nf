@@ -72,8 +72,8 @@ process MTBSEQ_SINGLE {
 
         # remove the published reads from the previous module:
             for file in \\
-                "${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R1.fastq.gz" \\
-                "${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R2.fastq.gz";
+                ${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R1.fastq.gz \\
+                ${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R2.fastq.gz;
             do
                     if [ -f "\${file}" ] || [ -e "\${file}" ]; then
                         rm "\${file}"

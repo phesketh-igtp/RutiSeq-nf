@@ -2,5 +2,6 @@ name: tb-profiler
 channels:
   - bioconda
   - conda-forge
+  - defaults
 dependencies:
   - bioconda::tb-profiler=6.5.0
