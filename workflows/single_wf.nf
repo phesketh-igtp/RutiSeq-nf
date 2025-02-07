@@ -44,7 +44,7 @@ workflow SINGLE_WF {
             // Combine the counts and log the message
                 with_reads_count.combine(without_reads_count)
                     .map { with_reads, without_reads -> 
-                        log.info "${green}LOGGING: ${red}${runID}${green} | For ${cyan}SINGLE_WF()${green} : ${red}${with_reads}${green} samples | Skipped until ${cyan}PAIRWISE()${green}: ${red}${without_reads}${green} samples${no_col}"
+                        log.info "${green}runID: ${red}${runID}${green} || For ${cyan}SINGLE_WF()${green} : ${red}${with_reads}${green} samples || Skipped until ${cyan}PAIRWISE()${green}: ${red}${without_reads}${green} samples${no_col}"
                     }
 
         /*
