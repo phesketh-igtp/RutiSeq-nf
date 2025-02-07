@@ -1,4 +1,19 @@
 process TBPROFILER_PROFILE_WHO {
+
+        /*
+        In this module TBProfiler is run for a single genome using the WHO database only - this is used to 
+            get WHO acceptd resistance profiles. The output prefix of module file is defined as who-${sampleID} to 
+            prevent overlapping file names later down the line.I am certain that I tried stageAs: as some point to circumvent this issue, 
+            but it caused other problems. 
+            TODO: revisit this issue.
+        Like the previous modules, the input tuple for this module is the paths to all the files
+            needed for a sample to proceed into the PAIRWISE_WF(), which litters the publish directory
+            these excess files and are removed at the very end. This was originally done with a IF argument
+            to only remove them if the files did not exist - this prevents nextflow complaining of they 
+            were not generated - but this created some sybtax errors, so I changed it to touching the 
+            files then removing them manually. 
+            TODO: might be to revisit this at a later date.
+    */
     
     tag "$sampleID"
 
@@ -44,16 +59,8 @@ process TBPROFILER_PROFILE_WHO {
             --threads ${task.cpus} \\
             ${additional_args}
 
-
         # remove the published files from the previous module:
-            for file in \\
-                ${params.outdir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R1.fastq.gz \\
-                ${params.outdir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R2.fastq.gz \\
-                ${params.outdir}/bbdd/tbprofiler/who-only/tbdb-${sampleID}.results.txt;
-            do
-                    if [ -f "\${file}" ] || [ -e "\${file}" ]; then
-                        rm "\${file}"
-                    fi
-            done
+            rm -f  ${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R1.fastq.gz
+            rm -f  ${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R2.fastq.gz
         """
 }

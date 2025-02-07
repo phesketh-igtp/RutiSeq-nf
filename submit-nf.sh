@@ -33,6 +33,8 @@ echo -e "Running:
                 nextflow run "$@" -ansi-log false & pid=$!
 "
 
+echo -e "$(date +'%d/%m/%Y %H:%M:%S')	qsub -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -l mem_free=6G submit-nf.sh "$@"" >> submit-nf.log
+
 # Wait for the pipeline to finish
 echo "Waiting for ${pid}"
 wait $pid

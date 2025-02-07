@@ -21,20 +21,27 @@ process POST_SINGLE_BBDD_CLEANUP {
 
         """
         # Check and remove files only if they exist
+            rm -f ${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R1.fastq.gz
+            rm -f ${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R2.fastq.gz
 
-        for file in \\
-            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/${sampleID}_mtbc_R1.fastq.gz" \\
-            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/${sampleID}_mtbc_R2.fastq.gz" \\
-            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/tbdb-${sampleID}.results.txt" \\
-            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/who-${sampleID}.results.txt" \\
-            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/Mapping_and_Variant_Statistics.tab" \\
-            "${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/Strain_Classification.tab" \\
-        do
-            if [ -f "\${file}" ] || [ -e "\${file}" ]; then
-                rm "\${file}"
-            fi
-        done
+            rm -f  ${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R1.fastq.gz       
+            rm -f  ${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R2.fastq.gz
 
+            rm -f  ${params.outdir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R1.fastq.gz       
+            rm -f  ${params.outdir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R2.fastq.gz
+            rm -f  ${params.outdir}/bbdd/tbprofiler/who-only/${sampleID}/tbdb-${sampleID}.results.txt
+
+            rm -f  ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/${sampleID}_mtbc_R1.fastq.gz
+            rm -f  ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/${sampleID}_mtbc_R2.fastq.gz
+            rm -f  ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/tbdb-${sampleID}.results.txt
+            rm -f  ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/who-${sampleID}.results.txt
+
+            rm -f ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/${sampleID}_mtbc_R1.fastq.gz
+            rm -f ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/${sampleID}_mtbc_R2.fastq.gz
+            rm -f ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/tbdb-${sampleID}.results.txt
+            rm -f ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/who-${sampleID}.results.txt
+            rm -f ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/Mapping_and_Variant_Statistics.tab
+            rm -f ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/Strain_Classification.tab
         """
 
 }
