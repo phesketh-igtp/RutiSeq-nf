@@ -259,7 +259,7 @@ workflow {
                 mtbseq_class_ch     =   mtbseq_class_files.collect()
                 tbdb_out_ch         =   tbdb_out_files.collect()
                 who_out_ch          =   who_out_files.collect()
-/*
+
             PAIRWISE_WF( params.runID,
                             mtbseq_stats_ch,
                             mtbseq_class_ch,
@@ -267,7 +267,7 @@ workflow {
                             who_out_ch,
                             sampleID_list
                         )
-*/
+
         /*
         ······································································································
             SUMMARY WORKFLOW (SUMMARU_WF):
@@ -277,7 +277,7 @@ workflow {
                 - Generate MJN files for visualisation in PopArt
         ······································································································
         */
-/*
+
             SUMMARY_WF( params.runID,
                         PAIRWISE_WF.out.pairwise_clusters,
                         PAIRWISE_WF.out.analysis_summary,
@@ -285,7 +285,7 @@ workflow {
                         PAIRWISE_WF.out.tbdb_resistance,
                         PAIRWISE_WF.out.phylogeny_plotting_ch
                     )
-*/
+
         /*
         ······································································································
             BARCODING ANALYSIS (BARCODING_WF)
