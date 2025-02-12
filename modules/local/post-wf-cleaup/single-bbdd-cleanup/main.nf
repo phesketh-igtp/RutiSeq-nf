@@ -36,12 +36,11 @@ process POST_SINGLE_BBDD_CLEANUP {
             rm -f  ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/tbdb-${sampleID}.results.txt
             rm -f  ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/who-${sampleID}.results.txt
 
-            rm -f ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/${sampleID}_mtbc_R1.fastq.gz
-            rm -f ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/${sampleID}_mtbc_R2.fastq.gz
+            rm -f ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/${sampleID}*R1.fastq.gz
+            rm -f ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/${sampleID}*R2.fastq.gz
             rm -f ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/tbdb-${sampleID}.results.txt
             rm -f ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/who-${sampleID}.results.txt
-            rm -f ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/Mapping_and_Variant_Statistics.tab
-            rm -f ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/Strain_Classification.tab
+            rm -f ${params.outdir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/*.tab
         """
 
 }
