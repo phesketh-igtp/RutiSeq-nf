@@ -29,7 +29,7 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
         # Need to make the respective SNP alignment for the H37Rv and the Ancestral sequence for the phylogeny
             
         # 1. grab a single sequence in the fasta file (first) to get the positions
-            seqkit sample -n 1 ${fasta} > ${lineage}.tmp.fasta
+            seqkit seq -w 0 ${fasta} | head -2 > ${lineage}.tmp.fasta
             
         # 2. create list of how many positions there are in the seq.)
             awk '
