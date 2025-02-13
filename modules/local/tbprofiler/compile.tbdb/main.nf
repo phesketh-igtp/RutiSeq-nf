@@ -29,46 +29,43 @@ process TBPROFILER_COMPILE_TBDB {
         """
         mkdir results/; mkdir bam/; mkdir vcf/; mkdir tmp/
 
-        # move all the carried over files to a temp directory so it doesnt interfere with TB-Profiler
-        mv tbdb-*txt tmp/
-
         # create the symbolic links to the result directories
-        ln -s ${params.outdir}/bbdd/tbprofiler/results/* results/;
-        ln -s ${params.outdir}/bbdd/tbprofiler/bam/* bam/;
-        ln -s ${params.outdir}/bbdd/tbprofiler/vcf/* vcf/
+            ln -s ${params.outdir}/bbdd/tbprofiler/results/* results/;
+            ln -s ${params.outdir}/bbdd/tbprofiler/bam/* bam/;
+            ln -s ${params.outdir}/bbdd/tbprofiler/vcf/* vcf/
 
-        tb-profiler collate --full --mark_missing --all_variants --itol
+        # perform tb profiler compile:
+            tb-profiler collate --full --mark_missing --all_variants --itol
 
-        sed -i 's/tbdb-//g' tbprofiler.txt
-        sed -i 's/tbdb-//g' tbprofiler.variants.csv
-        sed -i 's/tbdb-//g' tbprofiler.variants.txt
-        sed -i 's/tbdb-//g' tbprofiler.dr.indiv.itol.txt
-        sed -i 's/tbdb-//g' tbprofiler.dr.itol.txt
-        sed -i 's/tbdb-//g' tbprofiler.lineage.itol.txt
+            sed -i 's/tbdb-//g' tbprofiler.txt
+            sed -i 's/tbdb-//g' tbprofiler.variants.csv
+            sed -i 's/tbdb-//g' tbprofiler.variants.txt
+            sed -i 's/tbdb-//g' tbprofiler.dr.indiv.itol.txt
+            sed -i 's/tbdb-//g' tbprofiler.dr.itol.txt
+            sed -i 's/tbdb-//g' tbprofiler.lineage.itol.txt
 
 
         # Move the files to give them unique names
-        mv tbprofiler.txt tbdb-tbprofiler.txt
-        mv tbprofiler.variants.csv          tbdb-tbprofiler.variants.csv
-        mv tbprofiler.variants.txt          tbdb-tbprofiler.variants.txt
-        mv tbprofiler.dr.indiv.itol.txt     tbdb-tbprofiler.dr.indiv.itol.txt
-        mv tbprofiler.dr.itol.txt           tbdb-tbprofiler.dr.itol.txt
-        mv tbprofiler.lineage.itol.txt      tbdb-tbprofiler.lineage.itol.txt
+            mv tbprofiler.txt tbdb-tbprofiler.txt
+            mv tbprofiler.variants.csv          tbdb-tbprofiler.variants.csv
+            mv tbprofiler.variants.txt          tbdb-tbprofiler.variants.txt
+            mv tbprofiler.dr.indiv.itol.txt     tbdb-tbprofiler.dr.indiv.itol.txt
+            mv tbprofiler.dr.itol.txt           tbdb-tbprofiler.dr.itol.txt
+            mv tbprofiler.lineage.itol.txt      tbdb-tbprofiler.lineage.itol.txt
 
         # Get the fractions of all the lineages
-        for file in results/tbdb-*.txt; do
-            id=\$(basename \$file .results.txt)
-            sed -e '/Resistance report/,\$d' \\
-                -e '1,/Lineage report/d' \\
-                -e 's@-@@g' \\
-                -e '/^\$/d' \\
-                -e "s@^@\${id}\t@" \\
-                \$file | sort >> lineages.fractions.txt
-        done
+            for file in results/tbdb-*.txt; do
+                id=\$(basename \$file .results.txt)
+                sed -e '/Resistance report/,\$d' \\
+                    -e '1,/Lineage report/d' \\
+                    -e 's@-@@g' \\
+                    -e '/^\$/d' \\
+                    -e "s@^@\${id}\t@" \\
+                    \$file | sort >> lineages.fractions.txt
+            done
 
         # Add header to lineages.fractions.txt
-        sed -i '1iSampleID\\tLineage\\tFraction\\tFamily\\tRd' lineages.fractions.txt
-
-        sed -i 's/tbdb-//g' lineages.fractions.txt
+            sed -i '1iSampleID\\tLineage\\tFraction\\tFamily\\tRd' lineages.fractions.txt
+            sed -i 's/tbdb-//g' lineages.fractions.txt
         """
 }
