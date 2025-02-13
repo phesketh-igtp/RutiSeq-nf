@@ -10,7 +10,7 @@ process TBPROFILER_COMPILE_TBDB {
         }
     }
 
-    publishDir "${params.outdir}/bbdd/tbprofiler/", mode: 'move'
+    publishDir "${params.outdir}/bbdd/tbprofiler/", mode: 'copy'
 
     input:
         val(runID)

@@ -1,6 +1,6 @@
 process CONCATENATE_CLUSTERS {
 
-    publishDir "${params.outdir}/bbdd/results/", mode: 'move'
+    publishDir "${params.outdir}/bbdd/results/", mode: 'copy'
 
     input:
         path(clusters)
