@@ -57,12 +57,15 @@ workflow NEGATIVE_CONTROL_WF {
         // collect all the results
             all_cn_wc_results       = CN_READ_TAXONOMY.out.cn_qc_results.map { it[1] }.collect()
             all_cn_kaiju_results    = CN_READ_TAXONOMY.out.cn_kaiju_results.map { it[1] }.collect()
+
+            all_cn_wc_results.view()
+            all_cn_kaiju_results.view()
             
 
         /*
         Combine the results into a single csv file
         */
 
-            COMBINE_QC_RESULTS( params.runID, all_cn_wc_results, all_cn_kaiju_results )
+            //COMBINE_QC_RESULTS( params.runID, all_cn_wc_results, all_cn_kaiju_results )
 
 }

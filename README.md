@@ -146,8 +146,10 @@ qsub -S /bin/bash -cwd -V -N nf-main \
 If you are adding new data to an existing database generated with this pipeline, the <code>--outdir</code> MUST be be given the path to that database.
 
 # <u>To be done</u>
+- **Negative contorl wf**
+  - currently commented out the compile NC results as there is a clash in the input tuples.
 - **Summary workflow**
-  - Write HTML Quatro results for the summary workflow
+  - Write HTML Rmarkdown results for the summary workflow
   - Create datbase summary figures:
     - number of genomes
     - distribution of lineages
@@ -156,3 +158,5 @@ If you are adding new data to an existing database generated with this pipeline,
     - expanding clusters
     - merging clusters (at higher SNP levels)
     - position of SNPs relative to clusters
+- **Manual modification app**
+  - continue working on it

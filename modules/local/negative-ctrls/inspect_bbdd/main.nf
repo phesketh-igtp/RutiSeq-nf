@@ -5,7 +5,9 @@ process INSPECT_BBDD {
     array 10
 
     input:
-        tuple val(sampleID), path(forward), path(reverse)
+        tuple val(sampleID), 
+            path(forward), 
+            path(reverse)
 
     output:
         path("controls.tuple.csv"), emit: controls_paths
