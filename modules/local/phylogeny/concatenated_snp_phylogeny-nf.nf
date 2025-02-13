@@ -93,9 +93,4 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
             mv ${lineage}_ML.* Phylogeny/
     """
 
-    //        # Create molecular timetree
-    //        #treetime --aln Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta \\
-    //        #        --tree Phylogeny/${lineage}_ML.contree \\
-    //        #        --dates ${params.metadata} \\
-    //        #        --outdir Phylogeny/${lineage}_timetree
 }
