@@ -14,8 +14,8 @@ process CN_READ_TAXONOMY {
         tuple val(sampleID), path(forward), path(reverse)
 
     output:
-        tuple path("${sampleID}.qc.out"),    emit: cn_qc_results
-        tuple path("${sampleID}.kaiju.out")
+        path("${sampleID}.qc.out"),    emit: cn_qc_results
+        path("${sampleID}.kaiju.out")
         path("${sampleID}.kaiju_summary.tsv"), emit: cn_kaiju_results
 
     script:
