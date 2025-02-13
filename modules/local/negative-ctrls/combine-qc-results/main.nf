@@ -24,7 +24,7 @@ process COMBINE_QC_RESULTS {
 
         # Creating Kaiju results
             echo -e "RunID\tSampleID\tpercent	reads\ttaxon_id\ttaxon_name" > ${runID}_combined_kaiju_results.negative-control.tsv
-            awk -v OFS='\t,' -v runid="${runID}" '{print runid\$0}' ${kaiju_files} >> $${runID}_combined_kaiju_results.negative-control.tsv
+            awk -v OFS='\t,' -v runid="${runID}" '{print runid\$0}' ${kaiju_files} >> ${runID}_combined_kaiju_results.negative-control.tsv
 
         """
 }
