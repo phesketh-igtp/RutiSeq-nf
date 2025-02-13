@@ -54,14 +54,22 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
             echo "${sampleIDs.join('\n')}" > samplesID.list
             sed 's@_@\t@g' samplesID.list > ${lineage}_samples.txt
 
-        # Create symbolic links to the apprpriate files
+        # Create symbolic links to the apprpriate files (only if the file does not exist)
             while IFS=',' read -r samples; do
 
                 for file in ${params.outdir}/bbdd/mtbseq/samples/\${samples}/Position_Tables/*.tab; do
-                    ln -s \${file} Position_Tables/\$(basename \$file); done
+                    dest="Position_Tables/$(basename "\$file")"
+                    if [[ ! -e "\$dest" && ! -L "\$dest" ]]; then
+                        ln -s "\$file" "\$dest"
+                    fi
+                done
 
                 for file in ${params.outdir}/bbdd/mtbseq/samples/\${samples}/Called/*.tab; do
-                    ln -s \${file} Called/\$(basename \$file); done
+                    dest="Called/$(basename "\$file")"
+                    if [[ ! -e "\$dest" && ! -L "\$dest" ]]; then
+                        ln -s "\$file" "\$dest"
+                    fi
+                done
 
             done < samplesID.list
 
