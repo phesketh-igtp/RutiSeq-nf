@@ -14,9 +14,9 @@ process CN_READ_TAXONOMY {
         tuple val(sampleID), path(forward), path(reverse)
 
     output:
-        tuple val(sampleID), path("${sampleID}.qc.out"),    emit: cn_qc_results
-        tuple val(sampleID), path("${sampleID}.kaiju.out"), emit: cn_kaiju_results
-        path("${sampleID}.kaiju_summary.tsv")
+        tuple path("${sampleID}.qc.out"),    emit: cn_qc_results
+        tuple path("${sampleID}.kaiju.out")
+        path("${sampleID}.kaiju_summary.tsv"), emit: cn_kaiju_results
 
     script:
         def additional_args_kaiju       = task.ext.additional_args_kaiju ?: ''
