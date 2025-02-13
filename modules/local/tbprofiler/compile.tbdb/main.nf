@@ -27,7 +27,10 @@ process TBPROFILER_COMPILE_TBDB {
 
     script:
         """
-        mkdir results/; mkdir bam/; mkdir vcf/
+        mkdir results/; mkdir bam/; mkdir vcf/; mkdir tmp/
+
+        # move all the carried over files to a temp directory so it doesnt interfere with TB-Profiler
+        mv tbdb-*txt tmp/
 
         # create the symbolic links to the result directories
         ln -s ${params.outdir}/bbdd/tbprofiler/results/* results/;

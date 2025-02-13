@@ -2,8 +2,6 @@ process CN_READ_TAXONOMY {
     
     tag "$sampleID"
 
-    array 10
-    
     conda params.kaiju_env
 
     container { if (workflow.containerEngine == 'singularity') { 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/0f/0f00cd356ee92f5211e5941beeb4bcab6abfb341e0e5fa7ace8c043406c13381/data'
