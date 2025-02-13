@@ -58,14 +58,14 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
             while IFS=',' read -r samples; do
 
                 for file in ${params.outdir}/bbdd/mtbseq/samples/\${samples}/Position_Tables/*.tab; do
-                    dest="Position_Tables/$(basename "\$file")"
+                    dest="Position_Tables/\$(basename "\$file")"
                     if [[ ! -e "\$dest" && ! -L "\$dest" ]]; then
                         ln -s "\$file" "\$dest"
                     fi
                 done
 
                 for file in ${params.outdir}/bbdd/mtbseq/samples/\${samples}/Called/*.tab; do
-                    dest="Called/$(basename "\$file")"
+                    dest="Called/\$(basename "\$file")"
                     if [[ ! -e "\$dest" && ! -L "\$dest" ]]; then
                         ln -s "\$file" "\$dest"
                     fi
