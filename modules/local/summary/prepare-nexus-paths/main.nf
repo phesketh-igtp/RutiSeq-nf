@@ -9,7 +9,9 @@ process PREPARE_NEXUS_PATHS{
     publishDir "${params.outdir}/results/networks/${lineage}/", mode: 'copy'
 
     input:
-        tuple val(lineage), path(contree), path(alignments)
+        tuple val(lineage), 
+            path(contree), 
+            path(alignments)
         path pairwise_clusters
 
 
@@ -27,12 +29,21 @@ process PREPARE_NEXUS_PATHS{
             | sed '1!{/^SampleID/d;}' \\
             | sed '1!{/^nX-/d;}' > unique.clusters.list
 
+    # Remove clusters that are smaller than 5 genomes
+        while read clusterID; do
+            count=\$(grep -c "\${clusterID}" "${pairwise_clusters}")
+            if [ "\${count}" -ge 5 ]; then
+                echo "\${clusterID}" >> final_clusters.list
+            fi
+        done < unique.clusters.list
+
     # Create a CSV for generating a tuple of the paths
-        for clusterID in `cat unique.clusters.list`; do
+        for clusterID in `cat final_clusters.list`; do
             echo "${lineage},\${clusterID},${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta,${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo.tab" >> nexus.tuple.csv
         done
 
-    touch nexus.tuple.csv
+    # touch the output incase the file is empty
+        touch nexus.tuple.csv
     """
 
 }

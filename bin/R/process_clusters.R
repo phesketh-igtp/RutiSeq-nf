@@ -13,7 +13,9 @@ colnames(raw_clust) <- c("lineage","genomes","dSNP_5","dSNP_10","dSNP_15")
 sampleIDs <- read.delim("sequencing_summary.csv", header=TRUE, sep = ";") |>
                 select(Sample) |>
                 mutate(genomes=Sample) |>
-                separate_wider_delim(genomes, delim = "_", names = c("genomes", "library")) |>
+                separate_wider_delim(genomes, delim = "_", 
+                                        names = c("genomes", "library"), 
+                                        too_few = "align_end") |>
                 select(SampleID=Sample,genomes)
 
 #··············································································#
