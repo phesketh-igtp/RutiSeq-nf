@@ -86,10 +86,12 @@ process COMPILE_SEQUENCING_STATS {
 
 
     # Filter the lineages to contain ONLY the lineages from the newest run
+        cp lineage_samples_tuple.csv all-lineage_samples_tuple.csv
+
         grep -f run_sample_ids_taxonomy.txt lineage_samples_tuple.csv > tmp
             mv tmp lineage_samples_tuple.csv
 
-        grep -f -v  run_sample_ids_taxonomy.txt lineage_samples_tuple.csv > skipped-lineages.csv
+        grep -v -f run_sample_ids_taxonomy.txt all-lineage_samples_tuple.csv > skipped-lineages.csv
 
     # Move the outputs into folders
         mkdir -p main archive

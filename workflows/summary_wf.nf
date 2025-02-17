@@ -94,8 +94,11 @@ workflow SUMMARY_WF{
                                         ch_metadata, clusters_ch
                                     )
                 */
+
             } else {
+
                 log.info "No metadata provided. Skipping time tree and ancestral sequence generation."
+                
             }
 
         // Cleanup unwanted files
