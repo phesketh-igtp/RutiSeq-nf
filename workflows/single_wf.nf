@@ -48,8 +48,8 @@ workflow SINGLE_WF {
                     }
 
                 without_reads_count.view { sampleID, forward, reverse -> 
-                            "${green}The following SampleIDs exist in the database. | SampleID: ${red}${sampleID.join(', ')}${no_col}"
-                        }
+                        "${green}The following SampleIDs exist in the database. | SampleID: ${red}${sampleID.join(', ')}${no_col}"
+                    }
 
 
         /*
