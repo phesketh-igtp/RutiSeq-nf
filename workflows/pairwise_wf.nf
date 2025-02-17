@@ -50,6 +50,13 @@ workflow PAIRWISE_WF {
                     .map { row -> tuple(row[0], row[1]) }
                     .groupTuple()
 
+                skipped_lineages_ch = COMPILE_SEQUENCING_STATS.out.skipped_lineages
+                    .splitCsv(header: false)
+                    .map { row -> tuple(row[0], row[1]) }
+                    .groupTuple()
+
+                skipped_lineages_ch.view()
+
                 // DEBUG: View the grouped channel
                 //lineage_samples_ch.view()
 

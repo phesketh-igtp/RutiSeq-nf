@@ -15,10 +15,11 @@ process COMPILE_SEQUENCING_STATS {
 
     output:
         path("archive/${runID}.sequencing_summary.csv")
-        path("main/sequencing_summary.csv"),                 emit: analysis_summary
-        path("main/who_resistance_summary.csv"),             emit: who_resistance
-        path("main/tbdb_resistance_summary.csv"),            emit: tbdb_resistance
-        path("lineage_samples_tuple.csv"),                   emit: lineage_sample_tuple
+        path("main/sequencing_summary.csv"),         emit: analysis_summary
+        path("main/who_resistance_summary.csv"),     emit: who_resistance
+        path("main/tbdb_resistance_summary.csv"),    emit: tbdb_resistance
+        path("lineage_samples_tuple.csv"),           emit: lineage_sample_tuple
+        path("skipped-lineages.csv"),                emit: skipped_lineages
 
     script:
 
@@ -55,7 +56,7 @@ process COMPILE_SEQUENCING_STATS {
 
         while read -r lineage; do
             # Use grep to find matching lines from pairwise_analysis.list.csv
-            grep "\${lineage}" pairwise_analysis.list.csv | while IFS=';' read -r sampleID sub_lineage; do
+            grep -E "\${lineage}" pairwise_analysis.list.csv | while IFS=';' read -r sampleID sub_lineage; do
                 # Check if sub_lineage contains the lineage
                 if [[ "\${sub_lineage}" == *"\${lineage}"* ]]; then
                     # Append the result to the output file
@@ -87,6 +88,8 @@ process COMPILE_SEQUENCING_STATS {
     # Filter the lineages to contain ONLY the lineages from the newest run
         grep -f run_sample_ids_taxonomy.txt lineage_samples_tuple.csv > tmp
             mv tmp lineage_samples_tuple.csv
+
+        grep -f -v  run_sample_ids_taxonomy.txt lineage_samples_tuple.csv > skipped-lineages.csv
 
     # Move the outputs into folders
         mkdir -p main archive
