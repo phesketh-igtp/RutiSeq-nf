@@ -110,6 +110,5 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
             for distance in \$(cat snp_distances); do
             echo "${lineage},\${distance},${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Joint,${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Amend,${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/${lineage}_samples.txt" >> mtbseq-group.tuple.csv
             done                
-
         """
 }
