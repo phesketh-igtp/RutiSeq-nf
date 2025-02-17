@@ -203,3 +203,7 @@ for (unique_cluster in d5.tree.clusters.groups.deframed) {
 pdf(file = paste0(lineageID,"_TimeTree.contree.pdf"))
 p3
 dev.off()
+
+#·············· Export RData for using in later plots ··············#
+
+save.image(file = paste0(lineageID,".time-tree.RData"))

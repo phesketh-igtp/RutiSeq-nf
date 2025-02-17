@@ -15,7 +15,8 @@ process PLOT_TIMETREES {
     output:
         path("${lineage}_TimeTree.contree.pdf")
         path("ancestors/*.fasta")
-        path("nexus.TT.tuple.csv"),     emit: timetree_tuple
+        path("nexus.TT.tuple.csv"),         emit: timetree_tuple
+        path("${lineage}..time-tree.RData")
 
     script:
     

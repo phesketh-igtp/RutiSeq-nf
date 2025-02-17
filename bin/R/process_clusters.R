@@ -1,30 +1,16 @@
 library(tidyverse,  quietly = TRUE, verbose = FALSE)
 library(dplyr,      quietly = TRUE, verbose = FALSE)
-library(argparse,   quietly = TRUE, verbose = FALSE)
-
-#··············································································#
-#··············································································#
-
-# Initialize the argument parser
-parser <- ArgumentParser(description = "Process cluster and summary files")
-
-# Define command-line options
-parser$add_argument("--clusters", required = TRUE, help = "Path to the clusters file")
-parser$add_argument("--summary", required = TRUE, help = "Path to the summary file CSV")
-
-# Parse the arguments
-args <- parser$parse_args()
 
 #··············································································#
 #··············································································#
 
 # Import the dataframes
-raw_clust <- read.delim(args$clusters, header=TRUE, sep = "\t")
+raw_clust <- read.delim("pairwise_clusters.tsv", header=TRUE, sep = "\t")
 raw_clust <- raw_clust |> 
-                    pivot_wider(names_from = distance, values_from = group)
+                pivot_wider(names_from = distance, values_from = group)
 colnames(raw_clust) <- c("lineage","genomes","dSNP_5","dSNP_10","dSNP_15")
 
-sampleIDs <- read.delim(args$summary, header=TRUE, sep = ";") |>
+sampleIDs <- read.delim("sequencing_summary.csv", header=TRUE, sep = ";") |>
                 select(Sample) |>
                 mutate(genomes=Sample) |>
                 separate_wider_delim(genomes, delim = "_", names = c("genomes", "library")) |>

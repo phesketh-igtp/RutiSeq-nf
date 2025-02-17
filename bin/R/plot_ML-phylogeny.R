@@ -244,3 +244,7 @@ p1.L
 p2
 p2.L
 dev.off()
+
+#·············· Export RData for using in later plots ··············#
+
+save.image(file = paste0(lineageID,".contree.Rdata"))

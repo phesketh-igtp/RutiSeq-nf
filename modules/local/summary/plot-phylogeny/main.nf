@@ -12,6 +12,7 @@ process PLOT_MAIN_PHYLOGENY {
 
     output:
         path("${lineage}_ML.contree.pdf")
+        path("${lineage}.contree.Rdata")
 
     script:
     
