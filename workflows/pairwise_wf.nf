@@ -19,11 +19,11 @@ workflow PAIRWISE_WF {
 
     main:
     
-        def color_purple = '\u001B[35m'
-        def color_green = '\u001B[32m'
-        def color_red = '\u001B[31m'
-        def color_cyan = '\u001B[36m'
-        def no_color = '\u001B[0m'
+        def purple  = '\u001B[35m'
+        def green   = '\u001B[32m'
+        def red     = '\u001B[31m'
+        def cyan    = '\u001B[36m'
+        def no_col  = '\u001B[0m'
 
         // Compile TB-Profiler results
             TBPROFILER_COMPILE_TBDB( runID, tbdb_out_ch )
@@ -50,12 +50,18 @@ workflow PAIRWISE_WF {
                     .map { row -> tuple(row[0], row[1]) }
                     .groupTuple()
 
+                lineage_samples_ch.view { lineage, samples -> 
+                            "${cyan}Clustering: ${green}Lineage ${red}${lineage}${green} | Genomes: ${red}${samples.size()}${no_col}"
+                        }
+
                 skipped_lineages_ch = COMPILE_SEQUENCING_STATS.out.skipped_lineages
                     .splitCsv(header: false)
                     .map { row -> tuple(row[0], row[1]) }
                     .groupTuple()
 
-                skipped_lineages_ch.view()
+                skipped_lineages_ch.view { lineage, samples -> 
+                            "${purple}Skipping clustering: ${green}Lineage ${red}${lineage}${green} | Genomes: ${red}${samples.size()}${no_col}"
+                        }
 
                 // DEBUG: View the grouped channel
                 //lineage_samples_ch.view()

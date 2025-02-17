@@ -22,7 +22,7 @@ workflow SINGLE_WF {
             Opening message for workflow
         */ 
 
-        //def purple  = '\u001B[35m'
+        def purple  = '\u001B[35m'
         def green   = '\u001B[32m'
         def red     = '\u001B[31m'
         def cyan    = '\u001B[36m'
@@ -46,6 +46,11 @@ workflow SINGLE_WF {
                     .map { with_reads, without_reads -> 
                         log.info "${green}runID: ${red}${runID}${green} || For ${cyan}SINGLE_WF()${green} : ${red}${with_reads}${green} samples || Skipped until ${cyan}PAIRWISE()${green}: ${red}${without_reads}${green} samples${no_col}"
                     }
+
+                without_reads_count.view { sampleID, forward, reverse -> 
+                            "${green}The following SampleIDs exist in the database. | SampleID: ${red}${sampleID.join(', ')}${no_col}"
+                        }
+
 
         /*
         // DEBUG:: View the results

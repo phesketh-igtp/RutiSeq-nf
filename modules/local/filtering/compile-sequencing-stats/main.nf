@@ -34,10 +34,6 @@ process COMPILE_SEQUENCING_STATS {
     # Convert the list of sample IDs to a format suitable for grep
         echo '${sample_ids.join("\n")}' > run_sample_ids.txt
 
-    # Use grep to find lines containing the sample IDs
-        grep -f run_sample_ids.txt ${tbdb_results} | \\
-                cut -f2 | sort | uniq > run_sample_ids_taxonomy.txt
-
     # Generate summary statistics and create the sampleID,lineage df for
     ## creating into a channel 
         Rscript ${params.r_script_dir}/compile-sequencing-statistics.R \\
@@ -82,16 +78,26 @@ process COMPILE_SEQUENCING_STATS {
 
         mv lineage_samples_tuple.csv lineage_samples_tuple.unfiltered.csv
         mv lineage_samples_tuple.csv.tmp lineage_samples_tuple.csv
-        cat lineage_samples_tuple.csv
-
 
     # Filter the lineages to contain ONLY the lineages from the newest run
-        cp lineage_samples_tuple.csv all-lineage_samples_tuple.csv
+        mv lineage_samples_tuple.csv all-lineage_samples_tuple.csv
 
-        grep -f run_sample_ids_taxonomy.txt lineage_samples_tuple.csv > tmp
-            mv tmp lineage_samples_tuple.csv
+        # Collect the lineage IDs as define from the tuple.csv
+            grep -f run_sample_ids.txt all-lineage_samples_tuple.csv \\
+                | cut -d ',' -f1 \\
+                | sort \\
+                | uniq \\
+                | sed "s/\$/,/g" \\
+                > run_sample_ids_taxonomy.txt
 
-        grep -v -f run_sample_ids_taxonomy.txt all-lineage_samples_tuple.csv > skipped-lineages.csv
+        # Create tuple for pairwise analysis
+            grep -f run_sample_ids_taxonomy.txt \\
+                all-lineage_samples_tuple.csv \\
+                > lineage_samples_tuple.csv
+        # Create tuple for skipped analysis
+            grep -v -f run_sample_ids_taxonomy.txt \\
+                all-lineage_samples_tuple.csv \\
+                > skipped-lineages.csv
 
     # Move the outputs into folders
         mkdir -p main archive
