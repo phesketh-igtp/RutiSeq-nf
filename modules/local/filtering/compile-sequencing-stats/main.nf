@@ -49,7 +49,7 @@ process COMPILE_SEQUENCING_STATS {
                     --runID                 ${runID} \\
                     --dictionary_path       ${params.r_script_dir} \\
                     ${additional_args}
-                
+
     # extract the lineages from the params.config file
         echo '${params.lineage_pairwise.join('\n')}' > selected_lineage_split.list
 
