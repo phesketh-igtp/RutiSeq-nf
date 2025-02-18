@@ -39,8 +39,6 @@ workflow SUMMARY_WF{
             PLOT_MAIN_PHYLOGENY( phylogeny_plotting_ch,
                                     PROCESS_CLUSTERS.out.pairwise_clusters_processed )
 
-        
-
         // Generate base NEXUS files for each cluster
             PREPARE_NEXUS_PATHS( phylogeny_plotting_ch,
                                     PROCESS_CLUSTERS.out.pairwise_clusters_processed )
@@ -65,7 +63,6 @@ workflow SUMMARY_WF{
                     TABULATE_VARIANT_SITES.out.tabular_vars.collect(),
                     TABULATE_VARIANT_SITES.out.tabular_var_counts.collect()
                     )
-
 
         // If metadata is provided then the following modules are run
             if (params.metadata) {
