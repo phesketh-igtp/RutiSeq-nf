@@ -47,12 +47,6 @@ workflow SINGLE_WF {
                         log.info "${green}runID: ${red}${runID}${green} || For ${cyan}SINGLE_WF()${green} : ${red}${with_reads}${green} samples || Skipped until ${cyan}PAIRWISE()${green}: ${red}${without_reads}${green} samples${no_col}"
                     }
 
-                sample_ch_skip.view { tuple -> 
-                                    def sampleIDs = tuple[1]
-                                    "${green}The following SampleIDs exist in the database. | SampleID: ${red}${sampleIDs.join(', ')}${no_col}"
-                                    }
-
-
         /*
         // DEBUG:: View the results
             branched_channel.with_reads.view { "With reads: $it" }
