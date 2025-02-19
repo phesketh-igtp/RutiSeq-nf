@@ -78,7 +78,7 @@ pairwise_analysis.df <- full.df.final |>
                 filter(`Unambiguous Coverage median` >= minimum_coverage) |>
                 filter(infection_type == "Clonal") |> #only clonal genomes
                 filter(sub_lineage != "NA") |> # no unclassified genomes
-                select(SampleID=FullID,sub_lineage)
+                select(SampleID=FullID,main_lineage,sub_lineage)
 
 # export all the ouputs (broken!)
 write.csv2(sequencing_summary.df,

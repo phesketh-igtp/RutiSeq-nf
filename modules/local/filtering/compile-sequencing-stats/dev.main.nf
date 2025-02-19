@@ -49,9 +49,9 @@ process COMPILE_SEQUENCING_STATS {
         mv tmp.${runID}.sequencing_summary.csv ${runID}.sequencing_summary.csv
 
     # extract the lineages from the params.config file
-        echo '${params.lineage_pairwise.join('\n')}' > selected_lineage_split.list
+        echo '${params.lineage_pairwise_main.join('\n')}' > selected_lineage_split.main
         
-        echo '${params.lineage_pairwise_exceptions.join('\n')}' > selected_lineage_exceptions.list
+        echo '${params.lineage_pairwise_sub.join('\n')}' > selected_lineage_split.sub
 
         while read -r main_lineage; do
             # Use grep to find matching lines from pairwise_analysis.list.csv
@@ -90,26 +90,3 @@ process COMPILE_SEQUENCING_STATS {
 
     """
 }
-
-/* SPLIT THE TUPLE INTO LINEAGES REPRESENTED BY THE NEW GENOMES AND THOSE THAT ARENT, SO THAT 
-    NOT ALL THE LINEAGES ARE RE-CLUSTERED AND TIME IS WASTED ON UNCESSARY ANALYSIS 
-
-        TODO: SOMETHING ABOUT THIS FUCKING CHUNK OF CODE 
-            WAS RUINING MY LIFE AND I DONT KNOW WHAT!!!!!!
-            
-
-    # Filter the lineages to contain ONLY the lineages from the newest run
-        mv lineage_samples_tuple.csv all-lineage_samples_tuple.csv
-
-        # Collect the lineage IDs as define from the tuple.csv
-            grep -f run_sample_ids.txt all-lineage_samples_tuple.csv | cut -d ',' -f1 | sort | uniq | sed "s/\$/,/g" > run_sample_ids_taxonomy.txt
-
-        # Create tuple for pairwise analysis
-            grep -f run_sample_ids_taxonomy.txt all-lineage_samples_tuple.csv > lineage_samples_tuple.csv
-        touch lineage_samples_tuple.csv
-
-        # Create tuple for skipped analysis
-            grep -v -f run_sample_ids_taxonomy.txt all-lineage_samples_tuple.csv > skipped-lineages.csv
-        touch skipped-lineages.csv
-
- */       
