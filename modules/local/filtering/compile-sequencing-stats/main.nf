@@ -14,10 +14,10 @@ process COMPILE_SEQUENCING_STATS {
         val(sample_ids)
 
     output:
-        path("archive/${runID}.sequencing_summary.csv")
-        path("main/sequencing_summary.csv"),         emit: analysis_summary
-        path("main/who_resistance_summary.csv"),     emit: who_resistance
-        path("main/tbdb_resistance_summary.csv"),    emit: tbdb_resistance
+        path("${runID}.sequencing_summary.csv")
+        path("sequencing_summary.csv"),         emit: analysis_summary
+        path("who_resistance_summary.csv"),     emit: who_resistance
+        path("tbdb_resistance_summary.csv"),    emit: tbdb_resistance
         path("lineage_samples_tuple.csv"),           emit: lineage_sample_tuple
         path("skipped-lineages.csv"),                emit: skipped_lineages
 
@@ -37,9 +37,9 @@ process COMPILE_SEQUENCING_STATS {
     # Generate summary statistics and create the sampleID,lineage df for
     ## creating into a channel 
         Rscript ${params.r_script_dir}/compile-sequencing-statistics.R \\
-                    --minimum_coverage      ${params.mtbseq_min_cov} \\
-                    --runID                 ${runID} \\
-                    --dictionary_path       ${params.r_script_dir} \\
+                    --minimum_coverage ${params.mtbseq_min_cov} \\
+                    --runID ${runID} \\
+                    --dictionary_path ${params.r_script_dir} \\
                     1>>.command.out \\
                     2>>.command.err || true # NOTE This is a hack to overcome the exit status 1
                     
@@ -53,13 +53,13 @@ process COMPILE_SEQUENCING_STATS {
         
         echo '${params.lineage_pairwise_exceptions.join('\n')}' > selected_lineage_exceptions.list
 
-        while read -r lineage; do
+        while read -r main_lineage; do
             # Use grep to find matching lines from pairwise_analysis.list.csv
-            grep -E "\${lineage}" pairwise_analysis.list.csv | while IFS=';' read -r sampleID sub_lineage; do
-                # Check if sub_lineage contains the lineage
-                if [[ "\${sub_lineage}" == "\${lineage}" ]]; then
+            grep -E "\$main_lineage" pairwise_analysis.list.csv | while IFS=';' read -r sampleID sub_lineage; do
+                # Check if sub_lineage starts with main_lineage
+                if [[ "\$sub_lineage" == "\$main_lineage"* ]]; then
                     # Append the result to the output file
-                    echo "\${lineage},\${sampleID}" >> lineage_samples_tuple.csv
+                    echo "\$main_lineage,\$sampleID" >> lineage_samples_tuple.csv
                 fi
             done
         done < selected_lineage_split.list
@@ -82,32 +82,26 @@ process COMPILE_SEQUENCING_STATS {
         cp lineage_samples_tuple.csv lineage_samples_tuple.unfiltered.csv
         cp lineage_samples_tuple.csv.tmp lineage_samples_tuple.csv
 
+        touch skipped-lineages.csv
+
+    """
+}
+
+/* SPLIT THE TUPLE INTO LINEAGES REPRESENTED BY THE NEW GENOMES AND THOSE THAT ARENT, SO THAT 
+    NOT ALL THE LINEAGES ARE RE-CLUSTERED AND TIME IS WASTED ON UNCESSARY ANALYSIS
+
     # Filter the lineages to contain ONLY the lineages from the newest run
         mv lineage_samples_tuple.csv all-lineage_samples_tuple.csv
 
         # Collect the lineage IDs as define from the tuple.csv
-            grep -f run_sample_ids.txt all-lineage_samples_tuple.csv \\
-                | cut -d ',' -f1 \\
-                | sort \\
-                | uniq \\
-                | sed "s/\$/,/g" \\
-                > run_sample_ids_taxonomy.txt
+            grep -f run_sample_ids.txt all-lineage_samples_tuple.csv | cut -d ',' -f1 | sort | uniq | sed "s/\$/,/g" > run_sample_ids_taxonomy.txt
 
         # Create tuple for pairwise analysis
-            grep -f run_sample_ids_taxonomy.txt \\
-                all-lineage_samples_tuple.csv \\
-                > lineage_samples_tuple.csv
+            grep -f run_sample_ids_taxonomy.txt all-lineage_samples_tuple.csv > lineage_samples_tuple.csv
+        touch lineage_samples_tuple.csv
+
         # Create tuple for skipped analysis
-            grep -v -f run_sample_ids_taxonomy.txt \\
-                all-lineage_samples_tuple.csv \\
-                > skipped-lineages.csv
+            grep -v -f run_sample_ids_taxonomy.txt all-lineage_samples_tuple.csv > skipped-lineages.csv
+        touch skipped-lineages.csv
 
-    # Move the outputs into folders
-        mkdir -p main archive
-        mv sequencing_summary.csv main/
-        mv tbdb_resistance_summary.csv main/
-        mv who_resistance_summary.csv main/
-        mv ${runID}.sequencing_summary.csv archive/
-
-    """
-}
+ */       
