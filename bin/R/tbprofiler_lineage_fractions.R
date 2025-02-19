@@ -1,5 +1,3 @@
-cat("Running: R/tbprofiler_lineage_fractions.R\n")
-
 # load libraries
 library(argparse); library(tidyverse)
 library(dplyr); library(tidyr)
@@ -136,5 +134,3 @@ TBProfiler.lineages.final <- left_join(TBProfiler.lineages, tbprof.infec) %>%
 # Output the result
 write.table(TBProfiler.lineages.final, file = OUT,
             sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
-
-cat("Finished: R/tbprofiler_lineage_fractions.R\n")

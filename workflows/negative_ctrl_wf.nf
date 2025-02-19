@@ -41,7 +41,7 @@ workflow NEGATIVE_CONTROL_WF {
                     .filter { it != null }
 
                 // Demonstrate the content of the channel
-                comp_controls_ch.view { sample -> "Sample: $sample" }
+                /// comp_controls_ch.view { sample -> "Sample: $sample" }
 
             // Branch the channel into those with outputs and those without:
                 branched_channel = comp_controls_ch.branch {
@@ -58,8 +58,8 @@ workflow NEGATIVE_CONTROL_WF {
             all_cn_wc_results       = CN_READ_TAXONOMY.out.cn_qc_results.map { it[1] }.collect()
             all_cn_kaiju_results    = CN_READ_TAXONOMY.out.cn_kaiju_results.map { it[1] }.collect()
 
-            all_cn_wc_results.view()
-            all_cn_kaiju_results.view()
+            //all_cn_wc_results.view()
+            //all_cn_kaiju_results.view()
             
 
         /*

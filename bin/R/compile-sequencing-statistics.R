@@ -1,5 +1,3 @@
-cat("Running: R/compile-sequencing-statistics copy.R\n")
-
 # load libraries
 library(argparse)
 library(tidyverse)
@@ -8,13 +6,8 @@ library(tidyverse)
     parser <- ArgumentParser(description = "Script to process MTBseq and TBProfiler data")
 
 # Define arguments
-parser$add_argument("--mtbseq_statistics", required=TRUE, help="Path to MTBseq compiled map statistics file")
-parser$add_argument("--mtbseq_classification", required=TRUE, help="Path to MTBseq compiled strains file")
-parser$add_argument("--tbprofiler_tbdb", required=TRUE, help="Path to TBProfiler TBDB results file")
-parser$add_argument("--tbprofiler_who", required=TRUE, help="Path to TBProfiler TBDB results file")
 parser$add_argument("--minimum_coverage", required=TRUE, type="integer", help="Minimum coverage threshold")
 parser$add_argument("--dictionary_path", default=NULL, help="Path to R dictioanry for renaming files")
-parser$add_argument("--lineage_fractions", required=TRUE, help="Lineage fractions dataframe")
 parser$add_argument("--runID", required=TRUE, help="RunID")
 
 ## parser$add_argument("--additional_args", default=NULL, help="Optional additional arguments from config file")
@@ -34,12 +27,12 @@ runID                 <- args$runID
 ## additional_args <- args$additional_args
 
 # Import dataframes
-mtbseq_stats       <- read.delim(mtbseq_statistics, header = FALSE)     #mtbseq_stats       <- read.delim("Mapping_and_Variant_Statistics.tab", header = FALSE)
-mtbseq_class       <- read.delim(mtbseq_classification, header = FALSE) #mtbseq_class       <- read.delim("Strain_Classification.tab", header = FALSE)
-tbprofiler_tbdb.df <- read.delim(tbprofiler_tbdb, header = TRUE)        #tbprofiler_tbdb.df <- read.delim("tbdb-tbprofiler.txt", header = TRUE)
-tbprofiler_who     <- read.delim(tbprofiler_who, header = TRUE)         #tbprofiler_who     <- read.delim("who-tbprofiler.txt", header = TRUE)
-lineage_frac       <- read.delim(lineage_fractions, header = TRUE) |> 
-                                select(SampleID, Lineage_frac, Mixed_90perc) #lineage_frac <- read.delim("tbprofiler.lineages.fractions.txt", header = TRUE) |> select(SampleID, Lineage_frac, Mixed_90perc)
+mtbseq_stats       <- read.delim("Mapping_and_Variant_Statistics.tab", header = FALSE)
+mtbseq_class       <- read.delim("Strain_Classification.tab", header = FALSE)
+tbprofiler_tbdb.df <- read.delim("tbdb-tbprofiler.txt", header = TRUE)
+tbprofiler_who     <- read.delim("who-tbprofiler.txt", header = TRUE)
+lineage_frac       <- read.delim("tbprofiler.lineages.fractions.txt", header = TRUE) |> 
+                                select(SampleID, Lineage_frac, Mixed_90perc)
 
 # Add appropriate headers to dataframes using dictionaries
 
@@ -107,5 +100,3 @@ write.csv2(resistance_profiles_WHO.df,
 write.csv2(pairwise_analysis.df,
             "pairwise_analysis.list.csv",
             quote=FALSE, row.names=FALSE)
-
-cat("Finished: R/compile-sequencing-statistics copy.R\n")

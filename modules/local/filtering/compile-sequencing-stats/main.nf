@@ -37,25 +37,27 @@ process COMPILE_SEQUENCING_STATS {
     # Generate summary statistics and create the sampleID,lineage df for
     ## creating into a channel 
         Rscript ${params.r_script_dir}/compile-sequencing-statistics.R \\
-                    --mtbseq_statistics     "Mapping_and_Variant_Statistics".tab \\
-                    --mtbseq_classification "Strain_Classification".tab \\
-                    --tbprofiler_tbdb       "tbdb-tbprofiler.txt" \\
-                    --tbprofiler_who        "who-tbprofiler.txt" \\
-                    --lineage_fractions     "tbprofiler.lineages.fractions.txt" \\
                     --minimum_coverage      ${params.mtbseq_min_cov} \\
                     --runID                 ${runID} \\
                     --dictionary_path       ${params.r_script_dir} \\
-                    ${additional_args}
+                    1>>.command.out \\
+                    2>>.command.err || true # NOTE This is a hack to overcome the exit status 1
+                    
+
+    # Seperate out the genomes from this run into their own results file
+        grep -f run_sample_ids.txt ${runID}.sequencing_summary.csv > tmp.${runID}.sequencing_summary.csv
+        mv tmp.${runID}.sequencing_summary.csv ${runID}.sequencing_summary.csv
 
     # extract the lineages from the params.config file
         echo '${params.lineage_pairwise.join('\n')}' > selected_lineage_split.list
-        ##echo '${params.lineage_pairwise_exceptions.join('\n')}' > selected_lineage_exceptions.list
+        
+        echo '${params.lineage_pairwise_exceptions.join('\n')}' > selected_lineage_exceptions.list
 
         while read -r lineage; do
             # Use grep to find matching lines from pairwise_analysis.list.csv
             grep -E "\${lineage}" pairwise_analysis.list.csv | while IFS=';' read -r sampleID sub_lineage; do
                 # Check if sub_lineage contains the lineage
-                if [[ "\${sub_lineage}" == *"\${lineage}"* ]]; then
+                if [[ "\${sub_lineage}" == "\${lineage}" ]]; then
                     # Append the result to the output file
                     echo "\${lineage},\${sampleID}" >> lineage_samples_tuple.csv
                 fi
@@ -77,8 +79,8 @@ process COMPILE_SEQUENCING_STATS {
                 }
             }' "lineage_samples_tuple.csv" > "lineage_samples_tuple.csv.tmp"
 
-        mv lineage_samples_tuple.csv lineage_samples_tuple.unfiltered.csv
-        mv lineage_samples_tuple.csv.tmp lineage_samples_tuple.csv
+        cp lineage_samples_tuple.csv lineage_samples_tuple.unfiltered.csv
+        cp lineage_samples_tuple.csv.tmp lineage_samples_tuple.csv
 
     # Filter the lineages to contain ONLY the lineages from the newest run
         mv lineage_samples_tuple.csv all-lineage_samples_tuple.csv
