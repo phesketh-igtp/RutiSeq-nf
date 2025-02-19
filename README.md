@@ -101,23 +101,24 @@ sample2_XXX-AAA,2-XXX-AAA_LX,/path/to/R1.fastq.gz,/path/to/R2.fastq.gz
 sampleCN-1-AAA-R1,CN-1-AAA_L1,/path/to/R1.fastq.gz,/path/to/R2.fastq.gz
 ```
   
-**<u>originalID</u>** : Name of the sample. Retaining the original name of your sample in the file is for your own records and will not be used in the pipeline untill the very end for the results tables.
+- **<u>originalID</u>** : Name of the sample. Retaining the original name of your sample in the file is for your own records and will not be used in the pipeline untill the very end for the results tables.
 
-**<u>sampleID</u>** : The alias MUST be ***unique*** and have the following structure - **[SampleID]_[LibraryID]**. The sampleID can be have information separated by hyphens ( - ), BUT the undescore ( \_ ) must be reserve for distinguishing between the SampleID and the LibraryID. This is to satisfy a data naming convention required by MTBseq, which requires reads are name: **[SampleID]\_[LibID]\_[\*]_R{1,2}.fastq.gz**. If the sampleID's happen to follow this structure, you can duplicate same value in **name** and **alias**. If a alias in your sample sheet is duplicated, or that alias already exists in the database, then that sample will no be analyzed, and an alert will be produced informing you of this. Ensure that each alias is unique within the entire database.
+- **<u>sampleID</u>** : The alias MUST be ***unique*** and have the following structure - **[SampleID]_[LibraryID]**. The *sampleID* can be have information separated by hyphens ( - ), BUT the undescore ( \_ ) must be reserve for distinguishing between the *sampleID* and the LibraryID. This is to satisfy a data naming convention required by MTBseq, which requires reads are name: **[SampleID]\_[LibID]\_[\*]_R{1,2}.fastq.gz**. If the originalID's happen to follow this structure, you can duplicate the IDs in *originalID* and *sampleID*. If a *sampleID* in your sample sheet is duplicated, or that alias already exists in the database, then that sample will no be analyzed, and an notification will be produced informing you of this. Ensure that each alias is unique within the entire database to avoid this issue.
 
-**<u>forward_path/reverse_path</u>** : full path of reads available to the system for accessing the reads. Reads must be gzipped and with the full suffix of <code>fastq.gz</code>, not <code>fq.gz</code>.  
+- **<u>forward_path/reverse_path</u>** : full path of reads available to the system for accessing the reads. Reads must be gzipped and with the full suffix of <code>fastq.gz</code>, not <code>fq.gz</code>.  
 
-**<u>type</u>** : denotes wether reads correspond to a sample *or* control. An error will be produced if a sample is not declared as a *sample* or *control*.
+- **<u>type</u>** : denotes wether reads correspond to a sample *or* control. An error will be produced if a sample is not declared as a *sample* or *control*.
 
 **<u>Metadata [optional]:</u>** Metadata (<code>CSV</code>), if provided, is utilized at the summary step when the nexus files are generated for visualising the median-joining networks and performing the molecular clock on concatenated variable possitions within a lineage. If the following metadata is provided with the correct headers, then the nexus files will also contain relevant metadata. If no metadata is provided then these analyses will be omitted.
 
 - The 'date' represents the estimated onset of infection or diagnosis and should follow the **YYYY-MM-DD** format. If the exact date is unknown, you can use partial placeholders (e.g.year only: *2020-XX-XX* or *202X-XX-XX*; year and month: *2024-05-XX*). Providing the full date ensures greater accuracy in predicting ancestral variable positions for each tree node in the phylogenetic tree, which will improve interpretation of median-joining networks outbeak direction.
 - The 'location' can be anything you want, the district of the patient, the hospital that performed the diagnosis, country of sample origin.
 
-| name             | alias        | date           | location     |
-| ---------------- | ------------ | -------------- | ------------ |
-| sample1_XXX-AAA- | 1-XXX-AAA_LX | 2024-01-01     | District A   |
-| sample1_XXX-AAA- | 2-XXX-AAA_LX | 2022-01-02     | District B   |
+| originalID       | sampleID       | date           | location     |
+| ---------------- | -------------- | -------------- | ------------ |
+| sample1_XXX-AAA  | 001-XXX-AAA_LX | 2024-01-01     | Location A   |
+| sample2_XXX      | 002-XXX_LX     | 2022-01-02     | Location B   |
+| sample3_X        | 003-X_LX       | 202X-XX-XX     | Location C   |
 
 ## <u>Usage</u>
 

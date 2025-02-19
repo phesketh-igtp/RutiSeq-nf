@@ -49,6 +49,7 @@ process COMPILE_SEQUENCING_STATS {
 
     # extract the lineages from the params.config file
         echo '${params.lineage_pairwise.join('\n')}' > selected_lineage_split.list
+        ##echo '${params.lineage_pairwise_exceptions.join('\n')}' > selected_lineage_exceptions.list
 
         while read -r lineage; do
             # Use grep to find matching lines from pairwise_analysis.list.csv
