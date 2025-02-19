@@ -15,7 +15,7 @@ process INSPECT_BBDD {
     script:
         def forward_path = forward.toRealPath()
         def reverse_path = reverse.toRealPath()
-        def qc_results   = "${params.outdir}/bbdd/negative-controls/${sampleID}.qc.out"
+        def qc_results   = "${params.outdir}/bbdd/negative-controls/results/${sampleID}.qc.out"
 
         """
         if [ -f ${qc_results} ]; then       

@@ -87,7 +87,7 @@ The workflow is built to enable to usage of three principle software managers *c
 ## <u>Inputs</u>
 
 **<u>Sample sheet:</u>** This must be a <code>CSV</code> file that contains the following information, including the header:
-| name               | alias        | forward_path         | reverse_path         | type    |
+| originalID         | sampleID     | forward_path         | reverse_path         | type    |
 | ------------------ | ------------ | -------------------- | -------------------- | --------|
 | sample1_123-AAA-R1 | 1-123-AAA_L1 | /path/to/R1.fastq.gz | /path/to/R2.fastq.gz | sample  |
 | sample2-456-AAA-R1 | 2-456-AAA_L1 | /path/to/R1.fastq.gz | /path/to/R2.fastq.gz | sample  |
@@ -95,15 +95,15 @@ The workflow is built to enable to usage of three principle software managers *c
 
 ```{sh}
 $ cat samples.csv
-name,alias,forward_path,reverse_path
+originalID,sampleID,forward_path,reverse_path,type
 sample1_XXX-AAA,1-XXX-AAA_LX,/path/to/R1.fastq.gz,/path/to/R2.fastq.gz
 sample2_XXX-AAA,2-XXX-AAA_LX,/path/to/R1.fastq.gz,/path/to/R2.fastq.gz
 sampleCN-1-AAA-R1,CN-1-AAA_L1,/path/to/R1.fastq.gz,/path/to/R2.fastq.gz
 ```
   
-**<u>name</u>** : Name of the sample. Retaining the original name of your sample in the file is for your own records and will not be used in the pipeline untill the very end for the results tables.
+**<u>originalID</u>** : Name of the sample. Retaining the original name of your sample in the file is for your own records and will not be used in the pipeline untill the very end for the results tables.
 
-**<u>alias</u>** : The alias MUST be ***unique*** and have the following structure - **[SampleID]_[LibraryID]**. The sampleID can be have information separated by hyphens ( - ), BUT the undescore ( \_ ) must be reserve by distinguishing between the SampleID and the LibraryID. This is to satisfy a data naming convention required by MTBseq, which requires reads are name: **[SampleID]\_[LibID]\_[\*]_[Direction].fastq.gz**. If the sampleID's happen to follow this structure, you can duplicate same value in **name** and **alias**. If a alias in your sample sheet is duplicated, or that alias already exists in the database, then that sample will no be analyzed, and an alert will be produced informing you of this. Ensure that each alias is unique within the entire database.
+**<u>sampleID</u>** : The alias MUST be ***unique*** and have the following structure - **[SampleID]_[LibraryID]**. The sampleID can be have information separated by hyphens ( - ), BUT the undescore ( \_ ) must be reserve for distinguishing between the SampleID and the LibraryID. This is to satisfy a data naming convention required by MTBseq, which requires reads are name: **[SampleID]\_[LibID]\_[\*]_R{1,2}.fastq.gz**. If the sampleID's happen to follow this structure, you can duplicate same value in **name** and **alias**. If a alias in your sample sheet is duplicated, or that alias already exists in the database, then that sample will no be analyzed, and an alert will be produced informing you of this. Ensure that each alias is unique within the entire database.
 
 **<u>forward_path/reverse_path</u>** : full path of reads available to the system for accessing the reads. Reads must be gzipped and with the full suffix of <code>fastq.gz</code>, not <code>fq.gz</code>.  
 
