@@ -1,7 +1,8 @@
 include { TBPROFILER_COMPILE_TBDB }                 from '../modules/local/tbprofiler/compile.tbdb/main.nf'
 include { TBPROFILER_COMPILE_WHO }                  from '../modules/local/tbprofiler/compile.who/main.nf'
 include { MTBSEQ_STATS_COMPILE }                    from '../modules/local/mtbseq/stats-compile/main.nf'
-include { COMPILE_SEQUENCING_STATS }                from '../modules/local/filtering/compile-sequencing-stats/main.nf'
+include { COMPILE_SEQUENCING_STATS1 }                from '../modules/local/filtering/compile-sequencing-stats/main.nf'
+include { COMPILE_SEQUENCING_STATS2 }                from '../modules/local/filtering/compile-sequencing-stats/main2.nf'
 include { MTBSEQ_LINEAGE_JOINT_AMEND }              from '../modules/local/mtbseq/lineage_joint-amend/main.nf'
 include { MTBSEQ_LINEAGE_GROUP }                    from '../modules/local/mtbseq/lineage_group/main.nf'
 include { CONCATENATED_VARIABLE_REGION_PHYLOGENY }  from '../modules/local/phylogeny/concatenated_snp_phylogeny-nf'
@@ -34,12 +35,17 @@ workflow PAIRWISE_WF {
 
         // Determine infection type (Mixed vs Clonal using both tbprofiler and mtbseq outputs)
         //// and filter genomes based on quality parameters (min coverage)
-            COMPILE_SEQUENCING_STATS(   runID,
+            COMPILE_SEQUENCING_STATS1(   runID,
                                         TBPROFILER_COMPILE_TBDB.out.tbdb_results,
                                         TBPROFILER_COMPILE_TBDB.out.lineage_fractions,
                                         TBPROFILER_COMPILE_WHO.out.who_results,
                                         MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_strains,
                                         MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_map_stats,
+                                        sampleID_list
+                                    )
+
+            COMPILE_SEQUENCING_STATS2(   runID,
+                                        COMPILE_SEQUENCING_STATS1.out.pairwise_analysis_list,
                                         sampleID_list
                                     )
 
@@ -97,9 +103,9 @@ workflow PAIRWISE_WF {
 
     emit:
         pairwise_clusters       =   CONCATENATE_CLUSTERS.out.bbdd_clusters
-        analysis_summary        =   COMPILE_SEQUENCING_STATS.out.analysis_summary
-        who_resistance          =   COMPILE_SEQUENCING_STATS.out.who_resistance
-        tbdb_resistance         =   COMPILE_SEQUENCING_STATS.out.tbdb_resistance
+        analysis_summary        =   COMPILE_SEQUENCING_STATS1.out.analysis_summary
+        who_resistance          =   COMPILE_SEQUENCING_STATS1.out.who_resistance
+        tbdb_resistance         =   COMPILE_SEQUENCING_STATS1.out.tbdb_resistance
         phylogeny_plotting_ch   =   CONCATENATED_VARIABLE_REGION_PHYLOGENY.out.phylogeny_plotting_ch
         nexus_creation_ch       =   nexus_creation_ch
 

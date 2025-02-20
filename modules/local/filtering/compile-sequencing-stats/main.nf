@@ -1,4 +1,4 @@
-process COMPILE_SEQUENCING_STATS {
+process COMPILE_SEQUENCING_STATS1 {
 
     conda params.r_stats_env
 
@@ -11,15 +11,16 @@ process COMPILE_SEQUENCING_STATS {
         path(mtbseq_compiled_strains)
         path(mtbseq_compiled_map_stats)
         path(lineage_fractions)
-        val(sample_ids)
+        val(sampleID_list)
 
     output:
         path("${runID}.sequencing_summary.csv")
-        path("sequencing_summary.csv"),         emit: analysis_summary
-        path("who_resistance_summary.csv"),     emit: who_resistance
-        path("tbdb_resistance_summary.csv"),    emit: tbdb_resistance
-        path("lineage_samples_tuple.csv"),           emit: lineage_sample_tuple
-        path("skipped-lineages.csv"),                emit: skipped_lineages
+
+        path("sequencing_summary.csv"),      emit: analysis_summary
+        path("who_resistance_summary.csv"),  emit: who_resistance
+        path("tbdb_resistance_summary.csv"), emit: tbdb_resistance
+
+        path("pairwise_analysis.list.csv"),  emit: pairwise_analysis_list
 
     script:
 
@@ -31,73 +32,19 @@ process COMPILE_SEQUENCING_STATS {
                         --tbprofiler    ${tbdb_results} \\
                         --lineages      lineages.fractions.txt
 
-    # Convert the list of sample IDs to a format suitable for grep
-        echo '${sample_ids.join("\n")}' > run_sample_ids.txt
-
     # Generate summary statistics and create the sampleID,lineage df for
     ## creating into a channel 
         Rscript ${params.r_script_dir}/compile-sequencing-statistics.R \\
                     --minimum_coverage ${params.mtbseq_min_cov} \\
                     --runID ${runID} \\
-                    --dictionary_path ${params.r_script_dir} \\
-                    1>>.command.out \\
-                    2>>.command.err || true # NOTE This is a hack to overcome the exit status 1
+                    --dictionary_path ${params.r_script_dir}
+
+    # Convert the list of sample IDs to a format suitable for grep
+        echo '${sampleID_list.join("\n")}' > run_sample_ids.txt
 
     # Seperate out the genomes from this run into their own results file
         grep -f run_sample_ids.txt ${runID}.sequencing_summary.csv > tmp.${runID}.sequencing_summary.csv
         mv tmp.${runID}.sequencing_summary.csv ${runID}.sequencing_summary.csv
-
-    # extract the lineages from the params.config file
-        echo '${params.lineage_pairwise_sub.join('\n')}' > selected_sub-lineage_split.list
-        echo '${params.lineage_pairwise_main.join('\n')}' > selected_main-lineage_split.list
-
-        # Get the main lineages 
-        while read -r filt_lineage; do
-            # Use grep to find matching lines from pairwise_analysis.list.csv
-            grep -E "\${filt_lineage}" pairwise_analysis.list.csv | while IFS=';' read -r sampleID main_lineage sub_lineage; do
-                    
-                if [[ "\${filt_lineage}" == "\${main_lineage}"* ]]; then
-                    # Append the result to the output file
-                    echo "\${filt_lineage},\${sampleID}" >> lineage_samples_tuple.main.csv   
-                fi
-            done
-        done < selected_main-lineage_split.list
-
-        # get the sub-lineages
-        while read -r filt_lineage; do
-            # Use grep to find matching lines from pairwise_analysis.list.csv
-            grep -E "\${filt_lineage}" pairwise_analysis.list.csv | while IFS=';' read -r sampleID main_lineage sub_lineage; do
-                # Append the result to the output file
-                echo "\${filt_lineage},\${sampleID}" >> lineage_samples_tuple.sub.csv   
-            done
-        done < selected_sub-lineage_split.list
-
-        cut -d ',' -f2 lineage_samples_tuple.sub.csv > tmp.lineage_samples_tuple.sub.sampleID
-        grep -v -f tmp.lineage_samples_tuple.sub.sampleID lineage_samples_tuple.main.csv > lineage_samples_tuple.main-final.csv
-
-        cat lineage_samples_tuple.main-final.csv lineage_samples_tuple.sub.csv | sort > lineage_samples_tuple.csv
-
-    # Remove that lineage if there are less than 3 genomes (minimum needewd for MTBSeq pairwise analysis)
-        awk -F',' '
-            {
-                count[\$1]++      # Count occurrences of each lineage in column 1
-                lines[NR] = \$0   # Store the entire line
-                lineage[NR] = \$1 # Store the lineage (column 1)
-            }
-            END {
-                for (i = 1; i <= NR; i++) {
-                    if (count[lineage[i]] >= 3) {
-                        print lines[i] # Print lines for lineages with >= 3 entries
-                    }
-                }
-            }' "lineage_samples_tuple.csv" > "all-lineage_samples_tuple.csv"
-
-    # Collect all the lineages that are being run in this analysis
-        grep -f run_sample_ids.txt all-lineage_samples_tuple.csv | cut -d ',' -f1 | sort | uniq > lineages.csv
-        # remove lineage that were not present in this analysis
-        grep -v -f lineages.csv all-lineage_samples_tuple.csv > skipped-lineages.csv
-        # retain only lineages that are in this analysis
-        grep -f lineages.csv all-lineage_samples_tuple.csv > lineage_samples_tuple.csv
 
     """
 }    
