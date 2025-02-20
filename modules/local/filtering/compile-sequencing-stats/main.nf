@@ -1,4 +1,4 @@
-process COMPILE_SEQUENCING_STATS1 {
+process COMPILE_SEQUENCING_STATS {
 
     conda params.r_stats_env
 

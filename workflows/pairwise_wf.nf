@@ -1,8 +1,8 @@
 include { TBPROFILER_COMPILE_TBDB }                 from '../modules/local/tbprofiler/compile.tbdb/main.nf'
 include { TBPROFILER_COMPILE_WHO }                  from '../modules/local/tbprofiler/compile.who/main.nf'
 include { MTBSEQ_STATS_COMPILE }                    from '../modules/local/mtbseq/stats-compile/main.nf'
-include { COMPILE_SEQUENCING_STATS1 }                from '../modules/local/filtering/compile-sequencing-stats/main.nf'
-include { COMPILE_SEQUENCING_STATS2 }                from '../modules/local/filtering/compile-sequencing-stats/main2.nf'
+include { COMPILE_SEQUENCING_STATS }                from '../modules/local/filtering/compile-sequencing-stats/main.nf'
+include { PREPARE_PAIRWISE_CHANNELS }               from '../modules/local/filtering/prepare_pairwise_channels/main.nf'
 include { MTBSEQ_LINEAGE_JOINT_AMEND }              from '../modules/local/mtbseq/lineage_joint-amend/main.nf'
 include { MTBSEQ_LINEAGE_GROUP }                    from '../modules/local/mtbseq/lineage_group/main.nf'
 include { CONCATENATED_VARIABLE_REGION_PHYLOGENY }  from '../modules/local/phylogeny/concatenated_snp_phylogeny-nf'
@@ -35,7 +35,7 @@ workflow PAIRWISE_WF {
 
         // Determine infection type (Mixed vs Clonal using both tbprofiler and mtbseq outputs)
         //// and filter genomes based on quality parameters (min coverage)
-            COMPILE_SEQUENCING_STATS1(   runID,
+            COMPILE_SEQUENCING_STATS(   runID,
                                         TBPROFILER_COMPILE_TBDB.out.tbdb_results,
                                         TBPROFILER_COMPILE_TBDB.out.lineage_fractions,
                                         TBPROFILER_COMPILE_WHO.out.who_results,
@@ -44,14 +44,14 @@ workflow PAIRWISE_WF {
                                         sampleID_list
                                     )
 
-            COMPILE_SEQUENCING_STATS2(   runID,
-                                        COMPILE_SEQUENCING_STATS1.out.pairwise_analysis_list,
+            PREPARE_PAIRWISE_CHANNELS(  runID,
+                                        COMPILE_SEQUENCING_STATS.out.pairwise_analysis_list,
                                         sampleID_list
                                     )
 
             // Create tuple and data channel from lineage_samples_paths.csv
             /// the channel needs to be grouped by the lineage
-                lineage_samples_ch = COMPILE_SEQUENCING_STATS.out.lineage_sample_tuple
+                lineage_samples_ch = PREPARE_PAIRWISE_CHANNELS.out.lineage_sample_tuple
                     .splitCsv(header: false)
                     .map { row -> tuple(row[0], row[1]) }
                     .groupTuple()
@@ -59,7 +59,7 @@ workflow PAIRWISE_WF {
                 lineage_samples_ch.view { lineage, samples -> 
                     "${cyan}Clustering - ${green}Lineage: ${red}${lineage}${green} || Genomes: ${red}${samples.size()}${no_col}" }
 
-                skipped_lineages_ch = COMPILE_SEQUENCING_STATS.out.skipped_lineages
+                skipped_lineages_ch = PREPARE_PAIRWISE_CHANNELS.out.skipped_lineages_tuple
                     .splitCsv(header: false)
                     .map { row -> tuple(row[0], row[1]) }
                     .groupTuple()
@@ -103,9 +103,9 @@ workflow PAIRWISE_WF {
 
     emit:
         pairwise_clusters       =   CONCATENATE_CLUSTERS.out.bbdd_clusters
-        analysis_summary        =   COMPILE_SEQUENCING_STATS1.out.analysis_summary
-        who_resistance          =   COMPILE_SEQUENCING_STATS1.out.who_resistance
-        tbdb_resistance         =   COMPILE_SEQUENCING_STATS1.out.tbdb_resistance
+        analysis_summary        =   COMPILE_SEQUENCING_STATS.out.analysis_summary
+        who_resistance          =   COMPILE_SEQUENCING_STATS.out.who_resistance
+        tbdb_resistance         =   COMPILE_SEQUENCING_STATS.out.tbdb_resistance
         phylogeny_plotting_ch   =   CONCATENATED_VARIABLE_REGION_PHYLOGENY.out.phylogeny_plotting_ch
         nexus_creation_ch       =   nexus_creation_ch
 
