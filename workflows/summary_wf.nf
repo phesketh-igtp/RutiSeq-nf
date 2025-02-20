@@ -37,7 +37,8 @@ workflow SUMMARY_WF{
 
         // Plot main ML phylogeny
             PLOT_MAIN_PHYLOGENY( phylogeny_plotting_ch,
-                                    PROCESS_CLUSTERS.out.pairwise_clusters_processed )
+                                    PROCESS_CLUSTERS.out.pairwise_clusters_processed,
+                                    pairwise_clusters )
 
         // Generate base NEXUS files for each cluster
             PREPARE_NEXUS_PATHS( phylogeny_plotting_ch,

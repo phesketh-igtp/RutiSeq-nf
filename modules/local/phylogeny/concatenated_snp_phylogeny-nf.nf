@@ -42,6 +42,7 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
                         print position "\t" substr(\$0, i, 1) >> "'"${lineage}.tmp.fasta_positions.tab"'"
                     }
                 }' "${lineage}.tmp.fasta"
+                
                 cut -f1 ${lineage}.tmp.fasta_positions.tab > ${lineage}.tmp.fasta_positions
                 rm ${lineage}.tmp.fasta_positions.tab
         

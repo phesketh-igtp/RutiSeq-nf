@@ -53,20 +53,22 @@ process COMPILE_SEQUENCING_STATS {
         
         echo '${params.lineage_pairwise_sub.join('\n')}' > selected_lineage_split.sub
 
-        while read -r main_lineage; do
+        while read -r lineage; do
             # Use grep to find matching lines from pairwise_analysis.list.csv
 
             grep -E "\${main_lineage}" pairwise_analysis.list.csv | while IFS=';' read -r sampleID main_lineage sub_lineage; do
                 # Check if sub_lineage starts with main_lineage
                 
-                if [[ "\${sub_lineage}" == "\${main_lineage}"* ]]; then
+                if [[ "\${lineage}" == "\${main_lineage}"* ]]; then
 
                     # Append the result to the output file
                     echo "\${main_lineage},\${sampleID}" >> lineage_samples_tuple.csv   
 
                 fi
             done
-        done < selected_lineage_split.list
+        done < selected_lineage_split.main
+
+        
 
     # Remove that lineage if there are less than 3 genomes (minimum needewd for MTBSeq pairwise analysis)
         awk -F',' '

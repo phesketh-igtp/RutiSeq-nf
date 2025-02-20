@@ -7,7 +7,7 @@ process GENERATE_SUMMARY_REPORT {
     input:
         val runID
         path pairwise_clusters_processed
-        path analysis_summary
+        path sequencing_summary
         path who_resistance
         path tbdb_resistance
 
@@ -18,7 +18,7 @@ process GENERATE_SUMMARY_REPORT {
 
         """
         Rscript ${params.r_script_dir}/generate_summary_report.R \\
-                --summary ${analysis_summary} \\
+                --summary ${sequencing_summary} \\
                 --who_res ${who_resistance} \\
                 --tbdb_res ${tbdb_resistance} \\
                 --clusters ${pairwise_clusters_processed} \\

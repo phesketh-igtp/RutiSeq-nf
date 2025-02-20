@@ -18,6 +18,7 @@ process CONCATENATE_CLUSTERS {
             for file in ${params.outdir}/bbdd/mtbseq/pairwise/*/Groups/*clusters.tsv; do 
                 cat \$file >> pairwise_clusters.tsv
             done
+
         """
 
 }

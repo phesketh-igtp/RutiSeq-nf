@@ -19,10 +19,6 @@ parser$add_argument("--rlibrary", required=TRUE,help="Path to directory containi
 # Parse command-line arguments
 args <- parser$parse_args()
 
-# Import the function for creating the palette
-source(paste(args$rlibrary, "/functions/isolate_cluster_ancestal_sequence.R", sep=""))
-source(paste(args$rlibrary, "/functions/create-ggtree-palette.R", sep=""))
-
 #··············································································#
 #··············································································#
 
@@ -52,13 +48,6 @@ tree_rooted <- root(tree, "MTB_anc", resolve.root=TRUE, edgelabel=TRUE)
 
 # Filter clusters to the correct analysis group lineage
 pattern <- paste0("-", lineage, "$")
-# Filter rows based on the pattern in any of the specified columns
-filtered_clusters <- clusters[
-        grepl(pattern, clusters$SNP_d5_L) |
-        grepl(pattern, clusters$SNP_d10_L) |
-        grepl(pattern, clusters$SNP_d15_L) |
-        grepl(pattern, clusters$SNP_nd5.id10.vd15),
-    ]; clusters <- filtered_clusters; rm(filtered_clusters)
 
 #··············································································#
 #··············································································#
@@ -105,15 +94,6 @@ pattern <- paste0("nX.iX.vX-", lineage)
 #··············································································#
 #··············································································#
 
-# Create tree specific metadata palette
-color_palette <- create_tree_palette(
-        input=tree.clusters.df, lin = lineage)
-color_palette <- trimws(color_palette)        
-color_palette
-
-#··············································································#
-#··············································································#
-
 # Final modifications to the plotting dataframes
 tree.clusters.df.tmp <- tree.clusters.df |> select(d5,d10,d15)
 
@@ -145,46 +125,6 @@ tree.p.r <- ggtree(tree_rooted, linewidth=0.5,
             scale_color_manual(values=c("#000000", "#FF0000")
             )
 
-p1 <-   gheatmap(tree.p.r, tree.clusters.df,
-                offset = 0.1,
-                width = 1,
-                colnames_angle = 0,
-                colnames_offset_y = -0.8,
-                font.size = 2,
-                color = "#3a3a3a"
-                ) +
-        scale_fill_manual(values = color_palette,
-                na.value = "white", 
-                name = "Unique\nclusterID\n(with lineage)"
-                ) + 
-        ggtitle(paste0("IQ-Tree ML Phylogeny | ", lineageID)
-        ) +
-        theme(legend.position = "none"
-        )
-
-# Add the cluster informations
-p1.L <-     gheatmap(tree.p.r, tree.clusters.df,
-                    offset = 0.1, 
-                    width = 1,
-                    colnames_angle = 0, 
-                    colnames_offset_y = -0.8,
-                    font.size = 2, 
-                    color = "#3a3a3a"
-                    ) +
-            scale_fill_manual(values = color_palette,
-                    na.value = "white", 
-                    name = "Unique\nclusterID\n(with lineage)"
-                    ) +
-            ggtitle(paste0("IQ-Tree ML Phylogeny | ", lineageID)
-            ) +
-            theme(legend.position = "bottom", 
-                    legend.title = element_text(size = 4),
-                    legend.text=element_text(size=4),
-                    legend.key.size = unit(0.1, "cm")
-                    ) +
-            guides(fill = guide_legend(ncol = 10)
-            )
-
 # Circular (dendrogram) trees
 tree.p.c <- ggtree(tree_rooted,
                 linewidth=0.1,
@@ -199,48 +139,14 @@ tree.p.c <- ggtree(tree_rooted,
             scale_color_manual(values=c("#000000", "#FF0000")
             )
 
-p2 <-       gheatmap(tree.p.c, tree.clusters.df, 
-                offset = 10, 
-                width = 0.3,
-                colnames_angle = 45, 
-                colnames_offset_y = -0.8,
-                font.size = 5, 
-                color = "#3a3a3a"
-                ) +
-            scale_fill_manual(values = color_palette,
-                na.value = "white", 
-                name = "Unique\nclusterID\n(with lineage)"
-                ) +
-            ggtitle(paste0("IQ-Tree ML Phylogeny | Branch-length ignored | ", lineageID)) +
-            theme(legend.position = "none"
-            )
-
-p2.L <-     gheatmap(tree.p.c, tree.clusters.df, 
-                offset = 10, width = 0.3,
-                colnames_angle = 0, colnames_offset_y = -0.8,
-                font.size = 2, color = "#3a3a3a"
-                ) +
-            scale_fill_manual(values = color_palette,
-                na.value = "white", 
-                name = "Unique\nclusterID\n(with lineage)"
-                ) +
-            ggtitle(paste0("IQ-Tree ML Phylogeny | Branch-length ignored | ", lineageID)) +
-            theme(legend.position = "bottom",
-                legend.title = element_text(size = 6),
-                legend.text=element_text(size=6),
-                legend.key.size = unit(0.2, "cm")
-                )
-
 #··············································································#
 #··············································································#
 
 #·············· Export trees ··············#
 
 pdf(file = paste0(lineageID,"_ML.contree.pdf"))
-p1
-p1.L
-p2
-p2.L
+tree.p.r
+tree.p.c
 dev.off()
 
 #·············· Export RData for using in later plots ··············#

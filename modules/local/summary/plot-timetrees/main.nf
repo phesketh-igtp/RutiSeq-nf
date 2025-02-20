@@ -4,7 +4,7 @@ process PLOT_TIMETREES {
 
     conda params.r_stats_env
 
-    publishDir "${params.outdir}/bbdd/results/phylogeny/", mode: 'copy'
+    publishDir "${params.outdir}/results/phylogeny/", mode: 'copy'
 
     input:
         tuple val(lineage), 
