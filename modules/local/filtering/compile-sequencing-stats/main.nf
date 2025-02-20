@@ -28,7 +28,7 @@ process COMPILE_SEQUENCING_STATS {
     """
     # Create the lienage fraction strings
         Rscript ${params.r_script_dir}/tbprofiler_lineage_fractions.R \\
-                        --tbprofiler    tbdb-tbprofiler.txt \\
+                        --tbprofiler    ${tbdb_results} \\
                         --lineages      lineages.fractions.txt
 
     # Convert the list of sample IDs to a format suitable for grep
@@ -42,31 +42,40 @@ process COMPILE_SEQUENCING_STATS {
                     --dictionary_path ${params.r_script_dir} \\
                     1>>.command.out \\
                     2>>.command.err || true # NOTE This is a hack to overcome the exit status 1
-                    
 
     # Seperate out the genomes from this run into their own results file
         grep -f run_sample_ids.txt ${runID}.sequencing_summary.csv > tmp.${runID}.sequencing_summary.csv
         mv tmp.${runID}.sequencing_summary.csv ${runID}.sequencing_summary.csv
 
     # extract the lineages from the params.config file
-        echo '${params.lineage_pairwise.join('\n')}' > selected_lineage_split.list
-        
-        echo '${params.lineage_pairwise_exceptions.join('\n')}' > selected_lineage_exceptions.list
+        echo '${params.lineage_pairwise_sub.join('\n')}' > selected_sub-lineage_split.list
+        echo '${params.lineage_pairwise_main.join('\n')}' > selected_main-lineage_split.list
 
-        while read -r main_lineage; do
+        # Get the main lineages 
+        while read -r filt_lineage; do
             # Use grep to find matching lines from pairwise_analysis.list.csv
-
-            grep -E "\${main_lineage}" pairwise_analysis.list.csv | while IFS=';' read -r sampleID main_lineage sub_lineage; do
-                # Check if sub_lineage starts with main_lineage
-                
-                if [[ "\${sub_lineage}" == "\${main_lineage}"* ]]; then
-
+            grep -E "\${filt_lineage}" pairwise_analysis.list.csv | while IFS=';' read -r sampleID main_lineage sub_lineage; do
+                    
+                if [[ "\${filt_lineage}" == "\${main_lineage}"* ]]; then
                     # Append the result to the output file
-                    echo "\${main_lineage},\${sampleID}" >> lineage_samples_tuple.csv   
-
+                    echo "\${filt_lineage},\${sampleID}" >> lineage_samples_tuple.main.csv   
                 fi
             done
-        done < selected_lineage_split.list
+        done < selected_main-lineage_split.list
+
+        # get the sub-lineages
+        while read -r filt_lineage; do
+            # Use grep to find matching lines from pairwise_analysis.list.csv
+            grep -E "\${filt_lineage}" pairwise_analysis.list.csv | while IFS=';' read -r sampleID main_lineage sub_lineage; do
+                # Append the result to the output file
+                echo "\${filt_lineage},\${sampleID}" >> lineage_samples_tuple.sub.csv   
+            done
+        done < selected_sub-lineage_split.list
+
+        cut -d ',' -f2 lineage_samples_tuple.sub.csv > tmp.lineage_samples_tuple.sub.sampleID
+        grep -v -f tmp.lineage_samples_tuple.sub.sampleID lineage_samples_tuple.main.csv > lineage_samples_tuple.main-final.csv
+
+        cat lineage_samples_tuple.main-final.csv lineage_samples_tuple.sub.csv | sort > lineage_samples_tuple.csv
 
     # Remove that lineage if there are less than 3 genomes (minimum needewd for MTBSeq pairwise analysis)
         awk -F',' '
@@ -81,35 +90,14 @@ process COMPILE_SEQUENCING_STATS {
                         print lines[i] # Print lines for lineages with >= 3 entries
                     }
                 }
-            }' "lineage_samples_tuple.csv" > "lineage_samples_tuple.csv.tmp"
+            }' "lineage_samples_tuple.csv" > "all-lineage_samples_tuple.csv"
 
-        cp lineage_samples_tuple.csv lineage_samples_tuple.unfiltered.csv
-        cp lineage_samples_tuple.csv.tmp lineage_samples_tuple.csv
-
-        touch skipped-lineages.csv
+    # Collect all the lineages that are being run in this analysis
+        grep -f run_sample_ids.txt all-lineage_samples_tuple.csv | cut -d ',' -f1 | sort | uniq > lineages.csv
+        # remove lineage that were not present in this analysis
+        grep -v -f lineages.csv all-lineage_samples_tuple.csv > skipped-lineages.csv
+        # retain only lineages that are in this analysis
+        grep -f lineages.csv all-lineage_samples_tuple.csv > lineage_samples_tuple.csv
 
     """
-}
-
-/* SPLIT THE TUPLE INTO LINEAGES REPRESENTED BY THE NEW GENOMES AND THOSE THAT ARENT, SO THAT 
-    NOT ALL THE LINEAGES ARE RE-CLUSTERED AND TIME IS WASTED ON UNCESSARY ANALYSIS 
-
-        TODO: SOMETHING ABOUT THIS FUCKING CHUNK OF CODE 
-            WAS RUINING MY LIFE AND I DONT KNOW WHAT!!!!!!
-            
-
-    # Filter the lineages to contain ONLY the lineages from the newest run
-        mv lineage_samples_tuple.csv all-lineage_samples_tuple.csv
-
-        # Collect the lineage IDs as define from the tuple.csv
-            grep -f run_sample_ids.txt all-lineage_samples_tuple.csv | cut -d ',' -f1 | sort | uniq | sed "s/\$/,/g" > run_sample_ids_taxonomy.txt
-
-        # Create tuple for pairwise analysis
-            grep -f run_sample_ids_taxonomy.txt all-lineage_samples_tuple.csv > lineage_samples_tuple.csv
-        touch lineage_samples_tuple.csv
-
-        # Create tuple for skipped analysis
-            grep -v -f run_sample_ids_taxonomy.txt all-lineage_samples_tuple.csv > skipped-lineages.csv
-        touch skipped-lineages.csv
-
- */       
+}    
