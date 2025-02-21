@@ -20,18 +20,19 @@ process MTBC_READ_QC {
                 path(tbdb_out), path(who_out), path(mtbseq_vcf)
 
     output:
-        path("tables/${sampleID}.kaiju.out"), optional: true
-        path("tables/${sampleID}.kaiju_summary.tsv"), optional: true
+        path("tables/${sampleID}.kaiju.out"),           optional: true
+        path("tables/${sampleID}.kaiju_summary.tsv"),   optional: true
 
         // Emit ch for compiling read-QC
-        tuple val(sampleID), path("tables/${sampleID}.qc.out"),                                emit: qc_results, optional: true
+        tuple val(sampleID), path("tables/${sampleID}.qc.out"),      emit: qc_results, optional: true
 
         // Emit ch for the updated channel with all the outputs
         tuple val(sampleID), 
                 path("mtbc_reads/${sampleID}_mtbc_R1.fastq.gz"), 
                 path("mtbc_reads/${sampleID}_mtbc_R2.fastq.gz"), 
-                path(mtbseq_class), path(mtbseq_stats), path(mtbseq_pos), 
-                path(mtbseq_vars), path(tbdb_out), path(who_out), path(mtbseq_vcf),     emit: updated_sample_ch1
+                path(mtbseq_class), path(mtbseq_stats), 
+                path(mtbseq_pos), path(mtbseq_vars), 
+                path(tbdb_out), path(who_out), path(mtbseq_vcf),     emit: updated_sample_ch1
 
 
     script:
@@ -41,6 +42,20 @@ process MTBC_READ_QC {
         def kaiju_nodes                 = params.kaiju_nodes
         def kaiju_fmi                   = params.kaiju_fmi
 
+    """
+        touch tables/${sampleID}.kaiju.out
+        touch tables/${sampleID}.kaiju_summary.tsv
+        touch tables/${sampleID}.qc.out
+
+        mkdir -p mtbc_reads
+        cp ${forward} mtbc_reads/${sampleID}_mtbc_R1.fastq.gz
+        cp ${reverse} mtbc_reads/${sampleID}_mtbc_R2.fastq.gz
+    """
+
+
+}
+
+/*
         """
             grep 'Mycobacterium tuberculosis ' ${kaiju_names} | cut -f1 | sort | uniq > MTBC.list
 
@@ -97,4 +112,4 @@ process MTBC_READ_QC {
             mv ${sampleID}.kaiju_summary.tsv tables/
             mv ${sampleID}.qc.out tables/
         """
-}
+*/

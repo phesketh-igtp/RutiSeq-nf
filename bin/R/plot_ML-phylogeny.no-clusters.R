@@ -14,23 +14,9 @@ parser <- ArgumentParser(description = "Plot Maximum-likelihood phylogeny")
 
 # Define command-line options
 parser$add_argument("--lineageID",  required=TRUE,help="Name of the lineage - short (i.e. L4.1, or L4.3)")
-parser$add_argument("--rlibrary", required=TRUE,help="Path to directory containing R scripts and functions")    
 
 # Parse command-line arguments
 args <- parser$parse_args()
-
-#··············································································#
-#··············································································#
-
-## Test commands
-#lineageID <- "lineage4.8"
-#clusters <- read.delim("processed_clusters.tsv", header=T) |> select(SampleID,SNP_d5_L,SNP_d10_L,SNP_d15_L,SNP_nd5.id10.vd15)
-#tree <- read.tree("lineage4.8_ML.contree")
-#rlibrary="/home/phesketh/Documents/GitHub/TBSEQ.cat-nf/bin/R"
-#rlibrary="/imppc/labs/emlab/share/GitHub/RutiSeq-nf/bin/R"
-#source(paste(rlibrary, "/functions/isolate_cluster_ancestal_sequence.R", sep=""))
-#source(paste(rlibrary, "/functions/create-ggtree-palette.R", sep=""))
-
 
 #··············································································#
 #··············································································#
