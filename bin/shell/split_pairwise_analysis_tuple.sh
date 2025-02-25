@@ -57,9 +57,12 @@
         fi
     done < tmp.lineages.to.keep
 
+# In case any of the filetr files are empty
+    touch tmp.lineages.to.remove.from.keep.list # incase this is empty
+    touch tmp.lineages.to.keep.1
+    touch tmp.lineages.to.keep
 
 # Process the generated tuples
-    touch tmp.lineages.to.remove.from.keep.list # incase this is empty
     grep -v -f tmp.lineages.to.remove.from.keep.list tmp.lineages.to.keep > tmp.lineages.to.keep.1
     grep -f tmp.lineages.to.keep.1 tmp.lineage_samples_tuple.1.csv > final.lineage_samples_tuple.csv
     grep -v -f tmp.lineages.to.keep tmp.lineage_samples_tuple.1.csv > final.skipped-lineages_tuple.csv
