@@ -52,7 +52,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
             mkdir -p Position_Tables/ Called/ Amend/ Joint/
 
         # create the list of the sampleIDs within that lineage
-            echo "${sampleIDs.join('\n')}" > samplesID.list
+            echo "${sampleIDs.join('\n')}" | sort | uniq > samplesID.list
             sed 's@_@\t@g' samplesID.list > ${lineage}_samples.txt
 
         # Create symbolic links to the apprpriate files (only if the file does not exist)
