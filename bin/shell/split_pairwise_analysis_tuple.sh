@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+##set -euo pipefail
 
 # Color definitions
     green='\033[32m'
@@ -59,8 +59,7 @@ set -euo pipefail
 
 
 # Process the generated tuples
+    touch tmp.lineages.to.remove.from.keep.list # incase this is empty
     grep -v -f tmp.lineages.to.remove.from.keep.list tmp.lineages.to.keep > tmp.lineages.to.keep.1
     grep -f tmp.lineages.to.keep.1 tmp.lineage_samples_tuple.1.csv > final.lineage_samples_tuple.csv
     grep -v -f tmp.lineages.to.keep tmp.lineage_samples_tuple.1.csv > final.skipped-lineages_tuple.csv
-
-    echo "Script completed successfully"

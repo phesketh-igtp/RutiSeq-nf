@@ -22,9 +22,7 @@ process PREPARE_PAIRWISE_CHANNELS {
             echo '${params.lineage_pairwise_main.join('\n')}' > selected_main-lineage_split.list
 
         # Run the script to generate pairwise analysis tuples
-            bash ${params.script_dir}/shell/split_pairwise_analysis_tuple.sh \\
-                1>>.command.out \\
-                2>>.command.err || true # maybe?
+            bash ${params.script_dir}/shell/split_pairwise_analysis_tuple.sh
 
         # Log completion
             echo "PREPARE_PAIRWISE_CHANNELS completed successfully for runID: ${runID}"
