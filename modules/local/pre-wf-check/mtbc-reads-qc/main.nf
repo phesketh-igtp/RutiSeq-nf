@@ -43,6 +43,7 @@ process MTBC_READ_QC {
         def kaiju_fmi                   = params.kaiju_fmi
 
     """
+        mkdir -p tables
         touch tables/${sampleID}.kaiju.out
         touch tables/${sampleID}.kaiju_summary.tsv
         touch tables/${sampleID}.qc.out
