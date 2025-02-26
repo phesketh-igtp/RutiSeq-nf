@@ -46,5 +46,7 @@ process COMPILE_SEQUENCING_STATS {
         grep -f run_sample_ids.txt ${runID}.sequencing_summary.csv > tmp.${runID}.sequencing_summary.csv
         mv tmp.${runID}.sequencing_summary.csv ${runID}.sequencing_summary.csv
 
+    # Create the file to go to the tuple seperation
+    sed 's/\t/,/g' tbdb-tbprofiler.txt | cut -d ',' -f1,2,3 > pairwise_analysis.list.csv
     """
 }    

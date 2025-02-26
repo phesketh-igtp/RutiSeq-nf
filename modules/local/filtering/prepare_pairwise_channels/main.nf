@@ -1,5 +1,7 @@
 process PREPARE_PAIRWISE_CHANNELS {
 
+    conda params.r_stats_env
+
     publishDir "${params.outdir}/results/", mode: 'copy'
     
     input:
@@ -16,18 +18,16 @@ process PREPARE_PAIRWISE_CHANNELS {
         """
         # Get the list of sampleIDs from this analysis run
             
-            echo '${sampleID_list.join("\n")}' > run_sample_ids.txt
+            echo '${sampleID_list.join("\n")}' | sort | uniq > run_sample_ids.txt
 
             echo '${params.lineage_pairwise_sub.join('\n')}' > selected_sub-lineage_split.list
             echo '${params.lineage_pairwise_main.join('\n')}' > selected_main-lineage_split.list
 
         # Run the script to generate pairwise analysis tuples
-            bash ${params.script_dir}/shell/split_pairwise_analysis_tuple.sh \\
+            Rscript ${params.r_script_dir}/create_pairwise_analaysi_tuple.R \\
                 1>>.command.out \\
                 2>>.command.err || true # maybe?
 
-        # Log completion
-            echo "PREPARE_PAIRWISE_CHANNELS completed successfully for runID: ${runID}"
         """
 
 }

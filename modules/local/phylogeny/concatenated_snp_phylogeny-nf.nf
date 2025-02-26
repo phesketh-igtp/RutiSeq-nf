@@ -16,7 +16,6 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
         path("Phylogeny/*")
         
         tuple val(lineage), path("Phylogeny/${lineage}_ML.contree"),
-                            //path("Phylogeny/${lineage}_timetree/timetree.nexus"),
                             path("Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta"), emit: phylogeny_plotting_ch
 
     script:
@@ -24,6 +23,32 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
     def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
     """
+    # Create the fasta files for the phylogeny
+        bash ${params.script_dir}/shell/concatenate-variable-pylogeny-ancestors.sh \\
+                ${fasta} \\
+                ${lineage} \\
+                ${tab} \\
+                ${params.mtbc_ancestor_path}
+
+        # Perform alignment of sequences 
+            mafft --auto --thread ${params.cpus} \\
+                    Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.fasta \\
+                    > Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta
+
+        # Perform phylogeny
+            iqtree -s Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta \\
+                    -m ${params.iqtree_model} \\
+                    -T AUTO \\
+                    -ntmax ${params.cpus} \\
+                    -B ${params.iqtree_bootstraps} \\
+                    --prefix ${lineage}_ML
+
+            mv ${lineage}_ML.* Phylogeny/
+    """
+
+}
+
+/*
         mkdir -p Phylogeny/
 
         # Need to make the respective SNP alignment for the H37Rv and the Ancestral sequence for the phylogeny
@@ -44,7 +69,7 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
                 }' "${lineage}.tmp.fasta"
                 
                 cut -f1 ${lineage}.tmp.fasta_positions.tab > ${lineage}.tmp.fasta_positions
-                rm ${lineage}.tmp.fasta_positions.tab
+                #rm ${lineage}.tmp.fasta_positions.tab
         
         # 3. obtain the reference positions (H37Rv) for the cluster positions
             for i in `cat ${lineage}.tmp.fasta_positions`; do 
@@ -77,21 +102,5 @@ process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
             
             # remove all temporary files
                 rm ${lineage}.tmp.*
-
-        # 9. Perform alignment of sequences 
-            mafft --auto --thread ${params.cpus} \\
-                    Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.fasta \\
-                    > Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta
-
-        # 10. Perform phylogeny
-            iqtree -s Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta \\
-                    -m ${params.iqtree_model} \\
-                    -T AUTO \\
-                    -ntmax ${params.cpus} \\
-                    -B ${params.iqtree_bootstraps} \\
-                    --prefix ${lineage}_ML
-
-            mv ${lineage}_ML.* Phylogeny/
-    """
-
-}
+            
+*/
