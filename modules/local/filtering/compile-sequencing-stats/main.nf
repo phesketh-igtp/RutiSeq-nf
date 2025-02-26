@@ -47,6 +47,9 @@ process COMPILE_SEQUENCING_STATS {
         mv tmp.${runID}.sequencing_summary.csv ${runID}.sequencing_summary.csv
 
     # Create the file to go to the tuple seperation
-    sed 's/\t/,/g' tbdb-tbprofiler.txt | cut -d ',' -f1,2,3 > pairwise_analysis.list.csv
+        awk -F "\t" '{ if ( \$14 > ${params.mtbseq_min_cov} ) print \$4 }' Mapping_and_Variant_Statistics.tab > min.qual.genomes
+        sed 's/\t/,/g' tbdb-tbprofiler.txt | cut -d ',' -f1,2,3 > tmp-pairwise_analysis.list.csv
+        grep -f min.qual.genomes tmp.pairwise_analysis.list.csv > pairwise_analysis.list.csv
+
     """
 }    
