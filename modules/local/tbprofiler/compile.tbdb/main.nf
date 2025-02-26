@@ -30,6 +30,7 @@ process TBPROFILER_COMPILE_TBDB {
         mkdir results/; mkdir bam/; mkdir vcf/; mkdir tmp/
 
         # create the symbolic links to the result directories
+                mv tbdb-* tmp/
             ln -s ${params.outdir}/bbdd/tbprofiler/results/* results/;
             ln -s ${params.outdir}/bbdd/tbprofiler/bam/* bam/;
             ln -s ${params.outdir}/bbdd/tbprofiler/vcf/* vcf/
@@ -43,7 +44,8 @@ process TBPROFILER_COMPILE_TBDB {
             sed -i 's/tbdb-//g' tbprofiler.dr.indiv.itol.txt
             sed -i 's/tbdb-//g' tbprofiler.dr.itol.txt
             sed -i 's/tbdb-//g' tbprofiler.lineage.itol.txt
-
+            
+            mv tmp/* .
 
         # Move the files to give them unique names
             mv tbprofiler.txt tbdb-tbprofiler.txt
