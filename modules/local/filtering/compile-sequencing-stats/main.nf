@@ -33,7 +33,7 @@ process COMPILE_SEQUENCING_STATS {
                         --lineages      lineages.fractions.txt
 
     # Generate summary statistics and create the sampleID,lineage df for
-    ## creating into a channel 
+    ## creating into a channel TODO: need to fix this script in generating the output for tuplec creation
         Rscript ${params.r_script_dir}/compile-sequencing-statistics.R \\
                     --minimum_coverage ${params.mtbseq_min_cov} \\
                     --runID ${runID} \\
@@ -50,6 +50,7 @@ process COMPILE_SEQUENCING_STATS {
         awk -F "\t" '{ if ( \$14 > ${params.mtbseq_min_cov} ) print \$4 }' Mapping_and_Variant_Statistics.tab | sort | uniq > min.qual.genomes
         sed 's/\t/,/g' tbdb-tbprofiler.txt | cut -d ',' -f1,2,3 > tmp.pairwise_analysis.list.csv
         grep -f min.qual.genomes tmp.pairwise_analysis.list.csv > pairwise_analysis.list.csv
+        touch pairwise_analysis.list.csv
 
     """
 }    

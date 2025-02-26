@@ -45,7 +45,7 @@ workflow PAIRWISE_WF {
                                     )
 
             PREPARE_PAIRWISE_CHANNELS(  runID,
-                                        TBPROFILER_COMPILE_TBDB.out.tbdb_results,
+                                        COMPILE_SEQUENCING_STATS.out.pairwise_analysis_list,
                                         sampleID_list
                                     )
 

@@ -16,7 +16,7 @@ colnames(run_ids) <- "SampleID"
 
 meta <- readr::read_delim("pairwise_analysis.list.csv", col_names = TRUE, delim = ",") |> 
     distinct() |>
-    filter(!is.na(main_lineage) & !str_detect(main_lineage, ";")) |>
+    filter(!is.na(main_lineage) & !str_detect(main_lineage, ",")) |>
     filter(!str_detect(sample, "CN-"))  # This line filters out any sample that contains 'CN-'
 colnames(meta) <- c("SampleID", "main_lineage", "sub_lineage")
 

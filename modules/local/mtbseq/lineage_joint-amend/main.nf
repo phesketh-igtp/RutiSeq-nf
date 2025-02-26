@@ -8,7 +8,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
     ///        } else { 'quay.io/biocontainers/mtbseq' }
     ///}
                 
-    publishDir "${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/", mode: 'copy'
+    publishDir "${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/", mode: 'copy', overwrite: true
 
     input:
         val runID
@@ -46,7 +46,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
 
         """
 
-        rm -rf ${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/*
+        #rm -rf ${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/*
 
         # make the expected directories
             mkdir -p Position_Tables/ Called/ Amend/ Joint/

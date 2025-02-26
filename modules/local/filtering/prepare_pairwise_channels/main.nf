@@ -5,9 +5,9 @@ process PREPARE_PAIRWISE_CHANNELS {
     publishDir "${params.outdir}/results/", mode: 'copy'
     
     input:
-        val runID
-        path pairwise_analysis_list
-        val sampleID_list
+        val(runID)
+        path(pairwise_analysis_list)
+        val(sampleID_list)
 
     output:
         path "final.lineage_samples_tuple.csv", emit: lineage_sample_tuple
@@ -24,7 +24,7 @@ process PREPARE_PAIRWISE_CHANNELS {
             echo '${params.lineage_pairwise_main.join('\n')}' > selected_main-lineage_split.list
 
         # Run the script to generate pairwise analysis tuples
-            Rscript ${params.r_script_dir}/create_pairwise_analaysi_tuple.R \\
+            Rscript ${params.r_script_dir}/create_pairwise_analysis_tuple.R \\
                 1>>.command.out \\
                 2>>.command.err || true # i think this helps
 
