@@ -16,7 +16,8 @@ colnames(run_ids) <- "SampleID"
 
 meta <- readr::read_delim("pairwise_analysis.list.csv", col_names = TRUE, delim = ",") |> 
     distinct() |>
-    filter(!is.na(main_lineage) & !str_detect(main_lineage, ";"))
+    filter(!is.na(main_lineage) & !str_detect(main_lineage, ";")) |>
+    filter(!str_detect(sample, "CN-"))  # This line filters out any sample that contains 'CN-'
 colnames(meta) <- c("SampleID", "main_lineage", "sub_lineage")
 
 # Filter out the lineages at sub_lineage level
@@ -34,15 +35,18 @@ filtered_meta <- meta %>%
             main_lineage %in% main_lineages$selected_main_lineage ~ main_lineage,  # Otherwise, use main_lineage if valid
             TRUE ~ sub_lineage  # Default to sub_lineage if no match
             )
-        ) %>%
-    select(final_lineage, SampleID) %>%
+        ) |> 
+    select(final_lineage, SampleID) |> 
     rename(lineage = final_lineage)
 
 # Step 2: Get unique lineages from run_ids
-filtered_lineages_forward <- filtered_meta %>%
-    filter(SampleID %in% run_ids$SampleID) %>%
-    select(lineage) %>%
+filtered_lineages_forward <- filtered_meta |> 
+    filter(SampleID %in% run_ids$SampleID) |> 
+    count(lineage) |> 
+    filter(n > 4) |> # rm lineage with less than 4 genome (min for MTBSeq)
+    select(lineage) |> 
     distinct()  # Use distinct() instead of unique() for dplyr consistency
+
 
 # Step 3: Partition filtered_meta based on filtered_lineages_forward
 filtered_meta_forward <- filtered_meta %>%
