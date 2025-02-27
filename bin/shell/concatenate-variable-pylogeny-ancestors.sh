@@ -19,9 +19,9 @@ mkdir -p Phylogeny/
             /^>/ {next}  # Skip header lines
             {
                 # Process sequence lines
-                for (i = 1; i <= length(\$0); i++) {
+                for (i = 1; i <= length($0); i++) {
                     position++
-                    print position "\t" substr(\$0, i, 1) >> "'"${lineage}.tmp.fasta_positions.tab"'"
+                    print position "\t" substr($0, i, 1) >> "'"${lineage}.tmp.fasta_positions.tab"'"
                 }
             }' "${lineage}.tmp.fasta"
                 
@@ -30,7 +30,7 @@ mkdir -p Phylogeny/
 
 # 3. obtain the reference positions (H37Rv) for the cluster positions
     for i in `cat ${lineage}.tmp.fasta_positions`; do 
-        sed -n \$((i+2))'p' ${tab} | cut -f3
+        sed -n $((i+2))'p' ${tab} | cut -f3
     done > ${lineage}.tmp_refseq
         
 # 4. convert column into fasta
@@ -38,14 +38,14 @@ mkdir -p Phylogeny/
 
 # 5. get the genomic positions of the SNPs
     while read -r position; do
-        sed -n \$((position+2))'p' ${tab} | cut -f 1; 
+        sed -n $((position+2))'p' ${tab} | cut -f 1; 
     done < ${lineage}.tmp.fasta_positions > Phylogeny/${lineage}_genomic_positions.tab
 
     cp ${mtbc_ancestor_path} ${lineage}.tmp.MTB_anc.pos.gz; gunzip ${lineage}.tmp.MTB_anc.pos.gz
 
 # 6. Get the same SNPs for the 'ancestor' genomes
     for i in `cat Phylogeny/${lineage}_genomic_positions.tab`; do 
-        sed -n \${i}'p' ${lineage}.tmp.MTB_anc.pos | cut -f3 # doesnt need to +2 as the tsv file has no header
+        sed -n ${i}'p' ${lineage}.tmp.MTB_anc.pos | cut -f3 # doesnt need to +2 as the tsv file has no header
     done > ${lineage}.tmp.MTB_anc
 
 # 7. convert the column in fasta

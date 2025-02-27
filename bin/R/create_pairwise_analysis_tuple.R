@@ -14,11 +14,11 @@ colnames(sub_lineages) <- "selected_sub_lineage"
 run_ids <- readr::read_delim("run_sample_ids.txt", col_names = FALSE, delim = ",")
 colnames(run_ids) <- "SampleID"
 
-meta <- readr::read_delim("pairwise_analysis.list.csv", col_names = TRUE, delim = ",") |> 
-    distinct() |>
-    filter(!is.na(main_lineage) & !str_detect(main_lineage, ",")) |>
-    filter(!str_detect(sample, "CN-"))  # This line filters out any sample that contains 'CN-'
+meta <- readr::read_delim("pairwise_analysis.list.csv", col_names = FALSE, delim = ",") |> 
+    distinct() 
 colnames(meta) <- c("SampleID", "main_lineage", "sub_lineage")
+meta <- meta |> filter(!is.na(main_lineage) & !str_detect(main_lineage, ";")) |>
+    filter(!str_detect(SampleID, "CN-"))  # This line filters out any sample that contains 'CN-'
 
 # Filter out the lineages at sub_lineage level
 filtered_meta <- meta %>%

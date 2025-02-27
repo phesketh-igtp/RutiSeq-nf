@@ -5,7 +5,7 @@ include { COMPILE_SEQUENCING_STATS }                from '../modules/local/filte
 include { PREPARE_PAIRWISE_CHANNELS }               from '../modules/local/filtering/prepare_pairwise_channels/main.nf'
 include { MTBSEQ_LINEAGE_JOINT_AMEND }              from '../modules/local/mtbseq/lineage_joint-amend/main.nf'
 include { MTBSEQ_LINEAGE_GROUP }                    from '../modules/local/mtbseq/lineage_group/main.nf'
-include { CONCATENATED_VARIABLE_REGION_PHYLOGENY }  from '../modules/local/phylogeny/concatenated_snp_phylogeny-nf'
+include { CONCATENATED_VARIABLE_REGION_PHYLOGENY }  from '../modules/local/phylogeny/concatenated_snp_phylogeny/main.nf'
 include { CONCATENATE_CLUSTERS }                    from '../modules/local/pairwise/concatenate-cluster-file/main.nf'
 
 workflow PAIRWISE_WF {

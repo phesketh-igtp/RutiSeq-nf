@@ -26,7 +26,7 @@ process PREPARE_PAIRWISE_CHANNELS {
         # Run the script to generate pairwise analysis tuples
             Rscript ${params.r_script_dir}/create_pairwise_analysis_tuple.R \\
                 1>>.command.out \\
-                2>>.command.err || true # i think this helps
+                2>>.command.err || true # i think this helps (?)
 
         # remove headers
         sed '/^lineage,SampleID/d' final.lineage_samples_tuple.csv | sort > tmp.final.lineage_samples_tuple.csv
