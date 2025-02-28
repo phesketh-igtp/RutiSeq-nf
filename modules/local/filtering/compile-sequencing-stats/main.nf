@@ -41,9 +41,7 @@ process COMPILE_SEQUENCING_STATS {
 
     # Generate summary statistics and create the sampleID,lineage df for
     ## creating into a channel TODO: need to fix this script in generating the output for tuplec creation
-        # the production of the pairwise_analysis.list.csv doest work
         Rscript ${params.r_script_dir}/compile-sequencing-statistics.R \\
-                    --minimum_coverage ${params.mtbseq_min_depth} \\
                     --runID ${runID} \\
                     --dictionary_path ${params.r_script_dir}
 
