@@ -1,5 +1,12 @@
 process COMPILE_SEQUENCING_STATS {
 
+/*
+    In this module theWhoverall sequencing statistics for the BBDD are
+        calculated
+        TODO: Fix the Rscript compile-sequencing-statistics.R as it is generating
+            and incorrect pairwise_analysis.list.csv
+*/
+
     conda params.r_stats_env
 
     publishDir "${params.outdir}/bbdd/results/", mode: 'copy'
@@ -34,8 +41,9 @@ process COMPILE_SEQUENCING_STATS {
 
     # Generate summary statistics and create the sampleID,lineage df for
     ## creating into a channel TODO: need to fix this script in generating the output for tuplec creation
+        # the production of the pairwise_analysis.list.csv doest work
         Rscript ${params.r_script_dir}/compile-sequencing-statistics.R \\
-                    --minimum_coverage ${params.mtbseq_min_cov} \\
+                    --minimum_coverage ${params.mtbseq_min_depth} \\
                     --runID ${runID} \\
                     --dictionary_path ${params.r_script_dir}
 
@@ -47,10 +55,16 @@ process COMPILE_SEQUENCING_STATS {
         mv tmp.${runID}.sequencing_summary.csv ${runID}.sequencing_summary.csv
 
     # Create the file to go to the tuple seperation
-        awk -F "\t" '{ if ( \$14 > ${params.mtbseq_min_cov} ) print \$4 }' Mapping_and_Variant_Statistics.tab | sort | uniq > min.qual.genomes
+    Rscript -e 'library(tidyverse)
+                df <- read_delim("Mapping_and_Variant_Statistics.tab", delim = "\t", col_names = FALSE) |> 
+                    distinct() |> filter(X5 >= ${params.mtbseq_min_reads} & X16 >= ${params.mtbseq_min_cov} & X19 >= ${params.mtbseq_min_depth}) |>
+                    select(X4) |> distinct()
+                write.csv(df, "min.qual.genomes", quote = FALSE, row.names = FALSE)
+                '
         sed 's/\t/,/g' tbdb-tbprofiler.txt | cut -d ',' -f1,2,3 > tmp.pairwise_analysis.list.csv
-        grep -f min.qual.genomes tmp.pairwise_analysis.list.csv > pairwise_analysis.list.csv
+            # remove any ';' which is used in the mixed lienages
+        grep -f min.qual.genomes tmp.pairwise_analysis.list.csv | grep -v ';' > pairwise_analysis.list.csv
         touch pairwise_analysis.list.csv
 
     """
-}    
+}

@@ -1,0 +1,25 @@
+Col,Name,Description,Minimum value
+X1,Date,The date of MTBseq execution,NA
+X2,SampleID,Sample ID (XX-XX),NA
+X3,LibraryID,Libeary ID (_XX),NA
+X4,FullID, Complete SampleID_LibraryID,NA
+X5,Total Reads,The total amount of sequenced reads,500000
+X6,Mapped Reads,Number of reads mapped to the reference genome,NA
+X7,% Mapped Reads,The percentage of reads mapped to the reference genome,NA
+X8,Genome Size,The size of the reference genome,NA
+X9,Genome GC,The GC content of the reference genome,NA
+X10,(Any) Total Bases,Number of nt the reference genome covered by reads,NA
+X11,% (Any) Total Bases,Percentage of the reference genome covered by reads,NA
+X12,(Any) GC-Content,GC content of the reference genome covered by reads,NA
+X13,(Any) Coverage mean,Mean coverage depth,NA
+X14,(Any) Coverage medianm,Median coverage depth,NA
+X15,(Unambiguous) Total Bases,Number of nt of the reference genome covered unambiguously,NA
+X16,% (Unambiguous) Total Bases,Percentage of the reference genome covered unambiguously,0.95
+X17,(Unambiguous) GC-Content,GC content of the reference genome covered unambiguously,NA
+X18,(Unambiguous) Coverage mean,Mean coverage depth of unambiguously covered positions,NA
+X19,(Unambiguous) Coverage median,Median coverage depth of unambiguously covered positions,50
+X20,SNPs,Number of detected SNPs,NA
+X21,Deletions,Number of detected deletions,NA
+X22,Insertions,Number of detected insertions,NA
+X23,Uncovered,Positions of the reference genome not covered by a read,NA
+X24,Substitutions (Including Stop Codons),Number of substitutions within genes,NA

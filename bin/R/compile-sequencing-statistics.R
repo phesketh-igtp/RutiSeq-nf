@@ -6,7 +6,6 @@ library(tidyverse)
     parser <- ArgumentParser(description = "Script to process MTBseq and TBProfiler data")
 
 # Define arguments
-parser$add_argument("--minimum_coverage", required=TRUE, type="integer", help="Minimum coverage threshold")
 parser$add_argument("--dictionary_path", default=NULL, help="Path to R dictioanry for renaming files")
 parser$add_argument("--runID", required=TRUE, help="RunID")
 
@@ -20,7 +19,6 @@ mtbseq_statistics     <- args$mtbseq_statistics
 mtbseq_classification <- args$mtbseq_classification
 tbprofiler_tbdb       <- args$tbprofiler_tbdb
 tbprofiler_who        <- args$tbprofiler_who
-minimum_coverage      <- args$minimum_coverage
 dictionary_path       <- args$dictionary_path
 lineage_fractions     <- args$lineage_fractions
 runID                 <- args$runID
@@ -73,12 +71,9 @@ resistance_profiles_WHO.df <- dictionary_rename(df = tbprofiler_who,
                         "/dict/resistance_profiles_WHO.csv"))
 
 # Create the list of genomes for pairwise analysis
-
 pairwise_analysis.df <- full.df.final |>
-                filter(`Unambiguous Coverage median` >= minimum_coverage) |>
-                filter(infection_type == "Clonal") |> #only clonal genomes
-                filter(sub_lineage != "NA") |> # no unclassified genomes
-                select(SampleID=FullID,main_lineage,sub_lineage)
+        select(SampleID=FullID,main_lineage,sub_lineage) |>
+        filter(main_lineage != "NA" & !str_detect(main_lineage, ";") & !str_detect(sub_lineage, ";"))
 
 # export all the ouputs (broken!)
 write.csv2(sequencing_summary.df,
