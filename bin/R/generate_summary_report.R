@@ -10,33 +10,32 @@ library(openxlsx,   quietly = TRUE)
 parser <- ArgumentParser(description = "Create summary XLSX file for results")
 
 # Define command-line options
-parser$add_argument("--summary",     required=TRUE,help="Path to the summary file")
-parser$add_argument("--who_res", required=TRUE,help="TB-Profiler WHO results")
-parser$add_argument("--tbdb_res",  required=TRUE,help="TB-Profiler TBDB results")
-parser$add_argument("--clusters",    required=TRUE,help="Path to processed cluster file")
 parser$add_argument("--output", required=TRUE,help="Path of output file")
 parser$add_argument("--rlibrary", required=TRUE,help="Path to directory containing R scripts and functions")
 
+
 # Parse command-line arguments
 # Parse the arguments
-args <- parser$parse_args()
+args <- parser$parse_args() 
 
 # Import the function for creating the palette
 #source("/home/phesketh/Documents/GitHub/TBSEQ.cat-nf/bin/Rfunctions/dictionary-rename.R")
 #source("/imppc/labs/emlab/share/GitHub/RutiSeq-nf/bin/R/functions/dictionary-rename.R")
 #rlibrary="/imppc/labs/emlab/share/GitHub/RutiSeq-nf/bin/R"
 rlibrary <- args$rlibrary
-source(paste(args$rlibrary, "/functions/dictionary-rename.R", sep=""))
+source(paste(rlibrary, "/functions/dictionary-rename.R", sep=""))
+
+OUT <- args$output
 
 #··············································································#
 #··············································································#
 
 # Import all dataframes
 #summary   <- read.delim("sequencing_summary.csv", header=T, sep=";",check.names = FALSE);who_res   <- read.delim("who_resistance_summary.csv", header=T, sep=";",check.names = FALSE);tbdb_res  <- read.delim("tbdb_resistance_summary.csv", header=T, sep=";",check.names = FALSE);clusters  <- read.delim("processed_clusters.tsv", header=T, sep="\t",check.names = FALSE);output="test"
-summary   <- read.delim(args$summary,  header=T, sep=";",  check.names = FALSE)
-who_res   <- read.delim(args$who_res,  header=T, sep=";",  check.names = FALSE)
-tbdb_res  <- read.delim(args$tbdb_res, header=T, sep=";",  check.names = FALSE)
-clusters  <- read.delim(args$clusters, header=T, sep="\t", check.names = FALSE)
+summary   <- read.delim("sequencing_summary.csv",  header=T, sep=";",  check.names = FALSE)
+who_res   <- read.delim("who_resistance_summary.csv",  header=T, sep=";",  check.names = FALSE)
+tbdb_res  <- read.delim("tbdb_resistance_summary.csv", header=T, sep=";",  check.names = FALSE)
+clusters  <- read.delim("processed_clusters.tsv", header=T, sep="\t", check.names = FALSE)
 
 #··············································································#
 #··············································································#
@@ -71,7 +70,7 @@ addWorksheet(wb, "transmission_clusters")
 writeData(wb, "transmission_clusters", clusters, rowNames=FALSE)
 
 # Save the workbook
-saveWorkbook(wb, file = args$output, overwrite = TRUE)
+saveWorkbook(wb, file = OUT, overwrite = TRUE)
 
 #··············································································#
 #··············································································#

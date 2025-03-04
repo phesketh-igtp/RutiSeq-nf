@@ -1,6 +1,8 @@
 # load libraries
-library(argparse); library(tidyverse)
-library(dplyr); library(tidyr)
+library(argparse)
+library(tidyverse)
+library(dplyr)
+library(tidyr)
 
 # Create a parser for the script
     parser <- ArgumentParser(description = "Script to process MTBseq and TBProfiler data")
@@ -34,7 +36,8 @@ lineage.frac <- read.delim(lineage_frac_file, , header = TRUE) %>%
 # clonal: add fraction of lineage designation
 mixed <- tbprof %>% filter(infection_type == 'mixed')
 
-if (nrow(mixed) == 0) { # Check if 'mixed' is empty
+if (nrow(mixed) == 0) { 
+    # Check if 'mixed' is empty
 
     mixed.frac.5 <- mixed
 

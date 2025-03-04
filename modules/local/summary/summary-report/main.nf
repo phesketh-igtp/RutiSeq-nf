@@ -18,10 +18,6 @@ process GENERATE_SUMMARY_REPORT {
 
         """
         Rscript ${params.r_script_dir}/generate_summary_report.R \\
-                --summary ${sequencing_summary} \\
-                --who_res ${who_resistance} \\
-                --tbdb_res ${tbdb_resistance} \\
-                --clusters ${pairwise_clusters_processed} \\
                 --rlibrary ${params.r_script_dir} \\
                 --output ${runID}_RutiSeq-results.xlsx
         """

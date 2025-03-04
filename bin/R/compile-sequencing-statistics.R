@@ -77,21 +77,21 @@ pairwise_analysis.df <- full.df.final |>
 
 # export all the ouputs (broken!)
 write.csv2(sequencing_summary.df,
-            "sequencing_summary.csv",
-            quote=FALSE, row.names=FALSE)
+        "sequencing_summary.csv",
+        quote=FALSE, row.names=FALSE)
 
 write.csv2(sequencing_summary.df,
-            paste0(runID, ".sequencing_summary.csv", sep = ""),
-            quote=FALSE, row.names=FALSE)
+        paste0(runID, ".sequencing_summary.csv", sep = ""),
+        quote=FALSE, row.names=FALSE)
 
 write.csv2(resistance_profiles_TBDB.df,
-            "tbdb_resistance_summary.csv",
-            quote=FALSE, row.names=FALSE)
+        "tbdb_resistance_summary.csv",
+        quote=FALSE, row.names=FALSE)
 
 write.csv2(resistance_profiles_WHO.df,
-            "who_resistance_summary.csv",
-            quote=FALSE, row.names=FALSE)
+        "who_resistance_summary.csv",
+        quote=FALSE, row.names=FALSE)
 
 write.csv2(pairwise_analysis.df,
-            "pairwise_analysis.list.csv",
-            quote=FALSE, row.names=FALSE)
+        "pairwise_analysis.list.csv",
+        quote=FALSE, row.names=FALSE)
