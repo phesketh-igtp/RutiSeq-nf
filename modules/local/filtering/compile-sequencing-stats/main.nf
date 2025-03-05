@@ -35,9 +35,8 @@ process COMPILE_SEQUENCING_STATS {
 
     """
     # Create the lienage fraction strings
-        Rscript ${params.r_script_dir}/tbprofiler_lineage_fractions.R \\
-                        --tbprofiler    ${tbdb_results} \\
-                        --lineages      lineages.fractions.txt
+        Rscript ${params.r_script_dir}/tbprofiler_lineage_fractions.R
+            #--tbprofiler ${tbdb_results} --lineages lineages.fractions.txt
 
     # Generate summary statistics and create the sampleID,lineage df for
     ## creating into a channel TODO: need to fix this script in generating the output for tuplec creation

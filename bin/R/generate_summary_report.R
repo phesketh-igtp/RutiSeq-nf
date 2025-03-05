@@ -31,10 +31,9 @@ OUT <- args$output
 #··············································································#
 
 # Import all dataframes
-#summary   <- read.delim("sequencing_summary.csv", header=T, sep=";",check.names = FALSE);who_res   <- read.delim("who_resistance_summary.csv", header=T, sep=";",check.names = FALSE);tbdb_res  <- read.delim("tbdb_resistance_summary.csv", header=T, sep=";",check.names = FALSE);clusters  <- read.delim("processed_clusters.tsv", header=T, sep="\t",check.names = FALSE);output="test"
-summary   <- read.delim("sequencing_summary.csv",  header=T, sep=";",  check.names = FALSE)
-who_res   <- read.delim("who_resistance_summary.csv",  header=T, sep=";",  check.names = FALSE)
-tbdb_res  <- read.delim("tbdb_resistance_summary.csv", header=T, sep=";",  check.names = FALSE)
+summary   <- read.delim("sequencing_summary.csv",  header=T, sep=",",  check.names = FALSE)
+who_res   <- read.delim("who_resistance_summary.csv",  header=T, sep=",",  check.names = FALSE)
+tbdb_res  <- read.delim("tbdb_resistance_summary.csv", header=T, sep=",",  check.names = FALSE)
 clusters  <- read.delim("processed_clusters.tsv", header=T, sep="\t", check.names = FALSE)
 
 #··············································································#

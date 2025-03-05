@@ -5,12 +5,15 @@ library(dplyr,      quietly = TRUE, verbose = FALSE)
 #··············································································#
 
 # Import the dataframes
-raw_clust <- read.delim("pairwise_clusters.tsv", header=FALSE, sep = "\t") |> distinct()
-raw_clust <- raw_clust |> 
-                pivot_wider(names_from = V2, values_from = V4) |> ungroup()
-colnames(raw_clust) <- c("lineage","genomes","dSNP_5","dSNP_10","dSNP_15")
+raw_clust <- read.delim("unprocessed_clusters.tsv", header=FALSE, sep = "\t") |> distinct()
+colnames(raw_clust) <- c("lineage","dSNP","genomes","group")
+raw_clust <- raw_clust |> mutate(dSNP = paste0("dSNP_", dSNP))
 
-sampleIDs <- read.delim("sequencing_summary.csv", header=TRUE, sep = ";") |>
+raw_clust <- raw_clust |> 
+                pivot_wider(names_from = dSNP, values_from = group) |> ungroup() |>
+                distinct()
+
+sampleIDs <- read.delim("sequencing_summary.csv", header=TRUE, sep = ",") |>
                 select(Sample) |>
                 mutate(genomes=Sample) |>
                 separate_wider_delim(genomes, delim = "_", 

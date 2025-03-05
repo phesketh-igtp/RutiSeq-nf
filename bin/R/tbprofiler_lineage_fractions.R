@@ -4,21 +4,9 @@ library(tidyverse)
 library(dplyr)
 library(tidyr)
 
-# Create a parser for the script
-    parser <- ArgumentParser(description = "Script to process MTBseq and TBProfiler data")
-
-# Define arguments
-parser$add_argument("--tbprofiler", required=TRUE, help="Path to TBprofile compiled results")
-parser$add_argument("--lineages", required=TRUE, help="Path to lineages tables with fractions")
-
-## parser$add_argument("--additional_args", default=NULL, help="Optional additional arguments from config file")
-
-# Parse the arguments
-args <- parser$parse_args()
-
-# Assign arguments to variables
-tbprof_file     <- args$tbprofiler
-lineage_frac_file <- args$lineages
+# Assign file names to objects
+tbprof_file <- "tbdb-tbprofiler.txt"
+lineage_frac_file <- "lineages.fractions.txt"
 OUT <- "tbprofiler.lineages.fractions.txt"
 
 # Read the input files

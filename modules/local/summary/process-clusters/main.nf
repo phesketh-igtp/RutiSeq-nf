@@ -15,9 +15,9 @@ process PROCESS_CLUSTERS {
 
     script:
     """
-    Rscript ${params.r_script_dir}/process_clusters.R \\
-            --clusters ${pairwise_clusters} \\
-            --summary ${analysis_summary}
+    Rscript ${params.r_script_dir}/process_clusters.R #\\
+            #--clusters ${pairwise_clusters} \\
+            #--summary ${analysis_summary}
 
     cp processed_clusters.tsv ${runID}_processed_clusters.tsv
     """
