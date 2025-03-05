@@ -234,6 +234,21 @@ p2.L <-     gheatmap(tree.p.c, tree.clusters.df,
 #··············································································#
 #··············································································#
 
+#·············· Interactive trees ··············#
+
+widget_p1 <- ggtree(tree_rooted)
+metat <- p1$data %>% dplyr::inner_join(tree.clusters, c('label' = 'Tip_lable'))
+widget_p2 <- widget_p1 +
+                geom_point(data = metat,
+                    aes(colour = SNP_d5_L,
+                    label = SampleID))
+
+widget_tree <- plotly::ggplotly(p2)
+htmlwidgets::saveWidget(widget_tree, paste0(lineageID,"_ML.contree.html"))
+
+#··············································································#
+#··············································································#
+
 #·············· Export trees ··············#
 
 pdf(file = paste0(lineageID,"_ML.contree.pdf"))
