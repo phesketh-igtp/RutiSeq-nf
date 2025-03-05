@@ -29,24 +29,36 @@ mkdir -p Phylogeny/
         #rm ${lineage}.tmp.fasta_positions.tab
 
 # 3. obtain the reference positions (H37Rv) for the cluster positions
-    for i in `cat ${lineage}.tmp.fasta_positions`; do 
-        sed -n $((i+2))'p' ${tab} | cut -f3
-    done > ${lineage}.tmp_refseq
+    #for i in `cat ${lineage}.tmp.fasta_positions`; do 
+    #    sed -n $((i+2))'p' ${tab} | cut -f3
+    #done > ${lineage}.tmp_refseq
+
+    # newer faster version
+    awk 'NR==FNR {pos[$1+2]; next} FNR in pos {print $3}' ${lineage}.tmp.fasta_positions ${tab} > ${lineage}.tmp_refseq
+
         
 # 4. convert column into fasta
     paste -s -d "" ${lineage}.tmp_refseq | sed '1i >H37Rv' > Phylogeny/${lineage}.ref-H37Rv.fasta
 
 # 5. get the genomic positions of the SNPs
-    while read -r position; do
-        sed -n $((position+2))'p' ${tab} | cut -f 1; 
-    done < ${lineage}.tmp.fasta_positions > Phylogeny/${lineage}_genomic_positions.tab
+    #while read -r position; do
+    #    sed -n $((position+2))'p' ${tab} | cut -f 1; 
+    #done < ${lineage}.tmp.fasta_positions > Phylogeny/${lineage}_genomic_positions.tab
+
+    # newer faster version
+    awk 'NR==FNR {pos[$1+2]; next} FNR in pos {print $1}' ${lineage}.tmp.fasta_positions ${tab} > Phylogeny/${lineage}_genomic_positions.tab
+
 
     cp ${mtbc_ancestor_path} ${lineage}.tmp.MTB_anc.pos.gz; gunzip ${lineage}.tmp.MTB_anc.pos.gz
 
 # 6. Get the same SNPs for the 'ancestor' genomes
-    for i in `cat Phylogeny/${lineage}_genomic_positions.tab`; do 
-        sed -n ${i}'p' ${lineage}.tmp.MTB_anc.pos | cut -f3 # doesnt need to +2 as the tsv file has no header
-    done > ${lineage}.tmp.MTB_anc
+    #for i in `cat Phylogeny/${lineage}_genomic_positions.tab`; do 
+    #    sed -n ${i}'p' ${lineage}.tmp.MTB_anc.pos | cut -f3 # doesnt need to +2 as the tsv file has no header
+    #done > ${lineage}.tmp.MTB_anc
+
+    # newer faster version
+    awk 'NR==FNR {pos[$1]; next} FNR in pos {print $3}' Phylogeny/${lineage}_genomic_positions.tab ${lineage}.tmp.MTB_anc.pos > ${lineage}.tmp.MTB_anc
+
 
 # 7. convert the column in fasta
     paste -s -d "" ${lineage}.tmp.MTB_anc | sed '1i >MTB_anc' > Phylogeny/${lineage}.ref-MTB_anc.fasta
