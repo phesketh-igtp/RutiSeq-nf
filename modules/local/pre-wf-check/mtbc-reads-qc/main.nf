@@ -56,7 +56,7 @@ process MTBC_READ_QC {
             fastp --in1 ${forward} --in2 ${reverse} \\
                     --out1 mtbc_reads/${sampleID}_mtbc_R1.fastq.gz \\
                     --out2 mtbc_reads/${sampleID}_mtbc_R2.fastq.gz \\
-                    --reads_to_process 5000000
+                    --reads_to_process 5000000 --length_required 50
         else
             cp ${forward} mtbc_reads/${sampleID}_mtbc_R1.fastq.gz
             cp ${reverse} mtbc_reads/${sampleID}_mtbc_R2.fastq.gz
