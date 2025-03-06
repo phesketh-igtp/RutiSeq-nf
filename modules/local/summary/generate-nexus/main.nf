@@ -18,6 +18,7 @@ process GENERATE_NEXUS {
     output:
         path("fasta/*")
         path("positions/*")
+        path("nexus/*")
 
         tuple val(lineage), 
                 val(clusterID), 
@@ -28,6 +29,19 @@ process GENERATE_NEXUS {
     script:
 
         """
+        
+        bash ${params.script_dir}/shell/create-variable-region-nexus.sh \\
+                ${clusterID} \\
+                ${pairwise_clusters} \\
+                ${snp_fasta} \\
+                ${snp_tab} \\
+                ${params.mtbc_ancestor_path}
+
+        """
+
+}
+
+/*
         # create the output and temporary directories
             mkdir -p nexus/ fasta/ positions/
 
@@ -93,6 +107,4 @@ process GENERATE_NEXUS {
         # convert to nexus for visualisation
             seqret -osformat2 nexus -sequence fasta/${clusterID}_refseq.fasta \\
                 -outseq nexus/${clusterID}_refseq.nex
-        """
-
-}
+*/

@@ -31,8 +31,7 @@ process GENERATE_NEXUS_W_MRCA {
             mkdir -p nexus/ fasta/ positions/
 
         # create the list of genomes within the cluster
-            grep "${clusterID}" ${pairwise_clusters} \\
-                | cut -f1 > ${clusterID}.genomes.list
+            grep "${clusterID}" ${pairwise_clusters} | cut -f1 > ${clusterID}.genomes.list
 
         #·················································································#
 
@@ -51,9 +50,12 @@ process GENERATE_NEXUS_W_MRCA {
 
         # Create the variant alignment for the NODE ancestor
 
-            for i in `cat positions/${clusterID}_positions.tab`; do 
-                sed -n \${i}'p' ${ancestor} | cut -f4
-            done > ${clusterID}_node_anc
+            #for i in `cat positions/${clusterID}_positions.tab`; do 
+            #    sed -n \${i}'p' ${ancestor} | cut -f4
+            #done > ${clusterID}_node_anc
+            
+            awk 'NR==FNR {pos[\$1]; next} FNR in pos {print \$4}' positions/${clusterID}_positions.tab ${ancestor} > ${clusterID}_node_anc
+
 
             # convert the column in fasta
                 paste -s -d "" ${clusterID}_node_anc \\
@@ -62,9 +64,11 @@ process GENERATE_NEXUS_W_MRCA {
         #·················································································#
 
         # H37Rv variance positions 
-            for i in `cat positions/${clusterID}_positions.tab`; do 
-                sed -n \$((i+2))'p' ${snp_tab} | cut -f3
-            done > ${clusterID}_tmp_refseq
+            #for i in `cat positions/${clusterID}_positions.tab`; do 
+            #    sed -n \$((i+2))'p' ${snp_tab} | cut -f3
+            #done > ${clusterID}_tmp_refseq
+
+            awk 'NR==FNR {pos[\$1+2]; next} FNR in pos {print \$3}' positions/${clusterID}_positions.tab ${snp_tab} > ${clusterID}_tmp_refseq
 
                 # convert column into fasta
                 paste -s -d "" ${clusterID}_tmp_refseq \\
@@ -73,9 +77,12 @@ process GENERATE_NEXUS_W_MRCA {
         #·················································································#
 
         # Get genomic positions
-            while read -r position; do
-                sed -n \$((position+2))'p' ${snp_tab} | cut -f 1; 
-            done < positions/${clusterID}_positions.tab > positions/${clusterID}_genomic_positions.tab
+            #while read -r position; do
+            #    sed -n \$((position+2))'p' ${snp_tab} | cut -f 1; 
+            #done < positions/${clusterID}_positions.tab > positions/${clusterID}_genomic_positions.tab
+
+            awk 'NR==FNR {pos[\$1+2]; next} FNR in pos {print \$1}' positions/${clusterID}_positions.tab ${snp_tab} > positions/${clusterID}_genomic_positions.tab
+
 
         #·················································································#
 

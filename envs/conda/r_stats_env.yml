@@ -20,3 +20,4 @@ dependencies:
 - r-stringi=1.8.4
 - r-openxlsx
 - r-seqinr
+- r-plotly

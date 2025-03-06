@@ -55,8 +55,7 @@ workflow SUMMARY_WF{
                 // DEBUG: view the channel 
                 ///nexus_ch.view()
 
-            GENERATE_NEXUS( clusters_ch, nexus_ch
-                            )
+            GENERATE_NEXUS( clusters_ch, nexus_ch )
 
             TABULATE_VARIANT_SITES( GENERATE_NEXUS.out.variant_sites_for_tabulation )
 
