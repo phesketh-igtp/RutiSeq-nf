@@ -34,7 +34,6 @@ process MTBC_READ_QC {
                 path(mtbseq_pos), path(mtbseq_vars), 
                 path(tbdb_out), path(who_out), path(mtbseq_vcf),     emit: updated_sample_ch1
 
-
     script:
         def additional_args_kaiju       = task.ext.additional_args_kaiju ?: ''
         def additional_args_kaiju2table = task.ext.additional_args_kaiju2table ?: ''
@@ -48,9 +47,21 @@ process MTBC_READ_QC {
         touch tables/${sampleID}.kaiju_summary.tsv
         touch tables/${sampleID}.qc.out
 
+        read_count=\$(seqkit stats -abT -j ${task.cpus} ${forward} | sed "1d" | cut -f4)
+
         mkdir -p mtbc_reads
-        cp ${forward} mtbc_reads/${sampleID}_mtbc_R1.fastq.gz
-        cp ${reverse} mtbc_reads/${sampleID}_mtbc_R2.fastq.gz
+
+        if [[ \${read_count} > 5000000 ]]; then
+            echo -e "Downsampling to 5,000,000 reads for TBProfiler/MTBseq"
+            fastp --in1 ${forward} --in2 ${reverse} \\
+                    --out1 mtbc_reads/${sampleID}_mtbc_R1.fastq.gz \\
+                    --out2 mtbc_reads/${sampleID}_mtbc_R2.fastq.gz \\
+                    --reads_to_process 5000000
+        else
+            cp ${forward} mtbc_reads/${sampleID}_mtbc_R1.fastq.gz
+            cp ${reverse} mtbc_reads/${sampleID}_mtbc_R2.fastq.gz
+        fi
+
     """
 
 

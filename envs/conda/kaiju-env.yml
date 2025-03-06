@@ -6,3 +6,4 @@ dependencies:
 - bioconda::kaiju=1.10.1
 - bioconda::seqkit=2.9.0
 - bioconda::fastq-pair=1.0
+- bioconda::fastp=0.24.0
