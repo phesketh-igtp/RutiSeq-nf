@@ -27,7 +27,7 @@ process TBPROFILER_COMPILE_TBDB {
 
     script:
         """
-        mkdir results/; mkdir bam/; mkdir vcf/; mkdir tmp/
+        mkdir -p results/; mkdir -p bam/; mkdir -p vcf/; mkdir -p tmp/
 
         # create the symbolic links to the result directories
                 mv tbdb-* tmp/

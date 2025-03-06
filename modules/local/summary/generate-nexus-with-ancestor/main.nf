@@ -27,7 +27,17 @@ process GENERATE_NEXUS_W_MRCA {
     script:
 
         """
-        # create the output and temporary directories
+        
+        bash ${params.script_dir}/shell/create-variable.region.nexus.w.MRCA.sh ${clusterID} \\
+                ${pairwise_clusters} ${snp_fasta} \\
+                ${snp_tab} ${params.mtbc_ancestor_path} ${lineage}
+
+        """
+
+}
+
+/*
+# create the output and temporary directories
             mkdir -p nexus/ fasta/ positions/
 
         # create the list of genomes within the cluster
@@ -113,6 +123,4 @@ process GENERATE_NEXUS_W_MRCA {
         # convert to nexus for visualisation
             seqret -osformat2 nexus -sequence fasta/${clusterID}_refseq_mrca.fasta \\
                 -outseq nexus/${clusterID}_refseq_mrca.nex
-        """
-
-}
+*/

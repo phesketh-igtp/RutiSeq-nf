@@ -78,11 +78,11 @@ workflow SUMMARY_WF{
                 PLOT_TIMETREES(GENERATE_TIMETREES.out.timetrees_ch, clusters_ch)
                 
                 timetree_ch = PLOT_TIMETREES.out.timetree_tuple
-                    .splitCsv(header: false, sep: ',')
-                    .map { row ->
-                        def (lineage, clusterID, fasta, tab, ancestor) = row
-                        tuple(lineage, clusterID, file(fasta), file(tab), file(ancestor))
-                    }
+                        .splitCsv(header: false, sep: ',')
+                        .map { row ->
+                            def (lineage, clusterID, fasta, tab, ancestor) = row
+                            tuple(lineage, clusterID, file(fasta), file(tab), file(ancestor))
+                        }
 
                 GENERATE_NEXUS_W_MRCA(timetree_ch, clusters_ch)
 
@@ -94,7 +94,7 @@ workflow SUMMARY_WF{
 
             } else {
 
-                log.info "No metadata provided. Skipping time tree and ancestral sequence generation."
+                log.info "No metadata provided. TimeTrees and ancestral sequence generation."
                 
             }
 

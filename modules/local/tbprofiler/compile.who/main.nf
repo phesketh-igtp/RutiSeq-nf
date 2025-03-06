@@ -24,7 +24,7 @@ process TBPROFILER_COMPILE_WHO {
     script:
 
         """
-        mkdir results/; mkdir bam/; mkdir vcf/
+        mkdir -p results/; mkdir -p bam/; mkdir -p vcf/
 
         # create the symbolic links to the result directories
         ln -s ${params.outdir}/bbdd/tbprofiler/who-only/results/* results/
