@@ -4,8 +4,6 @@ process GENERATE_NEXUS {
 
     tag "cluster: ${clusterID}"
 
-    array 100
-
     publishDir "${params.outdir}/results/networks/", mode: 'copy'
 
     input:

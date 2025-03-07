@@ -21,7 +21,7 @@ process_cluster <- function(clusterID,df) {
   filtered_sequence <- fasta_sequences[ancestor_nodeID]
   
   # Produce output fast file name
-  output_fasta <- paste("ancestors/",clusterID,"_",ancestor_nodeID,".ancestor.fasta", sep="")
+  output_fasta <- paste("ancestors/",clusterID,".ancestor.fasta", sep="")
   writeXStringSet(filtered_sequence, filepath = output_fasta)
   
   

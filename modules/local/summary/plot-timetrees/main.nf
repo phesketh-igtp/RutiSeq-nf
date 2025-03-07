@@ -14,14 +14,14 @@ process PLOT_TIMETREES {
 
     output:
         path("${lineage}_TimeTree.contree.pdf")
-        path("ancestors/*.fasta")
+        path("ancestors/*")
         path("nexus.TT.tuple.csv"),         emit: timetree_tuple
         path("${lineage}.time-tree.RData")
 
     script:
     
         """
-        mkdir ancestors/
+        mkdir -p ancestors/
         
         Rscript ${params.r_script_dir}/plot_TimeTree-phylogeny.R \\
                 --timetree ${timetree} \\
@@ -36,13 +36,19 @@ process PLOT_TIMETREES {
             | sort \\
             | uniq \\
             | sed '1!{/^SampleID/d;}' \\
-            | sed '1!{/^nX-/d;}' > unique.clusters.list
+            | sed '1!{/^nX-/d;}' | sed '1!{/^NA-/d;}' > unique.clusters.list
 
+        # Get list of genomes that have less than 5 clusters
+        cut -f7 processed_clusters.tsv | sort | uniq -c |  cut -f7 processed_clusters.tsv | sort | uniq -c | grep -v '      1 ' | grep -v '      2 ' | grep -v '      3 '  > clusters_to_keep.list
+        
         for clusterID in `cat unique.clusters.list`; do
             echo "${lineage},\${clusterID},${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta,${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo.tab,${params.outdir}/results/phylogeny/ancestors/\${clusterID}.ancestor.positions" >> nexus.TT.tuple.csv
         done
 
         touch nexus.TT.tuple.csv
+
+        grep -f clusters_to_keep.list nexus.TT.tuple.csv > nexus.TT.tuple.csv.tmp
+        mv nexus.TT.tuple.csv.tmp nexus.TT.tuple.csv
         """
 
 }

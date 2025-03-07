@@ -4,8 +4,6 @@ process GENERATE_NEXUS_W_MRCA {
 
     tag "cluster: ${clusterID}"
 
-    array 100
-
     publishDir "${params.outdir}/results/networks/", mode: 'copy'
 
     input:
@@ -27,10 +25,11 @@ process GENERATE_NEXUS_W_MRCA {
     script:
 
         """
-        
+
         bash ${params.script_dir}/shell/create-variable.region.nexus.w.MRCA.sh ${clusterID} \\
                 ${pairwise_clusters} ${snp_fasta} \\
-                ${snp_tab} ${params.mtbc_ancestor_path} ${lineage}
+                ${snp_tab} ${params.mtbc_ancestor_path} \\
+                ${ancestor} ${lineage}
 
         """
 

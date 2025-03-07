@@ -6,7 +6,8 @@ pairwise_clusters=$2
 snp_fasta=$3
 snp_tab=$4
 mtbc_ancestor_path=$5
-lineage=$6
+ancestor=$6
+lineage=$7
 
 # create the output and temporary directories
     mkdir -p nexus/ fasta/ positions/
@@ -18,7 +19,7 @@ lineage=$6
 
 # create cluster directory and split up fasta file in cluster fastas
     while IFS=";" read -r genome; do
-seqkit grep -w 0 -n -p ${genome} ${snp_fasta} >> ${clusterID}.fasta
+        seqkit grep -w 0 -n -p ${genome} ${snp_fasta} >> ${clusterID}.fasta
     done < ${clusterID}.genomes.list
 
 # run snp-sites on the fastas
@@ -33,12 +34,13 @@ seqkit grep -w 0 -n -p ${genome} ${snp_fasta} >> ${clusterID}.fasta
     #for i in `cat positions/${clusterID}_positions.tab`; do 
     #    sed -n ${i}'p' ${ancestor} | cut -f4
     #done > ${clusterID}_node_anc
-    
     awk 'NR==FNR {pos[$1]; next} FNR in pos {print $4}' positions/${clusterID}_positions.tab ${ancestor} > ${clusterID}_node_anc
-
+    
+        # delete the header
+        sed -i '1d' ${clusterID}_node_anc
 
     # convert the column in fasta
-paste -s -d "" ${clusterID}_node_anc | sed "1i >MRCA" > ${clusterID}_MRCA.fasta
+    paste -s -d "" ${clusterID}_node_anc | sed "1i >MRCA" > ${clusterID}_MRCA.fasta
 
 #·················································································#
 
@@ -49,8 +51,8 @@ paste -s -d "" ${clusterID}_node_anc | sed "1i >MRCA" > ${clusterID}_MRCA.fasta
 
     awk 'NR==FNR {pos[$1+2]; next} FNR in pos {print $3}' positions/${clusterID}_positions.tab ${snp_tab} > ${clusterID}_tmp_refseq
 
-# convert column into fasta
-paste -s -d "" ${clusterID}_tmp_refseq | sed '1i >H37Rv' > ${clusterID}_H37Rv.fasta
+    # convert column into fasta
+    paste -s -d "" ${clusterID}_tmp_refseq | sed '1i >H37Rv' > ${clusterID}_H37Rv.fasta
 
 #·················································································#
 
@@ -76,7 +78,7 @@ paste -s -d "" ${clusterID}_tmp_refseq | sed '1i >H37Rv' > ${clusterID}_H37Rv.fa
     # convert the column in fasta
     paste -s -d "" ${clusterID}_tmp_MTB_anc | sed '1i >MTB_anc' > ${clusterID}_MTB_anc.fasta
 
-# remove the large tab file
+    # remove the large tab file
     rm -rf ${lineage}.tmp.MTB_anc.pos.gz
 
 #·················································································#
