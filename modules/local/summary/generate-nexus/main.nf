@@ -15,27 +15,27 @@ process GENERATE_NEXUS {
                 file(snp_tab)
 
     output:
-        path("fasta/*")
-        path("positions/*")
-        path("nexus/*")
+        path("fasta/*"),        optional: true
+        path("positions/*"),    optional: true
+        path("nexus/*"),        optional: true
 
         tuple val(lineage), 
                 val(clusterID), 
                 path("fasta/${clusterID}_refseq.fasta"),
                 path("positions/${clusterID}_genomic_positions.tab"),
-                path(snp_tab),                                   emit: variant_sites_for_tabulation
+                path(snp_tab),   emit: variant_sites_for_tabulation
 
     script:
 
         """
-        
         bash ${params.script_dir}/shell/create-variable-region-nexus.sh \\
                 ${clusterID} \\
                 ${pairwise_clusters} \\
                 ${snp_fasta} \\
                 ${snp_tab} \\
-                ${params.mtbc_ancestor_path}
-
+                ${params.mtbc_ancestor_path} \\
+                1>>.command.out \\
+                2>>.command.err || true
         """
 
 }

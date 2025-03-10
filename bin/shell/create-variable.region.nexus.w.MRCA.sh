@@ -31,16 +31,15 @@ lineage=$7
 #·················································································#
 
 # Create the variant alignment for the NODE ancestor
+    sed '1d' ${ancestor} > headless.${ancestor}
 
     #for i in `cat positions/${clusterID}_positions.tab`; do 
     #    sed -n ${i}'p' ${ancestor} | cut -f4
     #done > ${clusterID}_node_anc
-    awk 'NR==FNR {pos[$1]; next} FNR in pos {print $4}' positions/${clusterID}_positions.tab \
-        ${ancestor} > ${clusterID}_node_anc
-    
-        # delete the header
-        sed -i '1d' ${clusterID}_node_anc
 
+    awk 'NR==FNR {pos[$1]; next} FNR in pos {print $4}' positions/${clusterID}_positions.tab \
+        headless.${ancestor} > ${clusterID}_node_anc
+    
     # convert the column in fasta
     paste -s -d "" ${clusterID}_node_anc | sed "1i >MRCA" > ${clusterID}_MRCA.fasta
 

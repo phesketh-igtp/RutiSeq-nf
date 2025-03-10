@@ -14,18 +14,17 @@ library(Biostrings)
 parser <- ArgumentParser(description = "Plot Maximum-likelihood TimeTree phylogeny")
 
 # Define command-line options
-parser$add_argument("--timetree", required=TRUE, help="Path to the tree file (contre format)")
-parser$add_argument("--clusters", required=TRUE, help="Path to the cluster file")
 parser$add_argument("--lineageID",required=TRUE, help="Name of the lineage - short (i.e. L4.1, or L4.3)")
-parser$add_argument("--fasta",    required=TRUE, help="Path to file containing the ancestral node outputs FASTA file")
 parser$add_argument("--rlibrary", required=TRUE, help="Path to directory containing R scripts and functions")
 
 # Parse command-line arguments
 args <- parser$parse_args()
 
+library <- args$rlibrary
+
 # Import the function for creating the palette
-source(paste(args$rlibrary, "/functions/isolate_cluster_ancestal_sequence.R", sep=""))
-source(paste(args$rlibrary, "/functions/create-ggtree-palette.R", sep=""))
+source(paste(library, "/functions/isolate_cluster_ancestal_sequence.R", sep=""))
+source(paste(library, "/functions/create-ggtree-palette.R", sep=""))
 
 #··············································································#
 #··············································································#
@@ -46,11 +45,11 @@ lineageID <- args$lineageID
 lineage <- gsub("lineage", "L", lineageID)
 
 ## Import the CSV file for clusters
-clusters <- read.delim(args$cluster, header = TRUE) |> 
+clusters <- read.delim("processed_clusters.tsv", header = TRUE) |> 
         select(SampleID,SNP_d5_L,SNP_d10_L,SNP_d15_L,SNP_nd5.id10.vd15)
 
 ### Read trees
-tree <- read.nexus(args$timetree)  # Assuming the tree file is in Newick format
+tree <- read.nexus("timetree.nexus")  # Assuming the tree file is in Newick format
 tree_rooted <- root(tree, "MTB_anc", resolve.root=TRUE, edgelabel=TRUE)
 
 # Filter clusters to the correct analysis group lineage
@@ -172,7 +171,7 @@ p3
 #··············································································#
 #··············································································#
 
-fasta_sequences <- readDNAStringSet(args$fasta)
+fasta_sequences <- readDNAStringSet("ancestral_sequences.fasta")
 
 d5.tree.clusters <- clusters |> 
                 filter(SampleID %in% tree.tips) |> 

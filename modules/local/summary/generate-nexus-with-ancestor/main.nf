@@ -19,9 +19,10 @@ process GENERATE_NEXUS_W_MRCA {
     output:
         tuple val(clusterID),
                 path("nexus/${clusterID}_refseq_mrca.nex"),            emit: nexus_w_no_metadata
-        path("fasta/*")
-        path("positions/*")
-        path("nexus/*")
+        
+        path("fasta/*"),        optional: true
+        path("positions/*"),    optional: true
+        path("nexus/*"),        optional: true
 
     script:
 
@@ -30,7 +31,9 @@ process GENERATE_NEXUS_W_MRCA {
         bash ${params.script_dir}/shell/create-variable.region.nexus.w.MRCA.sh ${clusterID} \\
                 ${pairwise_clusters} ${snp_fasta} \\
                 ${snp_tab} ${params.mtbc_ancestor_path} \\
-                ${ancestor} ${lineage}
+                ${ancestor} ${lineage}  \\
+                1>>.command.out \\
+                2>>.command.err || true
 
         """
 

@@ -24,7 +24,6 @@ process_cluster <- function(clusterID,df) {
   output_fasta <- paste("ancestors/",clusterID,".ancestor.fasta", sep="")
   writeXStringSet(filtered_sequence, filepath = output_fasta)
   
-  
   # Convert the filtered_sequence to a character string (e.g., "ATGCCG...")
   seq_str <- as.character(filtered_sequence)
   
@@ -39,7 +38,7 @@ process_cluster <- function(clusterID,df) {
   # Display the reshaped data frame
   head(seq_df)
   output_tsv <- paste("ancestors/",clusterID,".ancestor.positions", sep="")
-  write.table(seq_df, output_tsv, 
+  write.table(seq_df, output_tsv, sep = "\t",
               quote = FALSE, row.names = FALSE)
   
 }

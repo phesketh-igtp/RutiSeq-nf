@@ -25,9 +25,6 @@ process PLOT_TIMETREES {
         mkdir -p ancestors/
         
         Rscript ${params.r_script_dir}/plot_TimeTree-phylogeny.R \\
-                --timetree ${timetree} \\
-                --clusters ${pairwise_clusters} \\
-                --fasta ${ancestral_fasta} \\
                 --lineageID ${lineage} \\
                 --rlibrary ${params.r_script_dir} \\
                 1>>.command.out \\
