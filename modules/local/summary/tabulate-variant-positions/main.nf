@@ -15,8 +15,8 @@ process TABULATE_VARIANT_SITES{
                 path(snp_tab)
 
     output:
-        path("${clusterID}.variant-positions.csv"),        emit: tabular_vars
-        path("${clusterID}.variant-positions.counts.csv"), emit: tabular_var_counts
+        path("${clusterID}.variant-positions.csv"),        emit: tabular_vars, optional: true
+        path("${clusterID}.variant-positions.counts.csv"), emit: tabular_var_counts, optional: true
 
 
     script:
