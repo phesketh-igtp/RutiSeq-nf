@@ -2,7 +2,7 @@ process GENERATE_SUMMARY_REPORT {
 
     conda params.r_stats_env
 
-    publishDir "${params.outdir}/results/excel-out", mode: 'copy'
+    publishDir "${params.outdir}/results/${runID}/", mode: 'copy'
 
     input:
         val runID

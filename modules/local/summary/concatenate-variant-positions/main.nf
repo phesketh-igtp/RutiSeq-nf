@@ -1,8 +1,9 @@
 process CONCATENATED_VARIANT_FILES {
 
-    publishDir "${params.outdir}/results/snps/", mode: 'copy'
+    publishDir "${params.outdir}/results/${runID}/snps/", mode: 'copy'
 
     input:
+        val(runID)
         path("tabular_vars_*.csv")
         path("tabular_var_counts_*.csv")
 

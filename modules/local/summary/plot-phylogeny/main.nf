@@ -4,9 +4,10 @@ process PLOT_MAIN_PHYLOGENY {
 
     conda params.r_stats_env
 
-    publishDir "${params.outdir}/results/phylogeny/", mode: 'copy'
+    publishDir "${params.outdir}/results/${runID}/phylogeny/", mode: 'copy'
 
     input:
+        val(runID)
         tuple val(lineage), 
             path(contree, stageAs: "snp.contree"), 
             path(alignments, stageAs: "snp.aln.fasta")

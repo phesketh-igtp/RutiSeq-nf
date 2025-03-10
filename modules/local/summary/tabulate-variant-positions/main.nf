@@ -4,9 +4,10 @@ process TABULATE_VARIANT_SITES{
 
     conda params.r_stats_env
 
-    publishDir "${params.outdir}/results/snps/variants-tab/", mode: 'copy'
+    publishDir "${params.outdir}/results/${runID}/snps/variants-tab/", mode: 'copy'
 
     input:
+    val(runID)
         tuple val(lineage), 
                 val(clusterID), 
                 path(snp_alignments),

@@ -112,7 +112,6 @@ pattern <- paste0("nX.iX.vX-", lineage)
 color_palette <- create_tree_palette(
         input=tree.clusters.df, lin = lineage)
 color_palette <- trimws(color_palette)        
-color_palette
 
 #··············································································#
 #··············································································#

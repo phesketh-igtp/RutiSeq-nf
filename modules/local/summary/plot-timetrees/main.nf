@@ -4,9 +4,10 @@ process PLOT_TIMETREES {
 
     conda params.r_stats_env
 
-    publishDir "${params.outdir}/results/phylogeny/", mode: 'copy'
+    publishDir "${params.outdir}/results/${runID}/phylogeny/", mode: 'copy', overwrite: true
 
     input:
+        val(runID)
         tuple val(lineage), 
                 path(timetree),
                 path(ancestral_fasta)
@@ -28,7 +29,9 @@ process PLOT_TIMETREES {
                 --clusters ${pairwise_clusters} \\
                 --fasta ${ancestral_fasta} \\
                 --lineageID ${lineage} \\
-                --rlibrary ${params.r_script_dir}
+                --rlibrary ${params.r_script_dir} \\
+                1>>.command.out \\
+                2>>.command.err || true
 
         # Isolate the variant positions for each cluster
         grep "${lineage}" ${pairwise_clusters} \\
@@ -39,7 +42,7 @@ process PLOT_TIMETREES {
             | sed '1!{/^nX-/d;}' | sed '1!{/^NA-/d;}' > unique.clusters.list
 
         # Get list of genomes that have less than 5 clusters
-        cut -f7 processed_clusters.tsv | sort | uniq -c |  cut -f7 processed_clusters.tsv | sort | uniq -c | grep -v '      1 ' | grep -v '      2 ' | grep -v '      3 '  > clusters_to_keep.list
+        cut -f7 processed_clusters.tsv | awk '{count[\$1]++} END {for (word in count) if (count[word] > 4) print word}' > frequent_values.txt
         
         for clusterID in `cat unique.clusters.list`; do
             echo "${lineage},\${clusterID},${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta,${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo.tab,${params.outdir}/results/phylogeny/ancestors/\${clusterID}.ancestor.positions" >> nexus.TT.tuple.csv
@@ -47,7 +50,7 @@ process PLOT_TIMETREES {
 
         touch nexus.TT.tuple.csv
 
-        grep -f clusters_to_keep.list nexus.TT.tuple.csv > nexus.TT.tuple.csv.tmp
+        grep -f frequent_values.txt nexus.TT.tuple.csv > nexus.TT.tuple.csv.tmp
         mv nexus.TT.tuple.csv.tmp nexus.TT.tuple.csv
         """
 

@@ -4,19 +4,17 @@ process PREPARE_NEXUS_PATHS{
 
     tag "${lineage}"
 
-    array 100
-
     publishDir "${params.outdir}/results/networks/${lineage}/", mode: 'copy'
 
     input:
         tuple val(lineage), 
-            path(contree), 
-            path(alignments)
+                path(contree), 
+                path(alignments)
         path pairwise_clusters
 
 
     output:
-        path("nexus.tuple.csv"),    emit: nexus_tuple
+        path("nexus.tuple.csv"), emit: nexus_tuple
 
     script:
 

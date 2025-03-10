@@ -4,9 +4,10 @@ process GENERATE_NEXUS_W_MRCA {
 
     tag "cluster: ${clusterID}"
 
-    publishDir "${params.outdir}/results/networks/", mode: 'copy'
+    publishDir "${params.outdir}/results/${runID}/networks/", mode: 'copy'
 
     input:
+        val(runID)
         tuple val(lineage), 
                 val(clusterID),
                 file(snp_fasta),

@@ -18,6 +18,7 @@ lineage=$7
 #·················································································#
 
 # create cluster directory and split up fasta file in cluster fastas
+    echo "" > ${clusterID}.fasta
     while IFS=";" read -r genome; do
         seqkit grep -w 0 -n -p ${genome} ${snp_fasta} >> ${clusterID}.fasta
     done < ${clusterID}.genomes.list
@@ -34,7 +35,8 @@ lineage=$7
     #for i in `cat positions/${clusterID}_positions.tab`; do 
     #    sed -n ${i}'p' ${ancestor} | cut -f4
     #done > ${clusterID}_node_anc
-    awk 'NR==FNR {pos[$1]; next} FNR in pos {print $4}' positions/${clusterID}_positions.tab ${ancestor} > ${clusterID}_node_anc
+    awk 'NR==FNR {pos[$1]; next} FNR in pos {print $4}' positions/${clusterID}_positions.tab \
+        ${ancestor} > ${clusterID}_node_anc
     
         # delete the header
         sed -i '1d' ${clusterID}_node_anc

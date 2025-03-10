@@ -36,7 +36,7 @@ workflow SUMMARY_WF{
                                     )
 
         // Plot main ML phylogeny
-            PLOT_MAIN_PHYLOGENY( phylogeny_plotting_ch,
+            PLOT_MAIN_PHYLOGENY( runID, phylogeny_plotting_ch,
                                     PROCESS_CLUSTERS.out.pairwise_clusters_processed,
                                     pairwise_clusters )
 
@@ -55,11 +55,11 @@ workflow SUMMARY_WF{
                 // DEBUG: view the channel 
                 ///nexus_ch.view()
 
-            GENERATE_NEXUS( clusters_ch, nexus_ch )
+            GENERATE_NEXUS( runID, clusters_ch, nexus_ch )
 
-            TABULATE_VARIANT_SITES( GENERATE_NEXUS.out.variant_sites_for_tabulation )
+            TABULATE_VARIANT_SITES( runID, GENERATE_NEXUS.out.variant_sites_for_tabulation )
 
-            CONCATENATED_VARIANT_FILES(
+            CONCATENATED_VARIANT_FILES(runID, 
                     TABULATE_VARIANT_SITES.out.tabular_vars.collect(),
                     TABULATE_VARIANT_SITES.out.tabular_var_counts.collect()
                     )
@@ -75,7 +75,7 @@ workflow SUMMARY_WF{
                 // Create timetrees
                 GENERATE_TIMETREES(phylogeny_plotting_ch, ch_metadata)
 
-                PLOT_TIMETREES(GENERATE_TIMETREES.out.timetrees_ch, clusters_ch)
+                PLOT_TIMETREES( runID, GENERATE_TIMETREES.out.timetrees_ch, clusters_ch)
                 
                 timetree_ch = PLOT_TIMETREES.out.timetree_tuple
                         .splitCsv(header: false, sep: ',')
@@ -84,7 +84,7 @@ workflow SUMMARY_WF{
                             tuple(lineage, clusterID, file(fasta), file(tab), file(ancestor))
                         }
 
-                GENERATE_NEXUS_W_MRCA(timetree_ch, clusters_ch)
+                GENERATE_NEXUS_W_MRCA(runID, timetree_ch, clusters_ch)
 
                 /*
                 GENERATE_NEXUS_W_METADATA(GENERATE_NEXUS_W_ANCESTOR.out.nexus_w_no_metadata,
