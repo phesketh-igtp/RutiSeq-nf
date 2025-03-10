@@ -20,7 +20,6 @@ process MTBSEQ_LINEAGE_GROUP {
     output:
         // Groups
         path("Groups/*")
-        path("Groups/${lineage}_d${distance}.groups")
         path("Groups/${lineage}_d${distance}.clusters.tsv"),            emit: clusters
 
         //Matrix ouput
