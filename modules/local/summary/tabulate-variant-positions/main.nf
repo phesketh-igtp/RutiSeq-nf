@@ -26,7 +26,9 @@ process TABULATE_VARIANT_SITES{
             --cluster   ${clusterID} \\
             --fasta     ${snp_alignments} \\
             --positions ${genomic_possitions} \\
-            --H37Rv     ${params.mtbseq_gene_annotations}
+            --H37Rv     ${params.mtbseq_gene_annotations} \\
+                1>>.command.out \\
+                2>>.command.err || true # prevents stopping the workflow is the
         """
 
 }
