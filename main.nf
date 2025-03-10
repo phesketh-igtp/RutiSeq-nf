@@ -267,8 +267,7 @@ workflow {
                             who_out_ch,
                             sampleID_list
                         )
-                        
-            PAIRWISE_WF.out.pairwise_clusters.view()
+
         /*
         ······································································································
             SUMMARY WORKFLOW (SUMMARU_WF):

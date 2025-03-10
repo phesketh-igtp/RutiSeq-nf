@@ -64,7 +64,6 @@ workflow SUMMARY_WF{
                     TABULATE_VARIANT_SITES.out.tabular_var_counts.collect()
                     )
 
-
         // If metadata is provided then the following modules are run
             if (params.metadata) {
                 log.info "Metadata provided. Generating time trees and ancestral sequences."
