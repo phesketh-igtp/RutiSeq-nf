@@ -46,7 +46,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
 
         """
         rm -rf ${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Amend/*
-        rm -rf ${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Joint/*
+        gzip --best --force --quiet ${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Joint/*.tab
 
         # make the expected directories
             mkdir -p Position_Tables/ Called/ Amend/ Joint/
