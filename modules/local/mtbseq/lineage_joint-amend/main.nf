@@ -109,6 +109,14 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
 
             for distance in \$(cat snp_distances); do
                 echo "${lineage},\${distance},${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Joint,${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Amend,${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/${lineage}_samples.txt" >> mtbseq-group.tuple.csv
-            done                
+            done
+
+        # Check the Amend file is it actually has any sequences in the fasta
+            fasta=Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta
+            sum_len=\$(seqkit stats -T \${fasta} | sed '1d' | head -1 | cut -f5)
+                if [[ \${sum_len} == 0 ]]; then
+                    echo "Error: The Amend/ FASTA file \${fasta} is empty." >&2
+                    exit 1
+                fi        
         """
 }
