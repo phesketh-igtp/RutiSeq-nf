@@ -10,6 +10,7 @@ include { POST_SUMMARY_CLEANUP       }   from '../modules/local/summary/post-sum
 include { GENERATE_TIMETREES         }   from '../modules/local/summary/generate-timetrees/main.nf'
 include { PLOT_TIMETREES             }   from '../modules/local/summary/plot-timetrees/main.nf'
 include { GENERATE_NEXUS_W_MRCA      }   from '../modules/local/summary/generate-nexus-with-ancestor/main.nf'
+include { PREPARE_DATA_DELIVERY      }   from '../modules/local/summary/data-delivery/main.nf'
 //include { GENERATE_NEXUS_W_METADATA  }   from '../modules/local/summary/generate-nexus-with-metadata/main.nf'
 
 workflow SUMMARY_WF{
@@ -99,6 +100,10 @@ workflow SUMMARY_WF{
             }
 
         // Cleanup unwanted files
-            //POST_SUMMARY_CLEANUP( CONCATENATED_VARIANT_FILES.out.cleanup_handover )
+            POST_SUMMARY_CLEANUP( CONCATENATED_VARIANT_FILES.out.cleanup_handover )
+
+            PREPARE_DATA_DELIVERY( runID, CONCATENATED_VARIANT_FILES.out.cleanup_handover )
+
+
 
 }
