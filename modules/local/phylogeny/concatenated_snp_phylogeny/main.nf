@@ -1,6 +1,6 @@
 process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
 
-    tag "${runID}: ${lineage}"
+    tag "${lineage}"
 
     conda params.phylogeny_env
 

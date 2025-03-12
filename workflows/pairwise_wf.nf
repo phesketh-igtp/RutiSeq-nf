@@ -19,7 +19,7 @@ workflow PAIRWISE_WF {
         sampleID_list
 
     main:
-    
+
         def purple  = '\u001B[35m'
         def green   = '\u001B[32m'
         def red     = '\u001B[31m'
@@ -102,11 +102,11 @@ workflow PAIRWISE_WF {
                 //nexus_creation_ch.view()
 
     emit:
-        pairwise_clusters       =   CONCATENATE_CLUSTERS.out.bbdd_clusters
-        analysis_summary        =   COMPILE_SEQUENCING_STATS.out.analysis_summary
-        who_resistance          =   COMPILE_SEQUENCING_STATS.out.who_resistance
-        tbdb_resistance         =   COMPILE_SEQUENCING_STATS.out.tbdb_resistance
-        phylogeny_plotting_ch   =   CONCATENATED_VARIABLE_REGION_PHYLOGENY.out.phylogeny_plotting_ch
-        nexus_creation_ch       =   nexus_creation_ch
+        pairwise_clusters     = CONCATENATE_CLUSTERS.out.bbdd_clusters
+        analysis_summary      = COMPILE_SEQUENCING_STATS.out.analysis_summary
+        who_resistance        = COMPILE_SEQUENCING_STATS.out.who_resistance
+        tbdb_resistance       = COMPILE_SEQUENCING_STATS.out.tbdb_resistance
+        phylogeny_plotting_ch = CONCATENATED_VARIABLE_REGION_PHYLOGENY.out.phylogeny_plotting_ch
+        nexus_creation_ch     = nexus_creation_ch
 
 }

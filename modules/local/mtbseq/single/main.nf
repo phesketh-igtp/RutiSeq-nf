@@ -46,6 +46,8 @@ process MTBSEQ_SINGLE {
         path("Mpileup/*")
         path("Position_Tables/*")
         path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab")
+        path("Bam/*")
+        path("GATK_Bam/*")
 
         // tuple for updating the sample_ch
         tuple val(sampleID), 

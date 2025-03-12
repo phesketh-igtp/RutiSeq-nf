@@ -33,7 +33,6 @@ mtbc_ancestor_path=$5
     #done > ${clusterID}_tmp_refseq
     awk 'NR==FNR {pos[$1+2]; next} FNR in pos {print $3}' positions/${clusterID}_positions.tab ${snp_tab} > ${clusterID}_tmp_refseq
 
-
 # convert column into fasta
     paste -s -d "" ${clusterID}_tmp_refseq | sed '1i >H37Rv' > ${clusterID}_H37Rv.fasta
 
@@ -43,6 +42,7 @@ mtbc_ancestor_path=$5
     #while read -r position; do
     #    sed -n $((position+2))'p' ${snp_tab} | cut -f 1; 
     #done < positions/${clusterID}_positions.tab > positions/${clusterID}_genomic_positions.tab
+    
     awk 'NR==FNR {pos[$1+2]; next} FNR in pos {print $1}' positions/${clusterID}_positions.tab ${snp_tab} > positions/${clusterID}_genomic_positions.tab
 
 #·················································································#
