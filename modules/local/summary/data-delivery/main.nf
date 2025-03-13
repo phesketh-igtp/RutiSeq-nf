@@ -19,6 +19,7 @@ process PREPARE_DATA_DELIVERY{
         cp ${params.outdir}/bbdd/mtbseq/pairwise/Strain_Classification.tab ${params.outdir}/results/${runID}/mtbseq/Strain_Classification.tab
 
         # Matrices
+        mkdir -p ${params.outdir}/results/${runID}/matrices/
         cp ${params.outdir}/bbdd/mtbseq/pairwise/*/Matrices/*.matrix.tsv.gz ${params.outdir}/results/${runID}/matrices/
 
         # Tidy up the phylogeny output
