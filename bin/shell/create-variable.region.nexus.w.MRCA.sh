@@ -27,18 +27,16 @@ lineage=$7
     snp-sites ${clusterID}.fasta > ${clusterID}.snpsites.fasta
     snp-sites ${clusterID}.fasta -v | cut -f2 | sed '1,4d' > positions/${clusterID}_positions.tab
 
-
 #·················································································#
 
 # Create the variant alignment for the NODE ancestor
-    sed '1d' ${ancestor} > headless.${ancestor}
-
+    sed -i 's/ /,/g' ${ancestor}
     #for i in `cat positions/${clusterID}_positions.tab`; do 
-    #    sed -n ${i}'p' ${ancestor} | cut -f4
+    #    sed -n $((i+1))'p' ${ancestor} | cut -d ',' -f4
     #done > ${clusterID}_node_anc
 
-    awk 'NR==FNR {pos[$1]; next} FNR in pos {print $4}' positions/${clusterID}_positions.tab \
-        headless.${ancestor} > ${clusterID}_node_anc
+    awk -F ',' 'NR==FNR {pos[$1+1]; next} FNR in pos {print $4}' positions/${clusterID}_positions.tab \
+        ${ancestor} > ${clusterID}_node_anc
     
     # convert the column in fasta
     paste -s -d "" ${clusterID}_node_anc | sed "1i >MRCA" > ${clusterID}_MRCA.fasta

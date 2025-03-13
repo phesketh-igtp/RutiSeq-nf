@@ -23,10 +23,10 @@ process PREPARE_DATA_DELIVERY{
         cp ${params.outdir}/bbdd/mtbseq/pairwise/*/Matrices/*.matrix.tsv.gz ${params.outdir}/results/${runID}/matrices/
 
         # Tidy up the phylogeny output
-        mkdir ${params.outdir}/results/${runID}/phylogeny/pdf
-        mkdir ${params.outdir}/results/${runID}/phylogeny/Rdata
-        mv ${params.outdir}/results/${runID}/phylogeny/*pdf ${params.outdir}/results/${runID}/phylogeny/pdf/
-        mv ${params.outdir}/results/${runID}/phylogeny/*Rdata ${params.outdir}/results/${runID}/phylogeny/Rdata/
+        mkdir -p ${params.outdir}/results/${runID}/phylogeny/pdf-out
+        mkdir -p ${params.outdir}/results/${runID}/phylogeny/Rdata-out
+        mv ${params.outdir}/results/${runID}/phylogeny/*.pdf ${params.outdir}/results/${runID}/phylogeny/pdf-out/
+        mv ${params.outdir}/results/${runID}/phylogeny/*Rdata ${params.outdir}/results/${runID}/phylogeny/Rdata-out/
 
         # Clean up: remove litter from the nexus generation
         rm -rf ${params.outdir}/results/${runID}/networks/*join*tab
