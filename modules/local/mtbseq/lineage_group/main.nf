@@ -12,7 +12,8 @@ process MTBSEQ_LINEAGE_GROUP {
 
     input:
         val runID
-        tuple val(lineage), val(distance), 
+        tuple val(lineage), 
+                val(distance), 
                 path(joint_dir), 
                 path(amend_dir),
                 path(sample_txt)
