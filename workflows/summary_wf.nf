@@ -85,7 +85,7 @@ workflow SUMMARY_WF{
                             tuple(lineage, clusterID, file(fasta), file(tab), file(ancestor))
                         }
 
-                //GENERATE_NEXUS_W_MRCA(runID, timetree_ch, clusters_ch)
+                GENERATE_NEXUS_W_MRCA(runID, timetree_ch, clusters_ch)
 
                 /*
                 GENERATE_NEXUS_W_METADATA(GENERATE_NEXUS_W_ANCESTOR.out.nexus_w_no_metadata,
