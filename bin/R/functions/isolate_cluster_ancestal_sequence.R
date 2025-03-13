@@ -7,22 +7,19 @@ process_cluster <- function(clusterID,df) {
     deframe()
   
   # Visualize and find the most recent common ancestor (MRCA)
-  p <- ggtree(tree) + geom_tiplab() #+ geom_nodelab()
+  tree_rooted <- root(tree, "MTB_anc", resolve.root=TRUE, edgelabel=TRUE)
+  p <- ggtree(tree_rooted) + geom_tiplab() + geom_nodelab()
   mrca_node <- MRCA(p, selection)
   viewClade(p, MRCA(p, selection))
-  
-  # Subset the tree to the cluster MRCA
-  mrca_tree <- tree_subset(tree, node=mrca_node, levels_back=0)
-  
-  # Get the nodeID for the very first node in the subsetted tree
-  ancestor_nodeID <- mrca_tree$node.label[1]
+  ancestor_nodeID <- p$data |> filter(node == mrca_node) |> pull(label)
+  ancestor_nodeID
   
   # Filter the fast sequence to isoalte the ancestral sequence
   filtered_sequence <- fasta_sequences[ancestor_nodeID]
-  
+  filtered_sequence
   # Produce output fast file name
   output_fasta <- paste("ancestors/",clusterID,".ancestor.fasta", sep="")
-  writeXStringSet(filtered_sequence, filepath = output_fasta)
+  writeXStringSet(filtered_sequence, filepath = output_fasta, format="fasta")
   
   # Convert the filtered_sequence to a character string (e.g., "ATGCCG...")
   seq_str <- as.character(filtered_sequence)
