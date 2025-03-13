@@ -2,7 +2,7 @@ include { INSPECT_BBDD               }  from '../modules/local/negative-ctrls/in
 include { CN_READ_TAXONOMY           }  from '../modules/local/negative-ctrls/inspect_reads/main.nf'
 include { CN_TBPROFILER_PROFILE_TBDB }  from '../modules/local/tbprofiler/cn_profile.tbdb/main.nf'
 include { CN_MTBSEQ_SINGLE           }  from '../modules/local/mtbseq/cn_single/main.nf'
-include { COMPILE_CN_READS_SUMMARY   }  from '../modules/local/negative-ctrls/combine-qc-results/main.nf'
+//include { COMPILE_CN_READS_SUMMARY   }  from '../modules/local/negative-ctrls/combine-qc-results/main.nf'
 
 workflow NEGATIVE_CONTROL_WF {
 
@@ -72,6 +72,6 @@ workflow NEGATIVE_CONTROL_WF {
         /*
             Compile the Negative control read summary
         */
-            COMPILE_CN_READS_SUMMARY()
+            //COMPILE_CN_READS_SUMMARY()
 
 }
