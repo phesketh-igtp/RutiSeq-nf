@@ -9,10 +9,12 @@ process PREPARE_DATA_DELIVERY{
     script:
         """
         # TBProfiler results 
+        mkdir -p ${params.outdir}/results/${runID}/tbprofiler/
         cp ${params.outdir}/bbdd/tbprofiler/tbdb-tbprofiler.txt ${params.outdir}/results/${runID}/tbprofiler/tbdb-tbprofiler.txt
         cp ${params.outdir}/bbdd/tbprofiler/who-only/who-tbprofiler.txt ${params.outdir}/results/${runID}/tbprofiler/who-tbprofiler.txt
 
         # MTBseq results
+        mkdir -p ${params.outdir}/results/${runID}/mtbseq/
         cp ${params.outdir}/bbdd/mtbseq/pairwise/Mapping_and_Variant_Statistics.tab ${params.outdir}/results/${runID}/mtbseq/Mapping_and_Variant_Statistics.tab
         cp ${params.outdir}/bbdd/mtbseq/pairwise/Strain_Classification.tab ${params.outdir}/results/${runID}/mtbseq/Strain_Classification.tab
 
