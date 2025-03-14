@@ -17,7 +17,7 @@ process PLOT_TIMETREES {
         path("${lineage}_TimeTree.contree.pdf")
         path("ancestors/*")
         path("nexus.TT.tuple.csv"),         emit: timetree_tuple
-        path("${lineage}.time-tree.RData")
+        path("${lineage}.time-tree.Rdata")
 
     script:
     

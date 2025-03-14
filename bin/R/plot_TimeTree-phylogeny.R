@@ -204,4 +204,4 @@ dev.off()
 
 #·············· Export RData for using in later plots ··············#
 
-save.image(file = paste0(lineageID,".time-tree.RData"))
+save.image(file = paste0(lineageID,".time-tree.Rdata"))
