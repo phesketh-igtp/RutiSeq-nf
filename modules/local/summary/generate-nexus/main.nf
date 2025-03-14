@@ -23,7 +23,7 @@ process GENERATE_NEXUS {
                 val(clusterID), 
                 path("fasta/${clusterID}_refseq.fasta"),
                 path("positions/${clusterID}_genomic_positions.tab"),
-                path(snp_tab),   emit: variant_sites_for_tabulation
+                path("${clusterID}.snp.tab"),   emit: variant_sites_for_tabulation
 
     script:
 
@@ -36,6 +36,9 @@ process GENERATE_NEXUS {
                 ${params.mtbc_ancestor_path} \\
                 1>>.command.out \\
                 2>>.command.err || true
+
+        cp ${snp_tab} ${clusterID}.snp.tab
+        
         """
 
 }
