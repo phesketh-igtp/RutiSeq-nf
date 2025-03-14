@@ -37,8 +37,7 @@ process PLOT_MAIN_PHYLOGENY {
             echo "This lineage contains no clusters - plotting phylogeny without cluster heatmap"
 
             Rscript ${params.r_script_dir}/plot_ML-phylogeny.no-clusters.R \\
-                    --lineageID ${lineage} \\ 
-                    --rlibrary ${params.r_script_dir}
+                    --lineageID ${lineage}
 
         fi
         """
