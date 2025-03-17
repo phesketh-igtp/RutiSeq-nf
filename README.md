@@ -151,6 +151,7 @@ If you are adding new data to an existing database generated with this pipeline,
 # <u>To be done</u>
 - **Negative contorl wf**
   - currently commented out the compile NC results as there is a clash in the input tuples.
+
 - **Summary workflow**
   - Write HTML Rmarkdown results for the summary workflow
   - Create datbase summary figures:
@@ -161,5 +162,7 @@ If you are adding new data to an existing database generated with this pipeline,
     - expanding clusters
     - merging clusters (at higher SNP levels)
     - position of SNPs relative to clusters
+- Create a excel WB for each matrix (lineage - improve access for Vero/Elisa).
+- 
 - **Manual modification app**
   - continue working on it
