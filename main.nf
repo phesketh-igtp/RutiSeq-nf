@@ -4,7 +4,7 @@ nextflow.enable.dsl = 2
 include { FILE_CHECK }                  from './modules/local/file-checks/main.nf'
 include { SINGLE_WF }                   from './workflows/single_wf.nf'
 include { PAIRWISE_WF }                 from './workflows/pairwise_wf.nf'
-//include { NEGATIVE_CONTROL_WF }         from './workflows/negative_ctrl_wf.nf'
+include { NEGATIVE_CONTROL_WF }         from './workflows/negative_ctrl_wf.nf'
 include { SUMMARY_WF }                  from './workflows/summary_wf.nf'
 //include { BARCODING_WF }                from './workflows/barcoding_wf.nf'
 

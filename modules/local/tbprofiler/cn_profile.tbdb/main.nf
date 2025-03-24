@@ -14,9 +14,9 @@ process CN_TBPROFILER_PROFILE_TBDB {
         publishDir "${params.outdir}/bbdd/negative-controls/tbprofiler/", mode: 'copy'
 
         input:
-            tuple val(sampleID), 
-                    path(forward),
-                    path(reverse)
+                tuple val(sampleID), 
+                        path(forward),
+                        path(reverse)
 
         output:
                 path("bam/tbdb-${sampleID}.bam")
