@@ -160,7 +160,7 @@ workflow {
 
         // Call the workflow
         // TODO: need to figure out if this is working as intended and correct the channel to not have that empty index [4]
-            //NEGATIVE_CONTROL_WF( controls_ch )
+            NEGATIVE_CONTROL_WF( controls_ch )
 
         /*
         ······································································································
