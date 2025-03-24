@@ -57,8 +57,8 @@ workflow NEGATIVE_CONTROL_WF {
             CN_READ_TAXONOMY(branched_channel.with_reads)
 
         // collect all the results
-            all_cn_wc_results       = CN_READ_TAXONOMY.out.cn_qc_results.map { it[1] }.collect()
-            all_cn_kaiju_results    = CN_READ_TAXONOMY.out.cn_kaiju_results.map { it[1] }.collect()
+            all_cn_k2_results   = CN_READ_TAXONOMY.out.cn_k2_results.map { it[1] }.collect()
+            all_cn_stats        = CN_READ_TAXONOMY.out.cn_stats.map { it[1] }.collect()
 
             //all_cn_wc_results.view()
             //all_cn_kaiju_results.view()

@@ -11,12 +11,14 @@ process CN_READ_TAXONOMY {
     publishDir "${params.outdir}/bbdd/negative-controls/results/", mode: 'link'
 
     input:
-        tuple val(sampleID), path(forward), path(reverse)
+        tuple val(sampleID), 
+            path(forward), 
+            path(reverse)
 
     output:
-        path("${sampleID}.qc.out"),    emit: cn_qc_results
-        path("${sampleID}.kaiju.out")
-        path("${sampleID}.kaiju_summary.tsv"), emit: cn_kaiju_results
+        path("${sampleID}.k2.out"),     emit: cn_k2_results
+        path("${sampleID}.k2.log")
+        path("${sampleID}.stats.tsv"),  emit: cn_stats
 
     script:
 
@@ -25,10 +27,13 @@ process CN_READ_TAXONOMY {
             --output ${sampleID}.k2.out \\
             --log ${sampleID}.k2.log \\
             --minimum-base-quality 30 \\
-            --use-names \\
-            --use-mpa-style \\
-            --memory-mapping \\
             --threads ${task.cpus} \\
-            --db ${params.kraken_db_path}
+            --db ${params.kraken_db_path} \\
+            --use-names --report --use-mpa-style --memory-mapping
+
+        seqkit stats -bT ${forward} | sed '1d' > tmp.for.tsv
+        seqkit stats -bT ${reverse} | sed '1d' > tmp.rev.tsv
+
+        cat tmp.for.tsv tmp.rev.tsv > ${sampleID}.stats.tsv
         """
 }
