@@ -15,23 +15,29 @@ process CN_MTBSEQ_SINGLE {
 
     input:
         tuple val(sampleID), 
-                    path(forward, stageAs: "${sampleID}_R1.fastq.gz"),
-                    path(reverse, stageAs: "${sampleID}_R2.fastq.gz")
+                path(forward),
+                path(reverse),
+                path(qc_results)
                 
     output:
-        path("Called/*")
-        path("Classification/${sampleID}.Strain_Classification.tab")
-        path("Mpileup/*")
-        path("Position_Tables/*")
-        path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab")
-        path("Bam/*")
-        path("GATK_Bam/*")
+        path("Called/*", optional: true)
+        path("Classification/${sampleID}.Strain_Classification.tab", optional: true)
+        path("Mpileup/*", optional: true)
+        path("Position_Tables/*", optional: true)
+        path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab", optional: true)
+        path("Bam/*", optional: true)
+        path("GATK_Bam/*", optional: true)
 
     script:
 
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
+        # Rename the reads to the intended naming structure
+            for_name=${forward}; rev_name=ls ${reverse}
+            mv ${forward} ${sampleID}_R1.fastq.gz
+            mv ${reverse} ${sampleID}_R2.fastq.gz
+            
         # Run MTBseq for a single sample
             MTBseq --step TBfull \\
                 --thread        ${task.cpus} \\
@@ -49,6 +55,9 @@ process CN_MTBSEQ_SINGLE {
         # Rename the stats and class outputs to have unique names
             mv Classification/Strain_Classification.tab Classification/${sampleID}.Strain_Classification.tab
             mv Statistics/Mapping_and_Variant_Statistics.tab Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
+
+        # restore the symbolic link names
+            mv ${sampleID}_R1.fastq.gz ${forward}; mv ${sampleID}_R2.fastq.gz ${reverse}
         """
 
 }

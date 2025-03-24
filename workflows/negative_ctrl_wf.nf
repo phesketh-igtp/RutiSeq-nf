@@ -14,10 +14,10 @@ workflow NEGATIVE_CONTROL_WF {
         /*
         Run KAIJU on the reads and get read taxonomy
         */
-
+            controls_ch.view()
             INSPECT_BBDD(controls_ch)
 
-                        // After the FILE_CHECK process
+            // After the FILE_CHECK process
             verified_controls_ch = INSPECT_BBDD.out.controls_paths
                 .collectFile(name: 'all_controls_paths.txt', newLine: true, storeDir: params.outdir)
                 .ifEmpty { file("${params.outdir}/empty_all_controls_paths.txt") }
@@ -50,11 +50,13 @@ workflow NEGATIVE_CONTROL_WF {
                 with_reads: it[1] != [] && it[2] != [] // zero-indexed so [1] is the second value in the tuple, ect
                 without_reads: it[1] == [] || it[2] == [] }
 
+        control_ch_analysis = branched_channel.with_reads
+
         /*
         Run KAIJU on the reads and get read taxonomy
         */
 
-            CN_READ_TAXONOMY(branched_channel.with_reads)
+            CN_READ_TAXONOMY( control_ch_analysis )
 
         // collect all the results
             all_cn_k2_results   = CN_READ_TAXONOMY.out.cn_k2_results.map { it[1] }.collect()
@@ -66,12 +68,12 @@ workflow NEGATIVE_CONTROL_WF {
         /*
             Run Tb-Profiler and MTBseq on the reads (expect them to fail)
         */
-            CN_TBPROFILER_PROFILE_TBDB(branched_channel.with_reads)
-            CN_MTBSEQ_SINGLE(branched_channel.with_reads)
+            CN_TBPROFILER_PROFILE_TBDB( control_ch_analysis )
+            CN_MTBSEQ_SINGLE( control_ch_analysis )
 
         /*
             Compile the Negative control read summary
         */
-            //COMPILE_CN_READS_SUMMARY()
+            //COMPILE_CN_READS_SUMMARY(all_cn_k2_results, all_cn_stats)
 
 }

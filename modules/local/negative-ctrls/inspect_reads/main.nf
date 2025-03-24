@@ -13,7 +13,8 @@ process CN_READ_TAXONOMY {
     input:
         tuple val(sampleID), 
             path(forward), 
-            path(reverse)
+            path(reverse),
+            path(qc_results)
 
     output:
         path("${sampleID}.k2.out"),     emit: cn_k2_results

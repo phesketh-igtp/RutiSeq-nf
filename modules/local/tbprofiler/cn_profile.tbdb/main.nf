@@ -16,13 +16,14 @@ process CN_TBPROFILER_PROFILE_TBDB {
         input:
                 tuple val(sampleID), 
                         path(forward),
-                        path(reverse)
+                        path(reverse),
+                        path(qc_results)
 
         output:
-                path("bam/tbdb-${sampleID}.bam")
-                path("vcf/tbdb-${sampleID}.targets.vcf.gz")
-                path("results/tbdb-${sampleID}.results.json")
-                path("results/tbdb-${sampleID}.results.txt")
+                path("bam/tbdb-${sampleID}.bam", optional: true)
+                path("vcf/tbdb-${sampleID}.targets.vcf.gz", optional: true)
+                path("results/tbdb-${sampleID}.results.json", optional: true)
+                path("results/tbdb-${sampleID}.results.txt", optional: true)
 
         script:
                 def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
@@ -35,11 +36,13 @@ process CN_TBPROFILER_PROFILE_TBDB {
                                 -p tbdb-${sampleID} \\
                                 --txt --dir . \\
                                 --db ${params.tbprofiler_tbdb} \\
-                                --threads ${task.cpus} ${additional_args}
+                                --threads ${task.cpus} ${additional_args} \\
+                1>>.command.out \\
+                2>>.command.err || true
 
-                        touch bam/tbdb-${sampleID}.bam
-                        touch vcf/tbdb-${sampleID}.targets.vcf.gz
-                        touch results/tbdb-${sampleID}.results.json
-                        touch results/tbdb-${sampleID}.results.txt
+                touch bam/tbdb-${sampleID}.bam
+                touch vcf/tbdb-${sampleID}.targets.vcf.gz
+                touch results/tbdb-${sampleID}.results.json
+                touch results/tbdb-${sampleID}.results.txt
                 """
 }

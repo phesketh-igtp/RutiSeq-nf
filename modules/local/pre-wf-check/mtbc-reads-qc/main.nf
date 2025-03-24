@@ -2,7 +2,7 @@ process MTBC_READ_QC {
     
     tag "$sampleID"
     
-    conda params.kaiju_env
+    conda params.tax_env
 
     container { 
             if (workflow.containerEngine == 'singularity') return params.singularity_kaiju
