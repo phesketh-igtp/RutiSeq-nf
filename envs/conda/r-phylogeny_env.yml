@@ -1,4 +1,4 @@
-name: r_phylogeny-env
+name: r-phylogeny_env
 channels:
   - bioconda
   - conda-forge

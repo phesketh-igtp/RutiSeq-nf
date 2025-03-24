@@ -1,4 +1,4 @@
-name: tax
+name: taxonomy_env
 channels:
   - bioconda
   - conda-forge

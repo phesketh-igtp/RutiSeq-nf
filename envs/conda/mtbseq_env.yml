@@ -1,4 +1,4 @@
-name: mtbseq
+name: mtbseq_env
 channels:
   - conda-forge
   - bioconda
