@@ -25,12 +25,13 @@ process CN_READ_TAXONOMY {
 
         """
         kraken2 --paired ${forward} ${reverse} \\
-            --output ${sampleID}.k2.out \\
-            --log ${sampleID}.k2.log \\
+            --log ${sampleID}.k2.log --output ${sampleID}.k2.out \\
             --minimum-base-quality 30 \\
             --threads ${task.cpus} \\
             --db ${params.kraken_db_path} \\
-            --use-names --report --use-mpa-style --memory-mapping
+            --use-names --report --use-mpa-style --memory-mapping \\
+            1>>.command.out \\
+            2>>.command.err || true
 
         seqkit stats -bT ${forward} | sed '1d' > tmp.for.tsv
         seqkit stats -bT ${reverse} | sed '1d' > tmp.rev.tsv
@@ -38,3 +39,8 @@ process CN_READ_TAXONOMY {
         cat tmp.for.tsv tmp.rev.tsv > ${sampleID}.stats.tsv
         """
 }
+
+/*
+
+
+*/

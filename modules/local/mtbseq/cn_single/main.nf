@@ -34,12 +34,11 @@ process CN_MTBSEQ_SINGLE {
 
         """
         # Rename the reads to the intended naming structure
-            for_name=${forward}; rev_name=ls ${reverse}
             mv ${forward} ${sampleID}_R1.fastq.gz
             mv ${reverse} ${sampleID}_R2.fastq.gz
             
         # Run MTBseq for a single sample
-            MTBseq --step TBfull \\
+        MTBseq --step TBfull \\
                 --thread        ${task.cpus} \\
                 --minbqual      ${params.mtbseq_minbqual} \\
                 --mincovf       ${params.mtbseq_mincovf} \\
@@ -47,8 +46,7 @@ process CN_MTBSEQ_SINGLE {
                 --minphred20    ${params.mtbseq_minphred20} \\
                 --minfreq       ${params.mtbseq_minfreq} \\
                 --unambig       ${params.mtbseq_unambig} \\
-                --window        ${params.mtbseq_window} \\
-                ${additional_args} \\
+                --window        ${params.mtbseq_window} ${additional_args} \\
                 1>>.command.out \\
                 2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 
