@@ -24,12 +24,21 @@ process CN_READ_TAXONOMY {
     script:
 
         """
-        kraken2 --paired ${forward} ${reverse} \\
-            --log ${sampleID}.k2.log --output ${sampleID}.k2.out \\
+        # Change read names to be used in kraken2
+        mv ${forward} ${sampleID}_R1.fastq.gz
+        mv ${reverse} ${sampleID}_R2.fastq.gz
+
+        kraken2 \\
+            --paired \\
+            --gzip-compressed \\
             --minimum-base-quality 30 \\
             --threads ${task.cpus} \\
             --db ${params.kraken_db_path} \\
-            --use-names --report --use-mpa-style --memory-mapping \\
+            --use-names \\
+            --use-mpa-style \\
+            --memory-mapping \\
+            --report ${sampleID}.k2.out \\
+            ${sampleID}_R1#.fastq.gz ${sampleID}_R2#.fastq.gz \\
             1>>.command.out \\
             2>>.command.err || true
 
@@ -37,10 +46,9 @@ process CN_READ_TAXONOMY {
         seqkit stats -bT ${reverse} | sed '1d' > tmp.rev.tsv
 
         cat tmp.for.tsv tmp.rev.tsv > ${sampleID}.stats.tsv
+
+        # Restore read names to original
+        mv ${sampleID}_R1.fastq.gz ${forward} 
+        mv ${sampleID}_R2.fastq.gz ${reverse} 
         """
 }
-
-/*
-
-
-*/

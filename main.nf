@@ -4,7 +4,7 @@ nextflow.enable.dsl = 2
 include { FILE_CHECK }                  from './modules/local/file-checks/main.nf'
 include { SINGLE_WF }                   from './workflows/single_wf.nf'
 include { PAIRWISE_WF }                 from './workflows/pairwise_wf.nf'
-include { NEGATIVE_CONTROL_WF }         from './workflows/negative_ctrl_wf.nf'
+include { NEGATIVE_CTRL_WF }            from './workflows/negative_ctrl_wf.nf'
 include { SUMMARY_WF }                  from './workflows/summary_wf.nf'
 //include { BARCODING_WF }                from './workflows/barcoding_wf.nf'
 
@@ -160,7 +160,7 @@ workflow {
 
         // Call the workflow
         // TODO: need to figure out if this is working as intended and correct the channel to not have that empty index [4]
-            NEGATIVE_CONTROL_WF( controls_ch )
+            NEGATIVE_CTRL_WF( controls_ch )
 
         /*
         ······································································································

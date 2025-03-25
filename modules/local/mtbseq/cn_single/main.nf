@@ -11,7 +11,7 @@ process CN_MTBSEQ_SINGLE {
             else return null
         }
     
-    publishDir "${params.outdir}/bbdd/mtbseq/negative-controls/samples/${sampleID}", mode: 'copy'
+    publishDir "${params.outdir}/bbdd/negative-controls/mtbseq/${sampleID}", mode: 'copy'
 
     input:
         tuple val(sampleID), 
@@ -20,13 +20,8 @@ process CN_MTBSEQ_SINGLE {
                 path(qc_results)
                 
     output:
-        path("Called/*", optional: true)
-        path("Classification/${sampleID}.Strain_Classification.tab", optional: true)
-        path("Mpileup/*", optional: true)
-        path("Position_Tables/*", optional: true)
-        path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab", optional: true)
-        path("Bam/*", optional: true)
-        path("GATK_Bam/*", optional: true)
+        path("Classification/${sampleID}.Strain_Classification.tab")
+        path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab")
 
     script:
 
@@ -50,12 +45,23 @@ process CN_MTBSEQ_SINGLE {
                 1>>.command.out \\
                 2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 
-        # Rename the stats and class outputs to have unique names
-            mv Classification/Strain_Classification.tab Classification/${sampleID}.Strain_Classification.tab
-            mv Statistics/Mapping_and_Variant_Statistics.tab Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
+        # Renamecp Classification/Strain_Classification.tab Classification/${sampleID}.Strain_Classification.tab
+            if [ -f "Classification/Strain_Classification.tab" ]; then
+                mv Classification/Strain_Classification.tab Classification/${sampleID}.Strain_Classification.tab
+            fi
+
+            if [ -f "Statistics/Mapping_and_Variant_Statistics.tab" ]; then
+                mv Statistics/Mapping_and_Variant_Statistics.tab Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
+            fi
+
+            touch Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
+            touch Classification/${sampleID}.Strain_Classification.tab
 
         # restore the symbolic link names
             mv ${sampleID}_R1.fastq.gz ${forward}; mv ${sampleID}_R2.fastq.gz ${reverse}
+
+        # Always exit with status 0 to prevent pipeline failure
+            exit 0
         """
 
 }

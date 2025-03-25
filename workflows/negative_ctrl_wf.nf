@@ -4,7 +4,7 @@ include { CN_TBPROFILER_PROFILE_TBDB }  from '../modules/local/tbprofiler/cn_pro
 include { CN_MTBSEQ_SINGLE           }  from '../modules/local/mtbseq/cn_single/main.nf'
 //include { COMPILE_CN_READS_SUMMARY   }  from '../modules/local/negative-ctrls/combine-qc-results/main.nf'
 
-workflow NEGATIVE_CONTROL_WF {
+workflow NEGATIVE_CTRL_WF {
 
     take:
         controls_ch
