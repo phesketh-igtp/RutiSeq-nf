@@ -1,5 +1,5 @@
 include { INSPECT_BBDD               }  from '../modules/local/negative-ctrls/inspect_bbdd/main.nf'
-include { CN_READ_TAXONOMY           }  from '../modules/local/negative-ctrls/inspect_reads/main.nf'
+//include { CN_READ_TAXONOMY           }  from '../modules/local/negative-ctrls/inspect_reads/main.nf'
 include { CN_TBPROFILER_TBDB         }  from '../modules/local/tbprofiler/cn_profile.tbdb/main.nf'
 include { CN_MTBSEQ_SINGLE           }  from '../modules/local/mtbseq/cn_single/main.nf'
 //include { COMPILE_CN_READS_SUMMARY   }  from '../modules/local/negative-ctrls/combine-qc-results/main.nf'
@@ -56,11 +56,11 @@ workflow NEGATIVE_CTRL_WF {
         Run KAIJU on the reads and get read taxonomy
         */
 
-            CN_READ_TAXONOMY( control_ch_analysis )
+            //CN_READ_TAXONOMY( control_ch_analysis )
 
         // collect all the results
-            all_cn_k2_results   = CN_READ_TAXONOMY.out.cn_k2_results.map { it[1] }.collect()
-            all_cn_stats        = CN_READ_TAXONOMY.out.cn_stats.map { it[1] }.collect()
+            //all_cn_k2_results   = CN_READ_TAXONOMY.out.cn_k2_results.map { it[1] }.collect()
+            //all_cn_stats        = CN_READ_TAXONOMY.out.cn_stats.map { it[1] }.collect()
 
             //all_cn_wc_results.view()
             //all_cn_kaiju_results.view()
