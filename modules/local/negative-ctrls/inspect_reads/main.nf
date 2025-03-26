@@ -29,8 +29,6 @@ process CN_READ_TAXONOMY {
         mv ${reverse} ${sampleID}_R2.fastq.gz
 
         kraken2 \\
-            --paired \\
-            --gzip-compressed \\
             --minimum-base-quality 30 \\
             --threads ${task.cpus} \\
             --db ${params.kraken_db_path} \\
@@ -38,12 +36,12 @@ process CN_READ_TAXONOMY {
             --use-mpa-style \\
             --memory-mapping \\
             --report ${sampleID}.k2.out \\
-            ${sampleID}_R1#.fastq.gz ${sampleID}_R2#.fastq.gz \\
+            --paired ${sampleID}_R1#.fastq.gz ${sampleID}_R2#.fastq.gz \\
             1>>.command.out \\
             2>>.command.err || true
 
-        seqkit stats -bT ${forward} | sed '1d' > tmp.for.tsv
-        seqkit stats -bT ${reverse} | sed '1d' > tmp.rev.tsv
+        seqkit stats -bTa ${sampleID}_R1.fastq.gz > tmp.for.tsv
+        seqkit stats -bTa ${sampleID}_R2.fastq.gz | sed '1d' > tmp.rev.tsv
 
         cat tmp.for.tsv tmp.rev.tsv > ${sampleID}.stats.tsv
 

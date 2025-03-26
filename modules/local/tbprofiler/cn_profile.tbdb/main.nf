@@ -1,4 +1,4 @@
-process CN_TBPROFILER_PROFILE_TBDB {
+process CN_TBPROFILER_TBDB {
 
         tag "$sampleID"
         
