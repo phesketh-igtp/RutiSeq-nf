@@ -1,11 +1,6 @@
 process TBPROFILER_PROFILE_WHO {
 
         /*
-        In this module TBProfiler is run for a single genome using the WHO database only - this is used to 
-            get WHO acceptd resistance profiles. The output prefix of module file is defined as who-${sampleID} to 
-            prevent overlapping file names later down the line.I am certain that I tried stageAs: as some point to circumvent this issue, 
-            but it caused other problems. 
-            TODO: revisit this issue.
         Like the previous modules, the input tuple for this module is the paths to all the files
             needed for a sample to proceed into the PAIRWISE_WF(), which litters the publish directory
             these excess files and are removed at the very end. This was originally done with a IF argument
