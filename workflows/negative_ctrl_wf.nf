@@ -14,7 +14,6 @@ workflow NEGATIVE_CTRL_WF {
         /*
         Run KAIJU on the reads and get read taxonomy
         */
-            controls_ch.view()
             INSPECT_BBDD(controls_ch)
 
             // After the FILE_CHECK process

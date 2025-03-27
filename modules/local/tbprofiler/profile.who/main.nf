@@ -1,14 +1,4 @@
 process TBPROFILER_PROFILE_WHO {
-
-        /*
-        Like the previous modules, the input tuple for this module is the paths to all the files
-            needed for a sample to proceed into the PAIRWISE_WF(), which litters the publish directory
-            these excess files and are removed at the very end. This was originally done with a IF argument
-            to only remove them if the files did not exist - this prevents nextflow complaining of they 
-            were not generated - but this created some sybtax errors, so I changed it to touching the 
-            files then removing them manually. 
-            TODO: might be to revisit this at a later date.
-    */
     
     tag "$sampleID"
 
