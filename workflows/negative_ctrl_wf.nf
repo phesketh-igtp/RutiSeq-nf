@@ -62,8 +62,8 @@ workflow NEGATIVE_CTRL_WF {
             //all_cn_k2_results   = CN_READ_TAXONOMY.out.cn_k2_results.map { it[1] }.collect()
             //all_cn_stats        = CN_READ_TAXONOMY.out.cn_stats.map { it[1] }.collect()
 
-            //all_cn_wc_results.view()
-            //all_cn_kaiju_results.view()
+            //all_cn_k2_results.view()
+            //all_cn_stats.view()
 
         /*
             Run Tb-Profiler and MTBseq on the reads (expect them to fail)

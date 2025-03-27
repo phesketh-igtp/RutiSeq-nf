@@ -17,8 +17,8 @@ process CN_READ_TAXONOMY {
             path(qc_results)
 
     output:
-        path("${sampleID}.k2.out"),     emit: cn_k2_results
-        path("${sampleID}.k2.log")
+        path("${sampleID}.k2.report"),     emit: cn_k2_report
+        path("${sampleID}.k2.raw.tsv")
         path("${sampleID}.stats.tsv"),  emit: cn_stats
 
     script:
@@ -29,16 +29,14 @@ process CN_READ_TAXONOMY {
         mv ${reverse} ${sampleID}_R2.fastq.gz
 
         kraken2 \\
-            --minimum-base-quality 30 \\
             --threads ${task.cpus} \\
             --db ${params.kraken_db_path} \\
             --use-names \\
             --use-mpa-style \\
             --memory-mapping \\
-            --report ${sampleID}.k2.out \\
-            --paired ${sampleID}_R1#.fastq.gz ${sampleID}_R2#.fastq.gz \\
-            1>>.command.out \\
-            2>>.command.err || true
+            --report ${sampleID}.k2.report \\
+            --paired ${sampleID}_R1.fastq.gz ${sampleID}_R2.fastq.gz \\
+            > ${sampleID}.k2.raw.tsv
 
         seqkit stats -bTa ${sampleID}_R1.fastq.gz > tmp.for.tsv
         seqkit stats -bTa ${sampleID}_R2.fastq.gz | sed '1d' > tmp.rev.tsv
