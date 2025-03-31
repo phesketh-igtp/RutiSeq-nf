@@ -26,13 +26,12 @@ workflow NEGATIVE_CTRL_WF {
                     .splitCsv()
                     .map { row -> 
                         log.debug "DEBUG - Processing sample row: $row"
-                        if (row.size() == 4) {
+                        if (row.size() == 3) {
                             def (sampleID, forward, reverse, qc_results) = row
                             tuple(
                                 sampleID,
                                 forward ? file(forward.trim()) : [],
                                 reverse ? file(reverse.trim()) : [],
-                                qc_results ? file(qc_results.trim()) : [],
                             )   
                         } else {
                             log.warn "Error with channel: $row"
