@@ -29,9 +29,6 @@ process CN_TBPROFILER_TBDB {
                 path("${sampleID}_tb_profiler.log", optional: true)
                 path("${sampleID}_tb_profiler_status.txt")
 
-process CN_TBPROFILER_TBDB {
-    // ... (keep your existing code)
-
         script:
                 def additional_args = task.ext.additional_args ?: ''
 

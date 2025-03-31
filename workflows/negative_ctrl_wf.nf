@@ -27,7 +27,7 @@ workflow NEGATIVE_CTRL_WF {
                     .map { row -> 
                         log.debug "DEBUG - Processing sample row: $row"
                         if (row.size() == 3) {
-                            def (sampleID, forward, reverse, qc_results) = row
+                            def (sampleID, forward, reverse) = row
                             tuple(
                                 sampleID,
                                 forward ? file(forward.trim()) : [],
