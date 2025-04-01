@@ -1,9 +1,12 @@
 process TBPROFILER_DB_UPDATE {
 
-        /*
-                This module performs TB-Profiler using TBDB results to get MT lineage and 
-                identify any potential contamination in the genome
-        */
+/*
+        @author:  Poppy J Hesketh Best
+        @date:    2025-04-01
+        @version: 0.1
+        @description: 
+                This module updates the TBDB database and the WHO database using tb-profiler.
+*/
 
         tag "$runID"
 
@@ -16,13 +19,14 @@ process TBPROFILER_DB_UPDATE {
                 else return null
         }
         
-        publishDir "${params.outdir}/db/tbprofiler/", mode: 'copy'
+        publishDir "${params.outdir}/db/tbprofiler/", mode: 'copy', overwrite: true
 
         input:
                 val(runID)
 
         output:
                 path("update_db.txt"), emit: tbprofiler_update_db
+                path("tbdb/*")
 
         script:
 
@@ -31,13 +35,13 @@ process TBPROFILER_DB_UPDATE {
 
         # update the TBDB database
                 tb-profiler update_tbdb \
-                --db_dir ${params.outdir}/db/tbprofiler/ \
+                --db_dir . \
                 > update_db.txt 2>&1
 
         # update the WHO database
                 tb-profiler update_tbdb \
                 --branch who \
-                --db_dir ${params.outdir}/db/tbprofiler/ \
+                --db_dir . \
                 >> update_db.txt 2>&1
         """
 }

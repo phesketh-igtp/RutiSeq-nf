@@ -1,6 +1,20 @@
 process CN_TBPROFILER_TBDB {
 
-        tag "$sampleID"
+/*
+        @author: Poppy J Hesketh Best
+        @date: 2025-04-01
+        @version: 0.1
+        @description: 
+                This module runs TB-Profiler on a single sample using the TBDB database. 
+                It is designed to be used in the context of the negative control workflow. 
+                It takes a tuple of sampleID, forward read file, and reverse read file as 
+                input. The output is the TB-Profiler classification and statistics files.
+                The TBDB database is a custom database for TB-Profiler that is used to 
+                identify Mycobacterium tuberculosis complex (MTBC) strains and their 
+                resistance profiles.
+*/
+
+        tag "${sampleID}"
         
         conda params.tbprofiler_env
 

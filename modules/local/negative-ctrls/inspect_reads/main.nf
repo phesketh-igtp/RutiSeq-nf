@@ -1,6 +1,16 @@
 process CN_READ_TAXONOMY {
+
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 0.1
+    @description: 
+        Run KAIJU on the reads and get read taxonomy and statistics of the reads. Outputs of this modules 
+        are intended to be combines into a single file for each sample, and then concatenated into a
+        single file for all samples for a particular run.
+*/
     
-    tag "$sampleID"
+    tag "${sampleID}"
 
     conda params.taxonomy_env
 
@@ -12,9 +22,8 @@ process CN_READ_TAXONOMY {
 
     input:
         tuple val(sampleID), 
-            path(forward), 
-            path(reverse),
-            path(qc_results)
+                path(forward), 
+                path(reverse)
 
     output:
         path("${sampleID}.k2.report"),     emit: cn_k2_report

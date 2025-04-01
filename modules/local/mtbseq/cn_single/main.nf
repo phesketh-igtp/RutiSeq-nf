@@ -1,6 +1,17 @@
 process CN_MTBSEQ_SINGLE {
 
-    tag "$sampleID"
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 0.1
+    @description: 
+        This module runs MTBseq on a single sample. It is designed to be used in the context 
+        of the negative control workflow. It takes a tuple of sampleID, forward read file, 
+        and reverse read file as input. The output is the MTBseq classification and 
+        statistics files.
+*/
+
+    tag "${sampleID}"
 
     conda params.mtbseq_env
 
