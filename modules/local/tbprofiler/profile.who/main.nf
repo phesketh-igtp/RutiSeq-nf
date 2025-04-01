@@ -17,6 +17,7 @@ process TBPROFILER_PROFILE_WHO {
         tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse), path(mtbseq_class), 
                 path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
                 path(tbdb_out), path(who_out), path(mtbseq_vcf)
+        path(tbprofiler_update_handover)
 
     output:
         path("results/who-${sampleID}.results.json")
@@ -35,17 +36,19 @@ process TBPROFILER_PROFILE_WHO {
 
         """
         # Run main function
-        tb-profiler profile \\
-                -1 ${mtbc_forward} \\
-                -2 ${mtbc_reverse} \\
-                -p who-${sampleID} \\
-            --txt --dir . \\
-            --db ${params.tbprofiler_who} \\
-            --threads ${task.cpus} \\
-            ${additional_args}
+            tb-profiler profile \\
+                    -1 ${mtbc_forward} \\
+                    -2 ${mtbc_reverse} \\
+                    -p who-${sampleID} \\
+                --txt --dir . \\
+                --db who \\
+                --threads ${task.cpus} \\
+                ${additional_args}
 
         # remove the published files from the previous module:
             rm -f  ${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R1.fastq.gz
             rm -f  ${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R2.fastq.gz
         """
 }
+
+//--db ${params.tbprofiler_who} \\

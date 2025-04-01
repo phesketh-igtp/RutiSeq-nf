@@ -2,6 +2,7 @@ include { MTBC_READ_QC }              from '../modules/local/pre-wf-check/mtbc-r
 include { TBPROFILER_PROFILE_TBDB }   from '../modules/local/tbprofiler/profile.tbdb/main.nf'
 include { TBPROFILER_PROFILE_WHO }    from '../modules/local/tbprofiler/profile.who/main.nf'
 include { MTBSEQ_SINGLE }             from '../modules/local/mtbseq/single/main.nf'
+include { TBPROFILER_DB_UPDATE }      from '../modules/local/tbprofiler/db-update/main.nf'
 //include { MTBSEQ_ONT_SINGLE }         from '../modules/local/mtbseq-ont/single/main.nf'
 include { SNP_PROFILING_SINGLE }      from '../modules/local/snp-barcoding/single.profiling/main.nf'
 include { SNP_ANNOTATING_SINGLE }     from '../modules/local/snp-barcoding/single.annotating/main.nf'
@@ -53,14 +54,16 @@ workflow SINGLE_WF {
         // DEBUG:: View the results
             branched_channel.with_reads.view { "With reads: $it" }
         */
+            TBPROFILER_DB_UPDATE( runID )
+                update_handover = TBPROFILER_DB_UPDATE.out.tbprofiler_update_handover
 
         // Taxonomically classify and partition the MTBC reads
             MTBC_READ_QC( branched_channel.with_reads )
 
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
-            TBPROFILER_PROFILE_TBDB( MTBC_READ_QC.out.updated_sample_ch1 )
+            TBPROFILER_PROFILE_TBDB( MTBC_READ_QC.out.updated_sample_ch1, update_handover )
 
-            TBPROFILER_PROFILE_WHO( TBPROFILER_PROFILE_TBDB.out.updated_sample_ch2 )
+            TBPROFILER_PROFILE_WHO( TBPROFILER_PROFILE_TBDB.out.updated_sample_ch2, update_handover )
 
         // Run MTBSEQ_SINGLE
             MTBSEQ_SINGLE( TBPROFILER_PROFILE_WHO.out.updated_sample_ch3 )

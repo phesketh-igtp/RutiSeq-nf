@@ -23,6 +23,7 @@ process TBPROFILER_PROFILE_TBDB {
                         path(mtbc_forward), path(mtbc_reverse), path(mtbseq_class), 
                         path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
                         path(tbdb_out), path(who_out), path(mtbseq_vcf)
+                path(tbprofiler_update_handover)
 
         output:
                 path("bam/tbdb-${sampleID}.bam")
@@ -47,7 +48,6 @@ process TBPROFILER_PROFILE_TBDB {
                                 -2 ${mtbc_reverse} \\
                                 -p tbdb-${sampleID} \\
                                 --txt --dir . \\
-                                --db ${params.tbprofiler_tbdb} \\
                                 --threads ${task.cpus} ${additional_args}
 
                         touch bam/tbdb-${sampleID}.bam
@@ -61,3 +61,5 @@ process TBPROFILER_PROFILE_TBDB {
                         rm -f ${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R2.fastq.gz
                 """
 }
+
+//--db ${params.tbprofiler_tbdb}
