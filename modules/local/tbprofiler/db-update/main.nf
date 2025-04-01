@@ -26,18 +26,22 @@ process TBPROFILER_DB_UPDATE {
 
         output:
                 path("update_db.txt"), emit: tbprofiler_update_db
-                path("tbdb/*")
+                path("tbdb-db/*")
 
         script:
 
         """
-        mkdir -p tbdb
+        mkdir -p tbdb-db
 
         # update the TBDB database
-                tb-profiler update_tbdb --branch tbdb
+                tb-profiler update_tbdb \\
+                        --branch tbdb \\
+                        --db_dir tbdb-db
 
         # update the WHO database
-                tb-profiler update_tbdb --branch who
+                tb-profiler update_tbdb \\
+                        --branch who \\
+                        --db_dir tbdb-db
 
         touch update_db.txt
         """
