@@ -1,5 +1,17 @@
 process GENERATE_NEXUS {
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description:
+        This process generates a NEXUS file for each cluster of genomes
+        using the SNPs from the reference genome and the MTB_anc
+        (Valencian ancestor, Iñaki Comas 2013) as a reference. The resulting 
+        NEXUS file is intended to be use with PopArt for visualising median-joining
+        networks.
+*/
+
     conda params.snp_profiling_env 
 
     tag "cluster: ${clusterID}"

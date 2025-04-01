@@ -1,5 +1,16 @@
 process MTBSEQ_LINEAGE_JOINT_AMEND {
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description:
+        This process runs the MTBseq Join and Amend steps for a given lineage.
+        It takes the lineage and sample IDs as input and produces the output files
+        for the MTBseq Join and Amend steps.
+        It also creates a lineage_samples.txt file for the MTBseq Join step.
+*/
+
     tag " ${runID}: ${lineage} "
 
     conda params.mtbseq_env

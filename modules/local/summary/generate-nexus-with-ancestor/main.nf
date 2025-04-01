@@ -1,5 +1,13 @@
 process GENERATE_NEXUS_W_MRCA {
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description:
+
+*/
+
     conda params.snp_profiling_env 
 
     tag "cluster: ${clusterID}"

@@ -3,9 +3,9 @@ nextflow.enable.dsl = 2
 
 include { FILE_CHECK }                  from './modules/local/file-checks/main.nf'
 include { TBPROFILER_DB_UPDATE }        from './modules/local/tbprofiler/db-update/main.nf'
+include { NEGATIVE_CTRL_WF }            from './workflows/negative_ctrl_wf.nf'
 include { SINGLE_WF }                   from './workflows/single_wf.nf'
 include { PAIRWISE_WF }                 from './workflows/pairwise_wf.nf'
-include { NEGATIVE_CTRL_WF }            from './workflows/negative_ctrl_wf.nf'
 include { SUMMARY_WF }                  from './workflows/summary_wf.nf'
 //include { BARCODING_WF }                from './workflows/barcoding_wf.nf'
 

@@ -1,5 +1,18 @@
 process MTBSEQ_STATS_COMPILE {
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description:
+        This process compiles the statistics and classification files from the MTBseq analysis.
+        It concatenates the files from all samples and removes the header lines.
+        The output files are saved in the specified output directory.
+        The output files are:
+            - Mapping_and_Variant_Statistics.tab
+            - Strain_Classification.tab
+*/
+
     publishDir "${params.outdir}/bbdd/mtbseq/pairwise/", mode: 'copy'
 
     input:

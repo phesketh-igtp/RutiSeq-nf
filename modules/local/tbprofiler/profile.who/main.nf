@@ -1,4 +1,17 @@
 process TBPROFILER_PROFILE_WHO {
+
+/*
+        @author: Poppy J Hesketh Best
+        @date: 2025-04-01
+        @version: 1.0
+        @description: 
+                This module performs TB-Profiler using TBDB results to get MT lineage and 
+                resistance genes using the WHO database.
+
+                TODO: Currently workshopping how to remove the TBDB from the workflow repository
+                and have the datbase downloaded from the internet within a module. This is causing
+                some issues with the github pull within a module.
+*/
     
     tag "$sampleID"
 

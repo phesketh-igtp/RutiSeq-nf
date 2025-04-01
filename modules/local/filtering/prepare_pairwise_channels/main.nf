@@ -1,5 +1,15 @@
 process PREPARE_PAIRWISE_CHANNELS {
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description:
+        In this module creates the pairwise analysis tuples from the lineage_samples_paths.csv
+        and the lineage_pairwise_sub and lineage_pairwise_main lists.
+        The output is a tuple of the form (lineage, sampleID) for each sampleID in the analysis.
+*/
+
     conda params.r_stats_env
 
     publishDir "${params.outdir}/results/", mode: 'copy'

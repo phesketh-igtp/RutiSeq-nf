@@ -1,5 +1,16 @@
 process SNP_ANNOTATING_SINGLE {
 
+
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description: DEPRECIATED - CURRENTLY NOT IN USE!
+        This process annotates the SNPs in the VCF file using SnpEff and GATK.
+        It takes the VCF file and the reference genome as input and outputs the annotated VCF file.
+        The process uses the SnpEff tool to annotate the SNPs and GATK to compress and index the VCF file.
+*/
+
     tag "$sampleID"
 
     conda './envs/conda/bcftools-env.yml'

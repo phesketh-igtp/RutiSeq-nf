@@ -1,5 +1,17 @@
 process MTBSEQ_LINEAGE_GROUP {
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description:
+        This process runs the MTBseq TBgroups step on the joint and amend directories
+        for each lineage and distance. It takes the output from the
+        MTBSEQ_LINEAGE_JOINT_AMEND() process and runs the TBgroups step on the joint
+        and amend directories. It also renames the output files for simplicity.
+        It also wrangles the output matrix into a useful format for downstream analysis.
+*/
+
     tag "${runID}: ${lineage} | SNP dist: ${distance}"
 
     conda params.mtbseq_env

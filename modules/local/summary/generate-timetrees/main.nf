@@ -1,5 +1,13 @@
 process GENERATE_TIMETREES {
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description:
+
+*/
+
     tag "${lineage}"
 
     conda params.phylogeny_env

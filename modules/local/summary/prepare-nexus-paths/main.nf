@@ -1,5 +1,16 @@
 process PREPARE_NEXUS_PATHS{
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description:
+        This process prepares the paths for the NEXUS files for each cluster.
+        It generates a CSV file with the paths to the NEXUS files and the
+        corresponding tab files. The CSV file is used as input for the
+        GENERATE_NEXUS process.
+*/
+
     conda params.snp_profiling_env 
 
     tag "${lineage}"

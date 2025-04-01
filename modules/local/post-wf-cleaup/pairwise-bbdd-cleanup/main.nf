@@ -1,5 +1,15 @@
 process POST_SINGLE_BBDD_CLEANUP {
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description:
+        This process is responsible for cleaning up the output files generated
+        during the analysis of the pairwise clusters. It removes unnecessary files
+        and compresses the mpileup files to save space.
+*/
+
     tag "${runID}"
 
     input:

@@ -1,19 +1,26 @@
 process MTBSEQ_SINGLE {
 
-    /*
-        In this module MTBSeq is run for a single genome up till the strain classifications step,
-            and will then stop as there are no other genomes to compare with. To start with the forward/reverse
-            reads from the MTBC fitlered have a different naming convention (${sampleID}_mtbc_R1.fastq.gz), so 
-            the first step is return the naming convention back to the expected name for the MTBeq outputs - 
-            I am certain that I tried stageAs: as some point to circumvent this issue, but it caused other problems.
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description: 
+        In this module MTBSeq is run for a single genome up to the strain classifications step,
+        and will then stop as there are no other genomes to compare with. To start with the forward/reverse
+        reads from the MTBC fitlered have a different naming convention (${sampleID}_mtbc_R1.fastq.gz), so 
+        the first step is return the naming convention back to the expected name for the MTBeq outputs - 
+        I tried stageAs: as some point to circumvent this issue, but it caused other problems since
+        the files needs to have the ${sampleID} in the name for the next steps, so I reverted back to
+        just moving the files into a name structure. This is a bit of a hack, but it works for now.
             TODO: revisit this issue.
+
         Like the previous modules, the input for this module is the paths to all the files
-            needed for a sample to proceed into the PAIRWISE_WF(), which litters the publish directory
-            these excess files and are removed at the very end. This was originally done with a IF argument
-            to only remove them if the files did not exist - this prevents nextflow complaining of they 
-            were not generated - but this created some sybtax errors, so I changed it to touching the 
-            files then removing them manually. TODO: might be to revisit this at a later date.
-    */
+        needed for a sample to proceed into the PAIRWISE_WF(), which litters the publish directory
+        these excess files and are removed at the very end. This was originally done with a IF argument
+        to only remove them if the files did not exist - this prevents nextflow complaining of they 
+        were not generated - but this created some sybtax errors, so I changed it to touching the 
+        files then removing them manually. TODO: might be to revisit this at a later date.
+*/
 
     tag "$sampleID"
 

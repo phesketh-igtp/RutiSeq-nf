@@ -1,5 +1,14 @@
 process TABULATE_VARIANT_SITES{
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description:
+        Tabulate variant sites for each cluster. This process takes the output of the
+        generate_nexus process and generates a table of variant positions for each cluster.
+*/
+
     tag "cluster: ${clusterID}"
 
     conda params.r_stats_env

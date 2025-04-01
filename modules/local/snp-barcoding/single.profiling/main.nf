@@ -1,5 +1,17 @@
 process SNP_PROFILING_SINGLE {
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description: 
+        This process runs the SNP profiling step using the MTBSeq Mpileup using VarScan2.
+        It takes the mpileup output from the MTBSeq pipeline and generates a VCF file.
+        The VCF file is then compressed and indexed using bgzip and tabix.
+        The process also removes the published reads from the previous module to recover storage.
+        The outputs are published to a specified directory.
+*/
+
     tag "$sampleID"
 
     conda params.snp_profiling_env

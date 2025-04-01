@@ -1,5 +1,13 @@
 process CONCATENATED_VARIANT_FILES {
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description:
+        
+*/
+
     publishDir "${params.outdir}/results/${runID}/snps/", mode: 'copy'
 
     input:
