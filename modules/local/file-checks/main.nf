@@ -1,5 +1,15 @@
 process FILE_CHECK {
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description: 
+        This process checks for the existence of specific files related to MTBseq and TBProfiler results.
+        It generates a CSV file with the sample ID and paths to the forward and reverse reads, as well 
+        as the paths to the MTBseq and TBProfiler results if they exist.
+*/
+
     tag "$sampleID"
 
     array 200

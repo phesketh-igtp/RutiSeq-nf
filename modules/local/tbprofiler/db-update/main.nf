@@ -31,17 +31,18 @@ process TBPROFILER_DB_UPDATE {
         script:
 
         """
-        mkdir -p ${params.outdir}/db/tbprofiler/ 
+        mkdir -p tbdb
 
         # update the TBDB database
-                tb-profiler update_tbdb \
-                --db_dir . \
-                > update_db.txt 2>&1
+                tb-profiler update_tbdb --db_dir tbdb/
 
         # update the WHO database
-                tb-profiler update_tbdb \
-                --branch who \
-                --db_dir . \
-                >> update_db.txt 2>&1
+                tb-profiler update_tbdb --branch who --db_dir tbdb/
+                
+        touch update_db.txt
         """
 }
+
+/*
+                >> update_db.txt 2>&1
+*/
