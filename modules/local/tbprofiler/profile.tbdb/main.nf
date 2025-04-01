@@ -62,5 +62,3 @@ process TBPROFILER_PROFILE_TBDB {
                         rm -f ${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R2.fastq.gz
                 """
 }
-
-//--db ${params.tbprofiler_tbdb}

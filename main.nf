@@ -160,7 +160,7 @@ workflow {
 
         // Call the workflow
         // TODO: need to figure out if this is working as intended and correct the channel to not have that empty index [4]
-            NEGATIVE_CTRL_WF( controls_ch )
+            NEGATIVE_CTRL_WF( controls_ch, SINGLE_WF.out.tbprofiler_update_db )
 
         /*
         ······································································································

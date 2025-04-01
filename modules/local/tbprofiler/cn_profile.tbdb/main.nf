@@ -19,6 +19,7 @@ process CN_TBPROFILER_TBDB {
                 tuple val(sampleID), 
                         path(forward),
                         path(reverse)
+                path(tbprofiler_update_db)
                         
         output:
                 path("bam/tbdb-${sampleID}.bam", optional: true)

@@ -8,6 +8,7 @@ workflow NEGATIVE_CTRL_WF {
 
     take:
         controls_ch
+        tbprofiler_update_db
 
     main:
 
@@ -66,7 +67,7 @@ workflow NEGATIVE_CTRL_WF {
         /*
             Run Tb-Profiler and MTBseq on the reads (expect them to fail)
         */
-            CN_TBPROFILER_TBDB( control_ch_analysis )
+            CN_TBPROFILER_TBDB( control_ch_analysis, tbprofiler_update_db )
             CN_MTBSEQ_SINGLE( control_ch_analysis )
 
         /*
