@@ -16,8 +16,7 @@ process CN_MTBSEQ_SINGLE {
     input:
         tuple val(sampleID), 
                 path(forward),
-                path(reverse),
-                path(qc_results)
+                path(reverse)
                 
     output:
         path("Classification/${sampleID}.Strain_Classification.tab")

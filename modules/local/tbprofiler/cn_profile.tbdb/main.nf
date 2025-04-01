@@ -18,9 +18,8 @@ process CN_TBPROFILER_TBDB {
         input:
                 tuple val(sampleID), 
                         path(forward),
-                        path(reverse),
-                        path(qc_results)
-
+                        path(reverse)
+                        
         output:
                 path("bam/tbdb-${sampleID}.bam", optional: true)
                 path("vcf/tbdb-${sampleID}.targets.vcf.gz", optional: true)
