@@ -22,7 +22,7 @@ process TBPROFILER_DB_UPDATE {
                 val(runID)
 
         output:
-                path("update_db.txt"), emit: tbprofiler_update_handover
+                path("update_db.txt"), emit: tbprofiler_update_db
 
         script:
 
