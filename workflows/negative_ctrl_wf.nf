@@ -49,16 +49,6 @@ workflow NEGATIVE_CTRL_WF {
                 with_reads: it[1] != [] && it[2] != [] // zero-indexed so [1] is the second value in the tuple, ect
                 without_reads: it[1] == [] || it[2] == [] }
 
-            // Count the number of samples in each channel
-                with_reads_count = branched_channel.with_reads.count()
-                without_reads_count = branched_channel.without_reads.count()
-
-            // Combine the counts and log the message
-                with_reads_count.combine(without_reads_count)
-                    .map { with_reads, without_reads -> 
-                        log.info "${green}runID: ${red}${runID}${green} || For ${cyan}NEGATIVE_CTRL_WF()${green} : ${red}${with_reads}${green} samples || Skipped: ${red}${without_reads}${green} controls${no_col}"
-                    }
-
         control_ch_analysis = branched_channel.with_reads
 
         /*
