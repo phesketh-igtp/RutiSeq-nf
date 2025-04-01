@@ -5,7 +5,7 @@ process GENERATE_TIMETREES {
     @date: 2025-04-01
     @version: 1.0
     @description:
-
+        Generate timetrees for each lineage using the alignments and trees generated in the previous step.
 */
 
     tag "${lineage}"
