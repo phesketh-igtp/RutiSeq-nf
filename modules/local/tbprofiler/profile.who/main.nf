@@ -41,7 +41,7 @@ process TBPROFILER_PROFILE_WHO {
                     -2 ${mtbc_reverse} \\
                     -p who-${sampleID} \\
                 --txt --dir . \\
-                --db who \\
+                --db ${params.outdir}/db/tbprofiler/who \\
                 --threads ${task.cpus} \\
                 ${additional_args}
 
@@ -50,5 +50,3 @@ process TBPROFILER_PROFILE_WHO {
             rm -f  ${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R2.fastq.gz
         """
 }
-
-//--db ${params.tbprofiler_who} \\

@@ -16,22 +16,28 @@ process TBPROFILER_DB_UPDATE {
                 else return null
         }
         
-        publishDir "${params.outdir}/bbdd/tbprofiler/", mode: 'copy'
+        publishDir "${params.outdir}/db/tbprofiler/", mode: 'copy'
 
         input:
                 val(runID)
 
         output:
-                path("update_handle.txt"), emit: tbprofiler_update_handover
+                path("update_db.txt"), emit: tbprofiler_update_handover
 
         script:
 
-                """
-                # update the TBDB database
-                        tb-profiler update_tbdb 
-                # update the WHO database
-                        tb-profiler update_tbdb --branch who
+        """
+        mkdir -p ${params.outdir}/db/tbprofiler/ 
 
-                touch update_handle.txt 
-                """
+        # update the TBDB database
+                tb-profiler update_tbdb \
+                --db_dir ${params.outdir}/db/tbprofiler/ \
+                > update_db.txt 2>&1
+
+        # update the WHO database
+                tb-profiler update_tbdb \
+                --branch who \
+                --db_dir ${params.outdir}/db/tbprofiler/ \
+                >> update_db.txt 2>&1
+        """
 }
