@@ -40,7 +40,7 @@ process CN_TBPROFILER_TBDB {
                 -2 ${reverse} \\
                 -p tbdb-${sampleID} \\
                 --txt --dir . \\
-                --db ${params.tbprofiler_tbdb} \\
+                --db ${params.outdir}/db/tbprofiler/tbdb \\
                 --threads ${task.cpus} ${additional_args}
         ) > >(tee ${sampleID}_tb_profiler.log) 2>&1
 
