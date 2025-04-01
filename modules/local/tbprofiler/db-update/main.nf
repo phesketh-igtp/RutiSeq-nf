@@ -34,10 +34,10 @@ process TBPROFILER_DB_UPDATE {
         mkdir -p tbdb
 
         # update the TBDB database
-                tb-profiler update_tbdb --db_dir tbdb/
+                tb-profiler update_tbdb --branch tbdb
 
         # update the WHO database
-                tb-profiler update_tbdb --branch who --db_dir tbdb/
+                tb-profiler update_tbdb --branch who
                 
         touch update_db.txt
         """
