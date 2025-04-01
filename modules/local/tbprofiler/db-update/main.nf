@@ -38,11 +38,11 @@ process TBPROFILER_DB_UPDATE {
 
         # update the WHO database
                 tb-profiler update_tbdb --branch who
-                
+
         touch update_db.txt
         """
 }
 
 /*
-                >> update_db.txt 2>&1
+        >> update_db.txt 2>&1
 */
