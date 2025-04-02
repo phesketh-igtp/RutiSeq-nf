@@ -1,9 +1,17 @@
 process TBPROFILER_PROFILE_TBDB {
 
-        /*
+/*
+        @author: Poppy J Hesketh Best
+        @date: 2025-04-01
+        @version: 1.0
+        @description: 
                 This module performs TB-Profiler using TBDB results to get MT lineage and 
-                identify any potential contamination in the genome
-        */
+                resistance genes using the TBDB database.
+
+                TODO: Currently workshopping how to remove the TBDB from the workflow repository
+                and have the datbase downloaded from the internet within a module. This is causing
+                some issues with the github pull within a module.
+*/
 
         tag "$sampleID"
 
@@ -23,6 +31,7 @@ process TBPROFILER_PROFILE_TBDB {
                         path(mtbc_forward), path(mtbc_reverse), path(mtbseq_class), 
                         path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
                         path(tbdb_out), path(who_out), path(mtbseq_vcf)
+                path(tbprofiler_update_handover)
 
         output:
                 path("bam/tbdb-${sampleID}.bam")
@@ -47,7 +56,7 @@ process TBPROFILER_PROFILE_TBDB {
                                 -2 ${mtbc_reverse} \\
                                 -p tbdb-${sampleID} \\
                                 --txt --dir . \\
-                                --db ${params.tbprofiler_tbdb} \\
+                                --db ${params.outdir}/db/tbprofiler/tbdb \\
                                 --threads ${task.cpus} ${additional_args}
 
                         touch bam/tbdb-${sampleID}.bam

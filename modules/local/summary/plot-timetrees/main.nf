@@ -1,5 +1,17 @@
 process PLOT_TIMETREES {
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description:
+        This process generates a time tree for each cluster using the
+        R package 'ggtree' and the 'ggplot2' library. The time tree is
+        generated from the phylogenetic tree and the ancestral sequences
+        for each cluster. The time tree is then plotted using the 'ggtree'
+        package and saved as a PDF file.
+*/
+
     tag "${lineage}"
 
     conda params.r_stats_env

@@ -16,6 +16,7 @@ workflow SINGLE_WF {
     take:
         runID
         comp_samples_ch
+        tbprofiler_update_db
 
     main:
 
@@ -58,9 +59,9 @@ workflow SINGLE_WF {
             MTBC_READ_QC( branched_channel.with_reads )
 
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
-            TBPROFILER_PROFILE_TBDB( MTBC_READ_QC.out.updated_sample_ch1 )
+            TBPROFILER_PROFILE_TBDB( MTBC_READ_QC.out.updated_sample_ch1, tbprofiler_update_db )
 
-            TBPROFILER_PROFILE_WHO( TBPROFILER_PROFILE_TBDB.out.updated_sample_ch2 )
+            TBPROFILER_PROFILE_WHO( TBPROFILER_PROFILE_TBDB.out.updated_sample_ch2, tbprofiler_update_db )
 
         // Run MTBSEQ_SINGLE
             MTBSEQ_SINGLE( TBPROFILER_PROFILE_WHO.out.updated_sample_ch3 )
@@ -84,6 +85,6 @@ workflow SINGLE_WF {
                 POST_SINGLE_BBDD_CLEANUP(sampleid_list_ch)
 
     emit:
-        single_updated_samples_ch = final_updated_sample_ch
+        single_updated_samples_ch   = final_updated_sample_ch
 
 }

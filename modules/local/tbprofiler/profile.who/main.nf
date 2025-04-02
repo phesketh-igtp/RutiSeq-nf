@@ -1,4 +1,17 @@
 process TBPROFILER_PROFILE_WHO {
+
+/*
+        @author: Poppy J Hesketh Best
+        @date: 2025-04-01
+        @version: 1.0
+        @description: 
+                This module performs TB-Profiler using TBDB results to get MT lineage and 
+                resistance genes using the WHO database.
+
+                TODO: Currently workshopping how to remove the TBDB from the workflow repository
+                and have the datbase downloaded from the internet within a module. This is causing
+                some issues with the github pull within a module.
+*/
     
     tag "$sampleID"
 
@@ -17,6 +30,7 @@ process TBPROFILER_PROFILE_WHO {
         tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse), path(mtbseq_class), 
                 path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
                 path(tbdb_out), path(who_out), path(mtbseq_vcf)
+        path(tbprofiler_update_handover)
 
     output:
         path("results/who-${sampleID}.results.json")
@@ -35,14 +49,14 @@ process TBPROFILER_PROFILE_WHO {
 
         """
         # Run main function
-        tb-profiler profile \\
-                -1 ${mtbc_forward} \\
-                -2 ${mtbc_reverse} \\
-                -p who-${sampleID} \\
-            --txt --dir . \\
-            --db ${params.tbprofiler_who} \\
-            --threads ${task.cpus} \\
-            ${additional_args}
+            tb-profiler profile \\
+                    -1 ${mtbc_forward} \\
+                    -2 ${mtbc_reverse} \\
+                    -p who-${sampleID} \\
+                --txt --dir . \\
+                --db ${params.outdir}/db/tbprofiler/who \\
+                --threads ${task.cpus} \\
+                ${additional_args}
 
         # remove the published files from the previous module:
             rm -f  ${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R1.fastq.gz

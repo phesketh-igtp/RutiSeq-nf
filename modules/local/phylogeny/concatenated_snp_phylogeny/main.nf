@@ -1,5 +1,15 @@
 process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description:
+        This process performs the concatenated variable region phylogeny analysis
+        for concatenated SNP alignments outputs from the MTBSeq pipeline. 
+        It uses the MAFFT and IQ-Tree software to perform the phylogeny analysis.
+*/
+
     tag "${lineage}"
 
     conda params.phylogeny_env

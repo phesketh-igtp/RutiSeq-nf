@@ -1,5 +1,14 @@
 process PLOT_MAIN_PHYLOGENY {
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description:
+        Plot the main phylogeny for the analysis, using the ML tree and cluster heatmap if clusters are present.
+        If no clusters are present, plot the ML tree without the cluster heatmap.
+*/
+
     tag "${lineage}"
 
     conda params.r_stats_env

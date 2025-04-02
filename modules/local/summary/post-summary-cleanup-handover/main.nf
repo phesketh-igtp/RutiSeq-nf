@@ -1,5 +1,14 @@
 process POST_SUMMARY_CLEANUP {
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description:
+        This process performs cleanup of the handover files and compresses the outputs from MTBSeq mpileup.
+        It removes any existing files in the specified locations and compresses the FASTA files in the output directory.
+*/
+
     input:
         path(handover)
 

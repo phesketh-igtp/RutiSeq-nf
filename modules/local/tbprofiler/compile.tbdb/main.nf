@@ -1,5 +1,20 @@
 process TBPROFILER_COMPILE_TBDB {
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0
+    @description:
+        This process compiles the TB-Profiler results from the tbdb pipeline
+        into a single file. Since TB-Profiler requires the results directory to be 
+        present in the current working directory, we create symbolic links to the
+        results directory, the bam directory and the vcf directory. The symbolic
+        links are then used to run the tb-profiler collate command. The results
+        are then moved to the current working directory and renamed to remove the
+        tbdb- prefix. Renaming is to prevent clashes with input files in downstream
+        processes. The results are then moved to the output directory.
+*/
+
     conda params.tbprofiler_env
 
     container { 
