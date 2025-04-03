@@ -28,8 +28,8 @@ process CN_READ_TAXONOMY {
                 path(reverse)
 
     output:
-        path("Classification/${sampleID}.k2.report"),  emit: cn_k2_report
-        path("Statistics/${sampleID}.stats.tsv"),  emit: cn_stats
+        path("Classification/${sampleID}.k2.report"),   emit: cn_k2_report
+        path("Statistics/${sampleID}.stats.tsv"),       emit: cn_stats
         path("Classification/${sampleID}.k2.output.gz")
 
     script:
@@ -50,7 +50,7 @@ process CN_READ_TAXONOMY {
                 --paired ${sampleID}_R1.fastq.gz ${sampleID}_R2.fastq.gz \\
                 > Classification/${sampleID}.k2.output
 
-            gzip --best ${sampleID}.k2.output
+            gzip --best Classification/${sampleID}.k2.output
 
         # Genreate stats
             seqkit stats -bTa ${sampleID}_R1.fastq.gz | sed 's@.fastq.gz@@g' > tmp.for.tsv
@@ -60,8 +60,8 @@ process CN_READ_TAXONOMY {
             rm tmp.for.tsv tmp.rev.tsv
         
         # Add a new column to the results containing the sampleID for later concatenation
-            sed -i "s/^/${sampleID}\t/" Classification/${sampleID}.k2.report
-            sed -i "s/^/${sampleID}\t/" Statistics/${sampleID}.stats.tsv
+            sed -i "s@^@${sampleID}\t@" Classification/${sampleID}.k2.report
+            sed -i "s@^@${sampleID}\t@" Statistics/${sampleID}.stats.tsv
 
         # Restore read names to original
         mv ${sampleID}_R1.fastq.gz ${forward} 

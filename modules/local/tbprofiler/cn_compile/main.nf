@@ -38,6 +38,6 @@ process CN_TBPROFILE_COMPILE {
         ln -s ${params.outdir}/bbdd/negative-controls/tbprofiler/vcf/ .
 
     # Example command to compile input files
-        tbprofiler compile 
+        tb-profiler collate
     """
 }
