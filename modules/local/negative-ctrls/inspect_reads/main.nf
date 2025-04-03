@@ -2,12 +2,14 @@ process CN_READ_TAXONOMY {
 
 /*
     @author: Poppy J Hesketh Best
-    @date: 2025-04-01
-    @version: 0.1
+    @date: 2025-04-04
+    @version: 0.2
     @description: 
         Run KAIJU on the reads and get read taxonomy and statistics of the reads. Outputs of this modules 
         are intended to be combines into a single file for each sample, and then concatenated into a
         single file for all samples for a particular run.
+
+    @updates: v0.2 - created new paths for the results `Classification/ Statistics/`
 */
     
     tag "${sampleID}"
@@ -18,7 +20,7 @@ process CN_READ_TAXONOMY {
         } else { 'community.wave.seqera.io/library/kaiju_seqkit:6e4140ab47bd567e' }
     }
 
-    publishDir "${params.outdir}/bbdd/negative-controls/results/", mode: 'link'
+    publishDir "${params.outdir}/bbdd/negative-controls/", mode: 'link'
 
     input:
         tuple val(sampleID), 
@@ -26,31 +28,36 @@ process CN_READ_TAXONOMY {
                 path(reverse)
 
     output:
-        path("${sampleID}.k2.report"),     emit: cn_k2_report
-        path("${sampleID}.k2.raw.tsv")
-        path("${sampleID}.stats.tsv"),  emit: cn_stats
+        path("Classification/${sampleID}.k2.report"),  emit: cn_k2_report
+        path("Statistics/${sampleID}.stats.tsv"),  emit: cn_stats
+        path("Classification/${sampleID}.k2.output.gz")
 
     script:
 
         """
+        mkdir -p Classification/ Statistics/
+
         # Change read names to be used in kraken2
-        mv ${forward} ${sampleID}_R1.fastq.gz
-        mv ${reverse} ${sampleID}_R2.fastq.gz
+            mv ${forward} ${sampleID}_R1.fastq.gz
+            mv ${reverse} ${sampleID}_R2.fastq.gz
 
-        kraken2 \\
-            --threads ${task.cpus} \\
-            --db ${params.kraken_db_path} \\
-            --use-names \\
-            --use-mpa-style \\
-            --memory-mapping \\
-            --report ${sampleID}.k2.report \\
-            --paired ${sampleID}_R1.fastq.gz ${sampleID}_R2.fastq.gz \\
-            > ${sampleID}.k2.raw.tsv
+        # Run kraken2
+            kraken2 \\
+                --threads ${task.cpus} \\
+                --db ${params.kraken_db_path} \\
+                --memory-mapping \\
+                --report Classification/${sampleID}.k2.report \\
+                --paired ${sampleID}_R1.fastq.gz ${sampleID}_R2.fastq.gz \\
+                > Classification/${sampleID}.k2.output
 
-        seqkit stats -bTa ${sampleID}_R1.fastq.gz > tmp.for.tsv
-        seqkit stats -bTa ${sampleID}_R2.fastq.gz | sed '1d' > tmp.rev.tsv
+            gzip --best ${sampleID}.k2.output
 
-        cat tmp.for.tsv tmp.rev.tsv > ${sampleID}.stats.tsv
+        # Genreate stats
+            seqkit stats -bTa ${sampleID}_R1.fastq.gz | sed 's/\.fastq\.gz//g' > tmp.for.tsv
+            seqkit stats -bTa ${sampleID}_R2.fastq.gz | sed 's/\.fastq\.gz//g' | sed '1d' > tmp.rev.tsv
+
+            cat tmp.for.tsv tmp.rev.tsv > Statistics/${sampleID}.stats.tsv
+            rm tmp.for.tsv tmp.rev.tsv
 
         # Restore read names to original
         mv ${sampleID}_R1.fastq.gz ${forward} 

@@ -73,6 +73,8 @@ workflow NEGATIVE_CTRL_WF {
         /*
             Compile the Negative control read summary
         */
-            //COMPILE_CN_READS_SUMMARY(all_cn_k2_results, all_cn_stats)
+            CN_TBPROFILE_COMPILE(  )
+            CN_MTBSEQ_COPILE(  )
+            CN_READS_SUMMARY(all_cn_k2_results, all_cn_stats)
 
 }
