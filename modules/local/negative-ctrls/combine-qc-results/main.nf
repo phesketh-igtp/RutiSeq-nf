@@ -19,7 +19,7 @@ process COMPILE_CN_READS_SUMMARY {
     input:
         val(runID)
         path(tbprofile_compiled)
-        
+
         path(all_mtbseq_class)
         path(all_mtbseq_stats)
         
@@ -32,7 +32,9 @@ process COMPILE_CN_READS_SUMMARY {
 
     script:
         """
-        Rscript ${params.r_script_dir}/negative-control-compile.R
+        #Rscript ${params.r_script_dir}/negative-control-compile.R
+
+        exit 1
         """
 
 }

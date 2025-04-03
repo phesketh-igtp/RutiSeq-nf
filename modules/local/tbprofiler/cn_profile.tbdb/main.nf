@@ -12,6 +12,8 @@ process CN_TBPROFILER_TBDB {
                 The TBDB database is a custom database for TB-Profiler that is used to 
                 identify Mycobacterium tuberculosis complex (MTBC) strains and their 
                 resistance profiles.
+                In the negative control, --no-delly is used as this causes a lot of failure
+                for the fasta files when they have very few reads
 */
 
         tag "${sampleID}"
@@ -34,50 +36,39 @@ process CN_TBPROFILER_TBDB {
                 path(tbprofiler_update_db)
                         
         output:
-                path("bam/tbdb-${sampleID}.bam"), optional: true
-                path("vcf/tbdb-${sampleID}.targets.vcf.gz"), optional: true
-                path("results/tbdb-${sampleID}.results.json"), optional: true, emit: tbprofiler_results
-                path("results/tbdb-${sampleID}.results.txt"), optional: true
-                path("${sampleID}_tb_profiler.log"), optional: true
+                path("results/tbdb-${sampleID}.results.txt"), emit: tbprofiler_results
+                path("results/tbdb-${sampleID}.results.json")
+                path("bam/*")
+                path("vcf/*")
                 path("${sampleID}_tb_profiler_status.txt")
 
         script:
                 def additional_args = task.ext.additional_args ?: ''
 
         """
-        # Run TB-Proiler using TBDB database
-        (
-                tb-profiler profile \\
+        # Run TB-Profiler using TBDB database
+        tb-profiler profile \\
                 -1 ${forward} \\
                 -2 ${reverse} \\
                 -p tbdb-${sampleID} \\
                 --txt --dir . \\
                 --db ${params.outdir}/db/tbprofiler/tbdb \\
-                --threads ${task.cpus} ${additional_args}
-        ) > >(tee ${sampleID}_tb_profiler.log) 2>&1
+                --threads ${task.cpus} \\
+                --no_delly ${additional_args} \\
+                1>>.command.out \\
+                2>>.command.err || true
 
-        exit_status=\$?
-
-        if [ \$exit_status -ne 0 ]; then
-                echo "TB-Profiler failed for sample ${sampleID} with exit status \$exit_status" >> ${sampleID}_tb_profiler.log
-                echo "FAILED" > ${sampleID}_tb_profiler_status.txt
-        else
-                echo "TB-Profiler completed successfully for sample ${sampleID}" >> ${sampleID}_tb_profiler.log
-                
-                # Check if output files have content
-                if [ -s bam/tbdb-${sampleID}.bam ] && [ -s vcf/tbdb-${sampleID}.targets.vcf.gz ] && [ -s results/tbdb-${sampleID}.results.json ] && [ -s results/tbdb-${sampleID}.results.txt ]; then
+        # Check if the results file was created
+        if [[ -f results/tbdb-${sampleID}.results.txt ]]; then
+                echo "${sampleID},SUCCESS" > ${sampleID}_tb_profiler.log
                 echo "SUCCESS" > ${sampleID}_tb_profiler_status.txt
-                else
-                echo "TB-Profiler completed but some output files are empty. This may be expected for negative controls or samples with insufficient data." >> ${sampleID}_tb_profiler.log
-                echo "LOW_DATA" > ${sampleID}_tb_profiler_status.txt
-                fi
+        else
+                echo "${sampleID},FAILED" > ${sampleID}_tb_profiler.log
+                echo "FAILED" > ${sampleID}_tb_profiler_status.txt
+                # Create empty files to satisfy output requirements
+                echo "" > results/tbdb-${sampleID}.results.txt
+                echo "" > results/tbdb-${sampleID}.results.json
         fi
-
-        # Ensure output files exist (even if empty) to satisfy Nextflow
-        touch bam/tbdb-${sampleID}.bam
-        touch vcf/tbdb-${sampleID}.targets.vcf.gz
-        touch results/tbdb-${sampleID}.results.json
-        touch results/tbdb-${sampleID}.results.txt
 
         # Always exit with status 0 to prevent pipeline failure
         exit 0

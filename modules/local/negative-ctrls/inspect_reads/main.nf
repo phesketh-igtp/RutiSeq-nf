@@ -38,8 +38,13 @@ process CN_READ_TAXONOMY {
         mkdir -p Classification/ Statistics/
 
         # Change read names to be used in kraken2
-            mv ${forward} ${sampleID}_R1.fastq.gz
-            mv ${reverse} ${sampleID}_R2.fastq.gz
+            if [ "${forward}" != "${sampleID}_R1.fastq.gz" ]; then
+                mv ${forward} ${sampleID}_R1.fastq.gz
+            fi
+
+            if [ "${reverse}" != "${sampleID}_R2.fastq.gz" ]; then
+                mv ${reverse} ${sampleID}_R2.fastq.gz
+            fi
 
         # Run kraken2
             kraken2 \\
@@ -64,7 +69,12 @@ process CN_READ_TAXONOMY {
             sed -i "s@^@${sampleID}\t@" Statistics/${sampleID}.stats.tsv
 
         # Restore read names to original
-        mv ${sampleID}_R1.fastq.gz ${forward} 
-        mv ${sampleID}_R2.fastq.gz ${reverse} 
+            if [ "${sampleID}_R1.fastq.gz" != "${forward}" ]; then
+                mv ${sampleID}_R1.fastq.gz ${forward}
+            fi
+
+            if [ "${sampleID}_R2.fastq.gz" != "${reverse}" ]; then
+                mv ${sampleID}_R2.fastq.gz ${reverse}
+            fi
         """
 }

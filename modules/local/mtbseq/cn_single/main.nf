@@ -39,8 +39,13 @@ process CN_MTBSEQ_SINGLE {
 
         """
         # Rename the reads to the intended naming structure
-            mv ${forward} ${sampleID}_R1.fastq.gz
-            mv ${reverse} ${sampleID}_R2.fastq.gz
+            if [ "${forward}" != "${sampleID}_R1.fastq.gz" ]; then
+                mv ${forward} ${sampleID}_R1.fastq.gz
+            fi
+
+            if [ "${reverse}" != "${sampleID}_R2.fastq.gz" ]; then
+                mv ${reverse} ${sampleID}_R2.fastq.gz
+            fi
 
         # Run MTBseq for a single sample
             MTBseq --step TBfull \\
@@ -64,8 +69,14 @@ process CN_MTBSEQ_SINGLE {
                 mv Statistics/Mapping_and_Variant_Statistics.tab Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
             fi
 
-        # restore the symbolic link names
-            mv ${sampleID}_R1.fastq.gz ${forward}; mv ${sampleID}_R2.fastq.gz ${reverse}
+        # Restore read names to original
+            if [ "${sampleID}_R1.fastq.gz" != "${forward}" ]; then
+                mv ${sampleID}_R1.fastq.gz ${forward}
+            fi
+
+            if [ "${sampleID}_R2.fastq.gz" != "${reverse}" ]; then
+                mv ${sampleID}_R2.fastq.gz ${reverse}
+            fi
 
         # Always exit with status 0 to prevent pipeline failure
             exit 0
