@@ -19,7 +19,7 @@ process CN_READS_SUMMARY {
             else return null
     }
         
-    publishDir "${params.outdir}/bbdd/negative-controls/mtbseq/", mode: 'copy'
+    publishDir "${params.outdir}/bbdd/negative-controls/", mode: 'copy'
 
     input:
         val(runID)
