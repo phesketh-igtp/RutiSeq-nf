@@ -28,7 +28,9 @@ process CN_TBPROFILE_COMPILE {
 
 
     output:
-        path("tbprofiler.results.txt"), emit: tbprofile_compiled
+        path("tbprofiler.txt"),         emit: tbprofile_compiled
+        path("tbprofiler.variants.csv")
+        path("tbprofiler.variants.txt")
 
     script:
     """

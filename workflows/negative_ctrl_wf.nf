@@ -78,16 +78,14 @@ workflow NEGATIVE_CTRL_WF {
                 all_mtbseq_class        = CN_MTBSEQ_SINGLE.out.cn_mtbseq_class.collect()
                 all_mtbseq_stats        = CN_MTBSEQ_SINGLE.out.cn_mtbseq_stats.collect()
 
-                all_cn_k2_results.view()
-
             CN_TBPROFILE_COMPILE( runID, all_tbprofiler_results )
             CN_MTBSEQ_COMPILE( runID, all_mtbseq_class, all_mtbseq_stats )
             CN_READS_SUMMARY( runID, all_cn_k2_results, all_cn_stats )
 
             COMPILE_CN_READS_SUMMARY( runID,
+                                        CN_TBPROFILE_COMPILE.out.tbprofile_compiled,
                                         CN_MTBSEQ_COMPILE.out.mtbseq_class_compiled,
                                         CN_MTBSEQ_COMPILE.out.mtbseq_stats_compiled,
-                                        CN_TBPROFILE_COMPILE.out.tbprofile_compiled,
                                         CN_READS_SUMMARY.out.k2_combined,
                                         CN_READS_SUMMARY.out.stats_combined
                                         )
