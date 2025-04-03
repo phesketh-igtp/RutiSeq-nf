@@ -27,8 +27,6 @@ process CN_TBPROFILER_TBDB {
         
         publishDir "${params.outdir}/bbdd/negative-controls/tbprofiler/", mode: 'copy'
 
-        errorStrategy 'ignore'
-
         input:
                 tuple val(sampleID), 
                         path(forward),
@@ -36,11 +34,11 @@ process CN_TBPROFILER_TBDB {
                 path(tbprofiler_update_db)
                         
         output:
-                path("bam/tbdb-${sampleID}.bam", optional: true)
-                path("vcf/tbdb-${sampleID}.targets.vcf.gz", optional: true)
-                path("results/tbdb-${sampleID}.results.json", optional: true)
-                path("results/tbdb-${sampleID}.results.txt", optional: true)
-                path("${sampleID}_tb_profiler.log", optional: true)
+                path("bam/tbdb-${sampleID}.bam"), optional: true
+                path("vcf/tbdb-${sampleID}.targets.vcf.gz"), optional: true
+                path("results/tbdb-${sampleID}.results.json"), optional: true, emit: tbprofiler_results
+                path("results/tbdb-${sampleID}.results.txt"), optional: true
+                path("${sampleID}_tb_profiler.log"), optional: true
                 path("${sampleID}_tb_profiler_status.txt")
 
         script:

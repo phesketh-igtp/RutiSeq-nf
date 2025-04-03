@@ -170,7 +170,10 @@ workflow {
 
         // Call the workflow
         // TODO: need to figure out if this is working as intended and correct the channel to not have that empty index [4]
-            NEGATIVE_CTRL_WF( controls_ch, TBPROFILER_DB_UPDATE.out.tbprofiler_update_db )
+            NEGATIVE_CTRL_WF( params.runID,
+                                controls_ch, 
+                                TBPROFILER_DB_UPDATE.out.tbprofiler_update_db, 
+                            )
 
         /*
         ······································································································

@@ -2,11 +2,15 @@ include { INSPECT_BBDD               }  from '../modules/local/negative-ctrls/in
 include { CN_READ_TAXONOMY           }  from '../modules/local/negative-ctrls/inspect_reads/main.nf'
 include { CN_TBPROFILER_TBDB         }  from '../modules/local/tbprofiler/cn_profile.tbdb/main.nf'
 include { CN_MTBSEQ_SINGLE           }  from '../modules/local/mtbseq/cn_single/main.nf'
-//include { COMPILE_CN_READS_SUMMARY   }  from '../modules/local/negative-ctrls/combine-qc-results/main.nf'
+include { CN_TBPROFILE_COMPILE       }   from '../modules/local/tbprofiler/cn_compile/main.nf'
+include { CN_MTBSEQ_COMPILE          }   from '../modules/local/mtbseq/cn_compile/main.nf'
+include { CN_READS_SUMMARY           }   from '../modules/local/negative-ctrls/compile/main.nf'
+include { COMPILE_CN_READS_SUMMARY   }  from '../modules/local/negative-ctrls/combine-qc-results/main.nf'
 
 workflow NEGATIVE_CTRL_WF {
 
     take:
+        runID
         controls_ch
         tbprofiler_update_db
 
@@ -57,13 +61,6 @@ workflow NEGATIVE_CTRL_WF {
 
             CN_READ_TAXONOMY( control_ch_analysis )
 
-        // collect all the results
-            //all_cn_k2_results   = CN_READ_TAXONOMY.out.cn_k2_results.map { it[1] }.collect()
-            //all_cn_stats        = CN_READ_TAXONOMY.out.cn_stats.map { it[1] }.collect()
-
-            //all_cn_k2_results.view()
-            //all_cn_stats.view()
-
         /*
             Run Tb-Profiler and MTBseq on the reads (expect them to fail)
         */
@@ -73,8 +70,18 @@ workflow NEGATIVE_CTRL_WF {
         /*
             Compile the Negative control read summary
         */
-            CN_TBPROFILE_COMPILE(  )
-            CN_MTBSEQ_COPILE(  )
-            CN_READS_SUMMARY(all_cn_k2_results, all_cn_stats)
+
+            // collect all the results
+                all_cn_k2_results       = CN_READ_TAXONOMY.out.cn_k2_results.map { it[1] }.collect()
+                all_cn_stats            = CN_READ_TAXONOMY.out.cn_stats.map { it[1] }.collect()
+                all_tbprofiler_results  = CN_TBPROFILER_TBDB.out.tbprofiler_results
+                all_mtbseq_class        = CN_MTBSEQ_SINGLE.out.cn_mtbseq_class
+                all_mtbseq_stats        = CN_MTBSEQ_SINGLE.out.cn_mtbseq_stats
+
+                CN_READ_TAXONOMY.out.cn_stats.map { it[1] }.collect()
+
+            CN_TBPROFILE_COMPILE( runID, all_tbprofiler_results )
+            CN_MTBSEQ_COMPILE( runID, all_mtbseq_class, all_mtbseq_stats )
+            CN_READS_SUMMARY( runID, all_cn_k2_results, all_cn_stats )
 
 }

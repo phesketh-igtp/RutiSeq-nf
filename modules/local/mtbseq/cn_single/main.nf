@@ -30,8 +30,8 @@ process CN_MTBSEQ_SINGLE {
                 path(reverse)
                 
     output:
-        path("Classification/${sampleID}.Strain_Classification.tab"), optional: true
-        path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab"), optional: true
+        path("Classification/${sampleID}.Strain_Classification.tab"), optional: true, emit: cn_mtbseq_class
+        path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab"), optional: true, emit: cn_mtbseq_stats
 
     script:
 
