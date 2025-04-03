@@ -47,6 +47,7 @@ process CN_TBPROFILER_TBDB {
 
         """
         # Run TB-Profiler using TBDB database
+        set +e #tells the shell not to exit immediately if a command fails
         tb-profiler profile \\
                 -1 ${forward} \\
                 -2 ${reverse} \\
@@ -55,8 +56,8 @@ process CN_TBPROFILER_TBDB {
                 --db ${params.outdir}/db/tbprofiler/tbdb \\
                 --threads ${task.cpus} \\
                 --no_delly ${additional_args} \\
-                1>>.command.out \\
-                2>>.command.err || true
+                > tb-profiler.out 2> tb-profiler.err
+        set -e #restores default command fails checks
 
         # Check if the results file was created
         if [[ -f results/tbdb-${sampleID}.results.txt ]]; then
