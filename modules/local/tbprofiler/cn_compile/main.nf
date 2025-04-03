@@ -1,12 +1,12 @@
 process CN_TBPROFILE_COMPILE {
 
 /*
-        @author: Poppy J Hesketh Best
-        @date: 2025-04-01
-        @version: 0.1
-        @description: 
-                This module runs TB-Profiler cimpile on the single sample using the TBDB database. 
-                It first creates a symbolic link to the data.
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 0.1
+    @description: 
+        This module runs TB-Profiler cimpile on the single sample using the TBDB database. 
+        It first creates a symbolic link to the data.
 */
 
     tag "${runID}"

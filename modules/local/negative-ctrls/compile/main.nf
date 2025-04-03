@@ -1,10 +1,12 @@
 process CN_READS_SUMMARY {
 
 /*
-        @author: Poppy J Hesketh Best
-        @date: 2025-04-03
-        @version: 0.1
-        @description: 
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-03
+    @version: 0.1
+    @description:
+        This module concatenates all the statistical files within the output directory
+        capturing all the results to date and not just in this run
                 
 */
 

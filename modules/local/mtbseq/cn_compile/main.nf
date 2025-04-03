@@ -1,13 +1,13 @@
 process CN_MTBSEQ_COMPILE {
 
 /*
-        @author: Poppy J Hesketh Best
-        @date: 2025-04-03
-        @version: 0.1
-        @description: 
-                This module compiles on the single sample using the TBDB database. 
-                The module loops through the negative control outputs and captures all 
-                the MTBSeq results and creates a new tabular files with the results
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-03
+    @version: 0.1
+    @description: 
+        This module compiles on the single sample using the TBDB database. 
+        The module loops through the negative control outputs and captures all 
+        the MTBSeq results and creates a new tabular files with the results
 */
 
     tag "${runID}"

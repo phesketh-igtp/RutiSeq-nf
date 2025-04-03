@@ -1,5 +1,15 @@
 process COMPILE_CN_READS_SUMMARY {
 
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-03
+    @version: 0.1
+    @description: 
+        This module runs an R script that combines all the results into the 
+        format that can then be compiled into the final XLSX sheet produced
+        to summarise the entire genome collection in then SUMMARY_WF()
+*/
+
     tag "${runID}"
 
     conda params.r_stats_env
@@ -22,4 +32,5 @@ process COMPILE_CN_READS_SUMMARY {
         """
         Rscript ${params.r_script_dir}/negative-control-compile.R
         """
+
 }
