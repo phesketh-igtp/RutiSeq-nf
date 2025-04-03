@@ -1,4 +1,4 @@
-process COMBINE_QC_RESULTS {
+process COMPILE_CN_READS_SUMMARY {
 
     tag "${runID}"
 
@@ -6,30 +6,20 @@ process COMBINE_QC_RESULTS {
 
     input:
         val(runID)
-        path(qc_files)
-        path(kaiju_files)
-
+        path(all_mtbseq_class)
+        path(all_mtbseq_stats)
+        path(tbprofile_compiled)
+        path(k2_combined)
+        path(stats_combined)
 
     output:
-    path "${runID}_combined_qc_results.csv", emit: combined_qc
+        path "${runID}_combined_qc_results.csv"
+        path "combined_qc_results.csv", emit: combined_cn_results
 
     script:
         """
-        for f in ${params.outdir}/bbdd/negative-controls/${qc_files}; do 
-            ln -s \${f} .
-        done
 
-        for f in ${params.outdir}/bbdd/negative-controls/${kaiju_files}; do 
-            ln -s \${f} .
-        done
 
-        #Creating combined QC results file
-            echo -e "RunID\tSampleID\torig.R1_reads\torig.R1_aveQ\torig.R2_reads\torig.R1_aveQ\torig.MTB_perc\tfilt.R1_reads\tfilt.R1_aveQ\tfilt.R2_reads\tfilt.R2_aveQ" > ${runID}_combined_nc_qc_results.negative-control.csv
-            awk -v OFS='\t,' -v runid="${runID}" '{print runid\$0}' ${qc_files}.kaiju_summary.tsv >> ${runID}_combined_nc_qc_results.negative-control.csv
-
-        # Creating Kaiju results
-            echo -e "RunID\tSampleID\tpercent	reads\ttaxon_id\ttaxon_name" > ${runID}_combined_kaiju_results.negative-control.tsv
-            awk -v OFS='\t,' -v runid="${runID}" '{print runid\$0}' ${kaiju_files} >> ${runID}_combined_kaiju_results.negative-control.tsv
 
         """
 }

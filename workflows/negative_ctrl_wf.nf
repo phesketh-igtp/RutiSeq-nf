@@ -72,16 +72,22 @@ workflow NEGATIVE_CTRL_WF {
         */
 
             // collect all the results
-                all_cn_k2_results       = CN_READ_TAXONOMY.out.cn_k2_results.map { it[1] }.collect()
+                all_cn_k2_results       = CN_READ_TAXONOMY.out.cn_k2_report.map { it[1] }.collect()
                 all_cn_stats            = CN_READ_TAXONOMY.out.cn_stats.map { it[1] }.collect()
-                all_tbprofiler_results  = CN_TBPROFILER_TBDB.out.tbprofiler_results
-                all_mtbseq_class        = CN_MTBSEQ_SINGLE.out.cn_mtbseq_class
-                all_mtbseq_stats        = CN_MTBSEQ_SINGLE.out.cn_mtbseq_stats
-
-                CN_READ_TAXONOMY.out.cn_stats.map { it[1] }.collect()
+                all_tbprofiler_results  = CN_TBPROFILER_TBDB.out.tbprofiler_results.map { it[1] }.collect()
+                all_mtbseq_class        = CN_MTBSEQ_SINGLE.out.cn_mtbseq_class.map { it[1] }.collect()
+                all_mtbseq_stats        = CN_MTBSEQ_SINGLE.out.cn_mtbseq_stats.map { it[1] }.collect()
 
             CN_TBPROFILE_COMPILE( runID, all_tbprofiler_results )
             CN_MTBSEQ_COMPILE( runID, all_mtbseq_class, all_mtbseq_stats )
             CN_READS_SUMMARY( runID, all_cn_k2_results, all_cn_stats )
+
+            COMPILE_CN_READS_SUMMARY( runID,
+                                        CN_MTBSEQ_COMPILE.out.mtbseq_class_compiled,
+                                        CN_MTBSEQ_COMPILE.out.mtbseq_stats_compiled,
+                                        CN_TBPROFILE_COMPILE.out.tbprofile_compiled )
+
+    emit:
+        negative_control_results = COMPILE_CN_READS_SUMMARY.out.combined_cn_results
 
 }

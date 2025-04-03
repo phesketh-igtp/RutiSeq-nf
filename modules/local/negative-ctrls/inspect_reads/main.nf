@@ -58,6 +58,10 @@ process CN_READ_TAXONOMY {
 
             cat tmp.for.tsv tmp.rev.tsv > Statistics/${sampleID}.stats.tsv
             rm tmp.for.tsv tmp.rev.tsv
+        
+        # Add a new column to the results containing the sampleID for later concatenation
+            sed -i "s/^/${sampleID}\t/" Classification/${sampleID}.k2.report
+            sed -i "s/^/${sampleID}\t/" Statistics/${sampleID}.stats.tsv
 
         # Restore read names to original
         mv ${sampleID}_R1.fastq.gz ${forward} 
