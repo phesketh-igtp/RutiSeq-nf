@@ -20,6 +20,6 @@ process COMPILE_CN_READS_SUMMARY {
 
     script:
         """
-        Rscript $(params.r_script_dir)/negative-control-compile.R
+        Rscript ${params.r_script_dir}/negative-control-compile.R
         """
 }

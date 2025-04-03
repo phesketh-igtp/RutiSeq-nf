@@ -53,8 +53,8 @@ process CN_READ_TAXONOMY {
             gzip --best ${sampleID}.k2.output
 
         # Genreate stats
-            seqkit stats -bTa ${sampleID}_R1.fastq.gz | sed 's/\.fastq\.gz//g' > tmp.for.tsv
-            seqkit stats -bTa ${sampleID}_R2.fastq.gz | sed 's/\.fastq\.gz//g' | sed '1d' > tmp.rev.tsv
+            seqkit stats -bTa ${sampleID}_R1.fastq.gz | sed 's@.fastq.gz@@g' > tmp.for.tsv
+            seqkit stats -bTa ${sampleID}_R2.fastq.gz | sed 's@.fastq.gz@@g' | sed '1d' > tmp.rev.tsv
 
             cat tmp.for.tsv tmp.rev.tsv > Statistics/${sampleID}.stats.tsv
             rm tmp.for.tsv tmp.rev.tsv
