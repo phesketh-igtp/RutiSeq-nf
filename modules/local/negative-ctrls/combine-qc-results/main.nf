@@ -2,6 +2,8 @@ process COMPILE_CN_READS_SUMMARY {
 
     tag "${runID}"
 
+    conda params.r_stats_env
+
     publishDir "${params.outdir}/bbdd/negative-controls/", mode: 'copy'
 
     input:
@@ -18,8 +20,6 @@ process COMPILE_CN_READS_SUMMARY {
 
     script:
         """
-
-
-
+        Rscript $(params.r_script_dir)/negative-control-compile.R
         """
 }
