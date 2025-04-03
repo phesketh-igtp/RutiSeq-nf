@@ -85,7 +85,10 @@ workflow NEGATIVE_CTRL_WF {
             COMPILE_CN_READS_SUMMARY( runID,
                                         CN_MTBSEQ_COMPILE.out.mtbseq_class_compiled,
                                         CN_MTBSEQ_COMPILE.out.mtbseq_stats_compiled,
-                                        CN_TBPROFILE_COMPILE.out.tbprofile_compiled )
+                                        CN_TBPROFILE_COMPILE.out.tbprofile_compiled,
+                                        CN_READS_SUMMARY.out.k2_combined,
+                                        CN_READS_SUMMARY.out.stats_combined
+                                        )
 
     emit:
         negative_control_results = COMPILE_CN_READS_SUMMARY.out.combined_cn_results

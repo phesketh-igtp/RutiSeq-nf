@@ -28,12 +28,13 @@ process INSPECT_BBDD {
         def reverse_path    = reverse.toRealPath()
         def cn_tbprof       = "${params.outdir}/bbdd/negative-controls/tbprofiler/${sampleID}_tb_profiler.log"
         def cn_tbprof_log   = "${params.outdir}/bbdd/negative-controls/tbprofiler/results/tbdb-${sampleID}.results.txt"
-        def cn_mtbseq       = "${params.outdir}/bbdd/negative-controls/mtbseq/${sampleID}"
-        def cn_taxonomy    = "${params.outdir}/bbdd/negative-controls/results/${sampleID}.k2.report"
+        def cn_mtbseq       = "${params.outdir}/bbdd/negative-controls/mtbseq/Statistics/${sampleID}.Strain_Classification.tab"
+        def cn_taxonomy     = "${params.outdir}/bbdd/negative-controls/results/Classification/${sampleID}.k2.report"
+        def cn_stats        = "${params.outdir}/bbdd/negative-controls/results/Statistics/${sampleID}.stats.tsv"
 
         """
         # Check if the files exist and create the controls.tuple.csv file
-        if ([[ -f "${cn_tbprof}" ]] || [[ -f "${cn_tbprof_log}" ]]) && [[ -f "${cn_mtbseq}" ]] && [[ -f "${cn_taxonomy}" ]]; then
+        if ([[ -f "${cn_tbprof}" ]] || [[ -f "${cn_tbprof_log}" ]]) && [[ -f "${cn_mtbseq}" ]] && [[ -f "${cn_taxonomy}" ]] && [[ -f "${cn_stats}" ]]; then
             echo "${sampleID},," > controls.tuple.csv
             echo "DEBUG: Added to samples.txt: ${sampleID}" >&2
         else
