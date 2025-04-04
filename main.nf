@@ -4,6 +4,7 @@ nextflow.enable.dsl = 2
 
 include { FILE_CHECK }                  from './modules/local/file-checks/main.nf'
 include { TBPROFILER_DB_UPDATE }        from './modules/local/tbprofiler/db-update/main.nf'
+include { TAXONKIT_DB_UPDATE }          from './modules/local/taxonkit/db-update/main.nf'
 include { NEGATIVE_CTRL_WF }            from './workflows/negative_ctrl_wf.nf'
 include { SINGLE_WF }                   from './workflows/single_wf.nf'
 include { PAIRWISE_WF }                 from './workflows/pairwise_wf.nf'
@@ -159,6 +160,7 @@ workflow {
         */
 
             TBPROFILER_DB_UPDATE( params.runID )
+            TAXONKIT_DB_UPDATE( params.runID )
 
         /*
         ······································································································
@@ -173,7 +175,8 @@ workflow {
         // TODO: need to figure out if this is working as intended and correct the channel to not have that empty index [4]
             NEGATIVE_CTRL_WF( params.runID,
                                 controls_ch, 
-                                TBPROFILER_DB_UPDATE.out.tbprofiler_update_db, 
+                                TBPROFILER_DB_UPDATE.out.tbprofiler_update_db,
+                                TAXONKIT_DB_UPDATE.out.taxonkit_update_db
                             )
 
         /*
@@ -320,7 +323,7 @@ workflow {
 
 /*
     @author: Poppy J Hesketh Best
-    @date: 2025-*04-04
+    @date: 2025-04-04
     @version: 1.0.0-beta
     @description: 
         This is the main workflow for the RutiSeq-nf pipeline. It is designed to be run with Nextflow and 

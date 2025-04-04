@@ -13,6 +13,7 @@ workflow NEGATIVE_CTRL_WF {
         runID
         controls_ch
         tbprofiler_update_db
+        taxonkit_update_db
 
     main:
 
@@ -80,7 +81,7 @@ workflow NEGATIVE_CTRL_WF {
 
             CN_TBPROFILE_COMPILE( runID, all_tbprofiler_results )
             CN_MTBSEQ_COMPILE( runID, all_mtbseq_class, all_mtbseq_stats )
-            CN_READS_SUMMARY( runID, all_cn_k2_results, all_cn_stats )
+            CN_READS_SUMMARY( runID, all_cn_k2_results, all_cn_stats, taxonkit_update_db )
 
             COMPILE_CN_READS_SUMMARY( runID,
                                         CN_TBPROFILE_COMPILE.out.tbprofile_compiled,
@@ -97,7 +98,7 @@ workflow NEGATIVE_CTRL_WF {
 
 /*
     @author: Poppy J Hesketh Best
-    @date: 2025-*04-04
+    @date: 2025-04-04
     @version: 1.0.1
     @description: 
         This is the negative control workflow for the RutiSeq-nf pipeline.

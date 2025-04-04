@@ -1,4 +1,4 @@
-process TBPROFILER_DB_UPDATE {
+process TAXONKIT_DB_UPDATE {
 
 /*
         @author:  Poppy J Hesketh Best
@@ -10,7 +10,7 @@ process TBPROFILER_DB_UPDATE {
 
         tag "$runID"
 
-        conda params.tbprofiler_env
+        conda "bioconda::taxonkit=0.19.0"
 
         container { 
                 if (workflow.containerEngine == 'singularity') return params.singularity_tbprofiler
@@ -19,27 +19,29 @@ process TBPROFILER_DB_UPDATE {
                 else return null
         }
         
-        publishDir "${params.outdir}/db/tbprofiler/", mode: 'copy', overwrite: true
+        publishDir "${params.outdir}/db/taxonkit/", mode: 'copy', overwrite: true
 
         input:
                 val(runID)
 
         output:
-                path("update_db.txt"), emit: tbprofiler_update_db
-                path("tbdb/*")
+                path("update_db.txt"), emit: taxonkit_update_db
+                path("taxonkit/*")
 
         script:
 
         """
-        # update the TBDB database
-                tb-profiler update_tbdb \\
-                        --branch tbdb \\
-                        --db_dir .
+        mkdir -p taxonkit/
 
-        # update the WHO database
-                tb-profiler update_tbdb \\
-                        --branch who \\
-                        --db_dir .
+        # update the TBDB database
+        wget http://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
+        tar -xzf taxdump.tar.gz
+
+        # move to output direcotort
+        mv *.dmp taxonkit/
+        mv *.prt taxonkit/
+        mv *.txt taxonkit/
+        rm taxdump.tar.gz
 
         touch update_db.txt
         """

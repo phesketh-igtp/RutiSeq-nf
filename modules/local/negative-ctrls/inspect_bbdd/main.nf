@@ -26,11 +26,11 @@ process INSPECT_BBDD {
     script:
         def forward_path    = forward.toRealPath()
         def reverse_path    = reverse.toRealPath()
-        def cn_tbprof       = "${params.outdir}/bbdd/negative-controls/tbprofiler/${sampleID}_tb_profiler.log"
-        def cn_tbprof_log   = "${params.outdir}/bbdd/negative-controls/tbprofiler/results/tbdb-${sampleID}.results.txt"
-        def cn_mtbseq       = "${params.outdir}/bbdd/negative-controls/mtbseq/Statistics/${sampleID}.Strain_Classification.tab"
-        def cn_taxonomy     = "${params.outdir}/bbdd/negative-controls/results/Classification/${sampleID}.k2.report"
-        def cn_stats        = "${params.outdir}/bbdd/negative-controls/results/Statistics/${sampleID}.stats.tsv"
+        def cn_tbprof       = "${params.outdir}/negative-controls/tbprofiler/${sampleID}_tb_profiler.log"
+        def cn_tbprof_log   = "${params.outdir}/negative-controls/tbprofiler/results/tbdb-${sampleID}.results.txt"
+        def cn_mtbseq       = "${params.outdir}/negative-controls/mtbseq/Statistics/${sampleID}.Strain_Classification.tab"
+        def cn_taxonomy     = "${params.outdir}/negative-controls/results/Classification/${sampleID}.k2.report"
+        def cn_stats        = "${params.outdir}/negative-controls/results/Statistics/${sampleID}.stats.tsv"
 
         """
         # Check if the files exist and create the controls.tuple.csv file

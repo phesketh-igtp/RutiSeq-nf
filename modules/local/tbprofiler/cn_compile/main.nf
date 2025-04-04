@@ -20,7 +20,7 @@ process CN_TBPROFILE_COMPILE {
             else return null
     }
         
-    publishDir "${params.outdir}/bbdd/negative-controls/tbprofiler/", mode: 'copy'
+    publishDir "${params.outdir}/negative-controls/tbprofiler/", mode: 'copy'
 
     input:
         val(runID)
@@ -35,9 +35,9 @@ process CN_TBPROFILE_COMPILE {
     script:
     """
     # Create sybolic links to the tbprofiler results
-        ln -s ${params.outdir}/bbdd/negative-controls/tbprofiler/results/ .
-        ln -s ${params.outdir}/bbdd/negative-controls/tbprofiler/bam/ .
-        ln -s ${params.outdir}/bbdd/negative-controls/tbprofiler/vcf/ .
+        ln -s ${params.outdir}/negative-controls/tbprofiler/results/ .
+        ln -s ${params.outdir}/negative-controls/tbprofiler/bam/ .
+        ln -s ${params.outdir}/negative-controls/tbprofiler/vcf/ .
 
     # Example command to compile input files
         tb-profiler collate

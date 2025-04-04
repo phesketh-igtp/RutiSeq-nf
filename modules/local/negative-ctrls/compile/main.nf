@@ -3,44 +3,68 @@ process CN_READS_SUMMARY {
 /*
     @author: Poppy J Hesketh Best
     @date: 2025-04-03
-    @version: 0.1
+    @version: 1.1
     @description:
         This module concatenates all the statistical files within the output directory
         capturing all the results to date and not just in this run
-                
+    @changelog:
+        v1.0-2025-04-03
+            Added - initial version
+        v1.1-2025-04-04
+            Added - taxonkit to get formatted taxonomy
+            Changed - output from TSV to CSV       
 */
 
     tag "${runID}"
+
+    conda "bioconda::taxonkit=0.19.0"
         
     container { 
-            if (workflow.containerEngine == 'singularity') return params.singularity_tbprofiler
-            else if (workflow.containerEngine == 'docker') return params.docker_tbprofiler
-            else if (workflow.containerEngine == 'apptainer') return params.apptainer_tbprofiler
-            else return null
+            if (workflow.containerEngine == 'singularity') return params.singularity_taxonkit
+            else if (workflow.containerEngine == 'docker') return params.docker_taxonkit
+            else if (workflow.containerEngine == 'apptainer') return params.apptainer_taxonkit
     }
         
-    publishDir "${params.outdir}/bbdd/negative-controls/", mode: 'copy'
+    publishDir "${params.outdir}/negative-controls/", mode: 'copy'
 
     input:
         val(runID)
         path(all_cn_k2_results)
         path(all_cn_stats)
+        path(taxonkit_update_db)
 
 
     output:
-        path("negative-controls.k2.report"),    emit: k2_combined
+        path("negative-controls.k2.report")
+        path("negative-controls.k2.report.csv"), emit: k2_combined
         path("negative-controls.stats.tsv"),    emit: stats_combined
 
     script:
     """
     # Concatenate the k2.results
-        for file in ${params.outdir}/bbdd/negative-controls/Classification/*.k2.report; do
-            cat \${file} | sed '1d' >> negative-controls.k2.report
+        for file in ${params.outdir}/negative-controls/Classification/*.k2.report; do
+            cat \${file} | sed '1d' | cut -f1,2,3,6 >> negative-controls.k2.report
         done
 
+    # Run taxonkit to get nicely formatted taxonomy
+        taxonkit lineage \
+            --data-dir ${params.outdir}/db/taxonkit/ \
+            -i 4 negative-controls.k2.report \
+            > negative-controls.k2.report.tmp
+
+    # Create header for final output
+        echo "sampleID,percentage,num_reads,taxID,taxonomy" > negative-controls.k2.report.csv
+
+    # Wrangle the output into the correct format
+        sed 's@\t@,@g' negative-controls.k2.report.tmp > negative-controls.k2.report.tmp2
+        cat negative-controls.k2.report.tmp2 >> negative-controls.k2.report.csv
+        rm negative-controls.k2.report.tmp2 negative-controls.k2.report.tmp
+
     # Concatenate the read statistics
-        for file in ${params.outdir}/bbdd/negative-controls/Statistics/*.stats.tsv; do
-            cat \${file} | sed '1d' >> negative-controls.stats.tsv
+        echo "sampleID,file,format,type,num_seqs,sum_le,min_len,avg_len,max_len,Q1,Q2,Q3,sum_gap,N50,N50_num,Q20(%),Q30(%),AvgQual,GC(%),sum_n" > negative-controls.stats.csv
+
+        for file in ${params.outdir}/negative-controls/Statistics/*.stats.tsv; do
+            cat \${file} | sed '1d' | sed 's@\t@,@g' >> negative-controls.stats.csv
         done
     """
 }

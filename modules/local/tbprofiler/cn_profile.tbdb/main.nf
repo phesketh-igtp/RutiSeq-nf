@@ -27,7 +27,7 @@ process CN_TBPROFILER_TBDB {
                 else return null
         }
         
-        publishDir "${params.outdir}/bbdd/negative-controls/tbprofiler/", mode: 'copy'
+        publishDir "${params.outdir}/negative-controls/tbprofiler/", mode: 'copy'
 
         input:
                 tuple val(sampleID), 

@@ -21,7 +21,7 @@ process CN_MTBSEQ_COMPILE {
             else return null
     }
         
-    publishDir "${params.outdir}/bbdd/negative-controls/", mode: 'copy'
+    publishDir "${params.outdir}/negative-controls/", mode: 'copy'
 
     input:
         val(runID)
@@ -37,7 +37,7 @@ process CN_MTBSEQ_COMPILE {
     """
     mkdir -p Classification/ Statistics/
 
-    for path in ${params.outdir}/bbdd/negative-controls/mtbseq/*; do
+    for path in ${params.outdir}/negative-controls/mtbseq/*; do
         sampleID=\$(basename \$path)
 
         cat \$path/Classification/\${sampleID}.Strain_Classification.tab | sed '1d' >> Strain_Classification.tab

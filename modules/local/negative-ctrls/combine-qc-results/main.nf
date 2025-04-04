@@ -14,7 +14,7 @@ process COMPILE_CN_READS_SUMMARY {
 
     conda params.r_stats_env
 
-    publishDir "${params.outdir}/bbdd/negative-controls/", mode: 'copy'
+    publishDir "${params.outdir}/negative-controls/", mode: 'copy'
 
     input:
         val(runID)

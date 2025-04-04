@@ -20,7 +20,7 @@ process CN_READ_TAXONOMY {
         } else { 'community.wave.seqera.io/library/kaiju_seqkit:6e4140ab47bd567e' }
     }
 
-    publishDir "${params.outdir}/bbdd/negative-controls/", mode: 'link'
+    publishDir "${params.outdir}/negative-controls/", mode: 'link'
 
     input:
         tuple val(sampleID), 
@@ -30,7 +30,6 @@ process CN_READ_TAXONOMY {
     output:
         path("Classification/${sampleID}.k2.report"),   emit: cn_k2_report
         path("Statistics/${sampleID}.stats.tsv"),       emit: cn_stats
-        path("Classification/${sampleID}.k2.output.gz")
 
     script:
 
@@ -46,24 +45,21 @@ process CN_READ_TAXONOMY {
                 mv ${reverse} ${sampleID}_R2.fastq.gz
             fi
 
-        # Run kraken2
-            kraken2 \\
-                --threads ${task.cpus} \\
-                --db ${params.kraken_db_path} \\
-                --memory-mapping \\
-                --report Classification/${sampleID}.k2.report \\
-                --paired ${sampleID}_R1.fastq.gz ${sampleID}_R2.fastq.gz \\
-                > Classification/${sampleID}.k2.output
-
-            gzip --best Classification/${sampleID}.k2.output
-
         # Genreate stats
             seqkit stats -bTa ${sampleID}_R1.fastq.gz | sed 's@.fastq.gz@@g' > tmp.for.tsv
             seqkit stats -bTa ${sampleID}_R2.fastq.gz | sed 's@.fastq.gz@@g' | sed '1d' > tmp.rev.tsv
 
             cat tmp.for.tsv tmp.rev.tsv > Statistics/${sampleID}.stats.tsv
             rm tmp.for.tsv tmp.rev.tsv
-        
+
+        # Run kraken2
+            kraken2 \\
+                --threads ${task.cpus} \\
+                --db ${params.kraken_db_path} \\
+                --report Classification/${sampleID}.k2.report \\
+                --paired ${sampleID}_R1.fastq.gz \\
+                ${sampleID}_R2.fastq.gz > Classification/${sampleID}.k2.output
+
         # Add a new column to the results containing the sampleID for later concatenation
             sed -i "s@^@${sampleID}\t@" Classification/${sampleID}.k2.report
             sed -i "s@^@${sampleID}\t@" Statistics/${sampleID}.stats.tsv
@@ -76,5 +72,11 @@ process CN_READ_TAXONOMY {
             if [ "${sampleID}_R2.fastq.gz" != "${reverse}" ]; then
                 mv ${sampleID}_R2.fastq.gz ${reverse}
             fi
+
+        if [[ -f "Classification/${sampleID}.k2.report" && -f "Statistics/${sampleID}.stats.tsv" ]]; then
+            exit 0
+        else
+            exit 1
+        fi
         """
 }
