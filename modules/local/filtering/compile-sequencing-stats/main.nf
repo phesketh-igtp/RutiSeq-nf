@@ -12,8 +12,6 @@ process COMPILE_SEQUENCING_STATS {
         requirements for the pairwise analysis. This is then used to create a 
         filtered list of genomes for the pairwise analysis, which is converated into
         a tuple/channel for downstream processing.
-    @version: 1.1
-        I removed 'code' - because XXX
 */
 
     conda params.r_stats_env
