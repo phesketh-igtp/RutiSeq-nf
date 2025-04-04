@@ -94,3 +94,14 @@ workflow NEGATIVE_CTRL_WF {
         negative_control_results = COMPILE_CN_READS_SUMMARY.out.combined_cn_results
 
 }
+
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-*04-04
+    @version: 1.0.1
+    @description: 
+        This is the negative control workflow for the RutiSeq-nf pipeline.
+    @changelog
+        v1.0.0-2024-11-01: Initial version
+        1.0.1-2025-04-04: Added documentation and comments
+*/

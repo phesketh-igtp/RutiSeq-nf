@@ -110,3 +110,14 @@ workflow PAIRWISE_WF {
         nexus_creation_ch     = nexus_creation_ch
 
 }
+
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-04
+    @version: 1.0.1
+    @description: 
+        This is the pairwise genome workflow for the RutiSeq-nf pipeline.
+    @changelog
+        v1.0.0-2024-11-01: Initial version
+        v1.0.1-2025-04-04: Added documentation and comments
+*/

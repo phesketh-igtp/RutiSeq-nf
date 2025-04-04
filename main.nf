@@ -1,4 +1,5 @@
 #!/usr/bin/env nextflow
+
 nextflow.enable.dsl = 2
 
 include { FILE_CHECK }                  from './modules/local/file-checks/main.nf'
@@ -316,3 +317,20 @@ workflow {
 */
 
 }
+
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-*04-04
+    @version: 1.0.0-beta
+    @description: 
+        This is the main workflow for the RutiSeq-nf pipeline. It is designed to be run with Nextflow and 
+        takes a samplesheet as input. The workflow performs the following steps:
+            - Update the TBProfiler database
+            - Perform negative control analysis
+            - Perform single sample analysis
+            - Perform pairwise sample analysis
+            - Produce summary tables and visualisations
+            - Perform barcoding analysis (optional-WIP)
+    @changelog
+        - 2024-11-01: Initial version
+*/

@@ -55,3 +55,15 @@ workflow BARCODING_WORKFLOW {
 
 
 }
+
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-04
+    @version: 1.0.1
+    @description: 
+        This is the barcoding workflow for the RutiSeq-nf pipeline. 
+        WIP
+    @changelog
+        v1.0.0-2024-11-01: Initial version
+        v1.0.1-2025-04-04: Added documentation and comments
+*/
