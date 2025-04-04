@@ -11,7 +11,7 @@ process CN_MTBSEQ_SINGLE {
         statistics files.
 */
 
-    tag "${sampleID}"
+    tag "$sampleID"
 
     conda params.mtbseq_env
 
@@ -30,8 +30,8 @@ process CN_MTBSEQ_SINGLE {
                 path(reverse)
                 
     output:
-            path("Classification/${sampleID}.Strain_Classification.tab"), optional: true, emit: cn_mtbseq_class
-            path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab"), optional: true, emit: cn_mtbseq_stats
+            path("Classification/${sampleID}.Strain_Classification.tab"), emit: cn_mtbseq_class
+            path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab"), emit: cn_mtbseq_stats
 
     script:
 
@@ -58,13 +58,19 @@ process CN_MTBSEQ_SINGLE {
                     1>>.command.out \\
                     2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 
-        # Renamecp Classification/Strain_Classification.tab Classification/${sampleID}.Strain_Classification.tab
+        mkdir -p Classification/ Statistics/
+
+        # Rename
             if [ -f "Classification/Strain_Classification.tab" ]; then
                 mv Classification/Strain_Classification.tab Classification/${sampleID}.Strain_Classification.tab
+            else
+                echo "" > Classification/${sampleID}.Strain_Classification.tab
             fi
 
             if [ -f "Statistics/Mapping_and_Variant_Statistics.tab" ]; then
                 mv Statistics/Mapping_and_Variant_Statistics.tab Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
+            else 
+                echo "" > Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
             fi
 
         # Restore read names to original
@@ -75,9 +81,6 @@ process CN_MTBSEQ_SINGLE {
             if [ "${sampleID}_R2.fastq.gz" != "${reverse}" ]; then
                 mv ${sampleID}_R2.fastq.gz ${reverse}
             fi
-
-        # Always exit with status 0 to prevent pipeline failure
-            exit 0
         """
 
 }

@@ -37,9 +37,9 @@ process CN_TBPROFILER_TBDB {
                         
         output:
                 path("results/tbdb-${sampleID}.results.txt"), emit: tbprofiler_results
-                path("results/tbdb-${sampleID}.results.json")
-                path("bam/*")
-                path("vcf/*")
+                path("results/tbdb-${sampleID}.results.json"), optional: true
+                path("bam/*"), optional: true
+                path("vcf/*"), optional: true
                 path("${sampleID}_tb_profiler_status.txt")
 
         script:
@@ -61,11 +61,9 @@ process CN_TBPROFILER_TBDB {
 
         # Check if the results file was created
         if [[ -f results/tbdb-${sampleID}.results.txt ]]; then
-                echo "${sampleID},SUCCESS" > ${sampleID}_tb_profiler.log
-                echo "SUCCESS" > ${sampleID}_tb_profiler_status.txt
+                echo "${sampleID},SUCCESS" > ${sampleID}_tb_profiler_status.txt
         else
-                echo "${sampleID},FAILED" > ${sampleID}_tb_profiler.log
-                echo "FAILED" > ${sampleID}_tb_profiler_status.txt
+                echo "${sampleID},FAILED" > ${sampleID}_tb_profiler_status.txt
                 # Create empty files to satisfy output requirements
                 echo "" > results/tbdb-${sampleID}.results.txt
                 echo "" > results/tbdb-${sampleID}.results.json
