@@ -28,8 +28,8 @@ process CN_READ_TAXONOMY {
                 path(reverse)
 
     output:
-        path("Classification/${sampleID}.k2.report"),   emit: cn_k2_report
-        path("Statistics/${sampleID}.stats.tsv"),       emit: cn_stats
+        tuple val(sampleID), path("Classification/${sampleID}.k2.report"),   emit: cn_k2_report
+        tuple val(sampleID), path("Statistics/${sampleID}.stats.tsv"),       emit: cn_stats
 
     script:
 

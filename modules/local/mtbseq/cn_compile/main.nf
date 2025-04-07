@@ -25,8 +25,7 @@ process CN_MTBSEQ_COMPILE {
 
     input:
         val(runID)
-        path(all_mtbseq_class)
-        path(all_mtbseq_stats)
+        val(complete_sampleID)
 
 
     output:

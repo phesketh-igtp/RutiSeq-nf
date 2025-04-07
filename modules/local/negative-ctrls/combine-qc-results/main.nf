@@ -8,6 +8,8 @@ process COMPILE_CN_READS_SUMMARY {
         This module runs an R script that combines all the results into the 
         format that can then be compiled into the final XLSX sheet produced
         to summarise the entire genome collection in then SUMMARY_WF()
+    @changelog:
+        v.1.0.0-2025-04-03: Initial version
 */
 
     tag "${runID}"
@@ -32,7 +34,7 @@ process COMPILE_CN_READS_SUMMARY {
 
     script:
         """
-        #Rscript ${params.r_script_dir}/negative-control-compile.R
+        Rscript ${params.r_script_dir}/negative-control-compile.R
 
         exit 1
         """

@@ -36,11 +36,12 @@ process CN_TBPROFILER_TBDB {
                 path(tbprofiler_update_db)
                         
         output:
-                path("results/tbdb-${sampleID}.results.txt"), emit: tbprofiler_results
-                path("results/tbdb-${sampleID}.results.json"), optional: true
-                path("bam/*"), optional: true
-                path("vcf/*"), optional: true
-                path("${sampleID}_tb_profiler_status.txt")
+                tuple val(sampleID), path("results/tbdb-${sampleID}.results.txt"), emit: tbprofiler_results
+                        path("results/tbdb-${sampleID}.results.json"), optional: true
+                tuple val(sampleID), path("log/${sampleID}_tb_profiler_status.txt"), emit: tbprofiler_status
+                        path("bam/*"), optional: true
+                        path("vcf/*"), optional: true
+                        path("${sampleID}_tb_profiler_status.txt")
 
         script:
                 def additional_args = task.ext.additional_args ?: ''
@@ -59,11 +60,13 @@ process CN_TBPROFILER_TBDB {
                 > tb-profiler.out 2> tb-profiler.err
         set -e #restores default command fails checks
 
+        mkdir -p log/
+
         # Check if the results file was created
         if [[ -f results/tbdb-${sampleID}.results.txt ]]; then
-                echo "${sampleID},SUCCESS" > ${sampleID}_tb_profiler_status.txt
+                echo "${sampleID},SUCCESS" > log/${sampleID}_tb_profiler_status.txt
         else
-                echo "${sampleID},FAILED" > ${sampleID}_tb_profiler_status.txt
+                echo "${sampleID},FAILED" > log/${sampleID}_tb_profiler_status.txt
                 # Create empty files to satisfy output requirements
                 echo "" > results/tbdb-${sampleID}.results.txt
                 echo "" > results/tbdb-${sampleID}.results.json

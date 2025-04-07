@@ -29,15 +29,14 @@ process CN_READS_SUMMARY {
 
     input:
         val(runID)
-        path(all_cn_k2_results)
-        path(all_cn_stats)
+        val(complete_sampleID)
         path(taxonkit_update_db)
 
 
     output:
         path("negative-controls.k2.report")
         path("negative-controls.k2.report.csv"), emit: k2_combined
-        path("negative-controls.stats.tsv"),    emit: stats_combined
+        path("negative-controls.stats.csv"),    emit: stats_combined
 
     script:
     """
@@ -47,9 +46,9 @@ process CN_READS_SUMMARY {
         done
 
     # Run taxonkit to get nicely formatted taxonomy
-        taxonkit lineage \
-            --data-dir ${params.outdir}/db/taxonkit/ \
-            -i 4 negative-controls.k2.report \
+        taxonkit lineage \\
+            --data-dir ${params.outdir}/db/taxonkit/ \\
+            -i 4 negative-controls.k2.report \\
             > negative-controls.k2.report.tmp
 
     # Create header for final output

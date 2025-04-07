@@ -3,10 +3,12 @@ process CN_TBPROFILE_COMPILE {
 /*
     @author: Poppy J Hesketh Best
     @date: 2025-04-01
-    @version: 0.1
+    @version: 1.0.0
     @description: 
         This module runs TB-Profiler cimpile on the single sample using the TBDB database. 
         It first creates a symbolic link to the data.
+    @changelog:
+        v1.0.0-2024-11-01: Initial version
 */
 
     tag "${runID}"
@@ -24,13 +26,14 @@ process CN_TBPROFILE_COMPILE {
 
     input:
         val(runID)
-        path(all_tbprofiler_results)
+        val(complete_sampleID)
 
 
     output:
         path("tbprofiler.txt"),         emit: tbprofile_compiled
         path("tbprofiler.variants.csv")
         path("tbprofiler.variants.txt")
+        
 
     script:
     """

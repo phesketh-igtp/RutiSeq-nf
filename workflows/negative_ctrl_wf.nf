@@ -1,7 +1,20 @@
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-04
+    @version: 1.1.0
+    @description: 
+        This is the negative control workflow for the RutiSeq-nf pipeline.
+    @changelog
+        v1.0.0-2024-11-01: Initial version
+        1.0.1-2025-04-04: Added documentation and comments
+        1.1.0-2025-04-07: Added - handling for empty controls, but still performing the summary generation.    
+*/
+
 include { INSPECT_BBDD               }  from '../modules/local/negative-ctrls/inspect_bbdd/main.nf'
 include { CN_READ_TAXONOMY           }  from '../modules/local/negative-ctrls/inspect_reads/main.nf'
 include { CN_TBPROFILER_TBDB         }  from '../modules/local/tbprofiler/cn_profile.tbdb/main.nf'
 include { CN_MTBSEQ_SINGLE           }  from '../modules/local/mtbseq/cn_single/main.nf'
+include { CN_COMPILE_SUMMARY_TUPLE    }  from '../modules/local/negative-ctrls/tuple_compile/main.nf'
 include { CN_TBPROFILE_COMPILE       }   from '../modules/local/tbprofiler/cn_compile/main.nf'
 include { CN_MTBSEQ_COMPILE          }   from '../modules/local/mtbseq/cn_compile/main.nf'
 include { CN_READS_SUMMARY           }   from '../modules/local/negative-ctrls/compile/main.nf'
@@ -37,7 +50,7 @@ workflow NEGATIVE_CTRL_WF {
                             tuple(
                                 sampleID,
                                 forward ? file(forward.trim()) : [],
-                                reverse ? file(reverse.trim()) : [],
+                                reverse ? file(reverse.trim()) : []
                             )   
                         } else {
                             log.warn "Error with channel: $row"
@@ -51,13 +64,13 @@ workflow NEGATIVE_CTRL_WF {
 
             // Branch the channel into those with outputs and those without:
                 branched_channel = comp_controls_ch.branch {
-                with_reads: it[1] != [] && it[2] != [] // zero-indexed so [1] is the second value in the tuple, ect
-                without_reads: it[1] == [] || it[2] == [] }
+                    with_reads: it[1] != [] && it[2] != [] // zero-indexed so [1] is the second value in the tuple, ect
+                    without_reads: it[1] == [] || it[2] == [] }
 
         control_ch_analysis = branched_channel.with_reads
 
         /*
-        Run KAIJU on the reads and get read taxonomy
+        Run Kraken2 on the reads and get read taxonomy
         */
 
             CN_READ_TAXONOMY( control_ch_analysis )
@@ -72,37 +85,39 @@ workflow NEGATIVE_CTRL_WF {
             Compile the Negative control read summary
         */
 
-            // collect all the results
-                all_cn_k2_results       = CN_READ_TAXONOMY.out.cn_k2_report.collect()
-                all_cn_stats            = CN_READ_TAXONOMY.out.cn_stats.collect()
-                all_tbprofiler_results  = CN_TBPROFILER_TBDB.out.tbprofiler_results.collect()
-                all_mtbseq_class        = CN_MTBSEQ_SINGLE.out.cn_mtbseq_class.collect()
-                all_mtbseq_stats        = CN_MTBSEQ_SINGLE.out.cn_mtbseq_stats.collect()
+            merged_outputs_ch = CN_READ_TAXONOMY.out.cn_k2_report
+                            .join(CN_READ_TAXONOMY.out.cn_stats, by: 0)
+                            .join(CN_TBPROFILER_TBDB.out.tbprofiler_status, by: 0)
+                            .join(CN_MTBSEQ_SINGLE.out.cn_mtbseq_class, by: 0)
+                            .join(CN_MTBSEQ_SINGLE.out.cn_mtbseq_stats, by: 0)
+                            .map { sampleID, k2_report, stats, tbprofiler_status, mtbseq_class, mtbseq_stats ->
+                                tuple(sampleID, [k2_report, stats, tbprofiler_status, mtbseq_class, mtbseq_stats])
+                            }
 
-            CN_TBPROFILE_COMPILE( runID, all_tbprofiler_results )
-            CN_MTBSEQ_COMPILE( runID, all_mtbseq_class, all_mtbseq_stats )
-            CN_READS_SUMMARY( runID, all_cn_k2_results, all_cn_stats, taxonkit_update_db )
+            CN_COMPILE_SUMMARY_TUPLE( merged_outputs_ch )
 
-            COMPILE_CN_READS_SUMMARY( runID,
-                                        CN_TBPROFILE_COMPILE.out.tbprofile_compiled,
-                                        CN_MTBSEQ_COMPILE.out.mtbseq_class_compiled,
-                                        CN_MTBSEQ_COMPILE.out.mtbseq_stats_compiled,
-                                        CN_READS_SUMMARY.out.k2_combined,
-                                        CN_READS_SUMMARY.out.stats_combined
-                                        )
+            // Create a channel of just sampleIDs
+                complete_sampleID_ch = CN_COMPILE_SUMMARY_TUPLE.out.combined_cn_tuple
+                    .mix(branched_channel.without_reads.map { it[0] })  // Assuming the first element of without_reads is the sampleID
+                    .unique()  // Remove any duplicates
+                    .collect()  // Collect all sampleIDs into a list
+
+            // Begin compiling individual results
+                CN_TBPROFILE_COMPILE(runID, complete_sampleID_ch)
+                CN_MTBSEQ_COMPILE(runID, complete_sampleID_ch)
+                CN_READS_SUMMARY(runID, complete_sampleID_ch, taxonkit_update_db)
+
+            // Final compilation of XLSX file
+                COMPILE_CN_READS_SUMMARY( runID,
+                                            CN_TBPROFILE_COMPILE.out.tbprofile_compiled,
+                                            CN_MTBSEQ_COMPILE.out.mtbseq_class_compiled,
+                                            CN_MTBSEQ_COMPILE.out.mtbseq_stats_compiled,
+                                            CN_READS_SUMMARY.out.k2_combined,
+                                            CN_READS_SUMMARY.out.stats_combined
+                                            )
 
     emit:
         negative_control_results = COMPILE_CN_READS_SUMMARY.out.combined_cn_results
 
 }
 
-/*
-    @author: Poppy J Hesketh Best
-    @date: 2025-04-04
-    @version: 1.0.1
-    @description: 
-        This is the negative control workflow for the RutiSeq-nf pipeline.
-    @changelog
-        v1.0.0-2024-11-01: Initial version
-        1.0.1-2025-04-04: Added documentation and comments
-*/
