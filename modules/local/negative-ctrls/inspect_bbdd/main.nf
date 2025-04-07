@@ -13,7 +13,7 @@ process INSPECT_BBDD {
 
     tag "${sampleID}"
 
-    array 50
+    array 100
 
     input:
         tuple val(sampleID), 
