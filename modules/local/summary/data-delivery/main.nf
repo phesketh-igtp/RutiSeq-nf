@@ -19,6 +19,10 @@ process PREPARE_DATA_DELIVERY{
 
     script:
         """
+        # Controls results
+        mkdir -p ${params.outdir}/results/${runID}/controls/
+            cp ${params.outdir}/${params.outdir}/negative-controls/negative-controls.xlsx ${params.outdir}/results/${runID}/controls/
+
         # TBProfiler results 
             mkdir -p ${params.outdir}/results/${runID}/tbprofiler/
             cp ${params.outdir}/bbdd/tbprofiler/tbdb-tbprofiler.txt ${params.outdir}/results/${runID}/tbprofiler/tbdb-tbprofiler.txt

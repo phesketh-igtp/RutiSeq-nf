@@ -9,7 +9,8 @@ process COMPILE_CN_READS_SUMMARY {
         format that can then be compiled into the final XLSX sheet produced
         to summarise the entire genome collection in then SUMMARY_WF()
     @changelog:
-        v.1.0.0-2025-04-03: Initial version
+        v1.0.0-2025-04-03: Added - Initial version
+        v1.1.0-2025-04-08: Fixed - output file, corrected R script
 */
 
     tag "${runID}"
@@ -29,14 +30,11 @@ process COMPILE_CN_READS_SUMMARY {
         path(stats_combined)
 
     output:
-        path("${runID}_combined_qc_results.csv")
-        path("combined_qc_results.csv"), emit: combined_cn_results
+        path("negative-controls.xlsx")
 
     script:
         """
         Rscript ${params.r_script_dir}/negative-control-compile.R
-
-        exit 1
         """
 
 }
