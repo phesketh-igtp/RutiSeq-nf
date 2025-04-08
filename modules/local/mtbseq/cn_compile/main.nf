@@ -36,18 +36,13 @@ process CN_MTBSEQ_COMPILE {
 
     script:
     """
-
-    for path in ${params.outdir}/negative-controls/mtbseq/*; do
-        sampleID=\$(basename \$path)
-
-        cat ${params.outdir}/negative-controls/mtbseq/*.Strain_Classification.tab \\
+    # Concatenate the files
+        cat ${params.outdir}/negative-controls/mtbseq/Classification/*.Strain_Classification.tab \\
                 | sed '/^Date/d' \\
                 > Strain_Classification.tab
 
-        cat ${params.outdir}/negative-controls/mtbseq/*.Mapping_and_Variant_Statistics.tab \\
+        cat ${params.outdir}/negative-controls/mtbseq/Statistics/*.Mapping_and_Variant_Statistics.tab \\
                 | sed '/^Date/d' \\
                 > Mapping_and_Variant_Statistics.tab
-
-    done
     """
 }
