@@ -53,8 +53,7 @@ process TBPROFILER_PROFILE_WHO {
                     -p who-${sampleID} \\
                 --txt --dir . \\
                 --db ${params.outdir}/db/tbprofiler/tbdb/who \\
-                --threads ${task.cpus} \\
-                ${additional_args}
+                --threads ${task.cpus} ${additional_args}
 
         # remove the published files from the previous module:
             rm -f  ${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R1.fastq.gz
