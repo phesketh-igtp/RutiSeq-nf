@@ -38,11 +38,11 @@ process CN_MTBSEQ_COMPILE {
     """
     # Concatenate the files
         cat ${params.outdir}/negative-controls/mtbseq/Classification/*.Strain_Classification.tab \\
-                | sed '/^Date/d' \\
+                | sed '/^Date/d' | sed "s@'@@g" \\
                 > Strain_Classification.tab
 
         cat ${params.outdir}/negative-controls/mtbseq/Statistics/*.Mapping_and_Variant_Statistics.tab \\
-                | sed '/^Date/d' \\
+                | sed '/^Date/d' | sed "s@'@@g" \\
                 > Mapping_and_Variant_Statistics.tab
     """
 }

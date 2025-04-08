@@ -21,18 +21,18 @@
 
 # Load the libraries
 
-library(tidyverse)
-library(openxlsx)
+library(tidyverse, quietly = TRUE)
+library(openxlsx, quietly = TRUE)
 
 ## Import the dataframes from the negative control analysis
 
-read_stats.df <- read.delim( "negative-controls.stats.csv", sep = ',' )
-reads_class.df <- read.delim( "negative-controls.k2.report.csv", sep = ',' )
-tbprofiler.df <- read.delim( "tbprofiler.txt", sep = '\t' )
-mtbseq_stats.df <- read.delim( "Strain_Classification.tab",
-                              header = FALSE, sep = '\t' )
-mtbseq_class.df <- read.delim( "Mapping_and_Variant_Statistics.tab",
-                              header = FALSE, sep = '\t' )
+read_stats.df <- read.delim("negative-controls.stats.csv", sep = ',')
+reads_class.df <- read.delim("negative-controls.k2.report.csv", sep = ',')
+tbprofiler.df <- read.delim("tbprofiler.txt", sep = '\t')
+mtbseq_class.df <- read.delim("Strain_Classification.tab",
+                              header = FALSE, sep = '\t')
+mtbseq_stats.df <- read.delim("Mapping_and_Variant_Statistics.tab",
+                              header = FALSE, sep = '\t')
 
 ## Create xlsx workbook
 wb <- createWorkbook()
