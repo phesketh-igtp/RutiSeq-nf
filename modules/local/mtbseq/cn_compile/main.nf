@@ -8,6 +8,8 @@ process CN_MTBSEQ_COMPILE {
         This module compiles on the single sample using the TBDB database. 
         The module loops through the negative control outputs and captures all 
         the MTBSeq results and creates a new tabular files with the results
+    @changelog:
+        v1.0.1-2025-04-08: Change - Changed from loop to straight concatenate
 */
 
     tag "${runID}"
@@ -34,13 +36,17 @@ process CN_MTBSEQ_COMPILE {
 
     script:
     """
-    mkdir -p Classification/ Statistics/
 
     for path in ${params.outdir}/negative-controls/mtbseq/*; do
         sampleID=\$(basename \$path)
 
-        cat \$path/Classification/\${sampleID}.Strain_Classification.tab | sed '1d' >> Strain_Classification.tab
-        cat \$path/Statistics/\${sampleID}.Mapping_and_Variant_Statistics.tab | sed '1d' >> Mapping_and_Variant_Statistics.tab
+        cat ${params.outdir}/negative-controls/mtbseq/*.Strain_Classification.tab \\
+                | sed '/^Date/d' \\
+                > Strain_Classification.tab
+
+        cat ${params.outdir}/negative-controls/mtbseq/*.Mapping_and_Variant_Statistics.tab \\
+                | sed '/^Date/d' \\
+                > Mapping_and_Variant_Statistics.tab
 
     done
     """
