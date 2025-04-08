@@ -116,8 +116,5 @@ workflow NEGATIVE_CTRL_WF {
                                             CN_READS_SUMMARY.out.stats_combined
                                             )
 
-    emit:
-        negative_control_results = COMPILE_CN_READS_SUMMARY.out.combined_cn_results
-
 }
 
