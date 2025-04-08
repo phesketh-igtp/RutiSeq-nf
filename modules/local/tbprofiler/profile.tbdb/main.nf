@@ -2,15 +2,13 @@ process TBPROFILER_PROFILE_TBDB {
 
 /*
         @author: Poppy J Hesketh Best
-        @date: 2025-04-01
+        @date: 2025-04-08
         @version: 1.0
         @description: 
                 This module performs TB-Profiler using TBDB results to get MT lineage and 
                 resistance genes using the TBDB database.
-
-                TODO: Currently workshopping how to remove the TBDB from the workflow repository
-                and have the datbase downloaded from the internet within a module. This is causing
-                some issues with the github pull within a module.
+        @changelog:
+                v1.0.1-2025-04-08: Fixed - correct tb-profiler db paths
 */
 
         tag "$sampleID"
