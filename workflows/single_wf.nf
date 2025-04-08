@@ -49,7 +49,6 @@ workflow SINGLE_WF {
                         log.info "${green}runID: ${red}${runID}${green} || For ${cyan}SINGLE_WF()${green} : ${red}${with_reads}${green} samples || Skipped until ${cyan}PAIRWISE()${green}: ${red}${without_reads}${green} samples${no_col}"
                     }
 
-
         /*
         // DEBUG:: View the results
             branched_channel.with_reads.view { "With reads: $it" }
