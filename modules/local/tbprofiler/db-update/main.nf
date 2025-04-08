@@ -54,12 +54,14 @@ process TBPROFILER_DB_UPDATE {
                         fi
 
                 # If we reach here, we need to update the databases
+                tb-profiler update_tbdb
+                tb-profiler update_tbdb --branch who
 
                 # update the TBDB database
                         tb-profiler update_tbdb \\
                                 --branch tbdb \\
                                 --db_dir .
-
+                                
                 # update the WHO database
                         tb-profiler update_tbdb \\
                                 --branch who \\
