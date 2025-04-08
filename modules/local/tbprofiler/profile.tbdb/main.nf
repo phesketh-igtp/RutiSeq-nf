@@ -56,7 +56,7 @@ process TBPROFILER_PROFILE_TBDB {
                                 -2 ${mtbc_reverse} \\
                                 -p tbdb-${sampleID} \\
                                 --txt --dir . \\
-                                --db ${params.outdir}/db/tbprofiler/tbdb \\
+                                --db ${params.outdir}/db/tbprofiler/tbdb/tbdb \\
                                 --threads ${task.cpus} ${additional_args}
 
                         touch bam/tbdb-${sampleID}.bam
