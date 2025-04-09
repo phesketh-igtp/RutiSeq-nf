@@ -1,0 +1,25 @@
+mtbseq_rnv:
+- 
+- 
+phylogeny_env:
+- 
+- 
+r-phylogeny_env:
+- oras://community.wave.seqera.io/library/bioconductor-ggtree_bioconductor-treeio_r-ape_r-argparse_pruned:3933fdc29e2b7516
+- https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/3a/3a292e33635c69a2545fd6842116f83f1ae86066444339706cc6b1cdd02558ca/data
+r-stats_env:
+- 
+-
+snp_profiling_env:
+- 
+- 
+taxonkit_env:
+- 
+- 
+taxonomy_env:
+- 
+- 
+tbprofiler_env:
+- 
+- 
+

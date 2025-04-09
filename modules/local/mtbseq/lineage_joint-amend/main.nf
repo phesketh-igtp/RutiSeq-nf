@@ -9,6 +9,9 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
         It takes the lineage and sample IDs as input and produces the output files
         for the MTBseq Join and Amend steps.
         It also creates a lineage_samples.txt file for the MTBseq Join step.
+    @changelog:
+        v1.0.0-2025-04-01: Initial version
+        v1.1.0-2025-04-09: Changed - Removed the zipping of the files
 */
 
     tag " ${runID}: ${lineage} "
@@ -56,8 +59,8 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
-        rm -rf ${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Amend/*
-        gzip --best --force --quiet ${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Joint/*.tab
+        #rm -rf ${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Amend/*
+        #gzip --best --force --quiet ${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Joint/*.tab
 
         # make the expected directories
             mkdir -p Position_Tables/ Called/ Amend/ Joint/

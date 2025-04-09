@@ -1,7 +1,7 @@
 name: r-phylogeny_env
 channels:
-  - bioconda
-  - conda-forge
+- conda-forge
+- bioconda
 dependencies:
 - bioconda::bioconductor-ggtree=3.14.0
 - bioconda::bioconductor-treeio=1.30.0
@@ -9,6 +9,6 @@ dependencies:
 - conda-forge::r-argparse=2.2.5
 - conda-forge::r-dplyr=1.1.4
 - conda-forge::r-optparse=1.7.5
-- conda-forge::r-randomcolor=1.1.0.1
+- conda-forge::r-randomcolor=1.1.0
 - conda-forge::r-rcolorbrewer=1.1_3
 - conda-forge::r-tidyverse=2.0.0
