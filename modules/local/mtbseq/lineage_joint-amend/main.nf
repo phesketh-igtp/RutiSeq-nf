@@ -11,7 +11,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
         It also creates a lineage_samples.txt file for the MTBseq Join step.
     @changelog:
         v1.0.0-2025-04-01: Initial version
-        v1.1.0-2025-04-09: Changed - Removed the zipping of the files
+        v1.1.0-2025-04-09: Changed - Removed the zipping of the files (caused issues)
 */
 
     tag " ${runID}: ${lineage} "
