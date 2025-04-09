@@ -1,4 +1,5 @@
 include { SPLIT_CLUSTER_GROUPS }    from '../modules/local/barcoding/split_into_clusters/main.nf'
+include { MERGE_VCFS }              from '../modules/local/barcoding/merge_vcfs/main.nf'
 include { COMPUTE_FTS }             from '../modules/local/barcoding/compute_Fts/main.nf'
 
 workflow BARCODING_WORKFLOW {
@@ -25,12 +26,9 @@ workflow BARCODING_WORKFLOW {
 
         /*
             Partition VCF files into clusters and lineages so that Fixation analysis can occur. 
-            
             At end of this workflow I want generated a TSV file with all the cluster specific SNPs and fixation indexes
                 i.e: genome,clusterID,lineage,position,allel,ref,Fts, emit: cluster_specific_snps
-
         */
-
             SPLIT_CLUSTER_GROUPS(   
                                     runID,
                                     analysis_summary,
@@ -39,12 +37,16 @@ workflow BARCODING_WORKFLOW {
                                 )
 
             // Create a chanel with the following structure from the output of SPLIT_CLUSTERS_GROUPS
-            /// samplesID, lineage, cluster, vcf_path, vcf.tbi_path
+            /// [lineage: clusterID, samplesID, vcf_path, vcf.tbi_path]
+            merging_vcf_ch = SPLIT_CLUSTER_GROUPS.out.vcf_tuple
+
+            // Merge the vcfs by the groupings
+            MERGE_VCFS( merging_vcf_ch )
 
         /*
             Perform the analysis to calcualte the Fixation index
         */
-            //COMPUTE_FTS(vcf_ch)
+            COMPUTE_FTS( MERGE_VCFS.out.vcfs_ch )
 
         /* 
             Collect all the individual inputs into a single tsv file, and create a new channel with the input file
