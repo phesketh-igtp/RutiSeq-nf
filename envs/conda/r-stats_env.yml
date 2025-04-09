@@ -3,12 +3,12 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
+- r-base=4.4
 - bioconductor-ggtree=3.14.0
 - bioconductor-treeio=1.30.0
 - bioconductor-biostrings
 - r-ape=5.8_1
 - r-argparse=2.2.5
-- r-base=4.4
 - r-dplyr=1.1.4
 - r-ggrepel=0.9.6
 - r-patchwork=1.3.0
@@ -20,4 +20,3 @@ dependencies:
 - r-stringi=1.8.4
 - r-openxlsx
 - r-seqinr
-- r-plotly
