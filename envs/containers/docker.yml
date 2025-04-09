@@ -5,12 +5,12 @@ phylogeny_env:
 r-phylogeny_env:
 - community.wave.seqera.io/library/bioconductor-ggtree_bioconductor-treeio_r-ape_r-argparse_pruned:eea7baf72f9560d9
 r-stats_env:
-- community.wave.seqera.io/library/r-argparse_r-base_r-dplyr_r-ggrepel_pruned:9fa710c1508e1cb6
+-
 snp_profiling_env:
 - community.wave.seqera.io/library/bcftools_emboss_seqkit_snp-sites_pruned:1a1022abcb91db63
 taxonkit_env:
-- 
+- community.wave.seqera.io/library/taxonkit:0.19.0--e60eeab4ec1369bc
 taxonomy_env:
-- 
+- community.wave.seqera.io/library/fastp_fastq-pair_kraken2_seqkit:8303c343b1f28ce5
 tbprofiler_env:
 - community.wave.seqera.io/library/tb-profiler:6.6.3--fb34c34b4a27d1b8
