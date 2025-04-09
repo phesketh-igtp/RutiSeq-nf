@@ -1,9 +1,9 @@
-mtbseq_rnv:
-- 
-- 
+mtbseq_env:
+- oras://community.wave.seqera.io/library/mtbseq:1.1.0--d0a0774ca038b4d3
+- https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/ce/ce098dd570838fdcb0eb401b3afe4ebf4bc88d1038768ec18b3f970deb28c313/data
 phylogeny_env:
-- 
-- 
+- oras://community.wave.seqera.io/library/iqtree_mafft_seqkit_snp-sites_treetime:1ec44de5738a92e4
+- https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/19/1969316c878dcf7c6e1cc6a5ccf9da86409a6effa02b8c84b7214f0aff6d8922/data
 r-phylogeny_env:
 - oras://community.wave.seqera.io/library/bioconductor-ggtree_bioconductor-treeio_r-ape_r-argparse_pruned:3933fdc29e2b7516
 - https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/3a/3a292e33635c69a2545fd6842116f83f1ae86066444339706cc6b1cdd02558ca/data
@@ -20,6 +20,6 @@ taxonomy_env:
 - 
 - 
 tbprofiler_env:
-- 
-- 
+- oras://community.wave.seqera.io/library/tb-profiler:6.6.3--400be6f998a9ed1b
+- https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/1c/1c8630f93dc3f64b11a2ff508d950a3e06c4e33e949476ed2b475beb8cafd1c9/data
 
