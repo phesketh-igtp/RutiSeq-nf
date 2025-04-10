@@ -10,15 +10,15 @@
         1.1.0-2025-04-07: Added - handling for empty controls, but still performing the summary generation.    
 */
 
-include { INSPECT_BBDD               }  from '../modules/local/negative-ctrls/inspect_bbdd/main.nf'
-include { CN_READ_TAXONOMY           }  from '../modules/local/negative-ctrls/inspect_reads/main.nf'
-include { CN_TBPROFILER_TBDB         }  from '../modules/local/tbprofiler/cn_profile.tbdb/main.nf'
-include { CN_MTBSEQ_SINGLE           }  from '../modules/local/mtbseq/cn_single/main.nf'
-include { CN_COMPILE_SUMMARY_TUPLE   }  from '../modules/local/negative-ctrls/tuple_compile/main.nf'
-include { CN_TBPROFILE_COMPILE       }   from '../modules/local/tbprofiler/cn_compile/main.nf'
-include { CN_MTBSEQ_COMPILE          }   from '../modules/local/mtbseq/cn_compile/main.nf'
-include { CN_READS_SUMMARY           }   from '../modules/local/negative-ctrls/compile/main.nf'
-include { COMPILE_CN_READS_SUMMARY   }  from '../modules/local/negative-ctrls/combine-qc-results/main.nf'
+include { INSPECT_BBDD               } from '../modules/local/negative-ctrls/inspect_bbdd/main.nf'
+include { CN_READ_TAXONOMY           } from '../modules/local/negative-ctrls/inspect_reads/main.nf'
+include { CN_TBPROFILER_TBDB         } from '../modules/local/tbprofiler/cn_profile.tbdb/main.nf'
+include { CN_MTBSEQ_SINGLE           } from '../modules/local/mtbseq/cn_single/main.nf'
+include { CN_COMPILE_SUMMARY_TUPLE   } from '../modules/local/negative-ctrls/tuple_compile/main.nf'
+include { CN_TBPROFILE_COMPILE       } from '../modules/local/tbprofiler/cn_compile/main.nf'
+include { CN_MTBSEQ_COMPILE          } from '../modules/local/mtbseq/cn_compile/main.nf'
+include { CN_READS_SUMMARY           } from '../modules/local/negative-ctrls/compile/main.nf'
+include { COMPILE_CN_READS_SUMMARY   } from '../modules/local/negative-ctrls/combine-qc-results/main.nf'
 
 workflow NEGATIVE_CTRL_WF {
 

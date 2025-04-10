@@ -3,16 +3,18 @@ process CN_READS_SUMMARY {
 /*
     @author: Poppy J Hesketh Best
     @date: 2025-04-03
-    @version: 1.1
+    @version: 1.2.0
     @description:
         This module concatenates all the statistical files within the output directory
         capturing all the results to date and not just in this run
     @changelog:
-        v1.0-2025-04-03
+        v1.0.0-2025-04-03:
             Added - initial version
-        v1.1-2025-04-04
+        v1.1.0-2025-04-04:
             Added - taxonkit to get formatted taxonomy
-            Changed - output from TSV to CSV       
+            Changed - output from TSV to CSV
+        v1.2.0-2025-04-10:
+            Changed - from 'taxonkit lineage' to 'taxonkit reformat' for consistency
 */
 
     tag "${runID}"
@@ -46,9 +48,11 @@ process CN_READS_SUMMARY {
         done
 
     # Run taxonkit to get nicely formatted taxonomy
-        taxonkit lineage \\
+        taxonkit reformat \\
+            -f "{p};{c};{o};{f};{g};{s};{T}" \\
+            -F -t -i 4 \\
             --data-dir ${params.outdir}/db/taxonkit/ \\
-            -i 4 negative-controls.k2.report \\
+            negative-controls.k2.report \\
             > negative-controls.k2.report.tmp
 
     # Create header for final output

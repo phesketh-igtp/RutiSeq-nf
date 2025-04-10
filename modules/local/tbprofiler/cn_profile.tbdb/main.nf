@@ -1,19 +1,22 @@
 process CN_TBPROFILER_TBDB {
 
 /*
-        @author: Poppy J Hesketh Best
-        @date: 2025-04-01
-        @version: 0.1
-        @description: 
-                This module runs TB-Profiler on a single sample using the TBDB database. 
-                It is designed to be used in the context of the negative control workflow. 
-                It takes a tuple of sampleID, forward read file, and reverse read file as 
-                input. The output is the TB-Profiler classification and statistics files.
-                The TBDB database is a custom database for TB-Profiler that is used to 
-                identify Mycobacterium tuberculosis complex (MTBC) strains and their 
-                resistance profiles.
-                In the negative control, --no-delly is used as this causes a lot of failure
-                for the fasta files when they have very few reads
+    @author: Poppy J Hesketh Best
+    @date: 2025-04-01
+    @version: 1.0.0
+    @description: 
+        This module runs TB-Profiler on a single sample using the TBDB database. 
+        It is designed to be used in the context of the negative control workflow. 
+        It takes a tuple of sampleID, forward read file, and reverse read file as 
+        input. The output is the TB-Profiler classification and statistics files.
+        The TBDB database is a custom database for TB-Profiler that is used to 
+        identify Mycobacterium tuberculosis complex (MTBC) strains and their 
+        resistance profiles.
+        In the negative control, --no-delly is used as this causes a lot of failure
+        for the fasta files when they have very few reads
+	@changelog:
+		v1.0.0-2025-04-01: Intial version
+
 */
 
         tag "${sampleID}"
