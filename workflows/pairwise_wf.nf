@@ -17,6 +17,7 @@ workflow PAIRWISE_WF {
         tbdb_out_ch
         who_out_ch
         sampleID_list
+        tbprofiler_update_db
 
     main:
 
@@ -27,8 +28,8 @@ workflow PAIRWISE_WF {
         def no_col  = '\u001B[0m'
 
         // Compile TB-Profiler results
-            TBPROFILER_COMPILE_TBDB( runID, tbdb_out_ch )
-            TBPROFILER_COMPILE_WHO( runID, who_out_ch )
+            TBPROFILER_COMPILE_TBDB( runID, tbdb_out_ch, tbprofiler_update_db )
+            TBPROFILER_COMPILE_WHO( runID, who_out_ch, tbprofiler_update_db )
 
         // Compile stats and classifications from MTBSeq
             MTBSEQ_STATS_COMPILE( mtbseq_stats_ch, mtbseq_class_ch )

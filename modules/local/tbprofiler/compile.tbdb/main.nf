@@ -2,8 +2,8 @@ process TBPROFILER_COMPILE_TBDB {
 
 /*
     @author: Poppy J Hesketh Best
-    @date: 2025-04-01
-    @version: 1.0
+    @date: 2025-04-11
+    @version: 1.1.0
     @description:
         This process compiles the TB-Profiler results from the tbdb pipeline
         into a single file. Since TB-Profiler requires the results directory to be 
@@ -13,6 +13,9 @@ process TBPROFILER_COMPILE_TBDB {
         are then moved to the current working directory and renamed to remove the
         tbdb- prefix. Renaming is to prevent clashes with input files in downstream
         processes. The results are then moved to the output directory.
+    @changelog:
+        v1.0.0-2024-12-01: Initial version added
+        v1.1.0-2025-04-11: Added - a handover from the TBPROFILER db updaitng module
 */
 
     conda params.tbprofiler_env
@@ -30,6 +33,7 @@ process TBPROFILER_COMPILE_TBDB {
     input:
         val(runID)
         path(tbprofiler_results)
+        path(tbprofiler_update_db)
 
     output:
         path("tbdb-tbprofiler.txt"),                 emit: tbdb_results
