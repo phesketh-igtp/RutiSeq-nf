@@ -102,38 +102,38 @@ workflow {
         ······································································································
         */
 
-            // Create channel from sample sheet
-                Channel
-                    .fromPath(params.samplesheet)
-                    .ifEmpty { error "Sample sheet file '${params.samplesheet}' not found or empty" }
-                    .splitCsv(header: true, sep: ',')
-                    .map { row ->
-                        def requiredColumns = ['originalID', 'sampleID', 'forward_path', 'reverse_path', 'type']
-                        def missingColumns = requiredColumns.findAll { !row.containsKey(it) }
-                        if (missingColumns) {
-                            error "Missing required column(s) in samplesheet: ${missingColumns.join(', ')}"
-                        }
-                        
-                        // Check for empty paths
-                        if (!row.forward_path.trim() || !row.reverse_path.trim()) {
-                            error "Empty file path found for sample ${row.sampleID}. Both forward and reverse paths must be provided."
-                        }
-                        
-                        // Use the file function with error checking for the existance of the files
-                        def forwardFile = file(row.forward_path.trim(), checkIfExists: true)
-                        def reverseFile = file(row.reverse_path.trim(), checkIfExists: true)
-                        
-                        tuple(row.sampleID.trim(), 
-                            forwardFile, 
-                            reverseFile, 
-                            row.type.trim()
-                        )
+        // Create channel from sample sheet
+            Channel
+                .fromPath(params.samplesheet)
+                .ifEmpty { error "Sample sheet file '${params.samplesheet}' not found or empty" }
+                .splitCsv(header: true, sep: ',')
+                .map { row ->
+                    def requiredColumns = ['originalID', 'sampleID', 'forward_path', 'reverse_path', 'type']
+                    def missingColumns = requiredColumns.findAll { !row.containsKey(it) }
+                    if (missingColumns) {
+                        error "Missing required column(s) in samplesheet: ${missingColumns.join(', ')}"
                     }
-                    .branch {
-                        sample: it[3] == 'sample'
-                        control: it[3] == 'control'
+                        
+            // Check for empty paths
+                if (!row.forward_path.trim() || !row.reverse_path.trim()) {
+                    error "Empty file path found for sample ${row.sampleID}. Both forward and reverse paths must be provided."
                     }
-                    .set { branched_samples_by_type }
+                        
+                // Use the file function with error checking for the existance of the files
+                def forwardFile = file(row.forward_path.trim(), checkIfExists: true)
+                def reverseFile = file(row.reverse_path.trim(), checkIfExists: true)
+                        
+                tuple(row.sampleID.trim(), 
+                    forwardFile, 
+                    reverseFile, 
+                    row.type.trim()
+                    )
+                }
+                .branch {
+                    sample: it[3] == 'sample'
+                    control: it[3] == 'control'
+                }
+                .set { branched_samples_by_type }
 
             // Remove the 'type' from the tuples and ensure only 3 elements
             samples_ch = branched_samples_by_type.sample.map { it -> 
@@ -167,7 +167,6 @@ workflow {
         /*
         ······································································································
             NEGATIVE CONTROL WORKFLOW (NEGATIVE_CONTROL_WF)
-
                 - From the controls_ch, the samples are taxonomically classified with Kaiju
                 - Taxonomically classified sample reads and produces a summary of the reads
         ······································································································
@@ -230,7 +229,6 @@ workflow {
         /*
         ······································································································
             SINGLE SAMPLE ANALYSIS (SINGLE_WF):
-                
                 - Taxonomically classified sample reads and produces a summary read stats
                 - Paritions MTBc reads for downstream analysis
                 - Performs TB-Profiler analysis on MTBc reads (using both WHO and TBDB databases)
@@ -252,7 +250,6 @@ workflow {
         /*
         ······································································································
             PAIRWISE SAMPLE ANALYSIS (PAIRWISE_WF):
-
                 - PAIRWISE_WF performs comparative analysis of
                 - Performs pairwise SNP clustering
                 - Creates concatenated variant positions alignments
@@ -279,19 +276,15 @@ workflow {
                 tbdb_out_ch         =   tbdb_out_files.collect()
                 who_out_ch          =   who_out_files.collect()
 
-            PAIRWISE_WF( params.runID,
-                            mtbseq_stats_ch,
-                            mtbseq_class_ch,
-                            tbdb_out_ch,
-                            who_out_ch,
-                            sampleID_list,
-                            TBPROFILER_DB_UPDATE.out.tbprofiler_update_db
+            PAIRWISE_WF( params.runID, mtbseq_stats_ch,
+                        mtbseq_class_ch, tbdb_out_ch,
+                        who_out_ch, sampleID_list,
+                        TBPROFILER_DB_UPDATE.out.tbprofiler_update_db
                         )
 
         /*
         ······································································································
             SUMMARY WORKFLOW (SUMMARU_WF):
-
                 - Produces the EXCEL summary tables
                 - Visualise phylogenetic trees 
                 - Generate MJN files for visualisation in PopArt
