@@ -16,15 +16,18 @@ include { SUMMARY_WF }                  from './workflows/summary_wf.nf'
 */
 
 def helpMessage() {
-    log.info"""
+    log.info """
     Usage:
 
     Mandatory arguments:
         --samplesheet           [CSV]   Path to input data (must be surrounded with quotes)
         --outDir                [path]  The output directory where the results will be saved
+        --workDir               [path]  The temproary work directory for intermediate files (can be deleted when 
+                                        analysis is complete to recovered storage space)
 
     Optional arguments:
         --metadata              [CSV]   Metadata file containing the sampleID,sampling_data;loc data.
+        --help                          Print this help message.
 
     Additional parameters:
 
@@ -43,6 +46,8 @@ def helpMessage() {
             --iqtree_model      [chr]   Defines the maximum-likelihood model used by ID-Tree for variant position phylogeny (default: GTR+G4).
 
     """
+
+    exit 0
 }
 
 /* 
@@ -50,7 +55,7 @@ def helpMessage() {
 */
 
 workflow {
-    
+
     def color_purple = '\u001B[35m'
     def color_green  = '\u001B[32m'
     def color_red    = '\u001B[31m'
@@ -73,6 +78,19 @@ workflow {
     ${color_reset}
     """
 
+    if (params.help) { helpMessage() }
+
+    def missingParams = []
+        if (params.samplesheet == null) missingParams << "samplesheet"
+        if (params.runID == null) missingParams << "runID"
+        if (params.outDir == null) missingParams << "outDir"
+        if (params.workDir == null) missingParams << "workDir"
+
+        if (missingParams.size() > 0) {
+            error "The following required parameters are missing: ${missingParams.join(', ')}. Please provide them with the appropriate flags."
+            helpMessage()
+        }
+
         /*
             DEFINE INPUT ARGUMENTS: expected argument to be provided at time of running 
                 nextflow at CLI
@@ -82,10 +100,10 @@ workflow {
                 --workflow [full, single, pairwise, summary, barcoding]
         */
 
-        if (params.samplesheet == null) { error "Please provide a samplesheet CSV file with --samplesheet (csv)" }
-        if (params.runID == null) { error "Please provide a runID file with --runID (chr)" }
-        if (params.outDir == null) { error "Please provide a results/database directory for the RutiSeq db (location where new or past results will be) with --outDir (path)" }
-        if (params.workDir == null) { error "Please provide a work directory for the temporary intermediate files --workDir (path)" }
+        if (params.samplesheet == null) { error "Please provide a samplesheet CSV file with --samplesheet (csv)"; helpMessage() }
+        if (params.runID == null) { error "Please provide a runID file with --runID (chr)"; helpMessage() }
+        if (params.outDir == null) { error "Please provide a results/database directory for the RutiSeq db (location where new or past results will be) with --outDir (path)"; helpMessage() }
+        if (params.workDir == null) { error "Please provide a work directory for the temporary intermediate files --workDir (path)"; helpMessage() }
 
         /*
         ······································································································
