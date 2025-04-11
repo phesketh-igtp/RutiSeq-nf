@@ -2,6 +2,21 @@
 
 set -euo pipefail
 
+## create-variable-region-nexus.sh
+##  @author: Poppy J Hesketh Best
+##  @version: v1.1.0
+##  @date: 2025-04-11
+##  @description:
+##      This script uses the MTBSeq outputs, and a cluster file, 
+##          cluster identifiers to extract the SNPs unique to the 
+##          selection of genomes within a cluster and creates those
+##          alignments, before extracting those genomic positions from
+##          the reference genomes, and the MTBC_ancestor (Comas 2013).
+##      A nexus file will be generated, and it will include the MRCA
+##  @changelog
+##         v1.0.0-2024-12-01: Initial version
+##         v1.1.0-2025-04-11: Changed - Included input flags
+
 # Help function
 usage() {
     echo "Usage: $0 -c <clusterID> -p <pairwise_clusters> -f <snp_fasta> -t <snp_tab> -m <mtbc_ancestor_path> -n <ancestor> -l <lineage>"
