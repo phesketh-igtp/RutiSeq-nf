@@ -37,7 +37,7 @@ process MTBSEQ_LINEAGE_GROUP {
 
         //Matrix ouput
         path("Matrices/*")
-        path("Matrices/${lineage}.d${distance}.matrix.tsv.gz"),            emit: matrix_dir
+        path("Matrices/${lineage}.d${distance}.matrix.tsv"),            emit: matrix_dir
 
     script:
 

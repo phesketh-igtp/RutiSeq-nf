@@ -1,89 +1,85 @@
 #!/bin/bash
-##set -euo pipefail
 
-clusterID=$1
-pairwise_clusters=$2
-snp_fasta=$3
-snp_tab=$4
-mtbc_ancestor_path=$5
-ancestor=$6
-lineage=$7
+set -euo pipefail
 
-# create the output and temporary directories
-    mkdir -p nexus/ fasta/ positions/
+# Help function
+usage() {
+    echo "Usage: $0 -c <clusterID> -p <pairwise_clusters> -f <snp_fasta> -t <snp_tab> -m <mtbc_ancestor_path> -n <ancestor> -l <lineage>"
+    echo
+    echo "Options:"
+    echo "  -c    Cluster ID"
+    echo "  -p    Pairwise cluster TSV (col1=sampleID, colx=clusterID)"
+    echo "  -f    SNP FASTA file"
+    echo "  -t    SNP table"
+    echo "  -m    MTBC ancestor file path"
+    echo "  -n    Ancestor file (CSV format)"
+    echo "  -l    Lineage identifier"
+    echo "  -h    Show this help message"
+    exit 1
+}
 
-# create the list of genomes within the cluster
-    grep "${clusterID}" ${pairwise_clusters} | cut -f1 > ${clusterID}.genomes.list
+# Parse options
+while getopts ":c:p:f:t:m:n:l:h" opt; do
+  case ${opt} in
+    c ) clusterID=$OPTARG ;;
+    p ) pairwise_clusters=$OPTARG ;;
+    f ) snp_fasta=$OPTARG ;;
+    t ) snp_tab=$OPTARG ;;
+    m ) mtbc_ancestor_path=$OPTARG ;;
+    n ) ancestor=$OPTARG ;;
+    l ) lineage=$OPTARG ;;
+    h ) usage ;;
+    \? ) echo "Invalid option: -$OPTARG" >&2; usage ;;
+    : ) echo "Option -$OPTARG requires an argument." >&2; usage ;;
+  esac
+done
 
-#·················································································#
+# Check for required arguments
+if [[ -z "${clusterID:-}" || -z "${pairwise_clusters:-}" || -z "${snp_fasta:-}" || -z "${snp_tab:-}" || -z "${mtbc_ancestor_path:-}" || -z "${ancestor:-}" || -z "${lineage:-}" ]]; then
+    echo "Missing required arguments." >&2
+    usage
+fi
 
-# create cluster directory and split up fasta file in cluster fastas
-    echo "" > ${clusterID}.fasta
-    while IFS=";" read -r genome; do
-        seqkit grep -w 0 -n -p ${genome} ${snp_fasta} >> ${clusterID}.fasta
-    done < ${clusterID}.genomes.list
+# Create output and temp directories
+mkdir -p nexus/ fasta/ positions/
 
-# run snp-sites on the fastas
-    snp-sites ${clusterID}.fasta > ${clusterID}.snpsites.fasta
-    snp-sites ${clusterID}.fasta -v | cut -f2 | sed '1,4d' > positions/${clusterID}_positions.tab
+# Create list of genomes in the cluster
+grep "${clusterID}" "${pairwise_clusters}" | cut -f1 > "${clusterID}.genomes.list"
 
-#·················································································#
+# Build cluster FASTA
+> "${clusterID}.fasta"
+while IFS=";" read -r genome; do
+    seqkit grep -w 0 -n -p "${genome}" "${snp_fasta}" >> "${clusterID}.fasta"
+done < "${clusterID}.genomes.list"
 
-# Create the variant alignment for the NODE ancestor
-    sed -i 's/ /,/g' ${ancestor}
-    #for i in `cat positions/${clusterID}_positions.tab`; do 
-    #    sed -n $((i+1))'p' ${ancestor} | cut -d ',' -f4
-    #done > ${clusterID}_node_anc
+# Run snp-sites
+snp-sites "${clusterID}.fasta" > "${clusterID}.snpsites.fasta"
+snp-sites "${clusterID}.fasta" -v | cut -f2 | sed '1,4d' > "positions/${clusterID}_positions.tab"
 
-    awk -F ',' 'NR==FNR {pos[$1+1]; next} FNR in pos {print $4}' positions/${clusterID}_positions.tab \
-        ${ancestor} > ${clusterID}_node_anc
-    
-    # convert the column in fasta
-    paste -s -d "" ${clusterID}_node_anc | sed "1i >MRCA" > ${clusterID}_MRCA.fasta
+# Generate NODE ancestor sequence
+sed -i 's/ /,/g' "${ancestor}"
+awk -F ',' 'NR==FNR {pos[$1+1]; next} FNR in pos {print $4}' "positions/${clusterID}_positions.tab" "${ancestor}" > "${clusterID}_node_anc"
+paste -s -d "" "${clusterID}_node_anc" | sed "1i >MRCA" > "${clusterID}_MRCA.fasta"
 
-#·················································································#
+# H37Rv variant positions
+awk 'NR==FNR {pos[$1+2]; next} FNR in pos {print $3}' "positions/${clusterID}_positions.tab" "${snp_tab}" > "${clusterID}_tmp_refseq"
+paste -s -d "" "${clusterID}_tmp_refseq" | sed '1i >H37Rv' > "${clusterID}_H37Rv.fasta"
 
-# H37Rv variance positions 
-    #for i in `cat positions/${clusterID}_positions.tab`; do 
-    #    sed -n $((i+2))'p' ${snp_tab} | cut -f3
-    #done > ${clusterID}_tmp_refseq
+# Genomic positions
+awk 'NR==FNR {pos[$1+2]; next} FNR in pos {print $1}' "positions/${clusterID}_positions.tab" "${snp_tab}" > "positions/${clusterID}_genomic_positions.tab"
 
-    awk 'NR==FNR {pos[$1+2]; next} FNR in pos {print $3}' positions/${clusterID}_positions.tab ${snp_tab} > ${clusterID}_tmp_refseq
+# Valencian ancestor (MTB_anc) variant positions
+cp "${mtbc_ancestor_path}" "${lineage}.tmp.MTB_anc.pos.gz"
+gunzip "${lineage}.tmp.MTB_anc.pos.gz"
 
-    # convert column into fasta
-    paste -s -d "" ${clusterID}_tmp_refseq | sed '1i >H37Rv' > ${clusterID}_H37Rv.fasta
+awk 'NR==FNR {lines[$1]; next} FNR in lines {print $3}' "positions/${clusterID}_genomic_positions.tab" "${lineage}.tmp.MTB_anc.pos" > "${clusterID}_tmp_MTB_anc"
+paste -s -d "" "${clusterID}_tmp_MTB_anc" | sed '1i >MTB_anc' > "${clusterID}_MTB_anc.fasta"
+rm -f "${lineage}.tmp.MTB_anc.pos"
 
-#·················································································#
+# Create final combined FASTA
+cat "${clusterID}.snpsites.fasta" "${clusterID}_H37Rv.fasta" "${clusterID}_MTB_anc.fasta" "${clusterID}_MRCA.fasta" > "fasta/${clusterID}_refseq_mrca.fasta"
 
-# Get genomic positions
-    #while read -r position; do
-    #    sed -n $((position+2))'p' ${snp_tab} | cut -f 1; 
-    #done < positions/${clusterID}_positions.tab > positions/${clusterID}_genomic_positions.tab
+# Convert to NEXUS format
+seqret -osformat2 nexus -sequence "fasta/${clusterID}_refseq_mrca.fasta" -outseq "nexus/${clusterID}_refseq_mrca.nex"
 
-    awk 'NR==FNR {pos[$1+2]; next} FNR in pos {print $1}' positions/${clusterID}_positions.tab ${snp_tab} > positions/${clusterID}_genomic_positions.tab
-
-
-#·················································································#
-
-# Valencian ancestor (MTB_anc) variance positions
-    cp ${mtbc_ancestor_path} ${lineage}.tmp.MTB_anc.pos.gz
-    gunzip ${lineage}.tmp.MTB_anc.pos.gz
-
-    #for i in `cat positions/${clusterID}_genomic_positions.tab`; do 
-    #    sed -n ${i}'p' ${lineage}.tmp.MTB_anc.pos | cut -f3
-    #done > ${clusterID}_tmp_MTB_anc
-    awk 'NR==FNR {lines[$1]; next} FNR in lines {print $3}' positions/${clusterID}_genomic_positions.tab ${lineage}.tmp.MTB_anc.pos > ${clusterID}_tmp_MTB_anc
-
-    # convert the column in fasta
-    paste -s -d "" ${clusterID}_tmp_MTB_anc | sed '1i >MTB_anc' > ${clusterID}_MTB_anc.fasta
-
-    # remove the large tab file
-    rm -rf ${lineage}.tmp.MTB_anc.pos.gz
-
-#·················································································#
-
-# Create final FASTA file
-    cat ${clusterID}.snpsites.fasta ${clusterID}_H37Rv.fasta ${clusterID}_MTB_anc.fasta ${clusterID}_MRCA.fasta > fasta/${clusterID}_refseq_mrca.fasta
-
-# convert to nexus for visualisation
-    seqret -osformat2 nexus -sequence fasta/${clusterID}_refseq_mrca.fasta -outseq nexus/${clusterID}_refseq_mrca.nex
+echo "Process complete for cluster ${clusterID}."

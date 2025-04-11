@@ -38,10 +38,10 @@ process PREPARE_NEXUS_PATHS{
             | sed '1!{/^SampleID/d;}' \\
             | sed '1!{/^nX-/d;}' > unique.clusters.list
 
-    # Remove clusters that are smaller than 5 genomes
+    # Remove clusters that are smaller than 3 genomes
         while read clusterID; do
             count=\$(grep -c "\${clusterID}" "${pairwise_clusters}")
-            if [ "\${count}" -ge 5 ]; then
+            if [ "\${count}" -ge 3 ]; then
                 echo "\${clusterID}" >> final_clusters.list
             fi
         done < unique.clusters.list
