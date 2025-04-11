@@ -18,7 +18,7 @@ process TAXONKIT_DB_UPDATE {
 
     tag "$runID"
 
-    conda "bioconda::taxonkit=0.19.0"
+    conda params.taxonkit_env
 
     container { 
             if (workflow.containerEngine == 'singularity') return params.singularity_tbprofiler
