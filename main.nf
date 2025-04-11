@@ -81,10 +81,10 @@ workflow {
                 --workflow [full, single, pairwise, summary, barcoding]
         */
 
-            if (params.samplesheet == null) { error "Please provide a samplesheet CSV file with --samplesheet (csv)" }
-            if (params.runID == null) { error "Please provide a runID file with --runID (chr)" }
-            if (params.outDir == null) { error "Please provide a results/database directory for the RutiSeq db (location where new or past results will be) with --outDir (path)" }
-            if (params.workDir == null) { error "Please provide a work directory for the temporary intermediate files --workDir (path)" }
+        if (params.samplesheet == null) { error "Please provide a samplesheet CSV file with --samplesheet (csv)" }
+        if (params.runID == null) { error "Please provide a runID file with --runID (chr)" }
+        if (params.outDir == null) { error "Please provide a results/database directory for the RutiSeq db (location where new or past results will be) with --outDir (path)" }
+        if (params.workDir == null) { error "Please provide a work directory for the temporary intermediate files --workDir (path)" }
 
         /*
         ······································································································
