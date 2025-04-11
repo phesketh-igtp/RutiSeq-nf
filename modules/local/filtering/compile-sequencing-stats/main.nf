@@ -16,7 +16,7 @@ process COMPILE_SEQUENCING_STATS {
 
     conda params.r_stats_env
 
-    publishDir "${params.outdir}/bbdd/results/", mode: 'copy'
+    publishDir "${params.outDir}/bbdd/results/", mode: 'copy'
 
     input:
         val(runID)

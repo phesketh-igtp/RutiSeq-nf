@@ -24,7 +24,7 @@ process TBPROFILER_COMPILE_WHO {
             } else { 'quay.io/biocontainers/tb-profiler' }
     }
     
-    publishDir "${params.outdir}/bbdd/tbprofiler/who-only/", mode: 'copy'
+    publishDir "${params.outDir}/bbdd/tbprofiler/who-only/", mode: 'copy'
 
     input:
         val runID
@@ -32,39 +32,29 @@ process TBPROFILER_COMPILE_WHO {
         path(tbprofiler_update_db)
 
     output:
-        path("who-tbprofiler.txt"),               emit: who_results
+        path("who-tbprofiler.txt"),         emit: who_results
         path("who-tbprofiler.variants.csv")
         path("who-tbprofiler.variants.txt")
 
     script:
 
         """
-        mkdir -p results/; mkdir -p bam/; mkdir -p vcf/
+        mkdir -p results/
 
         # create the symbolic links to the result directories
-        ln -s ${params.outdir}/bbdd/tbprofiler/who-only/results/* results/
-        #ln -s ${params.outdir}/bbdd/tbprofiler/who-only/bam/* bam/
-        #ln -s ${params.outdir}/bbdd/tbprofiler/who-only/vcf/* vcf/
+            ln -s ${params.outDir}/bbdd/tbprofiler/who-only/results/* results/
 
-        tb-profiler collate # --full --mark_missing --all_variants --itol
+        # run the `tb-profiler collate` function
+            tb-profiler collate
 
         # rm the prefix in the files to enable merging later
-        sed -i 's/who-//g' tbprofiler.txt
-        sed -i 's/who-//g' tbprofiler.variants.csv
-        sed -i 's/who-//g' tbprofiler.variants.txt
-        #sed -i 's/who-//g' tbprofiler.dr.indiv.itol.txt
-        #sed -i 's/who-//g' tbprofiler.dr.itol.txt
-        #sed -i 's/who-//g' tbprofiler.lineage.itol.txt
+            sed -i 's/who-//g' tbprofiler.txt
+            sed -i 's/who-//g' tbprofiler.variants.csv
+            sed -i 's/who-//g' tbprofiler.variants.txt
 
         # Move the files to give them unique names
-        mv tbprofiler.txt                   who-tbprofiler.txt
-        mv tbprofiler.variants.csv          who-tbprofiler.variants.csv
-        mv tbprofiler.variants.txt          who-tbprofiler.variants.txt
-        #mv tbprofiler.dr.indiv.itol.txt    who-tbprofiler.dr.indiv.itol.txt
-        #mv tbprofiler.dr.itol.txt          who-tbprofiler.dr.itol.txt
-        #mv tbprofiler.lineage.itol.txt     who-tbprofiler.lineage.itol.txt
-
+            mv tbprofiler.txt who-tbprofiler.txt
+            mv tbprofiler.variants.csv who-tbprofiler.variants.csv
+            mv tbprofiler.variants.txt who-tbprofiler.variants.txt
         """
-
-
 }

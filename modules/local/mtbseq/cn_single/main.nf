@@ -22,7 +22,7 @@ process CN_MTBSEQ_SINGLE {
             else return null
         }
     
-    publishDir "${params.outdir}/negative-controls/mtbseq/", mode: 'copy'
+    publishDir "${params.outDir}/negative-controls/mtbseq/", mode: 'copy'
 
     input:
         tuple val(sampleID), 

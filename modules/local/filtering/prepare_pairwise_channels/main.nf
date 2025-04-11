@@ -12,7 +12,7 @@ process PREPARE_PAIRWISE_CHANNELS {
 
     conda params.r_stats_env
 
-    publishDir "${params.outdir}/results/", mode: 'copy'
+    publishDir "${params.outDir}/results/", mode: 'copy'
     
     input:
         val(runID)

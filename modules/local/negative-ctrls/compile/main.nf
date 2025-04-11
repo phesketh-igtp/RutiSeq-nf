@@ -27,7 +27,7 @@ process CN_READS_SUMMARY {
             else if (workflow.containerEngine == 'apptainer') return params.apptainer_taxonkit
     }
         
-    publishDir "${params.outdir}/negative-controls/", mode: 'copy'
+    publishDir "${params.outDir}/negative-controls/", mode: 'copy'
 
     input:
         val(runID)
@@ -43,7 +43,7 @@ process CN_READS_SUMMARY {
     script:
     """
     # Concatenate the k2.results
-        for file in ${params.outdir}/negative-controls/Classification/*.k2.report; do
+        for file in ${params.outDir}/negative-controls/Classification/*.k2.report; do
             cat \${file} | sed '1d' | cut -f1,2,3,6 >> negative-controls.k2.report
         done
 
@@ -51,7 +51,7 @@ process CN_READS_SUMMARY {
         taxonkit reformat \\
             -f "{p};{c};{o};{f};{g};{s};{T}" \\
             -F -t -i 4 \\
-            --data-dir ${params.outdir}/db/taxonkit/ \\
+            --data-dir ${params.outDir}/db/taxonkit/ \\
             negative-controls.k2.report \\
             > negative-controls.k2.report.tmp
 
@@ -66,7 +66,7 @@ process CN_READS_SUMMARY {
     # Concatenate the read statistics
         echo "sampleID,file,format,type,num_seqs,sum_le,min_len,avg_len,max_len,Q1,Q2,Q3,sum_gap,N50,N50_num,Q20(%),Q30(%),AvgQual,GC(%),sum_n" > negative-controls.stats.csv
 
-        for file in ${params.outdir}/negative-controls/Statistics/*.stats.tsv; do
+        for file in ${params.outDir}/negative-controls/Statistics/*.stats.tsv; do
             cat \${file} | sed '1d' | sed 's@\t@,@g' >> negative-controls.stats.csv
         done
     """

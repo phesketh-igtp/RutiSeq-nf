@@ -13,7 +13,7 @@ process TABULATE_VARIANT_SITES{
 
     conda params.r_stats_env
 
-    publishDir "${params.outdir}/results/${runID}/snps/variants-tab/", mode: 'copy'
+    publishDir "${params.outDir}/results/${runID}/snps/variants-tab/", mode: 'copy'
 
     input:
     val(runID)

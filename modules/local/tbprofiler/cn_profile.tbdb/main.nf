@@ -30,7 +30,7 @@ process CN_TBPROFILER_TBDB {
                 else return null
         }
         
-        publishDir "${params.outdir}/negative-controls/tbprofiler/", mode: 'copy'
+        publishDir "${params.outDir}/negative-controls/tbprofiler/", mode: 'copy'
 
         input:
                 tuple val(sampleID), 
@@ -57,7 +57,7 @@ process CN_TBPROFILER_TBDB {
                 -2 ${reverse} \\
                 -p tbdb-${sampleID} \\
                 --txt --dir . \\
-                --db ${params.outdir}/db/tbprofiler/tbdb \\
+                --db ${params.outDir}/db/tbprofiler/tbdb \\
                 --threads ${task.cpus} \\
                 --no_delly ${additional_args} \\
                 > tb-profiler.out 2> tb-profiler.err

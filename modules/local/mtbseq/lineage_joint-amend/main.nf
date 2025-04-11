@@ -22,7 +22,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
     ///        } else { 'quay.io/biocontainers/mtbseq' }
     ///}
                 
-    publishDir "${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/", mode: 'copy', overwrite: true
+    publishDir "${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/", mode: 'copy', overwrite: true
 
     input:
         val runID
@@ -59,8 +59,8 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
-        #rm -rf ${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Amend/*
-        #gzip --best --force --quiet ${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Joint/*.tab
+        #rm -rf ${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/*
+        #gzip --best --force --quiet ${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Joint/*.tab
 
         # make the expected directories
             mkdir -p Position_Tables/ Called/ Amend/ Joint/
@@ -72,14 +72,14 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
         # Create symbolic links to the apprpriate files (only if the file does not exist)
             while IFS=',' read -r samples; do
 
-                for file in ${params.outdir}/bbdd/mtbseq/samples/\${samples}/Position_Tables/*.tab; do
+                for file in ${params.outDir}/bbdd/mtbseq/samples/\${samples}/Position_Tables/*.tab; do
                     dest="Position_Tables/\$(basename "\$file")"
                     if [[ ! -e "\$dest" && ! -L "\$dest" ]]; then
                         ln -s "\$file" "\$dest"
                     fi
                 done
 
-                for file in ${params.outdir}/bbdd/mtbseq/samples/\${samples}/Called/*.tab; do
+                for file in ${params.outDir}/bbdd/mtbseq/samples/\${samples}/Called/*.tab; do
                     dest="Called/\$(basename "\$file")"
                     if [[ ! -e "\$dest" && ! -L "\$dest" ]]; then
                         ln -s "\$file" "\$dest"
@@ -122,7 +122,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
             echo '${params.mtbseq_snp_distance.join('\n')}' > snp_distances
 
             for distance in \$(cat snp_distances); do
-                echo "${lineage},\${distance},${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Joint,${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Amend,${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/${lineage}_samples.txt" >> mtbseq-group.tuple.csv
+                echo "${lineage},\${distance},${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Joint,${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend,${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/${lineage}_samples.txt" >> mtbseq-group.tuple.csv
             done
 
         # Check the Amend file is it actually has any sequences in the fasta

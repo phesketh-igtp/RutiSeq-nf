@@ -14,7 +14,7 @@ process CONCATENATE_CLUSTERS {
         The output file is named "unprocessed_clusters.tsv".
 */
 
-    publishDir "${params.outdir}/bbdd/results/main/", mode: 'copy'
+    publishDir "${params.outDir}/bbdd/results/main/", mode: 'copy'
 
     input:
         path(clusters)
@@ -29,7 +29,7 @@ process CONCATENATE_CLUSTERS {
             echo "lineage\tdistance\tgenomes\tgroup" > unprocessed_clusters.tsv
 
         # Concatenate all files
-            for file in ${params.outdir}/bbdd/mtbseq/pairwise/*/Groups/*clusters.tsv; do 
+            for file in ${params.outDir}/bbdd/mtbseq/pairwise/*/Groups/*clusters.tsv; do 
                 cat \$file >> unprocessed_clusters.tsv
             done
 

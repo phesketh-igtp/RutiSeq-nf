@@ -37,8 +37,8 @@ workflow NEGATIVE_CTRL_WF {
 
             // After the FILE_CHECK process
             verified_controls_ch = INSPECT_BBDD.out.controls_paths
-                .collectFile(name: 'all_controls_paths.txt', newLine: true, storeDir: params.outdir)
-                .ifEmpty { file("${params.outdir}/empty_all_controls_paths.txt") }
+                .collectFile(name: 'all_controls_paths.txt', newLine: true, storeDir: params.outDir)
+                .ifEmpty { file("${params.outDir}/empty_all_controls_paths.txt") }
 
             // Parse the controls into the desired tuple structure
                 comp_controls_ch = verified_controls_ch

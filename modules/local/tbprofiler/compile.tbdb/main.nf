@@ -28,7 +28,7 @@ process TBPROFILER_COMPILE_TBDB {
         }
     }
 
-    publishDir "${params.outdir}/bbdd/tbprofiler/", mode: 'copy'
+    publishDir "${params.outDir}/bbdd/tbprofiler/", mode: 'copy'
 
     input:
         val(runID)
@@ -50,9 +50,9 @@ process TBPROFILER_COMPILE_TBDB {
 
         # create the symbolic links to the result directories
                 mv tbdb-* tmp/
-            ln -s ${params.outdir}/bbdd/tbprofiler/results/* results/;
-            ln -s ${params.outdir}/bbdd/tbprofiler/bam/* bam/;
-            ln -s ${params.outdir}/bbdd/tbprofiler/vcf/* vcf/
+            ln -s ${params.outDir}/bbdd/tbprofiler/results/* results/;
+            ln -s ${params.outDir}/bbdd/tbprofiler/bam/* bam/;
+            ln -s ${params.outDir}/bbdd/tbprofiler/vcf/* vcf/
 
         # perform tb profiler compile:
             tb-profiler collate --full --mark_missing --all_variants --itol

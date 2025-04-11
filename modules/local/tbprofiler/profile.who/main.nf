@@ -22,7 +22,7 @@ process TBPROFILER_PROFILE_WHO {
             else return null
         }
     
-    publishDir "${params.outdir}/bbdd/tbprofiler/who-only/", mode: 'copy'
+    publishDir "${params.outDir}/bbdd/tbprofiler/who-only/", mode: 'copy'
 
     input:
         tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse), path(mtbseq_class), 
@@ -52,11 +52,11 @@ process TBPROFILER_PROFILE_WHO {
                     -2 ${mtbc_reverse} \\
                     -p who-${sampleID} \\
                 --txt --dir . \\
-                --db ${params.outdir}/db/tbprofiler/tbdb/who \\
+                --db ${params.outDir}/db/tbprofiler/tbdb/who \\
                 --threads ${task.cpus} ${additional_args}
 
         # remove the published files from the previous module:
-            rm -f  ${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R1.fastq.gz
-            rm -f  ${params.outdir}/bbdd/tbprofiler/${sampleID}_mtbc_R2.fastq.gz
+            rm -f  ${params.outDir}/bbdd/tbprofiler/${sampleID}_mtbc_R1.fastq.gz
+            rm -f  ${params.outDir}/bbdd/tbprofiler/${sampleID}_mtbc_R2.fastq.gz
         """
 }

@@ -20,7 +20,7 @@ def helpMessage() {
 
     Mandatory arguments:
         --samplesheet           [CSV]   Path to input data (must be surrounded with quotes)
-        --outdir                [path]  The output directory where the results will be saved
+        --outDir                [path]  The output directory where the results will be saved
 
     Optional arguments:
         --metadata              [CSV]   Metadata file containing the sampleID,sampling_data;loc data.
@@ -75,23 +75,16 @@ workflow {
         /*
             DEFINE INPUT ARGUMENTS: expected argument to be provided at time of running 
                 nextflow at CLI
-
             nextflow run main.nf \
                 --samplesheet /path/to/sample-sheet
                 --runID [a-zA-Z0-9]
                 --workflow [full, single, pairwise, summary, barcoding]
-
         */
 
-        // Create channel from sample sheet
-            if (params.samplesheet == null) {
-                error "Please provide a samplesheet CSV file with --samplesheet (csv)"
-            }
-
-        // Create channel from sample sheet
-            if (params.runID == null) {
-                error "Please provide a runID file with --runID (chr)"
-            }
+            if (params.samplesheet == null) { error "Please provide a samplesheet CSV file with --samplesheet (csv)" }
+            if (params.runID == null) { error "Please provide a runID file with --runID (chr)" }
+            if (params.outDir == null) { error "Please provide a results/database directory for the RutiSeq db (location where new or past results will be) with --outDir (path)" }
+            if (params.workDir == null) { error "Please provide a work directory for the temporary intermediate files --workDir (path)" }
 
         /*
         ······································································································
@@ -192,8 +185,8 @@ workflow {
 
             // After the FILE_CHECK process
             verified_samples_ch = FILE_CHECK.out.sample_paths
-                .collectFile(name: 'all_sample_paths.txt', newLine: true, storeDir: params.outdir)
-                .ifEmpty { file("${params.outdir}/empty_all_sample_paths.txt") }
+                .collectFile(name: 'all_sample_paths.txt', newLine: true, storeDir: params.outDir)
+                .ifEmpty { file("${params.outDir}/empty_all_sample_paths.txt") }
 
             // Parse the samples into the desired tuple structure
             comp_samples_ch = verified_samples_ch

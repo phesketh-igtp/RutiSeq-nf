@@ -12,7 +12,7 @@ process GENERATE_TIMETREES {
 
     conda params.phylogeny_env
 
-    publishDir "${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/", mode: 'copy'
+    publishDir "${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/", mode: 'copy'
 
     input:
         tuple val(lineage), 
@@ -45,7 +45,7 @@ process GENERATE_TIMETREES {
         treetime --aln ${alignments} \\
                 --tree ${contree} \\
                 --dates dates.tsv \\
-                --outdir ${lineage}_timetree
+                --outDir ${lineage}_timetree
     """
 
 }

@@ -22,7 +22,7 @@ process TBPROFILER_PROFILE_TBDB {
                 else return null
         }
         
-        publishDir "${params.outdir}/bbdd/tbprofiler/", mode: 'copy'
+        publishDir "${params.outDir}/bbdd/tbprofiler/", mode: 'copy'
 
         input:
                 tuple val(sampleID), 
@@ -54,7 +54,7 @@ process TBPROFILER_PROFILE_TBDB {
                                 -2 ${mtbc_reverse} \\
                                 -p tbdb-${sampleID} \\
                                 --txt --dir . \\
-                                --db ${params.outdir}/db/tbprofiler/tbdb/tbdb \\
+                                --db ${params.outDir}/db/tbprofiler/tbdb/tbdb \\
                                 --threads ${task.cpus} ${additional_args}
 
                         touch bam/tbdb-${sampleID}.bam
@@ -64,7 +64,7 @@ process TBPROFILER_PROFILE_TBDB {
 
 
                 # remove the published files from the previous module:
-                        rm -f ${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R1.fastq.gz
-                        rm -f ${params.outdir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R2.fastq.gz
+                        rm -f ${params.outDir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R1.fastq.gz
+                        rm -f ${params.outDir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R2.fastq.gz
                 """
 }

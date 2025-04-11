@@ -27,7 +27,7 @@ process TAXONKIT_DB_UPDATE {
             else return null
         }
         
-    publishDir "${params.outdir}/db/taxonkit/", mode: 'copy', overwrite: true
+    publishDir "${params.outDir}/db/taxonkit/", mode: 'copy', overwrite: true
 
     input:
                 val(runID)
@@ -39,9 +39,9 @@ process TAXONKIT_DB_UPDATE {
     script:
 
         """
-        # Check if ${params.outdir}/db/taxonkit/last_update.txt exists
-            if [ -f ${params.outdir}/db/taxonkit/last_update.txt ]; then
-                last_update=\$(cat ${params.outdir}/db/taxonkit/last_update.txt)
+        # Check if ${params.outDir}/db/taxonkit/last_update.txt exists
+            if [ -f ${params.outDir}/db/taxonkit/last_update.txt ]; then
+                last_update=\$(cat ${params.outDir}/db/taxonkit/last_update.txt)
                 current_time=\$(date +%s)
                 week_in_seconds=604800
 
@@ -70,7 +70,7 @@ process TAXONKIT_DB_UPDATE {
             rm taxdump.tar.gz
 
         # Record the current time as the last update time
-            date +%s > ${params.outdir}/db/taxonkit/last_update.txt
+            date +%s > ${params.outDir}/db/taxonkit/last_update.txt
 
         touch update_taxonkit_db.txt
                 """

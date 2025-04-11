@@ -13,7 +13,7 @@ process PLOT_MAIN_PHYLOGENY {
 
     conda params.r_stats_env
 
-    publishDir "${params.outdir}/results/${runID}/phylogeny/", mode: 'copy'
+    publishDir "${params.outDir}/results/${runID}/phylogeny/", mode: 'copy'
 
     input:
         val(runID)

@@ -24,7 +24,7 @@ process TBPROFILER_DB_UPDATE {
                 else return null
         }
 
-        publishDir "${params.outdir}/db/tbprofiler/", mode: 'copy', overwrite: true
+        publishDir "${params.outDir}/db/tbprofiler/", mode: 'copy', overwrite: true
 
         input:
                 val(runID)
@@ -37,8 +37,8 @@ process TBPROFILER_DB_UPDATE {
 
         """
                 # Check if last_update.txt exists
-                        if [ -f ${params.outdir}/db/tbprofiler/last_update.txt ]; then
-                                last_update=\$(cat ${params.outdir}/db/tbprofiler/last_update.txt)
+                        if [ -f ${params.outDir}/db/tbprofiler/last_update.txt ]; then
+                                last_update=\$(cat ${params.outDir}/db/tbprofiler/last_update.txt)
                                 current_time=\$(date +%s)
                                 week_in_seconds=604800
 
@@ -68,7 +68,7 @@ process TBPROFILER_DB_UPDATE {
                                 --db_dir .
 
                 # Record the current time as the last update time
-                        date +%s > ${params.outdir}/db/tbprofiler/last_update.txt
+                        date +%s > ${params.outDir}/db/tbprofiler/last_update.txt
 
                         touch update_db.txt
         """

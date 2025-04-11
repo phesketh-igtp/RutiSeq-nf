@@ -13,7 +13,7 @@ process PROCESS_CLUSTERS {
 
     conda params.r_stats_env
     
-    publishDir "${params.outdir}/results/${runID}/clusters/", mode: 'copy'
+    publishDir "${params.outDir}/results/${runID}/clusters/", mode: 'copy'
 
     input:
         val(runID)

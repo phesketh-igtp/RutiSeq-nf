@@ -16,7 +16,7 @@ process GENERATE_NEXUS {
 
     tag "cluster: ${clusterID}"
 
-    publishDir "${params.outdir}/results/${runID}/networks/", mode: 'copy'
+    publishDir "${params.outDir}/results/${runID}/networks/", mode: 'copy'
 
     input:
         val(runID)

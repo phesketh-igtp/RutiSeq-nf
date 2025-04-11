@@ -15,7 +15,7 @@ process PREPARE_NEXUS_PATHS{
 
     tag "${lineage}"
 
-    publishDir "${params.outdir}/results/networks/${lineage}/", mode: 'copy'
+    publishDir "${params.outDir}/results/networks/${lineage}/", mode: 'copy'
 
     input:
         tuple val(lineage), 
@@ -48,7 +48,7 @@ process PREPARE_NEXUS_PATHS{
 
     # Create a CSV for generating a tuple of the paths
         for clusterID in `cat final_clusters.list`; do
-            echo "${lineage},\${clusterID},${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta,${params.outdir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab" >> nexus.tuple.csv
+            echo "${lineage},\${clusterID},${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta,${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab" >> nexus.tuple.csv
         done
 
     # touch the output incase the file is empty

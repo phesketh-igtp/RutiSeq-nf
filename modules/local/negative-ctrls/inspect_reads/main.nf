@@ -20,7 +20,7 @@ process CN_READ_TAXONOMY {
         } else { 'community.wave.seqera.io/library/kaiju_seqkit:6e4140ab47bd567e' }
     }
 
-    publishDir "${params.outdir}/negative-controls/", mode: 'link'
+    publishDir "${params.outDir}/negative-controls/", mode: 'link'
 
     input:
         tuple val(sampleID), 
