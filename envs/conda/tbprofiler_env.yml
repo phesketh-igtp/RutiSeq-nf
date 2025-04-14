@@ -4,5 +4,5 @@ channels:
   - bioconda
   - conda-forge #needed defaults channele or the environment will not create
 dependencies:
-  - conda-forge::python=3.13
+  - conda-forge::python=3.10
   - bioconda::tb-profiler=6.6.3
