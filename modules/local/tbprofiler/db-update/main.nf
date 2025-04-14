@@ -41,13 +41,15 @@ process TBPROFILER_DB_UPDATE {
                                 last_update=\$(cat ${params.outDir}/db/tbprofiler/last_update.txt)
                                 current_time=\$(date +%s)
                                 week_in_seconds=604800
-
+                        
                 # Calculate the difference between current time and last update
                                 time_diff=\$((current_time - last_update))
 
                 # If the difference is less than a week, exit
                                 if [ \$time_diff -lt \$week_in_seconds ]; then
                                         echo "Last update was less than a week ago. Skipping update."
+                                        tb-profiler update_tbdb
+                                        tb-profiler update_tbdb --branch who
                                         touch update_db.txt
                                         exit 0
                                 fi

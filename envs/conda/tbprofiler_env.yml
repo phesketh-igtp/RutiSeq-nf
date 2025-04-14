@@ -1,6 +1,7 @@
 name: tb-profiler_env
 channels:
 - bioconda
-- conda-forge
+- conda-forge #needed conda-forge channele or the environment will not create
+- defaults    #needed defaults channele or the environment will not create
 dependencies:
-- bioconda::tb-profiler=6.6.0
+- bioconda::tb-profiler=6.5.0
