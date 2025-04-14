@@ -1,9 +1,7 @@
 name: r-stats_env
-
 channels:
   - conda-forge
   - bioconda
-
 dependencies:
   - conda-forge::r-argparse=2.2.5
   - conda-forge::r-base=4.3.0

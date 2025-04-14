@@ -1,9 +1,7 @@
 name: taxonkit_env
-
 channels:
   - bioconda
   - conda-forge #needed conda-forge channele or the environment will not create
   - defaults    #needed defaults channele or the environment will not create
-
 dependencies:
   - bioconda::taxonkit=0.19.0
