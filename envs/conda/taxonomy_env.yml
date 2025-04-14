@@ -1,9 +1,11 @@
 name: taxonomy_env
+
 channels:
   - bioconda
   - conda-forge
+
 dependencies:
-- bioconda::fastp=0.24.0
-- bioconda::fastq-pair=1.0
-- bioconda::kraken2=2.14
-- bioconda::seqkit=2.10.0
+  - bioconda::fastp=0.24.0
+  - bioconda::fastq-pair=1.0
+  - bioconda::kraken2=2.14
+  - bioconda::seqkit=2.10.0

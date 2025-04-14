@@ -1,12 +1,14 @@
 name: snp-profiling_env
+
 channels:
-- conda-forge
-- bioconda
+  - conda-forge
+  - bioconda
+
 dependencies:
-- bioconda::bcftools=1.21
-- bioconda::emboss=6.6.0
-- bioconda::seqkit=2.10.0
-- bioconda::snp-sites=2.5.1
-- bioconda::snpeff=5.2
-- bioconda::varscan=2.4.6
-- bioconda::vcftools=0.1.16
+  - bioconda::bcftools=1.21
+  - bioconda::emboss=6.6.0
+  - bioconda::seqkit=2.10.0
+  - bioconda::snp-sites=2.5.1
+  - bioconda::snpeff=5.2
+  - bioconda::varscan=2.4.6
+  - bioconda::vcftools=0.1.16
