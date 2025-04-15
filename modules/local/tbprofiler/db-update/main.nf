@@ -31,6 +31,7 @@ process TBPROFILER_DB_UPDATE {
 
         output:
                 path("update_db.txt"), emit: tbprofiler_update_db
+                path("last_update.txt")
                 path("tbdb/*"), optional: true
 
         script:
@@ -48,8 +49,6 @@ process TBPROFILER_DB_UPDATE {
                 # If the difference is less than a week, exit
                                 if [ \$time_diff -lt \$week_in_seconds ]; then
                                         echo "Last update was less than a week ago. Skipping update."
-                                        tb-profiler update_tbdb
-                                        tb-profiler update_tbdb --branch who
                                         touch update_db.txt
                                         exit 0
                                 fi
