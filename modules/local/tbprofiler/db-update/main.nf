@@ -31,7 +31,6 @@ process TBPROFILER_DB_UPDATE {
 
         output:
                 path("update_db.txt"), emit: tbprofiler_update_db
-                path("last_update.txt")
                 path("tbdb/*"), optional: true
 
         script:

@@ -14,7 +14,7 @@ process PLOT_TIMETREES {
 
     tag "${lineage}"
 
-    conda params.r_stats_env
+    conda params.r_phylogeny_env
 
     publishDir "${params.outDir}/results/${runID}/phylogeny/", mode: 'copy', overwrite: true
 
