@@ -36,10 +36,14 @@ process GENERATE_NEXUS_W_MRCA {
     script:
 
         """
-        bash ${params.script_dir}/shell/create-variable.region.nexus.w.MRCA.sh ${clusterID} \\
-                ${pairwise_clusters} ${snp_fasta} \\
-                ${snp_tab} ${params.mtbc_ancestor_path} \\
-                ${ancestor} ${lineage}  \\
+        bash ${params.script_dir}/shell/create-variable.region.nexus.w.MRCA.sh \
+                -c ${clusterID} \\
+                -p ${pairwise_clusters} \\
+                -f ${snp_fasta} \\
+                -t ${snp_tab} \\ 
+                -m ${params.mtbc_ancestor_path} \\
+                -n ${ancestor} \\
+                -l ${lineage}  \\
                 1>>.command.out \\
                 2>>.command.err || true
         """

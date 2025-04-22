@@ -41,11 +41,11 @@ process GENERATE_NEXUS {
 
         """
         bash ${params.script_dir}/shell/create-variable-region-nexus.sh \\
-                ${clusterID} \\
-                ${pairwise_clusters} \\
-                ${snp_fasta} \\
-                ${snp_tab} \\
-                ${params.mtbc_ancestor_path} \\
+                -c ${clusterID} \\
+                -p ${pairwise_clusters} \\
+                -f ${snp_fasta} \\
+                -t ${snp_tab} \\
+                -m ${params.mtbc_ancestor_path} \\
                 1>>.command.out \\
                 2>>.command.err || true
 
