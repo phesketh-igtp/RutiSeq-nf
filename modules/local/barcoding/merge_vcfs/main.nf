@@ -36,7 +36,7 @@ process MERGE_VCFS {
         """
         # Use a file to access all the VCF files of genomes within a single lineage
             bcftools merge \\
-                –file-list ${path_to_vcfs} \\
+                -file-list ${path_to_vcfs} \\
                 -Oz -o ${lineage}.merged.vcf.gz
 
         # create the index file
