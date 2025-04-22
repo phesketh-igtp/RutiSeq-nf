@@ -23,24 +23,32 @@ process MERGE_VCFS {
         }
 
     input:
-        tuple val(lineage),
-            path(path_to_vcfs),
+        tuple val(lineage), 
+            val(clusterID), 
+            val(sampleIDs), 
+            path(vcf_paths)
 
     output:
-        tuple val(lineage),
+        tuple val(clusterID),
+            val(lineage),
+            val(sampleIDs),
+            path("${lineage}.pop.list"),
             path("${lineage}.merged.vcf.gz"),
-            path("${lineage}.merged.vcf.gz.tbi"),
+            path("${lineage}.merged.vcf.gz.tbi"), emit: merged_vcs_tuple
 
     script:
     
         """
         # Use a file to access all the VCF files of genomes within a single lineage
             bcftools merge \\
-                -file-list ${path_to_vcfs} \\
+                -file-list ${vcf_paths} \\
                 -Oz -o ${lineage}.merged.vcf.gz
 
         # create the index file
             bcftools index -t ${lineage}.merged.vcf.gz
+
+        # Create a list of the sampleID within the lineage
+            echo "${sampleIDs.join('\n')}" > ${lineage}.pop.list
         """
 
 }

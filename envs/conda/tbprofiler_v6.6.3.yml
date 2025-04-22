@@ -1,4 +1,4 @@
-name: tbprofiler_env
+name: tbprofiler-v6.6.3
 channels:
   - defaults
   - bioconda
@@ -7,4 +7,3 @@ dependencies:
   - conda-forge::python=3.10
   - bioconda::bcftools
   - bioconda::tb-profiler=6.6.3
-#  - bioconda::tb-profiler=6.5.0

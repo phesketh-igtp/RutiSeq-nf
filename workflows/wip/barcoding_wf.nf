@@ -1,6 +1,6 @@
-include { SPLIT_CLUSTER_GROUPS }    from '../modules/local/barcoding/split_into_clusters/main.nf'
-include { MERGE_VCFS }              from '../modules/local/barcoding/merge_vcfs/main.nf'
-include { COMPUTE_FTS }             from '../modules/local/barcoding/compute_Fts/main.nf'
+include { SPLIT_CLUSTER_GROUPS }    from '../../modules/local/barcoding/split_into_clusters/main.nf'
+include { MERGE_VCFS }              from '../../modules/local/barcoding/merge_vcfs/main.nf'
+include { COMPUTE_FTS }             from '../../modules/local/barcoding/compute_Fts/main.nf'
 
 workflow BARCODING_WORKFLOW {
 
@@ -8,7 +8,6 @@ workflow BARCODING_WORKFLOW {
         runID
         analysis_summary
         pairwise_clusters
-        mjn_positions
 
     main:
         def color_purple = '\u001B[35m'
@@ -29,24 +28,49 @@ workflow BARCODING_WORKFLOW {
             At end of this workflow I want generated a TSV file with all the cluster specific SNPs and fixation indexes
                 i.e: genome,clusterID,lineage,position,allel,ref,Fts, emit: cluster_specific_snps
         */
-            SPLIT_CLUSTER_GROUPS(   
-                                    runID,
+            SPLIT_CLUSTER_GROUPS( runID,
                                     analysis_summary,
-                                    pairwise_clusters,
-                                    mjn_positions
+                                    pairwise_clusters
                                 )
 
             // Create a chanel with the following structure from the output of SPLIT_CLUSTERS_GROUPS
-            /// [lineage: clusterID, samplesID, vcf_path, vcf.tbi_path]
-            merging_vcf_ch = SPLIT_CLUSTER_GROUPS.out.vcf_tuple
+            /// [lineage: clusterID, sampleID, vcf_path]
+                grouped_vcfs_lineage_ch = SPLIT_CLUSTER_GROUPS.out.vcf_tuple
+                    .map { line -> 
+                        def (lineage, clusterID, sampleID, vcf_path) = line.tokenize(',')
+                        return [lineage, clusterID, sampleID, file(vcf_path)]
+                    }
+                    .groupTuple(by: 0)
+                    .map { lineage, clusterIDs, sampleIDs, vcf_paths ->
+                        return [lineage, clusterIDs.flatten(), sampleIDs.flatten(), vcf_paths.flatten()]
+                    }
 
             // Merge the vcfs by the groupings
-            MERGE_VCFS( merging_vcf_ch )
+            MERGE_VCFS( grouped_vcfs_lineage_ch )
+
+            /// group the resulting channel by the clsuterID
+                merged_vcfs_cluster_grouped_ch = MERGE_VCFS.out.merged_vcs_tuple
+                    .map { clusterID, lineage, sampleIDs, lineagePopList, mergedVcf, mergedVcfIndex ->
+                        // Create a tuple with clusterID as the first element for grouping
+                        [clusterID, sampleIDs, lineagePopList, mergedVcf, mergedVcfIndex]
+                    }
+                    .groupTuple(by: 0)
+                    .map { clusterID, lineage, sampleIDsList, lineagePopLists, mergedVcfs, mergedVcfIndices ->
+                        // Flatten nested lists if necessary and ensure single files for pop lists and VCFs
+                        [
+                            clusterID,
+                            lineage,
+                            sampleIDsList.flatten(),
+                            lineagePopLists[0],  // Assuming all entries for a clusterID have the same lineage pop list
+                            mergedVcfs[0],       // Assuming one merged VCF per clusterID
+                            mergedVcfIndices[0]  // Assuming one merged VCF index per clusterID
+                        ]
+                    }
 
         /*
             Perform the analysis to calcualte the Fixation index
         */
-            COMPUTE_FTS( MERGE_VCFS.out.vcfs_ch )
+            COMPUTE_FTS( merged_vcfs_cluster_grouped_ch )
 
         /* 
             Collect all the individual inputs into a single tsv file, and create a new channel with the input file
