@@ -1,6 +1,6 @@
 process GENERATE_NEXUS_W_METADATA {
 
-    conda params.snp_profiling_env 
+    conda params.r_stats_env
 
     tag "cluster: ${clusterID}"
 
@@ -10,36 +10,19 @@ process GENERATE_NEXUS_W_METADATA {
         tuple val(clusterID), 
                 path(nexus)
         path(metadata)
-        path(pairwise_clusters)
 
     output:
-        path("nexus/${clusterID}.time.nex")
-        path("nexus/${clusterID}.loc.nex")
+        path("${clusterID}_dates.nex")
+        path("${clusterID}_locs.nex")
 
     script:
         """
-        pairwise_clusters |> genomes.list
 
-        grep -f genomes.list ${metadata} | cut -f2,3 > dates.csv
-        grep -f genomes.list ${metadata} | cut -f2,4 > loc.csv
+        grep -f genomes.list ${metadata} | cut -d ',' -f2,3 > dates.csv
+        grep -f genomes.list ${metadata} | cut -d ',' -f2,4 > loc.csv
 
-        Rscript -e "library(tidyverse)
-        dates <- read.delim('dates.csv', header = TRUE, sep = ",") |>
-                    mutate(seen = 1 ) |>
-                    pivot_wider(names_from = location, values_from = seen)
-        dates[is.na(dates)] <- 0
-
-        loc <- read.delim('loc.csv', header = TRUE, sep = ",") |>
-                    mutate(seen = 1 ) |>
-                    pivot_wider(names_from = location, values_from = seen)
-        loc[is.na(loc)] <- 0
-
-        write.table(dates)
-        write.table(loc)
-
-        "
-
-        metadata |> location 
+        bash ${params.script_dir}/shell/add-nexus-metadata_dates.sh \\
+            -i ${nexus} -p ${clusterID}
 
         """
 

@@ -59,10 +59,7 @@ mkdir -p nexus/ fasta/ positions/
 grep "${clusterID}" "${pairwise_clusters}" | cut -f1 > "${clusterID}.genomes.list"
 
 # Extract FASTA for the cluster
-> "${clusterID}.fasta"
-while IFS=";" read -r genome; do
-    seqkit grep -w 0 -n -p "${genome}" "${snp_fasta}" >> "${clusterID}.fasta"
-done < "${clusterID}.genomes.list"
+seqkit grep -w 0 -f "${clusterID}.genomes.list" "${snp_fasta}" > "${clusterID}.fasta"
 
 # Run snp-sites
 snp-sites "${clusterID}.fasta" > "${clusterID}.snpsites.fasta"
@@ -75,7 +72,7 @@ paste -s -d "" "${clusterID}_tmp_refseq" | sed '1i >H37Rv' > "${clusterID}_H37Rv
 # Genomic positions
 awk 'NR==FNR {pos[$1+2]; next} FNR in pos {print $1}' "positions/${clusterID}_positions.tab" "${snp_tab}" > "positions/${clusterID}_genomic_positions.tab"
 
-# MTBC ancestor
+# MTBC ancestor (mtbc_ancestor_path=/imppc/labs/emlab/share/GitHub/RutiSeq-nf/db/MTBc_ancestral_sequence/MTB_ancestor_reference.pos.gz)
 cp "${mtbc_ancestor_path}" tmp.MTB_anc.pos.gz
 gunzip tmp.MTB_anc.pos.gz
 awk 'NR==FNR {pos[$1]; next} FNR in pos {print $3}' "positions/${clusterID}_genomic_positions.tab" tmp.MTB_anc.pos > "${clusterID}_tmp_MTB_anc"
@@ -89,3 +86,7 @@ cat "${clusterID}.snpsites.fasta" "${clusterID}_H37Rv.fasta" "${clusterID}_MTB_a
 seqret -osformat2 nexus -sequence "fasta/${clusterID}_refseq.fasta" -outseq "nexus/${clusterID}_refseq.nex"
 
 echo "✅ Done: NEXUS file saved to nexus/${clusterID}_refseq.nex"
+
+
+#coresnpfilter -e -c 0.95 C1.fasta --table C1.coresnpfilt.95.pos > C1.coresnpfilt.95.fasta
+#awk '{ if ( $9 == 1 ) print $1 }' C1.coresnpfilt.95.pos > C1.coresnpfilt.95.local.pos

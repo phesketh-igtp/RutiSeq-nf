@@ -11,7 +11,7 @@ include { GENERATE_TIMETREES         }   from '../modules/local/summary/generate
 include { PLOT_TIMETREES             }   from '../modules/local/summary/plot-timetrees/main.nf'
 include { GENERATE_NEXUS_W_MRCA      }   from '../modules/local/summary/generate-nexus-with-ancestor/main.nf'
 include { PREPARE_DATA_DELIVERY      }   from '../modules/local/summary/data-delivery/main.nf'
-//include { GENERATE_NEXUS_W_METADATA  }   from '../modules/local/summary/generate-nexus-with-metadata/main.nf'
+include { GENERATE_NEXUS_W_METADATA  }   from '../modules/local/summary/generate-nexus-with-metadata/main.nf'
 
 workflow SUMMARY_WF{
 
