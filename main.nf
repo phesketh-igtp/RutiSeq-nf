@@ -5,7 +5,7 @@ nextflow.enable.dsl = 2
 include { FILE_CHECK }                  from './modules/local/file-checks/main.nf'
 include { TBPROFILER_DB_UPDATE }        from './modules/local/tbprofiler/db-update/main.nf'
 include { TAXONKIT_DB_UPDATE }          from './modules/local/taxonkit/db-update/main.nf'
-include { NEGATIVE_CTRL_WF }            from './workflows/negative_ctrl_wf.nf'
+//include { NEGATIVE_CTRL_WF }            from './workflows/negative_ctrl_wf.nf'
 include { SINGLE_WF }                   from './workflows/single_wf.nf'
 include { PAIRWISE_WF }                 from './workflows/pairwise_wf.nf'
 include { SUMMARY_WF }                  from './workflows/summary_wf.nf'
@@ -185,12 +185,13 @@ workflow {
         */
 
         // Call the workflow
+/*
             NEGATIVE_CTRL_WF( params.runID,
                                 controls_ch, 
                                 TBPROFILER_DB_UPDATE.out.tbprofiler_update_db,
                                 TAXONKIT_DB_UPDATE.out.taxonkit_update_db
                             )
-
+*/
         /*
         ······································································································
             INSPECT BBDD FOR SINGLE_WD() INTERMEDIATE FILES
