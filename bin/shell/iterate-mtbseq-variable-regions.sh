@@ -67,7 +67,7 @@ fi
             Results/wo_${genome}/wo_${genome}_genomic_positions.tab \
             > Results/wo_${genome}/wo_${genome}_positions.tab
 
-        rm .tmp.genome.list wo_${genome}.fasta
+        rm Results/wo_${genome}/.tmp.genome.list
 
 done < ${genome_list}
 
