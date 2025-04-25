@@ -5,5 +5,5 @@ channels:
   - conda-forge
 dependencies:
   - conda-forge::python=3.10
-  - bioconda::bcftools
   - bioconda::tb-profiler=6.6.3
+  - bioconda::bcftools=1.12 #bcftools needs to be downgraded to this version
