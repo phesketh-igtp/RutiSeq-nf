@@ -45,7 +45,7 @@ process GENERATE_TIMETREES {
         treetime --aln ${alignments} \\
                 --tree ${contree} \\
                 --dates dates.tsv \\
-                --outDir ${lineage}_timetree
+                --outdir ${lineage}_timetree
     """
 
 }

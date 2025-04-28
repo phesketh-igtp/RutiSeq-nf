@@ -38,6 +38,9 @@ process PREPARE_NEXUS_PATHS{
             | sed '1!{/^SampleID/d;}' \\
             | sed '1!{/^nX-/d;}' > unique.clusters.list
 
+    # Count the numer of samples:
+        n_samples=\$(grep "${lineage}" ${pairwise_clusters} | wc -l)
+
     # Remove clusters that are smaller than 3 genomes
         while read clusterID; do
             count=\$(grep -c "\${clusterID}" "${pairwise_clusters}")
@@ -48,7 +51,7 @@ process PREPARE_NEXUS_PATHS{
 
     # Create a CSV for generating a tuple of the paths
         for clusterID in `cat final_clusters.list`; do
-            echo "${lineage},\${clusterID},${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta,${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab" >> nexus.tuple.csv
+            echo "${lineage},\${clusterID},${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples\${n_samples}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta,${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples\${n_samples}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab" >> nexus.tuple.csv
         done
 
     # touch the output incase the file is empty
