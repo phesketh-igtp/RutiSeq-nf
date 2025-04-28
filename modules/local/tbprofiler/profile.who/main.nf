@@ -46,6 +46,9 @@ process TBPROFILER_PROFILE_WHO {
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
+        # should i update db when the tbprofuiler runs? 
+        ## Get the db local and then run with it locally
+
         # Run main function
             tb-profiler profile \\
                     -1 ${mtbc_forward} \\
