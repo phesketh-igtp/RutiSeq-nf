@@ -46,8 +46,8 @@ process TBPROFILER_PROFILE_WHO {
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
-        # should i update db when the tbprofuiler runs? 
-        ## Get the db local and then run with it locally
+        # Update the database
+            tb-profiler update_tbdb --branch who
 
         # Run main function
             tb-profiler profile \\
@@ -55,11 +55,13 @@ process TBPROFILER_PROFILE_WHO {
                     -2 ${mtbc_reverse} \\
                     -p who-${sampleID} \\
                 --txt --dir . \\
-                --db ${params.outDir}/db/tbprofiler/tbdb/who \\
-                --threads ${task.cpus} ${additional_args}
+                --db tbdb/who${additional_args}
 
         # remove the published files from the previous module:
             rm -f  ${params.outDir}/bbdd/tbprofiler/${sampleID}_mtbc_R1.fastq.gz
             rm -f  ${params.outDir}/bbdd/tbprofiler/${sampleID}_mtbc_R2.fastq.gz
         """
 }
+
+//${params.outDir}/db/tbprofiler/tbdb/who
+// \\ --threads 2 --ram ${task.cpus} - this has just decided to stop working 

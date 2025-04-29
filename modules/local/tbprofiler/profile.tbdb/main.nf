@@ -48,14 +48,16 @@ process TBPROFILER_PROFILE_TBDB {
                 def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
                 """
+                # Update the database
+                        tb-profiler update_tbdb
+
                 # Run TB-Proiler using TBDB database
                         tb-profiler profile \\
                                 -1 ${mtbc_forward} \\
                                 -2 ${mtbc_reverse} \\
                                 -p tbdb-${sampleID} \\
                                 --txt --dir . \\
-                                --db ${params.outDir}/db/tbprofiler/tbdb/tbdb \\
-                                --threads ${task.cpus} ${additional_args}
+                                --db tbdb/tbdb ${additional_args}
 
                         touch bam/tbdb-${sampleID}.bam
                         touch vcf/tbdb-${sampleID}.targets.vcf.gz
@@ -68,3 +70,6 @@ process TBPROFILER_PROFILE_TBDB {
                         rm -f ${params.outDir}/bbdd/read-qc/mtbc_reads/${sampleID}_mtbc_R2.fastq.gz
                 """
 }
+
+// ${params.outDir}/db/tbprofiler/tbdb/
+// --threads 2 --ram ${task.cpus} 
