@@ -60,6 +60,7 @@ process TBPROFILER_PROFILE_WHO {
         # remove the published files from the previous module:
             rm -f  ${params.outDir}/bbdd/tbprofiler/${sampleID}_mtbc_R1.fastq.gz
             rm -f  ${params.outDir}/bbdd/tbprofiler/${sampleID}_mtbc_R2.fastq.gz
+            
         """
 }
 
