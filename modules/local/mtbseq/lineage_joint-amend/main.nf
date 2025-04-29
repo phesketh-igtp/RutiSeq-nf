@@ -59,8 +59,20 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
-        #rm -rf ${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/*
-        #gzip --best --force --quiet ${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Joint/*.tab
+        # Zip .tab/.fasta files in Joint and Amend if they exist
+            if compgen -G "${params.outDir}/bbdd/mtbseq/pairwise/Joint/*.tab" > /dev/null; then
+                gzip --best --force --quiet "${params.outDir}/bbdd/mtbseq/pairwise/Joint/"*.tab
+            fi
+
+            # Zip .fasta files in Amend if they exist
+            if compgen -G "${params.outDir}/bbdd/mtbseq/pairwise/Amend/*.fasta" > /dev/null; then
+                gzip --best --force --quiet "${params.outDir}/bbdd/mtbseq/pairwise/Amend/"*.fasta
+            fi
+
+            # Zip .tab files in Amend if they exist
+            if compgen -G "${params.outDir}/bbdd/mtbseq/pairwise/Amend/*.tab" > /dev/null; then
+                gzip --best --force --quiet "${params.outDir}/bbdd/mtbseq/pairwise/Amend/"*.tab
+            fi
 
         # make the expected directories
             mkdir -p Position_Tables/ Called/ Amend/ Joint/
