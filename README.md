@@ -66,7 +66,9 @@ Parameters for specific tools, such as MTBseq can also be configured in the conf
 ## Inputs and Formatting
 
 #### <u>Sample sheet:</u>
+
 This must be a `CSV` file that contains the following information, including the header:
+
 | originalID         | sampleID     | forward_path         | reverse_path         | type    |
 | ------------------ | ------------ | -------------------- | -------------------- | --------|
 | sample1_123-AAA-R1 | 1-123-AAA_L1 | /path/to/R1.fastq.gz | /path/to/R2.fastq.gz | sample  |
@@ -108,12 +110,17 @@ On a HPC, the nextflow scripts need to be submitted as a job, and from there nex
 
 ### Required arguments:
 
-  - `--samplesheet` : The complete path of the sample sheet use used for the following flag `--samplesheet /path/to/samples.csv`. It is recommended that you keep a dated record of all the samples ran.
-  - `--runID` : A unique identifier for the analysis (e.g `--runID "run-1"`; `--runID "library01"`)
-  - `--outdir` : this can be declared in the `nextflow.config` on at the command line submission stage. Since the RutiSeq-BBDD is consulted during the workflow, it is recommended to hardcode the directory in the `nextflow.config` to prevent creating databased split across your server
+All these arguments can be passed to the `submit-nf.sh` script, or they can be hardcoded in the `nextflow.config` file. The following arguments are required:
 
-### Optional arguments:
-- `--workflow` : If unspecified, the default is the `main-wf`. Alternative workflows are described in the Sub-utilities section.
+  - `--runID` : A unique identifier for the analysis (e.g `--runID "run-1"`; `--runID "library01"`)
+
+  - `--samplesheet` : The complete path of the sample sheet use used for the following flag `--samplesheet /path/to/samples.csv`. It is recommended that you keep a dated record of all the samples ran.
+
+  - `--metadata` : The complete path of the metadata file used for the following flag `--metadata /path/to/metadata.csv`. This is optional, but if you have it, it is recommended to use it as it will create time-trees and add time metadata to the nexus files.
+
+  - `--outDir` : This is where the RutiSeq-BBDD will be stored. Since the RutiSeq-BBDD is consulted during the workflow, it is recommended to hardcode the directory in the `nextflow.config` to prevent creating databased split across your server.
+
+  - `--workDir` : This is where all the intermediate files will be stored. It is recommended to use a scratch storage for this, as it will generate high quanities of files that can eventually be removed once the workflow has compelted.
 
 ### Example submission to a SGE computing server:
 
@@ -128,7 +135,6 @@ qsub -S /bin/bash -cwd -V -N nf-main \
 # this specifies that the job should be submitted to the IGTP HPC using conda
 ```
 
-If you are adding new data to an existing database generated with this pipeline, the `--outdir` MUST be be given the path to that database.
 
 # <u>To be done</u>
 - **Negative contorl wf**
