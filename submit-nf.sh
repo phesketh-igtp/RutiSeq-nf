@@ -1,5 +1,16 @@
 #!/bin/bash
+
+## Thank you to @dmdmckeow for the original script and inspriration
+## @author: Dean A McKeown and Poppy J Hesketh-Best
+## @version: v1.0.0
+## @description: This script is used to submit a Nextflow pipeline to 
+##               an HPC cluster using qsub. It sets up the environment, 
+##               runs the pipeline, and handles job cancellation.
+## @changelog:
+##   v1.0.0-2024-11-01 : Initial version
+
 green='\033[32m';red='\033[31m';cyan='\033[36m';purple='\033[35m';nocolor='\033[m'
+
 ### 
 
 eval "$(conda shell.bash hook)"
@@ -10,7 +21,7 @@ set -u          # exit immediately if using undefined variables
 set -o pipefail # ensure bash pipelines return non-zero status if any of their command fails
 
 # Setup trap function to be run when canceling the pipeline job. It will propagate the SIGTERM signal
-# to Nextlflow so that all jobs launched by the pipeline will be cancelled too.
+# to Nextflow so that all jobs launched by the pipeline will be cancelled too.
 _term() {
         echo "Caught SIGTERM signal!"
         kill -s SIGTERM $pid
@@ -23,15 +34,10 @@ trap _term TERM
 export NXF_JVM_ARGS="-Xms2g -Xmx5g"
 
 # Run the pipeline. The command uses the arguments passed to this script, e.g:
-#
-# $ qsub -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -l mem_free=6G submit-nf.sh main.nf --samplesheet test/samples.hpc.csv --outdir RutiSeq -profile igtp,singularity_on
-# Convenience::
-# $ rm -rf qsub-nf.out .nextflow* nf-main.e6272*; qsub -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -l mem_free=6G submit-nf.sh main.nf --samplesheet test/samples.hpc.csv --outdir RutiSeq -profile igtp,singularity_on; sleep 2s; tail -f qsub-nf.out
-/imppc/labs/emlab/phesketh/bin/nextflow run "$@" -ansi-log false & pid=$!
 
-echo -e "Running:       
-                nextflow run "$@" -ansi-log false & pid=$!
-"
+nextflow run "$@" -ansi-log false & pid=$!
+
+echo -e "Running: nextflow run "$@" -ansi-log false & pid=$!\n"
 
 echo -e "${red}$(date +'%d/%m/%Y %H:%M:%S')${nocolor}	qsub -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -l mem_free=6G submit-nf.sh "$@"" >> submit-nf.log
 
@@ -41,6 +47,3 @@ wait $pid
 
 # Return 0 exit-status if everything went well
 exit 0
-
-### SUBMIT TO HPC:
-### qsub -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -l mem_free=6G submit-nf.sh /imppc/labs/emlab/share/GitHub/RutiSeq-nf/main.nf -profile igtp,conda_on --samplesheet sample-sheet.csv --runID 'test-03' --outdir /imppc/labs/emlab/phesketh/projects/RutiSeq-nf/test --workDir /imppc/labs/emlab/phesketh/projects/RutiSeq-nf/work; sleep 2s; tail -f qsub-nf.out
