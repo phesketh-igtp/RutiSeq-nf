@@ -29,8 +29,8 @@ Additional outputs include PDFs of SNP phylogeny (ML tree generated with IQ-Tree
 ##### Sub-wf 4: Cluster SNP barcoding [WIP]
 This is an experimental aspect of the workflow that aims to begin characterizing individual SNPs that are designated uniquely to a particular 5 SNP pairwise distance cluster (`--distance 5` in MTBseq). The plan with this sub-wf is to quickly identifying which genomic cluster a particular genome may belong to prior to SNP clustering with the goal of reducing computational resources and speeding up the analysis. All genomes as part of the sub-wf 1 will have their SNP profiles compared to the cluster barcode SNPs and pre allocated a preliminary cluster for clustering in sub-wf 2.
 
-In this workflow, all genomes SNP profiles merged into a single VCF (grouped by lineage), and the SNP profiles of genomes belonging to the same cluster are compared to all other genomes within the same lineage, to calculate the F~TS~ value (fixation index) for each SNP within the cluster population. SNPs that fulfill the following criteria are classified as a cluster specific SNP:
-- F~TS~ = 1
+In this workflow, all genomes SNP profiles merged into a single VCF (grouped by lineage), and the SNP profiles of genomes belonging to the same cluster are compared to all other genomes within the same lineage, to calculate the Fts value (fixation index) for each SNP within the cluster population. SNPs that fulfill the following criteria are classified as a cluster specific SNP:
+- Fts = 1
 - Minimum of 20 reads in both strands (20X cov)
 - Minimum quality of 20
 - Not annotated as: *PE/PPE/PGRS*; *maturase*; *phage*; or *13E12 repeat family protein*
@@ -134,23 +134,3 @@ qsub -S /bin/bash -cwd -V -N nf-main \
         -profile igtp,conda_on 
 # this specifies that the job should be submitted to the IGTP HPC using conda
 ```
-
-
-# <u>To be done</u>
-- **Negative contorl wf**
-  - currently commented out the compile NC results as there is a clash in the input tuples.
-
-- **Summary workflow**
-  - Write HTML Rmarkdown results for the summary workflow
-  - Create datbase summary figures:
-    - number of genomes
-    - distribution of lineages
-    - number of clusters
-    - identification of new clsuters
-    - expanding clusters
-    - merging clusters (at higher SNP levels)
-    - position of SNPs relative to clusters
-- Create a excel WB for each matrix (lineage - improve access for Vero/Elisa).
-- 
-- **Manual modification app**
-  - continue working on it
