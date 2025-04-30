@@ -40,17 +40,23 @@ process GENERATE_NEXUS {
     script:
 
         """
-        bash ${params.script_dir}/shell/create-variable-region-nexus.sh \\
-                -c ${clusterID} \\
-                -p ${pairwise_clusters} \\
-                -f ${snp_fasta} \\
-                -t ${snp_tab} \\
-                -m ${params.mtbc_ancestor_path} \\
-                1>>.command.out \\
-                2>>.command.err || true
+        # run the nexus script
+            bash ${params.script_dir}/shell/create-variable-region-nexus.sh \\
+                    -c ${clusterID} \\
+                    -p ${pairwise_clusters} \\
+                    -f ${snp_fasta} \\
+                    -t ${snp_tab} \\
+                    -m ${params.mtbc_ancestor_path} \\
+                    1>>.command.out \\
+                    2>>.command.err || true
 
-        cp ${snp_tab} ${clusterID}.snp.tab
-        
+        # simplify the name of the file
+            cp ${snp_tab} ${clusterID}.snp.tab
+
+        # check if the nexus generation was successful
+            if [[ ! -f fasta/${clusterID}_refseq.fasta ]]; then echo "Nexus generation failed" > fasta/${clusterID}_refseq.fasta; fi
+            if [[ ! -f positions/${clusterID}_genomic_positions.tab ]]; then echo "Nexus generation failed" > positions/${clusterID}_genomic_positions.tab; fi
+
         """
 
 }
