@@ -58,9 +58,9 @@ workflow SINGLE_WF {
             MTBC_READ_QC( branched_channel.with_reads )
 
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
-            TBPROFILER_PROFILE_TBDB( MTBC_READ_QC.out.updated_sample_ch1, tbprofiler_update_db )
+            TBPROFILER_PROFILE_TBDB( MTBC_READ_QC.out.updated_sample_ch1 )
 
-            TBPROFILER_PROFILE_WHO( TBPROFILER_PROFILE_TBDB.out.updated_sample_ch2, tbprofiler_update_db )
+            TBPROFILER_PROFILE_WHO( TBPROFILER_PROFILE_TBDB.out.updated_sample_ch2 )
 
         // Run MTBSEQ_SINGLE
             MTBSEQ_SINGLE( TBPROFILER_PROFILE_WHO.out.updated_sample_ch3 )
