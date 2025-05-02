@@ -29,7 +29,6 @@ process TBPROFILER_COMPILE_WHO {
     input:
         val runID
         path (tbprofiler_who_results)
-        path(tbprofiler_update_db)
 
     output:
         path("who-tbprofiler.txt"),         emit: who_results

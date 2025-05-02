@@ -43,7 +43,6 @@ filtered_meta <- meta %>%
 filtered_lineages_forward <- filtered_meta |> 
     filter(SampleID %in% run_ids$SampleID) |> 
     count(lineage) |> 
-    filter(n > 4) |> # rm lineage with less than 4 genome (min for MTBSeq)
     select(lineage) |> 
     distinct()  # Use distinct() instead of unique() for dplyr consistency
 
