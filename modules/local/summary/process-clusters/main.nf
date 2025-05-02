@@ -12,7 +12,7 @@ process PROCESS_CLUSTERS {
 */
 
     conda params.r_stats_env
-    
+
     publishDir "${params.outDir}/results/${runID}/clusters/", mode: 'copy'
 
     input:
@@ -25,12 +25,15 @@ process PROCESS_CLUSTERS {
         path("${runID}_processed_clusters.tsv")
 
     script:
-    """
-    Rscript ${params.r_script_dir}/process_clusters.R #\
-            #--clusters ${pairwise_clusters} \
-            #--summary ${analysis_summary}
+        """
+        Rscript ${params.r_script_dir}/process_clusters.R #\
+                #--clusters ${pairwise_clusters} \
+                #--summary ${analysis_summary}
 
-    cp processed_clusters.tsv ${runID}_processed_clusters.tsv
-    """
+            cp processed_clusters.tsv ${runID}_processed_clusters.tsv
+
+        cp processed_clusters.tsv ${params.outDir}/results/
+        cp ${pairwise_clusters} ${params.outDir}/results/
+        """
 
 }

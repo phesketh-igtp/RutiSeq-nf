@@ -102,7 +102,7 @@ workflow PAIRWISE_WF {
                 //nexus_creation_ch.view()
 
     emit:
-        pairwise_clusters     = CONCATENATE_CLUSTERS.out.bbdd_clusters
+        pairwise_clusters     = CONCATENATE_CLUSTERS.out.pairwise_clusters
         analysis_summary      = COMPILE_SEQUENCING_STATS.out.analysis_summary
         who_resistance        = COMPILE_SEQUENCING_STATS.out.who_resistance
         tbdb_resistance       = COMPILE_SEQUENCING_STATS.out.tbdb_resistance
