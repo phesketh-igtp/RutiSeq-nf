@@ -26,6 +26,9 @@ process PROCESS_CLUSTERS {
 
     script:
         """
+
+        ${pairwise_clusters} 
+
         Rscript ${params.r_script_dir}/process_clusters.R #\
                 #--clusters ${pairwise_clusters} \
                 #--summary ${analysis_summary}
