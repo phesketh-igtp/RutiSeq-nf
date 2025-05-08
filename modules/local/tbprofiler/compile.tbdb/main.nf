@@ -33,7 +33,6 @@ process TBPROFILER_COMPILE_TBDB {
     input:
         val(runID)
         path(tbprofiler_results)
-        path(tbprofiler_update_db)
 
     output:
         path("tbdb-tbprofiler.txt"),                 emit: tbdb_results

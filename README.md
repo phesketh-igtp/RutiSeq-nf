@@ -131,6 +131,5 @@ qsub -S /bin/bash -cwd -V -N nf-main \
         /path/to/RutiSeq-nf/main.nf \
         --samplesheet /path/to/RutiSeq-nf/test/samples.hpc.csv \
         --outdir /path/to/RutiSeq-nf/RutiSeq-test \
-        -profile igtp,conda_on 
-# this specifies that the job should be submitted to the IGTP HPC using conda
+        -profile hpc_sungrid_engine,conda_on
 ```

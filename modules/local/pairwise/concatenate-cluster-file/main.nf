@@ -20,7 +20,7 @@ process CONCATENATE_CLUSTERS {
         path(clusters)
 
     output:
-        path("unprocessed_clusters.tsv"),          emit: bbdd_clusters
+        path("unprocessed_clusters.tsv"),          emit: pairwise_clusters
 
     script:
 
@@ -29,7 +29,7 @@ process CONCATENATE_CLUSTERS {
             echo "lineage\tdistance\tgenomes\tgroup" > unprocessed_clusters.tsv
 
         # Concatenate all files
-            for file in ${params.outDir}/bbdd/mtbseq/pairwise/*/Groups/*clusters.tsv; do 
+            for file in ${params.outDir}/bbdd/mtbseq/pairwise/*/Groups/*_d*.clusters.tsv; do 
                 cat \$file >> unprocessed_clusters.tsv
             done
 

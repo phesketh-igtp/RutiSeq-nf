@@ -28,7 +28,6 @@ process TBPROFILER_PROFILE_WHO {
         tuple val(sampleID), path(mtbc_forward), path(mtbc_reverse), path(mtbseq_class), 
                 path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
                 path(tbdb_out), path(who_out), path(mtbseq_vcf)
-        path(tbprofiler_update_handover)
 
     output:
         path("results/who-${sampleID}.results.json")

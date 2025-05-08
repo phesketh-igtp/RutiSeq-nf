@@ -3,7 +3,6 @@
 nextflow.enable.dsl = 2
 
 include { FILE_CHECK }                  from './modules/local/file-checks/main.nf'
-include { TBPROFILER_DB_UPDATE }        from './modules/local/tbprofiler/db-update/main.nf'
 include { TAXONKIT_DB_UPDATE }          from './modules/local/taxonkit/db-update/main.nf'
 //include { NEGATIVE_CTRL_WF }            from './workflows/negative_ctrl_wf.nf'
 include { SINGLE_WF }                   from './workflows/single_wf.nf'
@@ -168,12 +167,11 @@ workflow {
 
         /*
         ······································································································
-            UPDATING THE DATABASE (TBPROFILER_DB_UPDATE)
+            UPDATING THE DATABASE
                 - The TBProfiler database is updated with the latest version of the database
         ······································································································
         */
 
-            TBPROFILER_DB_UPDATE( params.runID )
             TAXONKIT_DB_UPDATE( params.runID )
 
         /*
@@ -188,7 +186,6 @@ workflow {
 /*
             NEGATIVE_CTRL_WF( params.runID,
                                 controls_ch, 
-                                TBPROFILER_DB_UPDATE.out.tbprofiler_update_db,
                                 TAXONKIT_DB_UPDATE.out.taxonkit_update_db
                             )
 */
@@ -249,7 +246,7 @@ workflow {
         ······································································································
         */
 
-            SINGLE_WF( params.runID, comp_samples_ch, TBPROFILER_DB_UPDATE.out.tbprofiler_update_db )
+            SINGLE_WF( params.runID, comp_samples_ch )
                     
                 // DEBUG: Demonstrate the content of the channel
                 ///     SINGLE_WF.out.single_updated_samples_ch.view { sample -> "Sample: $sampleID" }
@@ -288,10 +285,12 @@ workflow {
                 tbdb_out_ch         =   tbdb_out_files.collect()
                 who_out_ch          =   who_out_files.collect()
 
-            PAIRWISE_WF( params.runID, mtbseq_stats_ch,
-                        mtbseq_class_ch, tbdb_out_ch,
-                        who_out_ch, sampleID_list,
-                        TBPROFILER_DB_UPDATE.out.tbprofiler_update_db
+            PAIRWISE_WF( params.runID, 
+                        mtbseq_stats_ch,
+                        mtbseq_class_ch, 
+                        tbdb_out_ch,
+                        who_out_ch, 
+                        sampleID_list
                         )
 
         /*

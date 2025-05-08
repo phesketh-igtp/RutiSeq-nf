@@ -17,7 +17,6 @@ workflow PAIRWISE_WF {
         tbdb_out_ch
         who_out_ch
         sampleID_list
-        tbprofiler_update_db
 
     main:
 
@@ -28,8 +27,8 @@ workflow PAIRWISE_WF {
         def no_col  = '\u001B[0m'
 
         // Compile TB-Profiler results
-            TBPROFILER_COMPILE_TBDB( runID, tbdb_out_ch, tbprofiler_update_db )
-            TBPROFILER_COMPILE_WHO( runID, who_out_ch, tbprofiler_update_db )
+            TBPROFILER_COMPILE_TBDB( runID, tbdb_out_ch )
+            TBPROFILER_COMPILE_WHO( runID, who_out_ch )
 
         // Compile stats and classifications from MTBSeq
             MTBSEQ_STATS_COMPILE( mtbseq_stats_ch, mtbseq_class_ch )
@@ -103,7 +102,7 @@ workflow PAIRWISE_WF {
                 //nexus_creation_ch.view()
 
     emit:
-        pairwise_clusters     = CONCATENATE_CLUSTERS.out.bbdd_clusters
+        pairwise_clusters     = CONCATENATE_CLUSTERS.out.pairwise_clusters
         analysis_summary      = COMPILE_SEQUENCING_STATS.out.analysis_summary
         who_resistance        = COMPILE_SEQUENCING_STATS.out.who_resistance
         tbdb_resistance       = COMPILE_SEQUENCING_STATS.out.tbdb_resistance
