@@ -1,0 +1,13 @@
+DRT,rifampicin,isoniazid,ethambutol,pyrazinamide,moxifloxacin,levofloxacin,bedaquiline,delamanid,pretomanid,linezolid,streptomycin,amikacin,kanamycin,capreomycin,clofazimine,ethionamide,para.aminosalicylic_acid,cycloserine
+#rename,RIF,INH,EMB,PZA,MFX,LFX,BDQ,DLM,PMD,LZD,STM,AMK,KAN,CAP,CFZ,ETO,PAC,CYR
+DR-FQ,== "S",== "S",== "S",== "S",!= "S",!= "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S"
+DR-STM,== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",!= "S",== "S",== "S",== "S",== "S",== "S",== "S",!= "S"
+DR-STM-PZA-ETO,== "S",== "S",== "S",!= "S",== "S",== "S",== "S",== "S",== "S",== "S",!= "S",== "S",== "S",== "S",== "S",!= "S",== "S",!= "S"
+DR-PZA,== "S",== "S",== "S",!= "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",!= "S"
+DR-AMK-CAP-KAN,== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",!= "S",!= "S",!= "S",== "S",== "S",== "S",!= "S"
+DR-RIF-DLM,!= "S",== "S",== "S",== "S",== "S",== "S",== "S",!= "S",== "S",== "S",== "S",!= "S",!= "S",!= "S",== "S",== "S",== "S",!= "S"
+DR-EMB,== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",!= "S",== "S",== "S",== "S",!= "S"
+DR-CAP,== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",!= "S",== "S",== "S",== "S",!= "S"
+DR-ETO,== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",!= "S",== "S",!= "S"
+DR-DLM,== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S"
+#DR-INH-ETO,== "S",!= "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",== "S",!= "S",== "S",!= "S"
