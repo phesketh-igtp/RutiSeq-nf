@@ -31,7 +31,7 @@ workflow NEGATIVE_CTRL_WF {
     main:
 
         /*
-        Run KAIJU on the reads and get read taxonomy
+        Run KRAKEN on the reads and get read taxonomy
         */
             INSPECT_BBDD(controls_ch)
 

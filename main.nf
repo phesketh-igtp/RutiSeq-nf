@@ -21,8 +21,8 @@ def helpMessage() {
     Mandatory arguments:
         --samplesheet           [CSV]   Path to input data (must be surrounded with quotes)
         --outDir                [path]  The output directory where the results will be saved
-        --workDir               [path]  The temproary work directory for intermediate files (can be deleted when 
-                                        analysis is complete to recovered storage space)
+        --workDir               [path]  The temporary work directory for intermediate files (can be deleted when 
+                                            analysis is complete to recovered storage space)
 
     Optional arguments:
         --metadata              [CSV]   Metadata file containing the sampleID,sampling_data;loc data.
@@ -34,18 +34,22 @@ def helpMessage() {
             --mtbseq_minbqual   [num]   Defines minimum positional mapping quality during variant calling (default: 20).
             --mtbseq_mincovf    [num]   Defines minimum forward read coverage for a putative variant position (default: 4).
             --mtbseq_mincovr    [num]   Defines minimum reverse read coverage for a putative variant position (default: 4).
-            --mtbseq_minphred20 [num]   Defines the minimum number of reads having a phred score above or equal 20 to be considered as a putative variant (default: 4).
+            --mtbseq_minphred20 [num]   Defines the minimum number of reads having a Phred score above or equal 20 to be 
+                                            considered as a putative variant (default: 4).
             --mtbseq_minfreq    [num]   Defines minimum allele frequency for majority allele (default: 75).
-            --mtbseq_unambig    [num]   Defines minimum percentage of samples having unambigous base call in TBamend analysi (default: 95).
-            --mtbseq_window     [num]   Defines window for SNP cluster look up. Reduces putative false positives in TBamend (default: 10).
-            --mtbseq_distance   [num]   Defines SNP distance for the single linkage clustering in TBgroups. Tuple containing a range of values (default: "[5, 10, 15]").
+            --mtbseq_unambig    [num]   Defines minimum percentage of samples having unambiguous base call in TBamend 
+                                            analysis (default: 95).
+            --mtbseq_window     [num]   Defines window for SNP cluster look up. Reduces putative false positives in 
+                                            TBamend (default: 10).
+            --mtbseq_distance   [num]   Defines SNP distance for the single linkage clustering in TBgroups. Tuple 
+                                            containing a range of values (default: "[5, 10, 15]").
 
         IQ-Tree optional arguments
-            --iqtree_bootstraps [num]   Defines the number of bootstraps used by IQ-Tree for variant positions phylogeny (default: 1000).
-            --iqtree_model      [chr]   Defines the maximum-likelihood model used by ID-Tree for variant position phylogeny (default: GTR+G4).
-
+            --iqtree_bootstraps [num]   Defines the number of bootstraps used by IQ-Tree for variant positions 
+                                            phylogeny (default: 1000).
+            --iqtree_model      [chr]   Defines the maximum-likelihood model used by ID-Tree for variant position 
+                                            phylogeny (default: GTR+G4).
     """
-
     exit 0
 }
 
@@ -55,7 +59,7 @@ def helpMessage() {
 
 workflow {
 
-    def color_purple = '\u001B[35m'
+    //def color_purple = '\u001B[35m'
     def color_green  = '\u001B[32m'
     def color_red    = '\u001B[31m'
     def color_reset  = '\u001B[0m'
@@ -72,7 +76,7 @@ workflow {
         ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝╚══════╝╚══════╝ ╚══▀▀═╝                 
         ${color_green}Pre-release development version${color_cyan}   
     ════════════════════════════════════════════════════════════════════════
-        RutiSeq.nf
+        RutiSeq.nf: Main workflow for the RutiSeq pipeline
     ════════════════════════════════════════════════════════════════════════
     ${color_reset}
     """
@@ -109,7 +113,7 @@ workflow {
             CREATION OF CHANNELS
                 The section creates the samples_ch and the controls_ch from the samplesheet. First the 
                 sample sheet is imported and split by the 'type' column into sample or control, and these
-                two sets of samples are directed into seperate workflows.
+                two sets of samples are directed into separate workflows.
         ······································································································
         */
 
@@ -130,7 +134,7 @@ workflow {
                     error "Empty file path found for sample ${row.sampleID}. Both forward and reverse paths must be provided."
                     }
                         
-                // Use the file function with error checking for the existance of the files
+                // Use the file function with error checking for the existence of the files
                 def forwardFile = file(row.forward_path.trim(), checkIfExists: true)
                 def reverseFile = file(row.reverse_path.trim(), checkIfExists: true)
                         
@@ -177,7 +181,7 @@ workflow {
         /*
         ······································································································
             NEGATIVE CONTROL WORKFLOW (NEGATIVE_CONTROL_WF)
-                - From the controls_ch, the samples are taxonomically classified with Kaiju
+                - From the controls_ch, the samples are taxonomically classified with Kraken2
                 - Taxonomically classified sample reads and produces a summary of the reads
         ······································································································
         */
@@ -191,8 +195,8 @@ workflow {
 */
         /*
         ······································································································
-            INSPECT BBDD FOR SINGLE_WD() INTERMEDIATE FILES
-                - Inspects the BBDD for the sampleID and SINGLE_WF outputs and creates a channel containins paths
+            INSPECT DATABASE FOR SINGLE_WD() INTERMEDIATE FILES
+                - Inspects the database for the sampleID and SINGLE_WF outputs and creates a channel contains paths
         ······································································································
         */
 
@@ -239,7 +243,7 @@ workflow {
         ······································································································
             SINGLE SAMPLE ANALYSIS (SINGLE_WF):
                 - Taxonomically classified sample reads and produces a summary read stats
-                - Paritions MTBc reads for downstream analysis
+                - Partitions MTBc reads for downstream analysis
                 - Performs TB-Profiler analysis on MTBc reads (using both WHO and TBDB databases)
                 - Performs  MTBSeq analysis on MTBc reads
                 - Creates correctly formatted VCF files using MTBseq mpileup files
@@ -295,7 +299,7 @@ workflow {
 
         /*
         ······································································································
-            SUMMARY WORKFLOW (SUMMARU_WF):
+            SUMMARY WORKFLOW (SUMMARY_WF):
                 - Produces the EXCEL summary tables
                 - Visualise phylogenetic trees 
                 - Generate MJN files for visualisation in PopArt
