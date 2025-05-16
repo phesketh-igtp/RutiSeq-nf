@@ -27,8 +27,16 @@ process GENERATE_SUMMARY_REPORT {
     script:
 
         """
+        # Correct the who_resistance file
+        ## copy the WHO resistance file to the current working directory
+            cp ${params.r_script_dir}/dict/tbprofiler_drt_rules.csv .
+        ## correct the WHO resistance file
+            Rscript ${params.r_script_dir}/rules_based_extended_DRT_assignment.R
+
         Rscript ${params.r_script_dir}/generate_summary_report.R \\
                 --rlibrary ${params.r_script_dir} \\
                 --output ${runID}_RutiSeq-results.xlsx
+        
+        exit 1
         """
 }
