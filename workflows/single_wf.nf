@@ -78,7 +78,7 @@ workflow SINGLE_WF {
         // Cleanup to reduce storage usage in the publish directory (all of these should be deleted, this is just ensuring they are properly gone)
             sampleid_list_ch = branched_channel_with_reads_updated.map { it[0] }
                 //sampleid_list_ch.view() // check the channel is as you would expect
-            sampleid_list_ch.view()
+
                 POST_SINGLE_BBDD_CLEANUP(sampleid_list_ch)
 
     emit:
