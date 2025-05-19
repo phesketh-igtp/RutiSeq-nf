@@ -3,16 +3,21 @@ process MTBSEQ_LINEAGE_GROUP {
 /*
     @author: Poppy J Hesketh Best
     @date: 2025-04-01
-    @version: 1.0
+    @version: 1.0.1
     @description:
         This process runs the MTBseq TBgroups step on the joint and amend directories
         for each lineage and distance. It takes the output from the
         MTBSEQ_LINEAGE_JOINT_AMEND() process and runs the TBgroups step on the joint
         and amend directories. It also renames the output files for simplicity.
         It also wrangles the output matrix into a useful format for downstream analysis.
+        Occasionally, the MTBseq TBgroups step will fail and produice empty files/no-files.
+    @last_updated: 2025-04-01
+    @changelog:
+        v1.0.0-2025-04-01: Initial version + documnetadocumentation
+        v1.0.1-2025-05-19: Removed additonal_args as it was not utilised and was creating inconsistencies
 */
 
-    tag "${runID}: ${lineage} | SNP dist: ${distance}"
+    tag "${lineage}; t=${distance}"
 
     conda params.mtbseq_env
 
@@ -33,15 +38,15 @@ process MTBSEQ_LINEAGE_GROUP {
     output:
         // Groups
         path("Groups/*")
-        path("Groups/${lineage}_d${distance}.clusters.tsv"),            emit: clusters
+        path("Groups/${lineage}_d${distance}.clusters.tsv"), emit: clusters
 
         //Matrix ouput
         path("Matrices/*")
-        path("Matrices/${lineage}.d${distance}.matrix.tsv"),            emit: matrix_dir
+        path("Matrices/${lineage}.d${distance}.matrix.tsv"), emit: matrix_dir
 
     script:
 
-        def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
+        //def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
         mkdir -p Groups/ Matrices
@@ -59,10 +64,9 @@ process MTBSEQ_LINEAGE_GROUP {
                 --minfreq       ${params.mtbseq_minfreq} \\
                 --unambig       ${params.mtbseq_unambig} \\
                 --window        ${params.mtbseq_window} \\
-                ${additional_args} \\
-                1>>.command.out \\
-                2>>.command.err \\
-                || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
+                    1>>.command.out \\
+                    2>>.command.err \\
+                    || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 
         # Rename the groups file for simplicity
             cat Groups/${lineage}_*_d${distance}.groups > Groups/${lineage}_d${distance}.groups
@@ -101,5 +105,6 @@ process MTBSEQ_LINEAGE_GROUP {
 
             # remove the intermediates
                 rm Matrices/tmp.${lineage}.*
+
         """
 }

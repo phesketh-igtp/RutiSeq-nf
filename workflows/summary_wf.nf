@@ -104,8 +104,6 @@ workflow SUMMARY_WF{
 
             PREPARE_DATA_DELIVERY( runID, CONCATENATED_VARIANT_FILES.out.cleanup_handover )
 
-
-
 }
 
 /*
