@@ -5,6 +5,8 @@ Main lineage,Main lineage,character,Y
 Sub-lineage,Sub-lineage,character,Y
 DR type,DR type (WHO),chr,Y
 Drug resistance type,DR type (TBDB),chr,N
+corr_DRType,DR type (corr WHO), chr,Y
+corr_DRTypeExt,DR type (ext corr WHO), chr,Y
 Total Reads,Total Reads,numeric,Y
 Unambiguous Total Bases,Unambiguous Total Bases,numeric,Y
 Unambiguous Total Bases (%),Unambiguous Total Bases (%),numeric,Y

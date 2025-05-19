@@ -36,7 +36,5 @@ process GENERATE_SUMMARY_REPORT {
         Rscript ${params.r_script_dir}/generate_summary_report.R \\
                 --rlibrary ${params.r_script_dir} \\
                 --output ${runID}_RutiSeq-results.xlsx
-        
-        exit 1
         """
 }

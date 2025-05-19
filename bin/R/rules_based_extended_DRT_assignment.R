@@ -37,26 +37,29 @@ rule_df <- readr::read_delim("tbprofiler_drt_rules.csv",
 categories <- rule_df |> select(DRT = DRT_type, extended_DRT = DRT)
 
 # Import the tb-profiler collated results
-df <- read.delim("who-tbprofiler.txt") |>
-  select(sample, rifampicin, isoniazid, ethambutol, pyrazinamide,
-         moxifloxacin, levofloxacin, bedaquiline, delamanid,
-         pretomanid, linezolid, streptomycin, amikacin, kanamycin,
-         capreomycin, clofazimine, ethionamide, para.aminosalicylic_acid,
-         cycloserine)
+df <- read.delim("who_resistance_summary.csv",
+                 sep = ",") |>
+  select(sample,
+         RIF, INH, EMB, PZA,
+         MFX, LFX, BDQ, DLM,
+         Pa, LZD, STM, AMK, KAN,
+         CAP, CFZ, ETO, PAC,
+         CYR)
 
 # Columns you want to update
 cols_to_update <- c(
-  "rifampicin", "isoniazid", "ethambutol", "pyrazinamide",
-  "moxifloxacin", "levofloxacin", "bedaquiline", "delamanid",
-  "pretomanid", "linezolid", "streptomycin", "amikacin",
-  "kanamycin", "capreomycin", "clofazimine", "ethionamide",
-  "para.aminosalicylic_acid", "cycloserine"
+  "RIF", "INH", "EMB", "PZA",
+  "MFX", "LFX", "BDQ", "DLM",
+  "Pa", "LZD", "STM", "AMK",
+  "KAN", "CAP", "CFZ", "ETO",
+  "PAC", "CYR"
 )
 
 # Replace "-" with "S" in those columns
 df[cols_to_update] <- lapply(df[cols_to_update],
-                             function(x) { ifelse(is.na(x), NA,
-                                                  ifelse(x == "-", "S", "R"))})
+                             function(x) {
+                                          ifelse(is.na(x), NA,
+                                                 ifelse(x == "-", "S", "R"))})
 
 rm(cols_to_update)
 
@@ -82,8 +85,8 @@ parse_rule <- function(row) {
 
   if (length(optional_raw) > 0) {
     # Custom logic: group known types like FQs and injectables
-    FQs <- intersect(names(optional_raw), c("moxifloxacin", "levofloxacin"))
-    INJ <- intersect(names(optional_raw), c("amikacin", "kanamycin", "capreomycin"))
+    FQs <- intersect(names(optional_raw), c("MFX", "LFX"))
+    INJ <- intersect(names(optional_raw), c("AMK", "KAN", "CAP"))
     OTHER <- setdiff(names(optional_raw), c(FQs, INJ))
     
     if (length(FQs) > 0) optional_group <- append(optional_group, list(FQs))
@@ -166,4 +169,8 @@ final_df <- final_df |> select(sample,DRT,DRT_ext=extended_DRT)
 ################################################################################
 
 # Export
-write.csv2(final_df, "tbprofiler-DR-corrections.csv")
+write.csv2(final_df, "tbprofiler-DR-corrections.csv",
+           row.names = FALSE,
+           quote = TRUE,
+           na = "N/A",
+           fileEncoding = "UTF-8")

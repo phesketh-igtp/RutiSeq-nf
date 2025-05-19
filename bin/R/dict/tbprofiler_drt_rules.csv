@@ -1,5 +1,5 @@
-DRT_type;DRT;rifampicin;isoniazid;ethambutol;pyrazinamide;moxifloxacin;levofloxacin;bedaquiline;delamanid;pretomanid;linezolid;streptomycin;amikacin;kanamycin;capreomycin;clofazimine;ethionamide;para.aminosalicylic_acid;cycloserine;description
-#rename;rename;RIF;INH;EMB;PZA;MFX;LFX;BDQ;DLM;PMD;LZD;STM;AMK;KAN;CAP;CFZ;ETO;PAC;CYR;
+#DRT_type;DRT;rifampicin;isoniazid;ethambutol;pyrazinamide;moxifloxacin;levofloxacin;bedaquiline;delamanid;pretomanid;linezolid;streptomycin;amikacin;kanamycin;capreomycin;clofazimine;ethionamide;para.aminosalicylic_acid;cycloserine;description
+DRT_type;DRT;RIF;INH;EMB;PZA;MFX;LFX;BDQ;DLM;Pa;LZD;STM;AMK;KAN;CAP;CFZ;ETO;PAC;CYR;description
 MDR TB;MDR;"!= ""S""";"!= ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";MDR (Isoniazid and rifampin resistance)
 MDR TB;MDR (+ETO);"!= ""S""";"!= ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"!= ""S""";"== ""S""";"== ""S""";MDR + ethionamide resistance
 MDR TB;MDR (+EMB);"!= ""S""";"!= ""S""";"!= ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";"== ""S""";MDR + ethambutol
