@@ -1,5 +1,5 @@
 # RutiSeq-nf
-This repository is currently under active development and may not function as expected. Users may encounter bugs, incomplete features, or other issues during use. It is strongly recommended to proceed with caution and avoid using this in production environments until a stable release is made available.
+This repository is currently under active development and may not function as expected. Users may encounter bugs, incomplete features, or other issues during use. It is strongly recommended to proceed with caution until a stable release is made available.
 
 ## Introduction
 
