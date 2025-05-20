@@ -3,7 +3,8 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - conda-forge::r-base=4.4.2
+  - conda-forge::r-randomcolor
+  - conda-forge::r-base
   - bioconda::bioconductor-ggtree=3.14.0
   - bioconda::bioconductor-treeio=1.30.0
   - conda-forge::r-ape=5.8_1
@@ -14,4 +15,3 @@ dependencies:
   - conda-forge::r-tidyverse=2.0.0
   - conda-forge::r-ggrepel
   - bioconda::bioconductor-biostrings=2.74.0
-  - conda-forge::r-randomcolor=1.1.0.1
