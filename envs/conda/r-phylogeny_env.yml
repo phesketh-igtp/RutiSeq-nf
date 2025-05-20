@@ -10,7 +10,6 @@ dependencies:
   - conda-forge::r-ape=5.8_1
   - conda-forge::r-argparse=2.2.5
   - conda-forge::r-dplyr=1.1.4
-  - conda-forge::r-optparse=1.7.5
   - conda-forge::r-rcolorbrewer=1.1_3
   - conda-forge::r-tidyverse=2.0.0
   - conda-forge::r-ggrepel
