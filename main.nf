@@ -187,12 +187,13 @@ workflow {
         */
 
         // Call the workflow
-/*
+
             NEGATIVE_CTRL_WF( params.runID,
                                 controls_ch, 
-                                TAXONKIT_DB_UPDATE.out.taxonkit_update_db
+                                TAXONKIT_DB_UPDATE.out.taxonkit_update_db,
+                                params.samplesheet
                             )
-*/
+
         /*
         ······································································································
             INSPECT DATABASE FOR SINGLE_WD() INTERMEDIATE FILES
