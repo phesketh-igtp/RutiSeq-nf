@@ -26,40 +26,33 @@ process ADAPTORS_AND_DOWNSAMPLING {
             else return null
         }
 
-    publishDir "${params.outDir}/bbdd/read-qc/", mode: 'copy'
-
     input:
         tuple val(sampleID), 
-                path(forward), path(reverse), path(mtbseq_class), 
-                path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
-                path(tbdb_out), path(who_out), path(mtbseq_vcf)
+            path(forward), path(reverse), path(mtbseq_class), 
+            path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
+            path(tbdb_out), path(who_out), path(mtbseq_vcf)
 
     output:
-        path("tables/${sampleID}.kaiju.out"),           optional: true
-        path("tables/${sampleID}.kaiju_summary.tsv"),   optional: true
-
-        // Emit ch for compiling read-QC
-        tuple val(sampleID), path("tables/${sampleID}.qc.out"),      emit: qc_results, optional: true
-
         // Emit ch for the updated channel with all the outputs
         tuple val(sampleID), 
-                path("mtbc_reads/${sampleID}_mtbc_R1.fastq.gz"), 
-                path("mtbc_reads/${sampleID}_mtbc_R2.fastq.gz"), 
-                path(mtbseq_class), path(mtbseq_stats), 
-                path(mtbseq_pos), path(mtbseq_vars), 
-                path(tbdb_out), path(who_out), path(mtbseq_vcf),     emit: updated_sample_ch1
+            path("fastp/${sampleID}_R1.fastq.gz"), 
+            path("fastp/${sampleID}_R2.fastq.gz"), 
+            path(mtbseq_class), path(mtbseq_stats), 
+            path(mtbseq_pos), path(mtbseq_vars), 
+            path(tbdb_out), path(who_out), path(mtbseq_vcf), emit: updated_sample_ch1
 
     script:
 
     """
-    # Remove any possible illumina adapters from the reads
+    # Remove any possible illumina adapters from the reads and
+    ## downsample to 5,000,000 reads for TBProfiler/MTBseq (if necessary)
 
-            echo -e "Downsampling to 5,000,000 reads for TBProfiler/MTBseq"
-            fastp --in1 ${forward} --in2 ${reverse} \\
-                    --out1 mtbc_reads/${sampleID}_mtbc_R1.fastq.gz \\
-                    --out2 mtbc_reads/${sampleID}_mtbc_R2.fastq.gz \\
-                    --reads_to_process 5000000 --length_required 50
+        mkdir -p fastp
+
+        fastp --in1 ${forward} --in2 ${reverse} \\
+            --out1 fastp/${sampleID}_R1.fastq.gz \\
+            --out2 fastp/${sampleID}_R2.fastq.gz \\
+            --reads_to_process 5000000 \\
+            --length_required 50
     """
-
-
 }
