@@ -23,7 +23,7 @@ workflow SINGLE_WF {
             Opening message for workflow
         */ 
 
-        def purple  = '\u001B[35m'
+        //def purple  = '\u001B[35m'
         def green   = '\u001B[32m'
         def red     = '\u001B[31m'
         def cyan    = '\u001B[36m'
