@@ -1,10 +1,11 @@
-include { FASTP_READ_QC }             from '../modules/local/pre-wf-check/fastp-reads-qc/main.nf'
-include { TBPROFILER_PROFILE_TBDB }   from '../modules/local/tbprofiler/profile.tbdb/main.nf'
-include { TBPROFILER_PROFILE_WHO }    from '../modules/local/tbprofiler/profile.who/main.nf'
-include { MTBSEQ_SINGLE }             from '../modules/local/mtbseq/single/main.nf'
-include { SNP_PROFILING_SINGLE }      from '../modules/local/snp-barcoding/single.profiling/main.nf'
-include { SNP_ANNOTATING_SINGLE }     from '../modules/local/snp-barcoding/single.annotating/main.nf'
-include { POST_SINGLE_BBDD_CLEANUP }  from '../modules/local/post-wf-cleaup/single-bbdd-cleanup/main.nf'
+include { FASTP_READ_QC }              from '../modules/local/pre-wf-check/fastp-reads-qc/main.nf'
+include { SYLPH_READ_CLASSIFICATION }  from '../modules/local/pre-wf-check/sylph-reads/main.nf'
+include { TBPROFILER_PROFILE_TBDB }    from '../modules/local/tbprofiler/profile.tbdb/main.nf'
+include { TBPROFILER_PROFILE_WHO }     from '../modules/local/tbprofiler/profile.who/main.nf'
+include { MTBSEQ_SINGLE }              from '../modules/local/mtbseq/single/main.nf'
+include { SNP_PROFILING_SINGLE }       from '../modules/local/snp-barcoding/single.profiling/main.nf'
+include { SNP_ANNOTATING_SINGLE }      from '../modules/local/snp-barcoding/single.annotating/main.nf'
+include { POST_SINGLE_BBDD_CLEANUP }   from '../modules/local/post-wf-cleaup/single-bbdd-cleanup/main.nf'
 
 workflow SINGLE_WF {
 
@@ -52,7 +53,10 @@ workflow SINGLE_WF {
             branched_channel.with_reads.view { "With reads: $it" }
         */
 
-        // Taxonomically classify and partition the MTBC reads
+        // Sylph read classification as a quality control step
+        /// SYLPH_READ_CLASSIFICATION( params.samplesheet )
+
+        // Read QC with fastp
             FASTP_READ_QC( branched_channel.with_reads )
 
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
@@ -75,7 +79,8 @@ workflow SINGLE_WF {
             // DEBUG:: 
                 //final_updated_sample_ch.view { "Final channel: $it" }
 
-        // Cleanup to reduce storage usage in the publish directory (all of these should be deleted, this is just ensuring they are properly gone)
+        // Cleanup to reduce storage usage in the publish directory (all of these should be deleted, 
+        // this is just ensuring they are properly gone)
             sampleid_list_ch = branched_channel_with_reads_updated.map { it[0] }
                 //sampleid_list_ch.view() // check the channel is as you would expect
 

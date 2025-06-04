@@ -4,17 +4,15 @@ process FASTP_READ_QC {
 
 /*
     @author: Poppy J Hesketh Best
-    @date: 2025-04-01
-    @version: 1.0
+    @date: 2025-06-04
+    @version: 2.0.0
     @description: 
-        This process was originally used to run the MTBC_READ_QC step of the pipeline.
-        It has been modified to remove the kaiju step of the pipeline. And just generates
-        sequencing statistics and down-samples the reads to 5,000,000 reads if there are
-        more than 5,000,000 reads. The down-sampled reads are then used for the TBProfiler
-        and MTBseq steps of the pipeline.
-        TODO: Add kraken2 step back in to the pipeline (BUT! only to classify the reads and not
-        to partition the reads. This is because the MTBseq pipeline generated much lower quality
-        results when the reads were partitioned.)
+        This QC step runs fastp for adaptor removal and down-sampling of reads.
+        It takes the forward and reverse reads, performs quality control, and outputs the cleaned reads.
+        It also emits the updated sample channel with the cleaned reads and other outputs.
+    @changelog
+        v1.0.0-2025-04-01: Initial version
+        v2.0.0-2025-06-04: Changed this module to run fastp for adaptor removal and down-sampling of reads.
 */
     
     tag "$sampleID"
@@ -54,7 +52,8 @@ process FASTP_READ_QC {
     script:
 
     """
-    echo -e "Downsampling to 5,000,000 reads for TBProfiler/MTBseq"
+    mkdir -p fastp
+
     fastp --in1 ${forward} --in2 ${reverse} \\
         --out1 fastp/${sampleID}_R1.fastq.gz \\
         --out2 fastp/${sampleID}_R2.fastq.gz \\
