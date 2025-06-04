@@ -33,7 +33,7 @@ process POST_SINGLE_BBDD_CLEANUP {
 
             rm -f  ${params.outDir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R1.fastq.gz       
             rm -f  ${params.outDir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R2.fastq.gz
-            rm -f  ${params.outDir}/bbdd/tbprofiler/who-only/${sampleID}/tbdb-${sampleID}.results.txt
+            rm -f  ${params.outDir}/bbdd/tbprofiler/who-only/tbdb-${sampleID}.results.txt
 
             rm -f  ${params.outDir}/bbdd/mtbseq/samples/${sampleID}/${sampleID}_mtbc_R1.fastq.gz
             rm -f  ${params.outDir}/bbdd/mtbseq/samples/${sampleID}/${sampleID}_mtbc_R2.fastq.gz
@@ -44,7 +44,7 @@ process POST_SINGLE_BBDD_CLEANUP {
             rm -f ${params.outDir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/${sampleID}*R2.fastq.gz
             rm -f ${params.outDir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/tbdb-${sampleID}.results.txt
             rm -f ${params.outDir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/who-${sampleID}.results.txt
-            rm -f ${params.outDir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/*.tab
+            rm -f ${params.outDir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/${sampleID}*.tab
         """
 
 }
