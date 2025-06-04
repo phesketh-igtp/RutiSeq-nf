@@ -1,4 +1,4 @@
-include { MTBC_READ_QC }              from '../modules/local/pre-wf-check/mtbc-reads-qc/main.nf'
+include { FASTP_READ_QC }             from '../modules/local/pre-wf-check/fastp-reads-qc/main.nf'
 include { TBPROFILER_PROFILE_TBDB }   from '../modules/local/tbprofiler/profile.tbdb/main.nf'
 include { TBPROFILER_PROFILE_WHO }    from '../modules/local/tbprofiler/profile.who/main.nf'
 include { MTBSEQ_SINGLE }             from '../modules/local/mtbseq/single/main.nf'
@@ -53,10 +53,10 @@ workflow SINGLE_WF {
         */
 
         // Taxonomically classify and partition the MTBC reads
-            MTBC_READ_QC( branched_channel.with_reads )
+            FASTP_READ_QC( branched_channel.with_reads )
 
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
-            TBPROFILER_PROFILE_TBDB( MTBC_READ_QC.out.updated_sample_ch1 )
+            TBPROFILER_PROFILE_TBDB( FASTP_READ_QC.out.updated_sample_ch1 )
 
             TBPROFILER_PROFILE_WHO( TBPROFILER_PROFILE_TBDB.out.updated_sample_ch2 )
 

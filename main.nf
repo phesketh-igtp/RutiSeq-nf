@@ -19,7 +19,9 @@ def helpMessage() {
     Usage:
 
     Mandatory arguments:
-        --samplesheet           [CSV]   Path to input data (must be surrounded with quotes)
+        --samplesheet           [CSV]   Path to input data with the following columns: 
+                                            originalID,sampleID,forward_path,reverse_path,type
+        --runID                 [chr]   Unique identifier for the run (e.g., 'run1', '2024-10-01')
         --outDir                [path]  The output directory where the results will be saved
         --workDir               [path]  The temporary work directory for intermediate files (can be deleted when 
                                             analysis is complete to recovered storage space)
@@ -175,7 +177,6 @@ workflow {
                 - The TBProfiler database is updated with the latest version of the database
         ······································································································
         */
-
             TAXONKIT_DB_UPDATE( params.runID )
 
         /*

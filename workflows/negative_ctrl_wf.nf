@@ -27,6 +27,7 @@ workflow NEGATIVE_CTRL_WF {
         controls_ch
         tbprofiler_update_db
         taxonkit_update_db
+        samplesheet_ch
 
     main:
 
@@ -73,7 +74,7 @@ workflow NEGATIVE_CTRL_WF {
         Run Kraken2 on the reads and get read taxonomy
         */
 
-            CN_READ_TAXONOMY( control_ch_analysis )
+            CN_READ_TAXONOMY( samplesheet_ch )
 
         /*
             Run Tb-Profiler and MTBseq on the reads (expect them to fail)

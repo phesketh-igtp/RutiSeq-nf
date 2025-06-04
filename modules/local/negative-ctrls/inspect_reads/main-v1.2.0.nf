@@ -3,13 +3,13 @@ process CN_READ_TAXONOMY {
 /*
     @author: Poppy J Hesketh Best
     @date: 2025-04-04
-    @version: 0.2
+    @version: 1.0.2
     @description: 
         Run KAIJU on the reads and get read taxonomy and statistics of the reads. Outputs of this modules 
         are intended to be combines into a single file for each sample, and then concatenated into a
         single file for all samples for a particular run.
 
-    @updates: v0.2 - created new paths for the results `Classification/ Statistics/`
+    @updates: v1.0.2 - created new paths for the results `Classification/ Statistics/`
 */
     
     tag "${sampleID}"

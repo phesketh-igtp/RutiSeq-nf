@@ -53,8 +53,8 @@ process CN_READ_TAXONOMY {
             cat tmp.for.tsv tmp.rev.tsv > Statistics/${sampleID}.stats.tsv
             rm tmp.for.tsv tmp.rev.tsv
 
-        # Run kraken2
-            kraken2 \\
+        # Run Sylph
+            sylph ${params.kraken_db_path} \\
                 --threads ${task.cpus} \\
                 --db ${params.kraken_db_path} \\
                 --report Classification/${sampleID}.k2.report \\

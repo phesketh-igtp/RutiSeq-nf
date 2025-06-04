@@ -1,4 +1,6 @@
-process MTBC_READ_QC {
+process FASTP_READ_QC {
+
+    /*
 
 /*
     @author: Poppy J Hesketh Best
@@ -43,37 +45,20 @@ process MTBC_READ_QC {
 
         // Emit ch for the updated channel with all the outputs
         tuple val(sampleID), 
-                path("mtbc_reads/${sampleID}_mtbc_R1.fastq.gz"), 
-                path("mtbc_reads/${sampleID}_mtbc_R2.fastq.gz"), 
+                path("fastp/${sampleID}_R1.fastq.gz"), 
+                path("fastp/${sampleID}_R2.fastq.gz"), 
                 path(mtbseq_class), path(mtbseq_stats), 
                 path(mtbseq_pos), path(mtbseq_vars), 
                 path(tbdb_out), path(who_out), path(mtbseq_vcf),     emit: updated_sample_ch1
 
     script:
-        def additional_args_kaiju       = task.ext.additional_args_kaiju ?: ''
-        def additional_args_kaiju2table = task.ext.additional_args_kaiju2table ?: ''
 
     """
-        mkdir -p tables
-        touch tables/${sampleID}.kaiju.out
-        touch tables/${sampleID}.kaiju_summary.tsv
-        touch tables/${sampleID}.qc.out
-
-        read_count=\$(seqkit stats -abT -j ${task.cpus} ${forward} | sed "1d" | cut -f4)
-
-        mkdir -p mtbc_reads
-
-        if [[ \${read_count} > 5000000 ]]; then
-            echo -e "Downsampling to 5,000,000 reads for TBProfiler/MTBseq"
-            fastp --in1 ${forward} --in2 ${reverse} \\
-                    --out1 mtbc_reads/${sampleID}_mtbc_R1.fastq.gz \\
-                    --out2 mtbc_reads/${sampleID}_mtbc_R2.fastq.gz \\
-                    --reads_to_process 5000000 --length_required 50
-        else
-            cp ${forward} mtbc_reads/${sampleID}_mtbc_R1.fastq.gz
-            cp ${reverse} mtbc_reads/${sampleID}_mtbc_R2.fastq.gz
-        fi
-
+    echo -e "Downsampling to 5,000,000 reads for TBProfiler/MTBseq"
+    fastp --in1 ${forward} --in2 ${reverse} \\
+        --out1 fastp/${sampleID}_R1.fastq.gz \\
+        --out2 fastp/${sampleID}_R2.fastq.gz \\
+        --reads_to_process 5000000 --length_required 50
     """
 
 
