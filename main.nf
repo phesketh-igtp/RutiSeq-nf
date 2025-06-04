@@ -181,22 +181,6 @@ workflow {
 
         /*
         ······································································································
-            NEGATIVE CONTROL WORKFLOW (NEGATIVE_CONTROL_WF)
-                - From the controls_ch, the samples are taxonomically classified with Kraken2
-                - Taxonomically classified sample reads and produces a summary of the reads
-        ······································································································
-        */
-
-        // Call the workflow
-/*
-            NEGATIVE_CTRL_WF( params.runID,
-                                controls_ch, 
-                                TAXONKIT_DB_UPDATE.out.taxonkit_update_db,
-                                params.samplesheet
-                            )
-*/
-        /*
-        ······································································································
             INSPECT DATABASE FOR SINGLE_WD() INTERMEDIATE FILES
                 - Inspects the database for the sampleID and SINGLE_WF outputs and creates a channel contains paths
         ······································································································
