@@ -28,32 +28,33 @@ process SYLPH_CLASSIFICATION {
     script:
 
     """
-        mkdir -p reads sylph
+        mkdir -p sylph
     
         # Example: iterate through all samples in the samplesheet
             while IFS="," read -r origID sampleID forward reverse type; do
                 
-                ln -s \${forward} \${sampleID}_R1.fastq.gz
-                ln -s \${reverse} \${sampleID}_R2.fastq.gz
+                ln -s "\${forward}" "\${sampleID}_R1.fastq.gz"
+                ln -s "\${reverse}" "\${sampleID}_R2.fastq.gz"
 
                 sylph sketch \\
-                    -1 \${sampleID}_R1.fastq.gz \\
-                    -2 \${sampleID}_R2.fastq.gz \\
-                    -d sylph/\${sampleID} \\
+                    -1 "\${sampleID}_R1.fastq.gz" \\
+                    -2 "\${sampleID}_R2.fastq.gz" \\
+                    -d sylph/ \\
                     -t ${task.cpus}
 
-            done < ${params.samplesheet}
+            done < <(sed '1d' ${params.samplesheet})
 
     # Profile the sketches with Sylph
         sylph profile \\
             ${params.sylph_bbdd} \\
-            sylph/*syldb \\
+            sylph/* \\
             --estimate-unknown \\
             --read-seq-id 0.99 \\
             -t ${task.cpus} \\
             -o sylph.tsv
 
     # Get taxonomy for the profiles
+    mkdir -p my_existing_folder/
     sylph-tax download --download-to my_existing_folder/
 
     sylph-tax taxprof sylph.tsv \\

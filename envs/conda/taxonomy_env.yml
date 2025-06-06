@@ -7,3 +7,4 @@ dependencies:
   - bioconda::fastq-pair=1.0
   - bioconda::sylph=0.8.1
   - bioconda::seqkit=2.10.0
+  - bioconda::sylph-tax=1.2.0

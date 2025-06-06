@@ -72,12 +72,6 @@ process MTBSEQ_SINGLE {
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
-        # Rename the reads to the intended name without the "_mtbc"
-            mtbc_Fname1=\$(ls ${mtbc_forward}); mtbc_Rname1=\$(ls ${mtbc_reverse})
-            mtbc_Fname2=\$(ls ${mtbc_forward} | sed 's/_mtbc//g'); mtbc_Rname2=\$(ls ${mtbc_reverse} | sed 's/_mtbc//g')
-            mv \${mtbc_Fname1} \${mtbc_Fname2}; mv \${mtbc_Rname1} \${mtbc_Rname2}
-
-
         # Run MTBseq for a single sample
 
             MTBseq --step TBfull \\
@@ -92,9 +86,6 @@ process MTBSEQ_SINGLE {
                 ${additional_args} \\
                 1>>.command.out \\
                 2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
-
-        # restore the symbolic link names
-            mv \${mtbc_Fname2} \${mtbc_Fname1}; mv \${mtbc_Rname2} \${mtbc_Rname1}
 
         # Rename the stats and class outputs to have unique names
         ## this prevent clashes later on

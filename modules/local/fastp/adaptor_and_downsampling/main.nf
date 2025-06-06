@@ -49,7 +49,9 @@ process ADAPTORS_AND_DOWNSAMPLING {
 
         mkdir -p fastp
 
-        fastp --in1 ${forward} --in2 ${reverse} \\
+        fastp \\
+            --in1 ${forward} \\
+            --in2 ${reverse} \\
             --out1 fastp/${sampleID}_R1.fastq.gz \\
             --out2 fastp/${sampleID}_R2.fastq.gz \\
             --reads_to_process 5000000 \\
