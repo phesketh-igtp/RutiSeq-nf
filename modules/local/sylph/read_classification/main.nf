@@ -17,17 +17,10 @@ process SYLPH_CLASSIFICATION {
 
     conda params.taxonomy_env
 
-    container { 
-            if (workflow.containerEngine == 'singularity') return params.singularity_kaiju
-            else if (workflow.containerEngine == 'docker') return params.docker_kaiju
-            else if (workflow.containerEngine == 'apptainer') return params.apptainer_kaiju
-            else return null
-        }
-
-    publishDir "${params.outDir}/bbdd/read-qc/${params.runID}/", mode: 'copy'
+    publishDir "${params.outDir}/bbdd/read-qc/sylph/${params.runID}/", mode: 'copy'
 
     input:
-        val all_samples
+        val(runID)
 
     output:
         path("merged_sylph_sequence_abundance_file.tsv")
@@ -35,49 +28,40 @@ process SYLPH_CLASSIFICATION {
     script:
 
     """
-    # Access individual samples like:
-    # all_samples[0] = first tuple [sampleID, forward, reverse, mtbseq_class, ...]
-    # all_samples[1] = second tuple [sampleID, forward, reverse, mtbseq_class, ...]
-    
-        echo "Processing ${all_samples.size()} samples"
-
         mkdir -p reads sylph
     
-        # Example: iterate through all samples
-
-            for sample in ${all_samples}:
-                echo "Sample ID: \${sample[0]}"
-                echo "Forward reads: \${sample[1]}"
-                echo "Reverse reads: \${sample[2]}"
+        # Example: iterate through all samples in the samplesheet
+            while IFS="," read -r origID sampleID forward reverse type; do
                 
-                ln -s \${sample[1]}" reads/\${sample[0]}_R1.fastq.gz"
-                ln -s \${sample[2]}" reads/\${sample[0]}_R2.fastq.gz"
+                ln -s \${forward} \${sampleID}_R1.fastq.gz
+                ln -s \${reverse} \${sampleID}_R2.fastq.gz
 
                 sylph sketch \\
-                    -1 \${sample[1]} \\
-                    -2 \${sample[2]}\\
-                    -d sylph/\${sample[0]} \\
+                    -1 \${sampleID}_R1.fastq.gz \\
+                    -2 \${sampleID}_R2.fastq.gz \\
+                    -d sylph/\${sampleID} \\
                     -t ${task.cpus}
-            done
+
+            done < ${params.samplesheet}
 
     # Profile the sketches with Sylph
         sylph profile \\
-            ${params.sylph_bacterial_bbdd} \\
+            ${params.sylph_bbdd} \\
             sylph/*syldb \\
             --estimate-unknown \\
             --read-seq-id 0.99 \\
             -t ${task.cpus} \\
-            -o sylph_bacterial.tsv
+            -o sylph.tsv
 
     # Get taxonomy for the profiles
     sylph-tax download --download-to my_existing_folder/
 
-    sylph-tax taxprof sylph_bacterial.tsv \\
-        -t ${params.sylph_bacterial_bbdd_id} \\
-        -o sylph/tax_bacterial_
+    sylph-tax taxprof sylph.tsv \\
+        -t ${params.sylph_bbdd_id} \\
+        -o sylph/tax_
 
     # remove any empty files
-        find sylph/ -type f -name 'tax_bacterial_*.sylphmpa' -empty -delete
+        find sylph/ -type f -name 'tax_*.sylphmpa' -empty -delete
 
     sylph-tax merge \\
         sylph/tax_*.sylphmpa \\

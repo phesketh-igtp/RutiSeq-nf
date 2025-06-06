@@ -57,7 +57,7 @@ workflow SINGLE_WF {
             ADAPTORS_AND_DOWNSAMPLING( branched_channel.with_reads )
 
         // Run SYLPH_CLASSIFICATION to classify the reads
-            SYLPH_CLASSIFICATION( branched_channel.with_reads.collect() )
+            SYLPH_CLASSIFICATION( runID )
 
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
             TBPROFILER_PROFILE_TBDB( ADAPTORS_AND_DOWNSAMPLING.out.updated_sample_ch1 )
