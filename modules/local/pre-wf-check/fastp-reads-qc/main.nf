@@ -1,4 +1,4 @@
-process FASTP_READ_QC {
+process ADAPTORS_AND_DOWNSAMPLING {
 
     /*
 
@@ -51,14 +51,16 @@ process FASTP_READ_QC {
 
     script:
 
-    """
-    mkdir -p fastp
+        """
+        # Remove any possible illumina adapters from the reads
+            mkdir -p fastp
 
-    fastp --in1 ${forward} --in2 ${reverse} \\
-        --out1 fastp/${sampleID}_R1.fastq.gz \\
-        --out2 fastp/${sampleID}_R2.fastq.gz \\
-        --reads_to_process 5000000 --length_required 50
-    """
+        # Downsampling to 5,000,000 reads for TBProfiler/MTBseq
+            fastp --in1 ${forward} --in2 ${reverse} \\
+                --out1 fastp/${sampleID}_R1.fastq.gz \\
+                --out2 fastp/${sampleID}_R2.fastq.gz \\
+                --reads_to_process 5000000 --length_required 50
+        """
 
 
 }

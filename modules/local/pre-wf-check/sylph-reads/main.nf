@@ -1,4 +1,4 @@
-process SYLPH_READ_CLASSIFICATION {
+process SYLPH_CLASSIFICATION {
 
 /*
     @author: Poppy J Hesketh Best
@@ -17,17 +17,10 @@ process SYLPH_READ_CLASSIFICATION {
 
     conda params.taxonomy_env
 
-    container { 
-            if (workflow.containerEngine == 'singularity') return params.singularity_kaiju
-            else if (workflow.containerEngine == 'docker') return params.docker_kaiju
-            else if (workflow.containerEngine == 'apptainer') return params.apptainer_kaiju
-            else return null
-        }
-
-    publishDir "${params.outDir}/bbdd/read-qc/${params.runID}/", mode: 'copy'
+    publishDir "${params.outDir}/bbdd/read-qc/sylph/${params.runID}/", mode: 'copy'
 
     input:
-        val all_samples
+        val(runID)
 
     output:
         path("merged_sylph_sequence_abundance_file.tsv")
@@ -35,44 +28,40 @@ process SYLPH_READ_CLASSIFICATION {
     script:
 
     """
-    # Create directory
-        mkdir -p reads sylph
+        mkdir -p sylph
     
-    # Parse the reads in the samplesheet
-        while IFS=',' read -r originalID sampleID forward reverse type; do
-
-            # Profile the sketches with Sylph
-            sylph sketch \\
-                -1 \${forward} \\
-                -2 \${reverse}\\
-                -d sylph/\${sampleID} \\
-                -t ${task.cpus}
-
-        done < ${params.samplesheet}
-
-    # Profile the sketches
+        # Example: iterate through all samples in the samplesheet
+            while IFS="," read -r origID sampleID forward reverse type; do
+                
+                ln -s "\${forward}" "\${sampleID}_R1.fastq.gz"
+                ln -s "\${reverse}" "\${sampleID}_R2.fastq.gz"
+                sylph sketch \\
+                    -1 "\${sampleID}_R1.fastq.gz" \\
+                    -2 "\${sampleID}_R2.fastq.gz" \\
+                    -d sylph/ \\
+                    -t ${task.cpus}
+            done < <(sed '1d' ${params.samplesheet})
+    # Profile the sketches with Sylph
         sylph profile \\
-                ${params.sylph_bbdd} \\
-                sylph/*syldb \\
-                --estimate-unknown \\
-                --read-seq-id 0.99 \\
-                -t ${task.cpus} \\
-                -o sylph_bacterial.tsv
-
+            ${params.sylph_bbdd} \\
+            sylph/* \\
+            --estimate-unknown \\
+            --read-seq-id 0.99 \\
+            -t ${task.cpus} \\
+            -o sylph.tsv
     # Get taxonomy for the profiles
-        sylph-tax download --download-to my_existing_folder/
-        sylph-tax taxprof sylph_bacterial.tsv \\
-            -t ${params.sylph_bbdd_id} \\
-            -o sylph/tax_
-
+    mkdir -p my_existing_folder/
+    sylph-tax download --download-to my_existing_folder/
+    sylph-tax taxprof sylph.tsv \\
+        -t ${params.sylph_bbdd_id} \\
+        -o sylph/tax_
     # remove any empty files
         find sylph/ -type f -name 'tax_*.sylphmpa' -empty -delete
-
-    # Merge the results
-        sylph-tax merge \\
-            sylph/tax_*.sylphmpa \\
-            --column sequence_abundance \\
-            -o merged_sylph_sequence_abundance_file.tsv
+    sylph-tax merge \\
+        sylph/tax_*.sylphmpa \\
+        --column sequence_abundance \\
+        -o merged_sylph_sequence_abundance_file.tsv
     """
+
 
 }

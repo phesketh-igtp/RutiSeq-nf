@@ -1,5 +1,5 @@
 include { FASTP_READ_QC }              from '../modules/local/pre-wf-check/fastp-reads-qc/main.nf'
-include { SYLPH_READ_CLASSIFICATION }  from '../modules/local/pre-wf-check/sylph-reads/main.nf'
+include { SYLPH_CLASSIFICATION }       from '../modules/local/pre-wf-check/sylph-reads/main.nf'
 include { TBPROFILER_PROFILE_TBDB }    from '../modules/local/tbprofiler/profile.tbdb/main.nf'
 include { TBPROFILER_PROFILE_WHO }     from '../modules/local/tbprofiler/profile.who/main.nf'
 include { MTBSEQ_SINGLE }              from '../modules/local/mtbseq/single/main.nf'
