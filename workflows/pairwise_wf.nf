@@ -1,12 +1,12 @@
-include { TBPROFILER_COMPILE_TBDB }                 from '../modules/local/tbprofiler/compile.tbdb/main.nf'
-include { TBPROFILER_COMPILE_WHO }                  from '../modules/local/tbprofiler/compile.who/main.nf'
-include { MTBSEQ_STATS_COMPILE }                    from '../modules/local/mtbseq/stats-compile/main.nf'
-include { COMPILE_SEQUENCING_STATS }                from '../modules/local/filtering/compile-sequencing-stats/main.nf'
-include { PREPARE_PAIRWISE_CHANNELS }               from '../modules/local/filtering/prepare_pairwise_channels/main.nf'
-include { MTBSEQ_LINEAGE_JOINT_AMEND }              from '../modules/local/mtbseq/lineage_joint-amend/main.nf'
-include { MTBSEQ_LINEAGE_GROUP }                    from '../modules/local/mtbseq/lineage_group/main.nf'
-include { CONCATENATED_VARIABLE_REGION_PHYLOGENY }  from '../modules/local/phylogeny/concatenated_snp_phylogeny/main.nf'
-include { CONCATENATE_CLUSTERS }                    from '../modules/local/pairwise/concatenate-cluster-file/main.nf'
+include { TBPROFILER_COMPILE_TBDB }                 from '../modules/pairwise_wf/tbprofiler/compile.tbdb/main.nf'
+include { TBPROFILER_COMPILE_WHO }                  from '../modules/pairwise_wf/tbprofiler/compile.who/main.nf'
+include { MTBSEQ_STATS_COMPILE }                    from '../modules/pairwise_wf/mtbseq/stats-compile/main.nf'
+include { COMPILE_SEQUENCING_STATS }                from '../modules/pairwise_wf/filtering/compile-sequencing-stats/main.nf'
+include { PREPARE_PAIRWISE_CHANNELS }               from '../modules/pairwise_wf/filtering/prepare_pairwise_channels/main.nf'
+include { MTBSEQ_LINEAGE_JOINT_AMEND }              from '../modules/pairwise_wf/mtbseq/lineage_joint-amend/main.nf'
+include { MTBSEQ_LINEAGE_GROUP }                    from '../modules/pairwise_wf/mtbseq/lineage_group/main.nf'
+include { CONCATENATED_VARIABLE_REGION_PHYLOGENY }  from '../modules/pairwise_wf/phylogeny/concatenated_snp_phylogeny/main.nf'
+include { CONCATENATE_CLUSTERS }                    from '../modules/pairwise_wf/pairwise/concatenate-cluster-file/main.nf'
 
 workflow PAIRWISE_WF {
     
