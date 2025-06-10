@@ -1,11 +1,11 @@
-include { SYLPH_CLASSIFICATION }      from '../modules/local/sylph/read_classification/main.nf'
-include { ADAPTORS_AND_DOWNSAMPLING } from '../modules/local/fastp/adaptor_and_downsampling/main.nf'
-include { TBPROFILER_PROFILE_TBDB }    from '../modules/local/tbprofiler/profile.tbdb/main.nf'
-include { TBPROFILER_PROFILE_WHO }     from '../modules/local/tbprofiler/profile.who/main.nf'
-include { MTBSEQ_SINGLE }              from '../modules/local/mtbseq/single/main.nf'
-include { SNP_PROFILING_SINGLE }       from '../modules/local/snp-barcoding/single.profiling/main.nf'
-include { SNP_ANNOTATING_SINGLE }      from '../modules/local/snp-barcoding/single.annotating/main.nf'
-include { POST_SINGLE_BBDD_CLEANUP }   from '../modules/local/post-wf-cleaup/single-bbdd-cleanup/main.nf'
+include { SYLPH_CLASSIFICATION }        from '../modules/single_wf/sylph/read_classification/main.nf'
+include { ADAPTORS_AND_DOWNSAMPLING }   from '../modules/single_wf/fastp/adaptor_and_downsampling/main.nf'
+include { TBPROFILER_PROFILE_TBDB }     from '../modules/single_wf/tbprofiler/profile.tbdb/main.nf'
+include { TBPROFILER_PROFILE_WHO }      from '../modules/single_wf/tbprofiler/profile.who/main.nf'
+include { MTBSEQ_SINGLE }               from '../modules/single_wf/mtbseq/single/main.nf'
+include { SNP_PROFILING_SINGLE }        from '../modules/single_wf/snp-barcoding/single.profiling/main.nf'
+include { SNP_ANNOTATING_SINGLE }       from '../modules/single_wf/snp-barcoding/single.annotating/main.nf'
+include { POST_SINGLE_BBDD_CLEANUP }    from '../modules/single_wf/post-wf-cleaup/single-bbdd-cleanup/main.nf'
 
 workflow SINGLE_WF {
 
