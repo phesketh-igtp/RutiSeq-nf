@@ -10,7 +10,7 @@ process GENERATE_TIMETREES {
 
     tag "${lineage}"
 
-    conda params.r_phylogeny_env
+    conda params.phylogeny_env
 
     publishDir "${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/", mode: 'copy'
 
