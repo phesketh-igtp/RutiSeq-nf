@@ -14,9 +14,9 @@ process ADAPTORS_AND_DOWNSAMPLING {
         to partition the reads. This is because the MTBseq pipeline generated much lower quality
         results when the reads were partitioned.)
 */
-    
+
     tag "$sampleID"
-    
+
     conda params.taxonomy_env
 
     container { 
@@ -46,9 +46,7 @@ process ADAPTORS_AND_DOWNSAMPLING {
     """
     # Remove any possible illumina adapters from the reads and
     ## downsample to 5,000,000 reads for TBProfiler/MTBseq (if necessary)
-
         mkdir -p fastp
-
         fastp \\
             --in1 ${forward} \\
             --in2 ${reverse} \\
