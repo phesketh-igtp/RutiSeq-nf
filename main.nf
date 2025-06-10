@@ -4,7 +4,6 @@ nextflow.enable.dsl = 2
 
 include { FILE_CHECK }                  from './modules/local/file-checks/main.nf'
 include { TAXONKIT_DB_UPDATE }          from './modules/local/taxonkit/db-update/main.nf'
-//include { NEGATIVE_CTRL_WF }            from './workflows/negative_ctrl_wf.nf'
 include { SINGLE_WF }                   from './workflows/single_wf.nf'
 include { PAIRWISE_WF }                 from './workflows/pairwise_wf.nf'
 include { SUMMARY_WF }                  from './workflows/summary_wf.nf'
@@ -19,9 +18,7 @@ def helpMessage() {
     Usage:
 
     Mandatory arguments:
-        --samplesheet           [CSV]   Path to input data with the following columns: 
-                                            originalID,sampleID,forward_path,reverse_path,type
-        --runID                 [chr]   Unique identifier for the run (e.g., 'run1', '2024-10-01')
+        --samplesheet           [CSV]   Path to input data (must be surrounded with quotes)
         --outDir                [path]  The output directory where the results will be saved
         --workDir               [path]  The temporary work directory for intermediate files (can be deleted when 
                                             analysis is complete to recovered storage space)
@@ -177,6 +174,7 @@ workflow {
                 - The TBProfiler database is updated with the latest version of the database
         ······································································································
         */
+
             TAXONKIT_DB_UPDATE( params.runID )
 
         /*
