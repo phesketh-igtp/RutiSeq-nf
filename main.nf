@@ -170,15 +170,6 @@ workflow {
 
         /*
         ······································································································
-            UPDATING THE DATABASE
-                - The TBProfiler database is updated with the latest version of the database
-        ······································································································
-        */
-
-            TAXONKIT_DB_UPDATE( params.runID )
-
-        /*
-        ······································································································
             INSPECT DATABASE FOR SINGLE_WD() INTERMEDIATE FILES
                 - Inspects the database for the sampleID and SINGLE_WF outputs and creates a channel contains paths
         ······································································································
