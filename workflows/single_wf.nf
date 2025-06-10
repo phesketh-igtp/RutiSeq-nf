@@ -1,5 +1,5 @@
-include { FASTP_READ_QC }              from '../modules/local/pre-wf-check/fastp-reads-qc/main.nf'
-include { SYLPH_CLASSIFICATION }       from '../modules/local/pre-wf-check/sylph-reads/main.nf'
+include { SYLPH_CLASSIFICATION }      from '../modules/local/sylph/read_classification/main.nf'
+include { ADAPTORS_AND_DOWNSAMPLING } from '../modules/local/fastp/adaptor_and_downsampling/main.nf'
 include { TBPROFILER_PROFILE_TBDB }    from '../modules/local/tbprofiler/profile.tbdb/main.nf'
 include { TBPROFILER_PROFILE_WHO }     from '../modules/local/tbprofiler/profile.who/main.nf'
 include { MTBSEQ_SINGLE }              from '../modules/local/mtbseq/single/main.nf'
@@ -56,11 +56,14 @@ workflow SINGLE_WF {
         // Sylph read classification as a quality control step
         /// SYLPH_READ_CLASSIFICATION( params.samplesheet )
 
-        // Read QC with fastp
-            FASTP_READ_QC( branched_channel.with_reads )
+        // Remove and remaining Illumina adapters and downsample the reads (if necessary)
+            ADAPTORS_AND_DOWNSAMPLING( branched_channel.with_reads )
+
+        // Run SYLPH_CLASSIFICATION to classify the reads
+            SYLPH_CLASSIFICATION( runID )
 
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
-            TBPROFILER_PROFILE_TBDB( FASTP_READ_QC.out.updated_sample_ch1 )
+            TBPROFILER_PROFILE_TBDB( ADAPTORS_AND_DOWNSAMPLING.out.updated_sample_ch1 )
 
             TBPROFILER_PROFILE_WHO( TBPROFILER_PROFILE_TBDB.out.updated_sample_ch2 )
 
