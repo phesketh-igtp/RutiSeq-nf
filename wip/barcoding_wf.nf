@@ -1,6 +1,6 @@
-include { SPLIT_CLUSTER_GROUPS }    from '../../modules/local/barcoding/split_into_clusters/main.nf'
-include { MERGE_VCFS }              from '../../modules/local/barcoding/merge_vcfs/main.nf'
-include { COMPUTE_FTS }             from '../../modules/local/barcoding/compute_Fts/main.nf'
+include { SPLIT_CLUSTER_GROUPS }    from '../../modules/barcoding_wf/barcoding/split_into_clusters/main.nf'
+include { MERGE_VCFS }              from '../../modules/barcoding_wf/barcoding/merge_vcfs/main.nf'
+include { COMPUTE_FTS }             from '../../modules/barcoding_wf/barcoding/compute_Fts/main.nf'
 
 workflow BARCODING_WORKFLOW {
 
