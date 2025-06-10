@@ -42,6 +42,8 @@ process SYLPH_CLASSIFICATION {
                     -d sylph/ \\
                     -t ${task.cpus}
             done < <(sed '1d' ${params.samplesheet})
+
+
     # Profile the sketches with Sylph
         sylph profile \\
             ${params.sylph_bbdd} \\
