@@ -13,6 +13,7 @@ include { SUMMARY_WF }                  from './workflows/summary_wf.nf'
 */
 
 def helpMessage() {
+
     log.info """
     Usage:
 
