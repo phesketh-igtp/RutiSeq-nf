@@ -61,7 +61,7 @@ process COMPILE_SEQUENCING_STATS {
     # Create the file to go to the tuple seperation
     Rscript -e 'library(tidyverse)
                 df <- read_delim("Mapping_and_Variant_Statistics.tab", delim = "\t", col_names = FALSE) |> 
-                    distinct() |> filter(X5 >= ${params.mtbseq_min_reads} & X16 >= ${params.mtbseq_min_cov} & X19 >= ${params.mtbseq_min_depth}) |>
+                    distinct() |> filter(X5 >= ${params.filt_min_reads} & X16 >= ${params.filt_min_cov} & X19 >= ${params.filt_min_depth}) |>
                     select(X4) |> distinct()
                 write.csv(df, "min.qual.genomes", quote = FALSE, row.names = FALSE)
                 '

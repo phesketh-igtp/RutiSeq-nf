@@ -72,7 +72,7 @@ process PREPARE_PAIRWISE_CHANNELS {
                 # Get the list of sampleIDs from this analysis run and append with a 
                 ## 'no-split' denotion for the lineage, to indicate that no split is performed
                 
-                    echo '${sampleID_list.join("\n")}' | sort | uniq > run_sample_ids.txt
+                    cut -f1 ${pairwise_analysis_list} > run_sample_ids.txt
                     sed 's/^/All,/g' run_sample_ids.txt > final.lineage_samples_tuple.csv
                     
                     touch final.skipped-lineages_tuple.csv

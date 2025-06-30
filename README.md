@@ -32,29 +32,36 @@ During this sub-workflow all the outputs from sub-wf 1 and 2 are compile by thei
 
 Additional outputs include PDFs of SNP phylogeny (ML tree generated with IQ-Tree) colored by cluster identity, and NEX files ready for upload into [PopArt](https://popart.maths.otago.ac.nz/) for visualisation.
 
-> Sub-wf 4: Cluster SNP barcoding \[**WIP**\]
+> Sub-wf 4: Cluster SNP barcoding [**WIP**]
+>>
+>> This is an experimental aspect of the workflow that aims to begin characterizing individual SNPs that are designated uniquely to a particular 5 SNP pairwise distance cluster (`--distance 5` in MTBseq). The plan with this sub-wf is to quickly identifying which genomic cluster a particular genome may belong to prior to SNP clustering with the goal of reducing computational resources and speeding up the analysis. All genomes as part of the sub-wf 1 will have their SNP profiles compared to the cluster barcode SNPs and pre allocated a preliminary cluster for clustering in sub-wf 2.
 >
-> This is an experimental aspect of the workflow that aims to begin characterizing individual SNPs that are designated uniquely to a particular 5 SNP pairwise distance cluster (`--distance 5` in MTBseq). The plan with this sub-wf is to quickly identifying which genomic cluster a particular genome may belong to prior to SNP clustering with the goal of reducing computational resources and speeding up the analysis. All genomes as part of the sub-wf 1 will have their SNP profiles compared to the cluster barcode SNPs and pre allocated a preliminary cluster for clustering in sub-wf 2.
+>> In this workflow, all genomes SNP profiles merged into a single VCF (grouped by lineage), and the SNP profiles of genomes belonging to the same cluster are compared to all other genomes within the same lineage, to calculate the Fts value (fixation index) for each SNP within the cluster population. SNPs that fulfill the following criteria are classified as a cluster specific SNP: - Fts = 1 - Minimum of 20 reads in both strands (20X cov) - Minimum quality of 20 - Not annotated as: *PE/PPE/PGRS*; *maturase*; *phage*; or *13E12 repeat family protein* - Not located in insertion sequences - Not within InDels or in high density regions (\> 3 SNPs in 10 bp)
 >
-> In this workflow, all genomes SNP profiles merged into a single VCF (grouped by lineage), and the SNP profiles of genomes belonging to the same cluster are compared to all other genomes within the same lineage, to calculate the Fts value (fixation index) for each SNP within the cluster population. SNPs that fulfill the following criteria are classified as a cluster specific SNP: - Fts = 1 - Minimum of 20 reads in both strands (20X cov) - Minimum quality of 20 - Not annotated as: *PE/PPE/PGRS*; *maturase*; *phage*; or *13E12 repeat family protein* - Not located in insertion sequences - Not within InDels or in high density regions (\> 3 SNPs in 10 bp)
->
-> The script will generate a `BED` file for each unique SNP and its cluster designation and the genomes will re-assessed by this barcoding method. A report will be generated on the quality of the predictions, wether the cluster asignment was no better than random chance, or if there is consistency compared to the MTBSeq cluster assignment (*K-means*).
+>> The script will generate a `BED` file for each unique SNP and its cluster designation and the genomes will re-assessed by this barcoding method. A report will be generated on the quality of the predictions, wether the cluster asignment was no better than random chance, or if there is consistency compared to the MTBSeq cluster assignment (*K-means*).
 
 ### Requirements
 
-The following software needs to be available on your path. - Nextflow - Package manager (currently conda is supported)
+The following software needs to be available on your path.
+
+- Nextflow
+- Package manager (currently conda is supported, Docker and Apptainer are a work in progress)
+
+Clone the github repository to your local machine or HPC.
 
 ```{sh}
  git clone https://github.com/phesketh-igtp/TBSEQ.cat-nf.git
 ```
 
-2.  Download a kraken2 database and add full paths to the `nextflow.config` file.
+Download a Sylph database and add full paths to the `nextflow.config` file as a string of paths seperated by a whitespace. Sylph will accept the databases in this format.
 
 ```{sh}
-# Example for downloading the pre-build kraken2 RefSeq-rn (bacteria/archaea and fungi only)
-wget https://genome-idx.s3.amazonaws.com/kraken/k2_standard_20250402.tar.gz
-```
+# GTDB r220 database (113,104 species representative genomes) - 24th April, 2024
+wget http://faust.compbio.cs.cmu.edu/sylph-stuff/gtdb-r220-c200-dbv1.syldb
 
+# Pre-sketched IMG/VR4.1 database for high-confidence vOTU representatives (2,917,516 viral genomes).
+wget http://faust.compbio.cs.cmu.edu/sylph-stuff/imgvr_c200_v0.3.0.syldb
+```
 
 ![image](png/figure1.png)
 
@@ -80,17 +87,17 @@ sample2_XXX-AAA,2-XXX-AAA_LX,/path/to/R1.fastq.gz,/path/to/R2.fastq.gz
 sampleCN-1-AAA-R1,CN-1-AAA_L1,/path/to/R1.fastq.gz,/path/to/R2.fastq.gz
 ```
 
--   <u>originalID</u> : Name of the sample. Retaining the original name of your sample in the file is for your own records and will not be used in the pipeline untill the very end for the results tables.
+- <u>originalID</u> : Name of the sample. Retaining the original name of your sample in the file is for your own records and will not be used in the pipeline. This is to ensure that you can keep track of your samples and their corresponding reads. The *originalID* can be anything you want, but it is recommended to use a unique identifier for each sample.
 
--   <u>sampleID</u> : The alias MUST be ***unique*** and have the following structure - \*\*\[SampleID\]\_\[LibraryID\]**. The *sampleID* can be have information separated by hyphens ( - ), BUT the undescore ( \_ ) must be reserve for distinguishing between the *sampleID* and the LibraryID. This is to satisfy a data naming convention required by MTBseq, which requires reads are name:** \[SampleID\]\_\[LibID\]\_\[\*\]\_R{1,2}.fastq.gz\*\*. If the originalID's happen to follow this structure, you can duplicate the IDs in *originalID* and *sampleID*. If a *sampleID* in your sample sheet is duplicated, or that alias already exists in the database, then that sample will no be analyzed, and an notification will be produced informing you of this. Ensure that each alias is unique within the entire database to avoid this issue.
+- <u>sampleID</u> : The ***alias MUST be unique*** and have the following structure: **[SampleID]_[LibraryID]**. The *sampleID* can be have information separated by hyphens ( - ), **BUT** the undescore ( \_ ) must be reserve for distinguishing between the *sampleID* and the *LibraryID*. This is to satisfy a data naming convention required by MTBseq, which requires reads are name: **[SampleID]-[AaZz]_[LibID]_R{1,2}.fastq.gz**. If the originalID's happen to follow this structure, you can duplicate the IDs in *originalID* and *sampleID*. If a *sampleID* in your sample sheet is duplicated, or that alias already exists in the database, then that sample will not be analyzed. Ensure that each alias is unique within the entire database to avoid this issue.
 
--   <u>forward_path/reverse_path</u> : full path of reads available to the system for accessing the reads. Reads must be gzipped and with the full suffix of `fastq.gz`, not `fq.gz`.
+- <u>forward_path/reverse_path</u> : full path of reads available to the system for accessing the reads. Reads must be gzipped and with the full suffix of `fastq.gz`, not `fq.gz`.
 
--   <u>type</u> : denotes whether reads correspond to a sample *or* control. An error will be produced if a sample is not declared as a *sample* or *control*.
+- <u>type</u> : denotes whether reads correspond to a sample *or* control. An error will be produced if a sample is not declared as a *sample* or *control*.
 
     >Controls and samples are handled separately when analyzed by *TB-Profiler* and *MTBseq* as failures are expected for negative controls. As such, they must be analyzed separately to avoid the workflow collapsing when errors are produced by the negative controls.
 
-#### <u>Metadata \[optional\]:</u>
+#### <u>Metadata [optional]:</u>
 
 Metadata (`CSV`), if provided, is utilized at the summary step when the nexus files are generated for visualising the median-joining networks and performing the molecular clock on concatenated variable possitions within a lineage. If the following metadata is provided with the correct headers, then the nexus files will also contain relevant metadata. If no metadata is provided then these analyses will be omitted.
 
@@ -161,7 +168,6 @@ If there is a specific parameter you would like added to the workflow, please op
 | --- | -- | -- |  --- | --- |
 | `--fastp_length_required` | 50 | Minimum length of read. | fastp | `ADAPTORS_AND_DOWNSAMPLING` |
 | `--fastp_max_reads` | 6000000 | Maximum number of reads required for analysis, will downsample to this number of number of paired-end reads exceed this value. | fastp | `ADAPTORS_AND_DOWNSAMPLING` |
-| `--mtbseq_min_depth` | 50 | Minimum depth of coverage for MTBseq pairwise analysis | MTBseq | `MTBSEQ_SINGLE`, `MTBSEQ_LINEAGE_JOINT_AMEND`, `MTBSEQ_LINEAGE_GROUP` |
 | `--mtbseq_minbqual` | 20 | Minimum base quality score | MTBseq | `MTBSEQ_SINGLE`, `MTBSEQ_LINEAGE_JOINT_AMEND`, `MTBSEQ_LINEAGE_GROUP` |
 | `--mtbseq_mincovf` | 4 | Minimum forward strand coverage | MTBseq |`MTBSEQ_SINGLE`, `MTBSEQ_LINEAGE_JOINT_AMEND`, `MTBSEQ_LINEAGE_GROUP` |
 | `--mtbseq_mincovr` | 4 | Minimum reverse strand coverage | MTBseq | `MTBSEQ_SINGLE`, `MTBSEQ_LINEAGE_JOINT_AMEND`, `MTBSEQ_LINEAGE_GROUP` |
@@ -173,3 +179,6 @@ If there is a specific parameter you would like added to the workflow, please op
 | `--iqtree_bootstraps` | 1000 | Number of bootstrap replicates in IQ-TREE analysis | IQ-TREE | `CONCATENATED_VARIABLE_REGION_PHYLOGENY` |
 | `--iqtree_model` | 'GTR+G4' | Evolutionary model used in IQ-TREE  | IQ-TREE | `CONCATENATED_VARIABLE_REGION_PHYLOGENY` |
 | `--pairwise_split` | 'none' | The MTBC lineage lv to partition the data for pairwise analysis (`main`, `sub`, or `none`)  | N/A | `PREPARE_PAIRWISE_CHANNELS` |
+| `--filt_min_depth` | 50 | Filtering value for the minimum depth of coverage (as calculated by MTBseq) for genome to be used in MTBseq pairwise analysis | MTBseq | `COMPILE_SEQUENCING_STATS` |
+| `--filt_min_cov` | 0.95 | Filtering value for the beadth of coverage (as calculated by MTBseq) for genome to be used in MTBseq pairwise analysis | MTBseq | `COMPILE_SEQUENCING_STATS` |
+| `--filt_min_reads` | 1000000 | Filtering value for the minimum number of reads (as calculated by MTBseq) for genome to be used in MTBseq pairwise analysis | MTBseq | `COMPILE_SEQUENCING_STATS` |
