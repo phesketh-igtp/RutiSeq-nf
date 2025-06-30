@@ -27,15 +27,15 @@ process PREPARE_PAIRWISE_CHANNELS {
 
         """
 
-        if [[ ${params.pairwise_lv == "sub"} ]]; then
-            echo "Pairwise analysis at sub-lineage level"
+        # Prapare the lists of sampleIDs and (sub)lineages for possible splits
 
-                # Get the list of sampleIDs from this analysis run
-                    
-                    echo '${sampleID_list.join("\n")}' | sort | uniq > run_sample_ids.txt
+            echo '${sampleID_list.join("\n")}' | sort | uniq > run_sample_ids.txt
+            echo '${params.lineage_pairwise_sub.join('\n')}' | sort | uniq > selected_sub-lineage_split.list
+            echo '${params.lineage_pairwise_main.join('\n')}' | sort | uniq > selected_main-lineage_split.list
 
-                    echo '${params.lineage_pairwise_sub.join('\n')}' > selected_sub-lineage_split.list
-                    echo '${params.lineage_pairwise_main.join('\n')}' > selected_main-lineage_split.list
+        if [[ ${params.pairwise_split} == "sub" ]]; then
+
+            echo "Pairwise analysis at sub-lineage level lineage split"
 
                 # Run the script to generate pairwise analysis tuples
                     Rscript ${params.r_script_dir}/create_pairwise_analysis_tuple_sub.R \\
@@ -49,14 +49,9 @@ process PREPARE_PAIRWISE_CHANNELS {
                 sed '/^lineage,SampleID/d' final.skipped-lineages_tuple.csv | sort > tmp.final.skipped-lineages_tuple.csv
                     mv tmp.final.skipped-lineages_tuple.csv final.skipped-lineages_tuple.csv
 
-        elif [[ ${params.pairwise_lv == "main"} ]]; then
-            echo "Pairwise analysis at main-lineage level"
+        elif [[ ${params.pairwise_split} == "main" ]]; then
 
-                # Get the list of sampleIDs from this analysis run
-                    
-                    echo '${sampleID_list.join("\n")}' | sort | uniq > run_sample_ids.txt
-
-                    echo '${params.lineage_pairwise_main.join('\n')}' > selected_main-lineage_split.list
+            echo "Pairwise analysis at main-lineage level lineage split"
 
                 # Run the script to generate pairwise analysis tuples
                     Rscript ${params.r_script_dir}/create_pairwise_analysis_tuple_main.R \\
@@ -70,17 +65,26 @@ process PREPARE_PAIRWISE_CHANNELS {
                 sed '/^lineage,SampleID/d' final.skipped-lineages_tuple.csv | sort > tmp.final.skipped-lineages_tuple.csv
                     mv tmp.final.skipped-lineages_tuple.csv final.skipped-lineages_tuple.csv
 
-        elif [[ ${params.pairwise_lv == "none"} ]]; then
+        elif [[ ${params.pairwise_split} == "none" ]]; then
+
+            echo "Pairwise analysis of all samples without lineage split"
 
                 # Get the list of sampleIDs from this analysis run and append with a 
                 ## 'no-split' denotion for the lineage, to indicate that no split is performed
                 
                     echo '${sampleID_list.join("\n")}' | sort | uniq > run_sample_ids.txt
-                    sed -i 's/^/no-split,/g' run_sample_ids.txt > final.lineage_samples_tuple.csv
+                    sed 's/^/All,/g' run_sample_ids.txt > final.lineage_samples_tuple.csv
+                    
+                    touch final.skipped-lineages_tuple.csv
 
         else
-            echo "Invalid pairwise level specified: ${params.pairwise_lv}"
+
+            echo "
+            Invalid pairwise level specified: ${params.pairwise_split}. 
+            Choose 'sub', 'main', or 'none'., the re-run the workflow with the correct parameter and '-resume-'
+            "
             exit 1
+
         fi
 
 

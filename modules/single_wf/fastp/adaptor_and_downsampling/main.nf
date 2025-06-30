@@ -52,7 +52,7 @@ process ADAPTORS_AND_DOWNSAMPLING {
             --in2 ${reverse} \\
             --out1 fastp/${sampleID}_R1.fastq.gz \\
             --out2 fastp/${sampleID}_R2.fastq.gz \\
-            --reads_to_process 5000000 \\
-            --length_required 50
+            --reads_to_process ${params.fastp_max_reads} \\
+            --length_required ${params.fastp_length_required}
     """
 }

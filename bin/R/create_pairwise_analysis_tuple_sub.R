@@ -1,5 +1,4 @@
 #!/usr/bin/env R
-
 library(dplyr, quietly = TRUE)
 library(stringr, quietly = TRUE)
 library(readr, quietly = TRUE)
@@ -30,7 +29,6 @@ meta <- meta |>
   filter(!is.na(main_lineage) & !str_detect(main_lineage, ";")) |>
   filter(!str_detect(SampleID, "CN-"))
 
-
 # Filter out the lineages at sub_lineage level
 filtered_meta <- meta %>%
   mutate(
@@ -44,7 +42,8 @@ filtered_meta <- meta %>%
     # Determine final lineage
     final_lineage = case_when(
       !is.na(matched_sub) ~ matched_sub,  # If sub_lineage matches, use it
-      main_lineage %in% main_lineages$selected_main_lineage ~ main_lineage,  # Otherwise, use main_lineage if valid
+      # Otherwise, use main_lineage if valid
+      main_lineage %in% main_lineages$selected_main_lineage ~ main_lineage,
       TRUE ~ sub_lineage  # Default to sub_lineage if no match
     )
   ) |>
