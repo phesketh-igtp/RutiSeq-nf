@@ -51,7 +51,7 @@ process GENERATE_NEXUS {
                     2>>.command.err || true
 
         # simplify the name of the file
-            cp ${snp_tab} ${clusterID}.snp.tab
+            cat ${snp_tab} > ${clusterID}.snp.tab
 
         # check if the nexus generation was successful
             if [[ ! -f fasta/${clusterID}_refseq.fasta ]]; then echo "Nexus generation failed" > fasta/${clusterID}_refseq.fasta; fi
