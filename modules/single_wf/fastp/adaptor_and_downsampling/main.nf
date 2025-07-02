@@ -19,8 +19,6 @@ process ADAPTORS_AND_DOWNSAMPLING {
 
     conda params.taxonomy_env
 
-    errorStrategy 'ignore'
-
     container { 
             if (workflow.containerEngine == 'singularity') return params.singularity_kaiju
             else if (workflow.containerEngine == 'docker') return params.docker_kaiju
@@ -37,11 +35,13 @@ process ADAPTORS_AND_DOWNSAMPLING {
     output:
         // Emit ch for the updated channel with all the outputs
         tuple val(sampleID), 
-            path("fastp/${sampleID}_R1.fastq.gz", optional: true), 
-            path("fastp/${sampleID}_R2.fastq.gz", optional: true), 
+            path("fastp/${sampleID}_R1.fastq.gz",), 
+            path("fastp/${sampleID}_R2.fastq.gz",), 
             path(mtbseq_class), path(mtbseq_stats), 
             path(mtbseq_pos), path(mtbseq_vars), 
-            path(tbdb_out), path(who_out), path(mtbseq_vcf), emit: updated_sample_ch1, optional: true
+            path(tbdb_out), path(who_out), path(mtbseq_vcf), emit: updated_sample_ch1
+    
+        path("failed_sample_entry.txt"), emit: failed_sample_entry
 
     script:
 
@@ -62,9 +62,9 @@ process ADAPTORS_AND_DOWNSAMPLING {
     num_reads=\$(seqkit stats -bT fastp/${sampleID}_R1.fastq.gz | | tail -1 | cut -f4 | sed 's/,//g')
 
     if [[ \${num_reads} < ${params.fastp_min_reads} ]]; then
-        echo "Sample ${sampleID} has less than ${params.fastp_min_reads} reads, failing reads analysis."
-        mv fastp/${sampleID}_R1.fastq.gz fastp/${sampleID}_R1.fastq.gz.failed
-        mv fastp/${sampleID}_R2.fastq.gz fastp/${sampleID}_R2.fastq.gz.failed
+        echo -e "${params.runID}\t${sampleID}\t\${num_reads}\tFAILED MINIMUM READ COUNT (${params.fastp_min_reads})" > failed_sample_entry.txt
     fi
+
+    touch failed_sample_entry.txt
     """
 }

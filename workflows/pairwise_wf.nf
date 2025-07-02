@@ -65,7 +65,7 @@ workflow PAIRWISE_WF {
                     .groupTuple()
 
                 skipped_lineages_ch.view { lineage, samples -> 
-                    "${purple}Skipping clustering - Lineage: ${lineage} || Genomes: ${samples.size()}${no_col}" }
+                    "${purple}Skipping - Lineage: ${lineage} || Genomes: ${samples.size()}${no_col}" }
 
                 // DEBUG: View the grouped channel
                 //lineage_samples_ch.view()
