@@ -1,4 +1,5 @@
 #!/usr/bin/env R
+
 library(dplyr, quietly = TRUE)
 library(stringr, quietly = TRUE)
 library(readr, quietly = TRUE)
@@ -29,6 +30,7 @@ meta <- meta |>
   filter(!is.na(main_lineage) & !str_detect(main_lineage, ";")) |>
   filter(!str_detect(SampleID, "CN-"))
 
+
 # Filter out the lineages at sub_lineage level
 filtered_meta <- meta %>%
   mutate(
@@ -42,30 +44,40 @@ filtered_meta <- meta %>%
     # Determine final lineage
     final_lineage = case_when(
       !is.na(matched_sub) ~ matched_sub,  # If sub_lineage matches, use it
-      # Otherwise, use main_lineage if valid
-      main_lineage %in% main_lineages$selected_main_lineage ~ main_lineage,
+      main_lineage %in% main_lineages$selected_main_lineage ~ main_lineage,  # Otherwise, use main_lineage if valid
       TRUE ~ sub_lineage  # Default to sub_lineage if no match
     )
   ) |>
   select(final_lineage, SampleID) |>
   rename(lineage = final_lineage)
 
+skipped_lineages_to_few <- filtered_meta |>
+  group_by(lineage) |>
+  count() |>
+  filter(n < 5)
+
 # Get unique lineages from run_ids
-filtered_lineages_forward <- filtered_meta |>
+filtered_lineages_pass <- filtered_meta |>
   filter(SampleID %in% run_ids$SampleID) |>
+  filter(!lineage %in% skipped_lineages_to_few$lineage) |>
   count(lineage) |>
   select(lineage) |>
   distinct()  # Use distinct() instead of unique() for dplyr consistency
 
-# Partition filtered_meta based on filtered_lineages_forward
+# Partition filtered_meta based on filtered_lineages_pass
 filtered_meta_forward <- filtered_meta %>%
-  filter(lineage %in% filtered_lineages_forward$lineage)
+  filter(lineage %in% filtered_lineages_pass$lineage)
 
 filtered_meta_skip <- filtered_meta %>%
-  filter(!lineage %in% filtered_lineages_forward$lineage)
+  filter(!lineage %in% filtered_lineages_pass$lineage)
 
 # Export the csv
 write.csv(filtered_meta_forward, "final.lineage_samples_tuple.csv",
-          quote = FALSE, row.names = FALSE, col.names = FALSE)
+          quote = FALSE,
+          row.names = FALSE,
+          col.names = FALSE)
+
 write.csv(filtered_meta_skip, "final.skipped-lineages_tuple.csv",
-          quote = FALSE, row.names = FALSE, col.names = FALSE)
+          quote = FALSE,
+          row.names = FALSE,
+          col.names = FALSE)
