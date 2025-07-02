@@ -6,14 +6,11 @@ process SYLPH_CLASSIFICATION {
     @date: 2025-04-01
     @version: 1.0
     @description: 
-        This process was originally used to run the MTBC_READ_QC step of the pipeline.
-        It has been modified to remove the kaiju step of the pipeline. And just generates
-        sequencing statistics and down-samples the reads to 5,000,000 reads if there are
-        more than 5,000,000 reads. The down-sampled reads are then used for the TBProfiler
-        and MTBseq steps of the pipeline.
-        TODO: Add kraken2 step back in to the pipeline (BUT! only to classify the reads and not
-        to partition the reads. This is because the MTBseq pipeline generated much lower quality
-        results when the reads were partitioned.)
+        Use sylph to classify reads from a sample.
+        This process takes the sample ID and the Sylph database as input,
+        and outputs a merged Sylph sequence abundance file.
+    @changelog
+        v1.0.0-2025-04-01: Initial version
 */
 
     conda params.taxonomy_env
