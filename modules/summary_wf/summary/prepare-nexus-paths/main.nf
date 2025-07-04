@@ -30,13 +30,15 @@ process PREPARE_NEXUS_PATHS{
     script:
 
     """
+    lin=\$(cat ${lineage} | sed 's/lineage/L/g')
+
     # Identify the unique clusters
         grep "${lineage}" ${pairwise_clusters} \\
             | cut -f7 \\
             | sort \\
             | uniq \\
             | sed '1!{/^SampleID/d;}' \\
-            | sed '1!{/^nX-/d;}' > unique.clusters.list
+            | grep -v "nX-\${lin}" > unique.clusters.list
 
     # Remove clusters that are smaller than 3 genomes
         while read clusterID; do
