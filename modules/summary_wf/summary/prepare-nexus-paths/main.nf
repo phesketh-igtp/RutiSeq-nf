@@ -38,7 +38,7 @@ process PREPARE_NEXUS_PATHS{
             | sort \\
             | uniq \\
             | sed '1!{/^SampleID/d;}' \\
-            | grep -v "nX-\${lin}" > unique.clusters.list
+            | grep -v "nX-L" > unique.clusters.list
 
     # Remove clusters that are smaller than 3 genomes
         while read clusterID; do
@@ -55,8 +55,13 @@ process PREPARE_NEXUS_PATHS{
             rm tmp-string
         done
 
+    # Remove any unclustered clusters (nX-)
+        cat nexus.tuple.csv | grep -v ",nX-" > tmp.nexus.tuple.csv
+        mv tmp.nexus.tuple.csv nexus.tuple.csv
+
     # touch the output incase the file is empty
         touch nexus.tuple.csv
+
     """
 
 }
