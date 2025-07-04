@@ -15,6 +15,7 @@ include { PREPARE_DATA_DELIVERY      }   from '../modules/summary_wf/summary/dat
 
 workflow SUMMARY_WF{
 
+
     take:
         runID
         pairwise_clusters
@@ -24,6 +25,10 @@ workflow SUMMARY_WF{
         phylogeny_plotting_ch
 
     main:
+
+    def red     = '\u001B[31m'
+    def cyan    = '\u001B[36m'
+    def no_col  = '\u001B[0m'
 
         // Process clusters
             PROCESS_CLUSTERS( runID, pairwise_clusters, analysis_summary )
@@ -67,11 +72,11 @@ workflow SUMMARY_WF{
 
         // If metadata is provided then the following modules are run
             if (params.metadata) {
-                log.info "Metadata provided. Generating time trees and ancestral sequences."
+                log.info "${cyan}Metadata provided. Generating time trees and ancestral sequences.${no_col}"
                 
                 // Channel for metadata file
                 ch_metadata = Channel.fromPath(params.metadata)
-                    .ifEmpty { error "Metadata file not found/empty: ${params.metadata}. Correct your metadata path/file and resume the analysis with '-resume'" }
+                    .ifEmpty { error "${red}Metadata file not found/empty: ${params.metadata}. Correct your metadata path/file and resume the analysis with '-resume'${no_col}" }
 
                 // Create timetrees
                 GENERATE_TIMETREES(phylogeny_plotting_ch, ch_metadata)
@@ -95,7 +100,7 @@ workflow SUMMARY_WF{
 
             } else {
 
-                log.info "No metadata provided. TimeTrees and ancestral sequence generation."
+                log.info "${cyan}No metadata provided. TimeTrees and ancestral sequences will not be generated.${no_col}"
                 
             }
 

@@ -11,7 +11,8 @@
 
 green='\033[32m';red='\033[31m';cyan='\033[36m';purple='\033[35m';nocolor='\033[m'
 
-### 
+########################################################################################
+########################################################################################
 
 eval "$(conda shell.bash hook)"
 
@@ -39,7 +40,7 @@ nextflow run "$@" -ansi-log false & pid=$!
 
 echo -e "Running: nextflow run "$@" -ansi-log false & pid=$!\n"
 
-echo -e "${red}$(date +'%d/%m/%Y %H:%M:%S')${nocolor}	qsub -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -l mem_free=6G submit-nf.sh "$@"" >> submit-nf.log
+echo -e "${red}$(date +'%d/%m/%Y %H:%M:%S')${nocolor}   cmd: qsub -S /bin/bash -cwd -V -N nf-main -o qsub-nf.out -l mem_free=6G submit-nf.sh "$@"" >> submit-nf.log
 
 # Wait for the pipeline to finish
 echo "Waiting for ${pid}"

@@ -54,7 +54,7 @@ process TBPROFILER_PROFILE_WHO {
                     -2 ${mtbc_reverse} \\
                     -p who-${sampleID} \\
                 --txt --dir . \\
-                --db tbdb/who${additional_args}
+                --db tbdb/who ${additional_args}
 
         # remove the published files from the previous module:
             rm -f  ${params.outDir}/bbdd/tbprofiler/${sampleID}_mtbc_R1.fastq.gz

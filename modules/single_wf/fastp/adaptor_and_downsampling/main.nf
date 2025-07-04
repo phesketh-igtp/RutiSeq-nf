@@ -2,17 +2,17 @@ process ADAPTORS_AND_DOWNSAMPLING {
 
 /*
     @author: Poppy J Hesketh Best
-    @date: 2025-04-01
-    @version: 1.0
+    @date: 2025-07-02
+    @version: 1.1.0
     @description: 
-        This process was originally used to run the MTBC_READ_QC step of the pipeline.
-        It has been modified to remove the kaiju step of the pipeline. And just generates
-        sequencing statistics and down-samples the reads to 5,000,000 reads if there are
-        more than 5,000,000 reads. The down-sampled reads are then used for the TBProfiler
-        and MTBseq steps of the pipeline.
-        TODO: Add kraken2 step back in to the pipeline (BUT! only to classify the reads and not
-        to partition the reads. This is because the MTBseq pipeline generated much lower quality
-        results when the reads were partitioned.)
+        USe gfo fastp to remove any possible Illumina adapters from the reads and
+        downsample to 5,000,000 reads for TBProfiler/MTBseq (if necessary).
+        This will also halt the analysis of genomes with less than 500,000 reads, since
+        these will likely fail the TBProfiler/MTBseq steps anyway.
+    @changelog
+        v1.0.0-2025-04-01: Initial version
+        v1.0.1-2025-04-04: Added documentation and comments
+        v1.1.0-2025-07-02: Updated half analysis of genomes with less than 500,000 reads
 */
 
     tag "$sampleID"
@@ -35,11 +35,13 @@ process ADAPTORS_AND_DOWNSAMPLING {
     output:
         // Emit ch for the updated channel with all the outputs
         tuple val(sampleID), 
-            path("fastp/${sampleID}_R1.fastq.gz"), 
-            path("fastp/${sampleID}_R2.fastq.gz"), 
+            path("fastp/${sampleID}_R1.fastq.gz",), 
+            path("fastp/${sampleID}_R2.fastq.gz",), 
             path(mtbseq_class), path(mtbseq_stats), 
             path(mtbseq_pos), path(mtbseq_vars), 
             path(tbdb_out), path(who_out), path(mtbseq_vcf), emit: updated_sample_ch1
+    
+        //path("failed_sample_entry.txt"), emit: failed_sample_entry
 
     script:
 
@@ -52,7 +54,9 @@ process ADAPTORS_AND_DOWNSAMPLING {
             --in2 ${reverse} \\
             --out1 fastp/${sampleID}_R1.fastq.gz \\
             --out2 fastp/${sampleID}_R2.fastq.gz \\
-            --reads_to_process 5000000 \\
-            --length_required 50
+            --detect_adapter_for_pe \\
+            --overrepresentation_analysis \\
+            --reads_to_process ${params.fastp_max_reads} \\
+            --length_required ${params.fastp_length_required}
     """
 }
