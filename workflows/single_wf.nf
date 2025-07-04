@@ -1,5 +1,5 @@
 include { SYLPH_CLASSIFICATION }            from '../modules/single_wf/sylph/read_classification/main.nf'
-include { SYLPH_CLASSIFICATION_INSPECTION } from '../modules/single_wf/sylph/read_classification_inspection/main.nf'
+//include { SYLPH_CLASSIFICATION_INSPECTION } from '../modules/single_wf/sylph/read_classification_inspection/main.nf'
 include { ADAPTORS_AND_DOWNSAMPLING }       from '../modules/single_wf/fastp/adaptor_and_downsampling/main.nf'
 include { TBPROFILER_PROFILE_TBDB }         from '../modules/single_wf/tbprofiler/profile.tbdb/main.nf'
 include { TBPROFILER_PROFILE_WHO }          from '../modules/single_wf/tbprofiler/profile.who/main.nf'
@@ -60,6 +60,7 @@ workflow SINGLE_WF {
         // Remove and remaining Illumina adapters and downsample the reads (if necessary)
             ADAPTORS_AND_DOWNSAMPLING( branched_channel.with_reads )
 
+/*
             // Collect failed samples using collectFile
             failed_samples_report = ADAPTORS_AND_DOWNSAMPLING.out.failed_sample_entry
                 .collectFile(
@@ -74,13 +75,16 @@ workflow SINGLE_WF {
                         return ""
                     }
                 }
+*/
 
         // Run SYLPH_CLASSIFICATION to classify the reads
             SYLPH_CLASSIFICATION( runID )
 
+/*
                 // Identify reads that have mixed taxonomy
                 SYLPH_CLASSIFICATION_INSPECTION( SYLPH_CLASSIFICATION.out.sylph_res, 
                                                     failed_samples_report )
+*/
 
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
             TBPROFILER_PROFILE_TBDB( ADAPTORS_AND_DOWNSAMPLING.out.updated_sample_ch1 )
@@ -112,7 +116,7 @@ workflow SINGLE_WF {
     emit:
         single_updated_samples_ch   = final_updated_sample_ch
         sylph_results               = SYLPH_CLASSIFICATION.out.sylph_res 
-        failed_samples_report       = failed_samples_report
+        //failed_samples_report       = failed_samples_report
 
 }
 

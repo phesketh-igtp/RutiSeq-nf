@@ -89,8 +89,8 @@ process MTBSEQ_SINGLE {
 
         # Rename the stats and class outputs to have unique names
         ## this prevent clashes later on
-            cp Classification/Strain_Classification.tab Classification/${sampleID}.Strain_Classification.tab
-            cp Statistics/Mapping_and_Variant_Statistics.tab Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
+            cat Classification/Strain_Classification.tab > Classification/${sampleID}.Strain_Classification.tab
+            cat Statistics/Mapping_and_Variant_Statistics.tab > Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
 
         # remove the published reads from the previous module:
             rm -f  ${params.outDir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R1.fastq.gz       

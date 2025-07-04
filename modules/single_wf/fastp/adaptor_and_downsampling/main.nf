@@ -41,7 +41,7 @@ process ADAPTORS_AND_DOWNSAMPLING {
             path(mtbseq_pos), path(mtbseq_vars), 
             path(tbdb_out), path(who_out), path(mtbseq_vcf), emit: updated_sample_ch1
     
-        path("failed_sample_entry.txt"), emit: failed_sample_entry
+        //path("failed_sample_entry.txt"), emit: failed_sample_entry
 
     script:
 
@@ -58,13 +58,5 @@ process ADAPTORS_AND_DOWNSAMPLING {
             --overrepresentation_analysis \\
             --reads_to_process ${params.fastp_max_reads} \\
             --length_required ${params.fastp_length_required}
-
-    num_reads=\$(seqkit stats -bT fastp/${sampleID}_R1.fastq.gz | | tail -1 | cut -f4 | sed 's/,//g')
-
-    if [[ \${num_reads} < ${params.fastp_min_reads} ]]; then
-        echo -e "${params.runID}\t${sampleID}\t\${num_reads}\tFAILED MINIMUM READ COUNT (${params.fastp_min_reads})" > failed_sample_entry.txt
-    fi
-
-    touch failed_sample_entry.txt
     """
 }
