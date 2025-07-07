@@ -25,15 +25,17 @@ process PROCESS_CLUSTERS {
         path("${runID}_processed_clusters.tsv")
 
     script:
+    
         """
-        Rscript ${params.r_script_dir}/process_clusters.R #\
-                #--clusters ${pairwise_clusters} \
-                #--summary ${analysis_summary}
+        # Load the R script for processing clusters
+            Rscript ${params.r_script_dir}/process_clusters.R
 
+        # Duplicate the processed clusters file with the runID
             cp processed_clusters.tsv ${runID}_processed_clusters.tsv
 
-        cp processed_clusters.tsv ${params.outDir}/results/
-        cp ${pairwise_clusters} ${params.outDir}/results/
+        # Copy the processed clusters file to the results directory
+            cp processed_clusters.tsv ${params.outDir}/results/
+            cp ${pairwise_clusters} ${params.outDir}/results/
         """
 
 }

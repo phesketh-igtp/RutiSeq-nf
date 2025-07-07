@@ -48,6 +48,12 @@ process PREPARE_NEXUS_PATHS{
             fi
         done < unique.clusters.list
 
+    # In the scenarip where the whole lineage is not present in the pairwise_clusters file
+        if [ ! -s final_clusters.list ]; then
+            echo "No clusters found for lineage ${lineage}. Exiting."
+            exit 0
+        fi
+
     # Create a CSV for generating a tuple of the paths
         for clusterID in `cat final_clusters.list`; do
             grep "\${clusterID}" ${pairwise_clusters} | cut -f1 | tr '\n' ';' > tmp-string

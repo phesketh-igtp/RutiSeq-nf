@@ -58,6 +58,7 @@ workflow SUMMARY_WF{
                                     def (lineage, clusterID, fasta, tab) = row
                                     tuple(lineage, clusterID, file(fasta), file(tab))
                                     }
+
                 // DEBUG: view the channel 
                 ///nexus_ch.view()
 
