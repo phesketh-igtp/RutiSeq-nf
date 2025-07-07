@@ -50,24 +50,28 @@ process PREPARE_NEXUS_PATHS{
 
     # In the scenarip where the whole lineage is not present in the pairwise_clusters file
         if [ ! -s final_clusters.list ]; then
-            echo "No clusters found for lineage ${lineage}. Exiting."
-            exit 0
+
+                echo "No clusters found for lineage ${lineage}. Exiting."
+
+                touch nexus.tuple.csv
+
+        else
+
+            # Create a CSV for generating a tuple of the paths
+                for clusterID in `cat final_clusters.list`; do
+                    grep "\${clusterID}" ${pairwise_clusters} | cut -f1 | tr '\n' ';' > tmp-string
+                    echo "${lineage},\${clusterID},${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta,${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab" >> nexus.tuple.csv
+                    rm tmp-string
+                done
+
+            # Remove any unclustered clusters (nX-)
+                cat nexus.tuple.csv | grep -v ",nX-" > tmp.nexus.tuple.csv
+                mv tmp.nexus.tuple.csv nexus.tuple.csv
+
+            # touch the output incase the file is empty
+                touch nexus.tuple.csv
+
         fi
-
-    # Create a CSV for generating a tuple of the paths
-        for clusterID in `cat final_clusters.list`; do
-            grep "\${clusterID}" ${pairwise_clusters} | cut -f1 | tr '\n' ';' > tmp-string
-            echo "${lineage},\${clusterID},${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta,${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab" >> nexus.tuple.csv
-            rm tmp-string
-        done
-
-    # Remove any unclustered clusters (nX-)
-        cat nexus.tuple.csv | grep -v ",nX-" > tmp.nexus.tuple.csv
-        mv tmp.nexus.tuple.csv nexus.tuple.csv
-
-    # touch the output incase the file is empty
-        touch nexus.tuple.csv
-
     """
 
 }

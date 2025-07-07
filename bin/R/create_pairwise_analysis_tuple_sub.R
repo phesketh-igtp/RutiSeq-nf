@@ -20,7 +20,7 @@ run_ids <- readr::read_delim("run_sample_ids.txt",
 colnames(run_ids) <- "SampleID"
 
 meta <- readr::read_delim("pairwise_analysis.list.csv",
-                          col_names = FALSE, delim = ",") |>
+                          col_names = FALSE, delim = ";") |>
   distinct()
 
 colnames(meta) <- c("SampleID", "main_lineage", "sub_lineage")
