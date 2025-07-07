@@ -50,10 +50,12 @@ process PREPARE_PAIRWISE_CHANNELS {
                         2>>.command.err || true # i think this helps (?)
 
                 # remove headers
-                sed '/^lineage,SampleID/d' final.lineage_samples_tuple.csv | sort > tmp.final.lineage_samples_tuple.csv
+                sed '/^lineage,SampleID/d' final.lineage_samples_tuple.csv | \\
+                    sed '/^sub_lineage,SampleID/d' | sort > tmp.final.lineage_samples_tuple.csv
                     mv tmp.final.lineage_samples_tuple.csv final.lineage_samples_tuple.csv
 
-                sed '/^lineage,SampleID/d' final.skipped-lineages_tuple.csv | sort > tmp.final.skipped-lineages_tuple.csv
+                sed '/^lineage,SampleID/d' final.skipped-lineages_tuple.csv | \\
+                    sed '/^sub_lineage,SampleID/d' | sort > tmp.final.skipped-lineages_tuple.csv
                     mv tmp.final.skipped-lineages_tuple.csv final.skipped-lineages_tuple.csv
 
         elif [[ ${params.pairwise_split} == "main" ]]; then
@@ -66,10 +68,12 @@ process PREPARE_PAIRWISE_CHANNELS {
                         2>>.command.err || true # i think this helps (?)
 
                 # remove headers
-                sed '/^lineage,SampleID/d' final.lineage_samples_tuple.csv | sort > tmp.final.lineage_samples_tuple.csv
+                sed '/^lineage,SampleID/d' final.lineage_samples_tuple.csv | \\
+                    sed '/^sub_lineage,SampleID/d' | sort > tmp.final.lineage_samples_tuple.csv
                     mv tmp.final.lineage_samples_tuple.csv final.lineage_samples_tuple.csv
 
-                sed '/^lineage,SampleID/d' final.skipped-lineages_tuple.csv | sort > tmp.final.skipped-lineages_tuple.csv
+                sed '/^lineage,SampleID/d' final.skipped-lineages_tuple.csv | \\
+                    sed '/^sub_lineage,SampleID/d' | sort > tmp.final.skipped-lineages_tuple.csv
                     mv tmp.final.skipped-lineages_tuple.csv final.skipped-lineages_tuple.csv
 
         elif [[ ${params.pairwise_split} == "none" ]]; then
