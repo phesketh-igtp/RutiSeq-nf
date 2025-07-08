@@ -8,7 +8,7 @@ process PREPARE_PAIRWISE_CHANNELS {
         In this module creates the pairwise analysis tuples from the lineage_samples_paths.csv
         and the lineage_pairwise_sub and lineage_pairwise_main lists.
         The output is a tuple of the form (lineage, sampleID) for each sampleID in the analysis.
-        There are three options for the pairwise analysis:
+        There are three options for the pairwise analysis (specified by the params.pairwise_split):
             - sub: pairwise analysis at sub-lineage level
             - main: pairwise analysis at main-lineage level
             - none: pairwise analysis of all samples without lineage split

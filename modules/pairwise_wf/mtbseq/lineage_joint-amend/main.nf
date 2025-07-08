@@ -70,7 +70,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
             sampleID_count=\$(wc -l samplesID.list | cut -f1 -d' ')
             mtbseq_fasta_out=\$(echo -e "Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples\${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta")
 
-        if [[ ! -f \${mtbseq_fasta_out} ]]; then
+        if [[ ! -f "${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/\${mtbseq_fasta_out}" ]]; then
 
             ## The correct Amend/ file does not exist, so we need to run MTBseq Join and Amend steps
                 echo "Running MTBseq Join and Amend steps for lineage: ${lineage}"
