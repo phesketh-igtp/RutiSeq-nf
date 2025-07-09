@@ -30,7 +30,7 @@ process PREPARE_NEXUS_PATHS{
     script:
 
     """
-    lin=\$(cat ${lineage} | sed 's/lineage/L/g')
+    lin=\$(echo "${lineage}" | sed 's/lineage/L/g')
 
     # Identify the unique clusters
         grep "${lineage}" ${pairwise_clusters} \\
@@ -52,8 +52,7 @@ process PREPARE_NEXUS_PATHS{
         if [ ! -s final_clusters.list ]; then
 
                 echo "No clusters found for lineage ${lineage}. Exiting."
-
-                touch nexus.tuple.csv
+                echo "" > nexus.tuple.csv
 
         else
 
@@ -67,9 +66,6 @@ process PREPARE_NEXUS_PATHS{
             # Remove any unclustered clusters (nX-)
                 cat nexus.tuple.csv | grep -v ",nX-" > tmp.nexus.tuple.csv
                 mv tmp.nexus.tuple.csv nexus.tuple.csv
-
-            # touch the output incase the file is empty
-                touch nexus.tuple.csv
 
         fi
     """

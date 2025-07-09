@@ -19,6 +19,7 @@ process PROCESS_CLUSTERS {
         val(runID)
         path(pairwise_clusters)
         path(analysis_summary)
+        path(cluster_handover)
 
     output:
         path("processed_clusters.tsv"),         emit: pairwise_clusters_processed
