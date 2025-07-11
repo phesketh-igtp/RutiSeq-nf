@@ -44,7 +44,7 @@ process MTBSEQ_LINEAGE_GROUP {
         path("Matrices/*")
         path("Matrices/${lineage}.d${distance}.matrix.tsv"), emit: matrix_dir
 
-        path("handover.txt"),                                emit: handover
+        path("${lineage}_handover.txt"),                     emit: handover
 
     script:
 
@@ -109,7 +109,7 @@ process MTBSEQ_LINEAGE_GROUP {
                 rm Matrices/tmp.${lineage}.*
 
         # Handover to prevent reruns
-            echo "handover" > handover.txt
+            echo "${lineage} handover" > ${lineage}_handover.txt
 
         """
 }

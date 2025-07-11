@@ -17,6 +17,8 @@ process PREPARE_NEXUS_PATHS{
 
     publishDir "${params.outDir}/results/networks/${lineage}/", mode: 'copy'
 
+    errorStrategy 'ignore'
+
     input:
         tuple val(lineage), 
                 path(contree), 
