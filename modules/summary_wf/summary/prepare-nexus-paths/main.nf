@@ -9,6 +9,8 @@ process PREPARE_NEXUS_PATHS{
         It generates a CSV file with the paths to the NEXUS files and the
         corresponding tab files. The CSV file is used as input for the
         GENERATE_NEXUS process.
+        The tuple has the following format:
+        ["lineage", "clusterID", "fasta_path", "tab_path"]
 */
 
     conda params.snp_profiling_env 
@@ -27,7 +29,7 @@ process PREPARE_NEXUS_PATHS{
 
 
     output:
-        path("nexus.tuple.csv"), emit: nexus_tuple
+        path("nexus.tuple.csv"), optional: true, emit: nexus_tuple
 
     script:
 
