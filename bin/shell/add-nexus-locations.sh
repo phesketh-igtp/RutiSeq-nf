@@ -3,8 +3,8 @@
 ##  @author: Poppy J Hesketh Best
 ##  @date: 2025-07-31
 ##  @version: 1.0.0
-##  @description: This script processes a Nexus file to add meta about sample dates. 
-##                 It will produce a new Nexus file with the dates included in a 
+##  @description: This script processes a Nexus file to add meta about sample locs. 
+##                 It will produce a new Nexus file with the locs included in a 
 ##                 traits section.
 ##  @changelog:
 ##      v1.0.0-2025-07-31 - Initial version (draft by Poppy J Hesketh Best)
@@ -32,60 +32,23 @@ fi
 
 
 ############################################################################
-# Process Dates
+# Process locs
 ############################################################################
-
-Rscript -e '
-    meta_file <- commandArgs(TRUE)[1]
-    d <- read.csv(meta_file, header=FALSE)
-    colnames(d) <- c("sampleID", "date")
-
-    d$date <- format(as.Date(d$date), "%Y")
-    m <- table(d$sampleID, d$date)
-
-    # Convert table to matrix
-    m_mat <- as.matrix(m)
-
-    # Add the "Anc" column to m_mat and initialize with 0
-    m_mat <- cbind(m_mat, Anc = 0)
-
-    # Create new rows for H37Rv and MTB_anc with all zeros
-    ref <- matrix(0, nrow = 2, ncol = ncol(m_mat),
-        dimnames = list(c("H37Rv", "MTB_anc"), colnames(m_mat)))
-
-    # Set Anc = 1 for MTB_anc
-    ref["MTB_anc", "Anc"] <- 1
-
-    # Bind rows
-    m_new <- rbind(m_mat, ref)
-
-    # Convert counts to binary presence/absence (1/0)
-    m_new_bin <- ifelse(m_new > 0, 1, 0)
-
-    # Write to file
-    write.table(m_new_bin,
-                file = "tmp.dates_mat.csv",
-                sep = ",", col.names = NA, quote = FALSE)
-' "${meta}"
-
-sed -i '' '/^$/d' tmp.dates_mat.csv
 
 grep '>' ${aln} | sed 's/>//g' > tmp.sampleid.list
 
-cut -f1 -d ',' tmp.dates_mat.csv | sed '1d' > tmp.dates_mat.1.csv
+cut -f1 -d ',' ${meta} | sed '1d' > tmp.locs_mat.1.csv
 
 awk -F',' 'NR > 1 {
   for (i = 2; i <= NF; i++) {
     printf "%s", $i
-    if (i < NF) printf ","
+    if (i < NF) printf " "
   }
   print ""
-}' tmp.dates_mat.csv > tmp.dates_mat.2.csv
+}' ${meta} > tmp.locs_mat.2.csv
 
-paste -d '\t' tmp.dates_mat.1.csv tmp.dates_mat.2.csv | \
-    grep -f tmp.sampleid.list - > tmp.dates_mat.final.csv
-
-head -1 tmp.dates_mat.csv | sed 's/,/ /g' > tmp.dates.list
+paste -d '\t' tmp.locs_mat.1.csv tmp.locs_mat.2.csv | \
+    grep -f tmp.sampleid.list - > tmp.locs_mat.final.csv
 
 ######################################################################
 ## Set all the variables needed for the nexus file
@@ -101,11 +64,9 @@ N_NUCLEOTIDES=$( awk '!/^>/ { len = length($0); if (len > max) max = len } END {
 
 ALN_DATA_MATRIX=$( awk '/^>/ {if (seq) print name "\t" seq; name=substr($0,2); seq=""} !/^>/ {seq=seq $0} END {print name "\t" seq}' ${aln} | sed 's/ //g' ) 
 
-N_DATES=$( sed 's/ /\n/g' tmp.dates.list | sed '1d' | wc -l | sed 's/ //g' ) # numeric value, e.g. 5
+N_LOCATIONS=$( sort tmp.locs_mat.2.csv | uniq | wc -l | sed 's/ //g' )
 
-DATES_LIST=$( sed 's@^,@@g' tmp.dates_mat.csv | head -1 | sed 's@,@ @g' )
-
-DATES_DATA_MATRIX=$( cat tmp.dates_mat.final.csv )
+LOCATION_MATRIX=$( cat tmp.locs_mat.final.csv )
 
 ######################################################################
 # Create Nexus file with metadata
@@ -116,9 +77,7 @@ echo -e "#NEXUS
 
 BEGIN TAXA;
     DIMENSIONS NTAX=${N_SAMPLES};
-
 TAXLABLES
-
 ${SAMPLEID_LIST}
 ;
 
@@ -126,18 +85,15 @@ BEGIN CHARACTERS;
     DIMENSIONS NCHAR=${N_NUCLEOTIDES};
     FORMAT DATATYPE=DNA MISSING=? GAP=- MATCHCHAR=. ;
 MATRIX
-
 ${ALN_DATA_MATRIX}
 ;
 END;
 
-BEGIN TRAITS;
-    Dimensions NTRAITS=${N_DATES};
-    Format labels=yes missing=? separator=Comma;
-    TraitLabels ${DATES_LIST};
+BEGIN GeoTags;
+    Dimensions NCLUSTS=${N_LOCATIONS};
+    Format labels=yes separator=Spaces;
 MATRIX
-
-${DATES_DATA_MATRIX}
+${LOCATION_MATRIX}
 ;
 END
 " > ${prefix}.annotated.nex
