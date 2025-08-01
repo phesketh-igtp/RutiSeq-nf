@@ -1,28 +1,26 @@
-process GENERATE_NEXUS_W_METADATA {
+process GENERATE_ANNOTATED_NEXUS {
 
     conda params.r_stats_env
 
     tag "cluster: ${clusterID}"
 
-    publishDir "${params.outdir}/results/networks/nexus/", mode: 'copy'
+    publishDir "${params.outDir}/results/${params.runID}/networks/nexus/", mode: 'copy'
 
     input:
         tuple val(clusterID), 
-                path(nexus)
+                path(snp_fasta)
         path(metadata)
 
     output:
-        path("${clusterID}_dates.nex")
-        path("${clusterID}_locs.nex")
+        path("${clusterID}.annoated.nex")
 
     script:
         """
 
         grep -f genomes.list ${metadata} | cut -d ',' -f2,3 > dates.csv
-        grep -f genomes.list ${metadata} | cut -d ',' -f2,4 > loc.csv
 
-        bash ${params.script_dir}/shell/add-nexus-metadata_dates.sh \\
-            -i ${nexus} -p ${clusterID}
+        bash ${params.script_dir}/shell/add-nexus-dates.sh \\
+            -i ${snp_fasta} -m dates.csv -p ${clusterID}
 
         """
 

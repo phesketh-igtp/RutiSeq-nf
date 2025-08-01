@@ -31,6 +31,9 @@ process GENERATE_NEXUS {
         path("positions/*"),    optional: true
         path("nexus/*"),        optional: true
 
+        tuple val(clusterID),
+            path("fasta/${clusterID}_refseq.fasta"), emit: snp_fasta
+
         tuple val(lineage), 
                 val(clusterID), 
                 path("fasta/${clusterID}_refseq.fasta"),
@@ -49,12 +52,7 @@ process GENERATE_NEXUS {
                     -m ${params.mtbc_ancestor_path} \\
                     1>>.command.out \\
                     2>>.command.err || true
-
-            bash ${params.script_dir}/shell/add-nexus-dates.sh \\
-                    -i fasta/${clusterID}_refseq.fasta \\
-                    -m ${params.metadata} \\
-                    -p nexus/${clusterID}
-
+                    
         # simplify the name of the file
             cat ${snp_tab} > ${clusterID}.snp.tab
 

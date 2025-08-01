@@ -9,7 +9,7 @@ include { POST_SUMMARY_CLEANUP       }   from '../modules/summary_wf/summary/pos
 include { GENERATE_TIMETREES         }   from '../modules/summary_wf/summary/generate-timetrees/main.nf'
 include { PLOT_TIMETREES             }   from '../modules/summary_wf/summary/plot-timetrees/main.nf'
 include { GENERATE_NEXUS_W_MRCA      }   from '../modules/summary_wf/summary/generate-nexus-with-ancestor/main.nf'
-include { GENERATE_NEXUS_W_METADATA  }   from '../modules/summary_wf/summary/generate-nexus-with-metadata/main.nf'
+include { GENERATE_ANNOTATED_NEXUS   }   from '../modules/summary_wf/summary/generate-nexus-with-metadata/main.nf'
 include { PREPARE_DATA_DELIVERY      }   from '../modules/summary_wf/summary/data-delivery/main.nf'
 
 workflow SUMMARY_WF{
@@ -69,7 +69,7 @@ workflow SUMMARY_WF{
                 // DEBUG: view the channel 
                 ///nexus_ch.view()
 
-            GENERATE_NEXUS( runID, processed_clusters, nexus_ch )
+            GENERATE_NEXUS( runID, processed_clusters, nexus_ch)
 
             TABULATE_VARIANT_SITES( runID, GENERATE_NEXUS.out.variant_sites_for_tabulation )
 
@@ -89,7 +89,7 @@ workflow SUMMARY_WF{
                 // Create timetrees
                 GENERATE_TIMETREES(phylogeny_plotting_ch, ch_metadata)
 
-                PLOT_TIMETREES( runID, GENERATE_TIMETREES.out.timetrees_ch, clusters_ch)
+                PLOT_TIMETREES( runID, GENERATE_TIMETREES.out.timetrees_ch, processed_clusters)
                 
                 timetree_ch = PLOT_TIMETREES.out.timetree_tuple
                         .splitCsv(header: false, sep: ',')
@@ -98,7 +98,8 @@ workflow SUMMARY_WF{
                             tuple(lineage, clusterID, file(fasta), file(tab), file(ancestor))
                         }
 
-                GENERATE_NEXUS_W_MRCA(runID, timetree_ch, clusters_ch)
+                GENERATE_ANNOTATED_NEXUS(GENERATE_NEXUS.out.snp_fasta, 
+                                            params.metadata,)
 
                 /*
                 GENERATE_NEXUS_W_METADATA(GENERATE_NEXUS_W_ANCESTOR.out.nexus_w_no_metadata,
@@ -107,9 +108,7 @@ workflow SUMMARY_WF{
                 */
 
             } else {
-
                 log.info "${cyan}No metadata provided. TimeTrees and ancestral sequences will not be generated.${no_col}"
-                
             }
 
         // Cleanup unwanted files

@@ -36,6 +36,7 @@ process GENERATE_NEXUS_W_MRCA {
     script:
 
         """
+        processed_clusters
         bash ${params.script_dir}/shell/create-variable.region.nexus.w.MRCA.sh \
                 -c ${clusterID} \\
                 -p ${pairwise_clusters} \\
@@ -46,6 +47,12 @@ process GENERATE_NEXUS_W_MRCA {
                 -l ${lineage}  \\
                 1>>.command.out \\
                 2>>.command.err || true
+
+        bash ${params.script_dir}/shell/add-nexus-dates.sh \\
+                    -i fasta/${clusterID}_refseq.fasta \\
+                    -m ${params.metadata} \\
+                    -p nexus/${clusterID}
+
         """
 
 }
