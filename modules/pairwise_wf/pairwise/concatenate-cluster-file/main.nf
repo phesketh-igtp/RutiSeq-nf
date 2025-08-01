@@ -20,6 +20,7 @@ process CONCATENATE_CLUSTERS {
 
     input:
         path(clusters)
+        path(sequencing_summary, stageAs: "sequencing_summary.csv")
 
     output:
         path("unprocessed_clusters.tsv"),   emit: pairwise_clusters_unprocessed
