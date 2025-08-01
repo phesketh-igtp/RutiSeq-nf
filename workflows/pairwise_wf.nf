@@ -88,7 +88,9 @@ workflow PAIRWISE_WF {
         // Collect all cluster and matrix outputs
             bbdd_clusters = MTBSEQ_LINEAGE_GROUP.out.clusters.collect()
 
-            CONCATENATE_CLUSTERS(bbdd_clusters)
+            CONCATENATE_CLUSTERS(bbdd_clusters, 
+                                COMPILE_SEQUENCING_STATS.out.analysis_summary
+                                )
 
         // Assemble all the variable region phylogenies
             CONCATENATED_VARIABLE_REGION_PHYLOGENY( runID, 
