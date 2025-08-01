@@ -43,7 +43,6 @@ process CONCATENATE_CLUSTERS {
         # Split the cluster into singletons and processed clusters
             grep 'nX-' processed_clusters.tsv > ${params.outDir}/results/${params.runID}/clusters/singletons.tsv
             grep -v 'nX-' processed_clusters.tsv > ${params.outDir}/results/${params.runID}/clusters/clusters.tsv
-            cp ${params.outDir}/results/${params.runID}/clusters/clusters.tsv processed_clusters.tsv
         """
 
 }
