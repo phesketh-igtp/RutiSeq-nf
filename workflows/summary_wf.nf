@@ -101,11 +101,10 @@ workflow SUMMARY_WF{
                 GENERATE_ANNOTATED_NEXUS(GENERATE_NEXUS.out.snp_fasta, 
                                             params.metadata,)
 
-                /*
-                GENERATE_NEXUS_W_METADATA(GENERATE_NEXUS_W_ANCESTOR.out.nexus_w_no_metadata,
-                                        ch_metadata, clusters_ch
+                GENERATE_NEXUS_W_MRCA(timetree_ch, 
+                                        processed_clusters
                                     )
-                */
+                
 
             } else {
                 log.info "${cyan}No metadata provided. TimeTrees and ancestral sequences will not be generated.${no_col}"
