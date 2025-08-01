@@ -1,4 +1,3 @@
-include { POST_SINGLE_BBDD_CLEANUP   }   from '../modules/summary_wf/post-wf-cleaup/pairwise-bbdd-cleanup/main.nf'
 include { PROCESS_CLUSTERS           }   from '../modules/summary_wf/summary/process-clusters/main.nf'
 include { GENERATE_SUMMARY_REPORT    }   from '../modules/summary_wf/summary/summary-report/main.nf'
 include { PLOT_MAIN_PHYLOGENY        }   from '../modules/summary_wf/summary/plot-phylogeny/main.nf'
@@ -23,6 +22,7 @@ workflow SUMMARY_WF{
         who_resistance
         tbdb_resistance
         phylogeny_plotting_ch
+        cluster_handover
 
     main:
 
@@ -31,7 +31,10 @@ workflow SUMMARY_WF{
     def no_col  = '\u001B[0m'
 
         // Process clusters
-            PROCESS_CLUSTERS( runID, pairwise_clusters, analysis_summary )
+
+
+        
+            PROCESS_CLUSTERS( runID, pairwise_clusters, analysis_summary, cluster_handover )
 
         // Generate summary XLSX and CSV files for final results    
             GENERATE_SUMMARY_REPORT( runID,
@@ -58,6 +61,7 @@ workflow SUMMARY_WF{
                                     def (lineage, clusterID, fasta, tab) = row
                                     tuple(lineage, clusterID, file(fasta), file(tab))
                                     }
+
                 // DEBUG: view the channel 
                 ///nexus_ch.view()
 

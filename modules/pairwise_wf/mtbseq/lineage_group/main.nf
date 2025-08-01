@@ -44,6 +44,8 @@ process MTBSEQ_LINEAGE_GROUP {
         path("Matrices/*")
         path("Matrices/${lineage}.d${distance}.matrix.tsv"), emit: matrix_dir
 
+        path("${lineage}_handover.txt"),                     emit: handover
+
     script:
 
         //def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
@@ -105,6 +107,9 @@ process MTBSEQ_LINEAGE_GROUP {
 
             # remove the intermediates
                 rm Matrices/tmp.${lineage}.*
+
+        # Handover to prevent reruns
+            echo "${lineage} handover" > ${lineage}_handover.txt
 
         """
 }

@@ -8,7 +8,7 @@ process PREPARE_PAIRWISE_CHANNELS {
         In this module creates the pairwise analysis tuples from the lineage_samples_paths.csv
         and the lineage_pairwise_sub and lineage_pairwise_main lists.
         The output is a tuple of the form (lineage, sampleID) for each sampleID in the analysis.
-        There are three options for the pairwise analysis:
+        There are three options for the pairwise analysis (specified by the params.pairwise_split):
             - sub: pairwise analysis at sub-lineage level
             - main: pairwise analysis at main-lineage level
             - none: pairwise analysis of all samples without lineage split
@@ -50,10 +50,12 @@ process PREPARE_PAIRWISE_CHANNELS {
                         2>>.command.err || true # i think this helps (?)
 
                 # remove headers
-                sed '/^lineage,SampleID/d' final.lineage_samples_tuple.csv | sort > tmp.final.lineage_samples_tuple.csv
+                sed '/^lineage,SampleID/d' final.lineage_samples_tuple.csv | \\
+                    sed '/^sub_lineage,SampleID/d' | sort > tmp.final.lineage_samples_tuple.csv
                     mv tmp.final.lineage_samples_tuple.csv final.lineage_samples_tuple.csv
 
-                sed '/^lineage,SampleID/d' final.skipped-lineages_tuple.csv | sort > tmp.final.skipped-lineages_tuple.csv
+                sed '/^lineage,SampleID/d' final.skipped-lineages_tuple.csv | \\
+                    sed '/^sub_lineage,SampleID/d' | sort > tmp.final.skipped-lineages_tuple.csv
                     mv tmp.final.skipped-lineages_tuple.csv final.skipped-lineages_tuple.csv
 
         elif [[ ${params.pairwise_split} == "main" ]]; then
@@ -66,10 +68,12 @@ process PREPARE_PAIRWISE_CHANNELS {
                         2>>.command.err || true # i think this helps (?)
 
                 # remove headers
-                sed '/^lineage,SampleID/d' final.lineage_samples_tuple.csv | sort > tmp.final.lineage_samples_tuple.csv
+                sed '/^lineage,SampleID/d' final.lineage_samples_tuple.csv | \\
+                    sed '/^sub_lineage,SampleID/d' | sort > tmp.final.lineage_samples_tuple.csv
                     mv tmp.final.lineage_samples_tuple.csv final.lineage_samples_tuple.csv
 
-                sed '/^lineage,SampleID/d' final.skipped-lineages_tuple.csv | sort > tmp.final.skipped-lineages_tuple.csv
+                sed '/^lineage,SampleID/d' final.skipped-lineages_tuple.csv | \\
+                    sed '/^sub_lineage,SampleID/d' | sort > tmp.final.skipped-lineages_tuple.csv
                     mv tmp.final.skipped-lineages_tuple.csv final.skipped-lineages_tuple.csv
 
         elif [[ ${params.pairwise_split} == "none" ]]; then

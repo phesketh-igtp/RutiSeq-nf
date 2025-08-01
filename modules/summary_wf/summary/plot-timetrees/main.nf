@@ -26,10 +26,10 @@ process PLOT_TIMETREES {
         path(pairwise_clusters)
 
     output:
-        path("${lineage}_TimeTree.contree.pdf")
-        path("ancestors/*")
-        path("nexus.TT.tuple.csv"),         emit: timetree_tuple
-        path("${lineage}.time-tree.Rdata")
+        path("${lineage}_TimeTree.contree.pdf"), optional: true
+        path("ancestors/*"),                     optional: true
+        path("nexus.TT.tuple.csv"),              optional: true, emit: timetree_tuple
+        path("${lineage}.time-tree.Rdata"),      optional: true
 
     script:
     

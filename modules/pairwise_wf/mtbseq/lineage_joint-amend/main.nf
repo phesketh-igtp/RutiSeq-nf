@@ -59,21 +59,6 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
-        # Zip .tab/.fasta files in Joint and Amend if they exist
-            if compgen -G "${params.outDir}/bbdd/mtbseq/pairwise/Joint/*.tab" > /dev/null; then
-                gzip --best --force --quiet "${params.outDir}/bbdd/mtbseq/pairwise/Joint/"*.tab
-            fi
-
-            # Zip .fasta files in Amend if they exist
-            if compgen -G "${params.outDir}/bbdd/mtbseq/pairwise/Amend/*.fasta" > /dev/null; then
-                gzip --best --force --quiet "${params.outDir}/bbdd/mtbseq/pairwise/Amend/"*.fasta
-            fi
-
-            # Zip .tab files in Amend if they exist
-            if compgen -G "${params.outDir}/bbdd/mtbseq/pairwise/Amend/*.tab" > /dev/null; then
-                gzip --best --force --quiet "${params.outDir}/bbdd/mtbseq/pairwise/Amend/"*.tab
-            fi
-
         # make the expected directories
             mkdir -p Position_Tables/ Called/ Amend/ Joint/
 
@@ -81,68 +66,92 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
             echo "${sampleIDs.join('\n')}" | sort | uniq > samplesID.list
             sed 's@_@\t@g' samplesID.list > ${lineage}_samples.txt
 
-        # Create symbolic links to the apprpriate files (only if the file does not exist)
-            while IFS=',' read -r samples; do
+        # Define the fasta output
+            sampleID_count=\$(wc -l samplesID.list | cut -f1 -d' ')
+            mtbseq_fasta_out=\$(echo -e "Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples\${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta")
 
-                for file in ${params.outDir}/bbdd/mtbseq/samples/\${samples}/Position_Tables/*.tab; do
-                    dest="Position_Tables/\$(basename "\$file")"
-                    if [[ ! -e "\$dest" && ! -L "\$dest" ]]; then
-                        ln -s "\$file" "\$dest"
-                    fi
-                done
+        if [[ ! -f "${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/\${mtbseq_fasta_out}" ]]; then
 
-                for file in ${params.outDir}/bbdd/mtbseq/samples/\${samples}/Called/*.tab; do
-                    dest="Called/\$(basename "\$file")"
-                    if [[ ! -e "\$dest" && ! -L "\$dest" ]]; then
-                        ln -s "\$file" "\$dest"
-                    fi
-                done
+            ## The correct Amend/ file does not exist, so we need to run MTBseq Join and Amend steps
+                echo "Running MTBseq Join and Amend steps for lineage: ${lineage}"
+                
+            # Remove any previously generated files to generate new ones
+                rm -rf ${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Joint/*
+                rm -rf ${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/*  
 
-            done < samplesID.list
+            # Create symbolic links to the apprpriate files (only if the file does not exist)
+                    while IFS=',' read -r samples; do
 
-        ## MTBseq Join using the first SNP distance
-            MTBseq --step TBjoin ${additional_args} \\
-                    --thread        ${task.cpus} \\
-                    --project       ${lineage} \\
-                    --samples       ${lineage}_samples.txt \\
-                    --minbqual      ${params.mtbseq_minbqual} \\
-                    --mincovf       ${params.mtbseq_mincovf} \\
-                    --mincovr       ${params.mtbseq_mincovr} \\
-                    --minphred20    ${params.mtbseq_minphred20} \\
-                    --minfreq       ${params.mtbseq_minfreq} \\
-                    --unambig       ${params.mtbseq_unambig} \\
-                    --window        ${params.mtbseq_window} \\
-                    1>>.command.out \\
-                    2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
+                        for file in ${params.outDir}/bbdd/mtbseq/samples/\${samples}/Position_Tables/*.tab; do
+                            dest="Position_Tables/\$(basename "\$file")"
+                            if [[ ! -e "\$dest" && ! -L "\$dest" ]]; then
+                                ln -s "\$file" "\$dest"
+                            fi
+                        done
 
-        ## MTBseq Join using the first SNP distance
-            MTBseq --step TBamend ${additional_args} \\
-                    --thread        ${task.cpus} \\
-                    --project       ${lineage} \\
-                    --samples       ${lineage}_samples.txt \\
-                    --minbqual      ${params.mtbseq_minbqual} \\
-                    --mincovf       ${params.mtbseq_mincovf} \\
-                    --mincovr       ${params.mtbseq_mincovr} \\
-                    --minphred20    ${params.mtbseq_minphred20} \\
-                    --minfreq       ${params.mtbseq_minfreq} \\
-                    --unambig       ${params.mtbseq_unambig} \\
-                    --window        ${params.mtbseq_window} \\
-                    1>>.command.out \\
-                    2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
+                        for file in ${params.outDir}/bbdd/mtbseq/samples/\${samples}/Called/*.tab; do
+                            dest="Called/\$(basename "\$file")"
+                            if [[ ! -e "\$dest" && ! -L "\$dest" ]]; then
+                                ln -s "\$file" "\$dest"
+                            fi
+                        done
+
+                    done < samplesID.list
+
+            ## MTBseq Join using the first SNP distance
+                MTBseq --step TBjoin ${additional_args} \\
+                        --thread        ${task.cpus} \\
+                        --project       ${lineage} \\
+                        --samples       ${lineage}_samples.txt \\
+                        --minbqual      ${params.mtbseq_minbqual} \\
+                        --mincovf       ${params.mtbseq_mincovf} \\
+                        --mincovr       ${params.mtbseq_mincovr} \\
+                        --minphred20    ${params.mtbseq_minphred20} \\
+                        --minfreq       ${params.mtbseq_minfreq} \\
+                        --unambig       ${params.mtbseq_unambig} \\
+                        --window        ${params.mtbseq_window} \\
+                            1>>.command.out \\
+                            2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
+
+            ## MTBseq Join using the first SNP distance
+                    MTBseq --step TBamend ${additional_args} \\
+                        --thread        ${task.cpus} \\
+                        --project       ${lineage} \\
+                        --samples       ${lineage}_samples.txt \\
+                        --minbqual      ${params.mtbseq_minbqual} \\
+                        --mincovf       ${params.mtbseq_mincovf} \\
+                        --mincovr       ${params.mtbseq_mincovr} \\
+                        --minphred20    ${params.mtbseq_minphred20} \\
+                        --minfreq       ${params.mtbseq_minfreq} \\
+                        --unambig       ${params.mtbseq_unambig} \\
+                        --window        ${params.mtbseq_window} \\
+                            1>>.command.out \\
+                            2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq       
+
+        else
+
+            echo "Skipping MTBseq Join and Amend steps for lineage: ${lineage}. Delete the existing files to re-run.
+                    ${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Joint/ and ${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/"
+
+            # Should be:
+            cp ${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Joint/* Joint/
+            cp ${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/* Amend/
+        
+        fi
 
         ### create lineage csv for creating new channels
-            echo '${params.mtbseq_snp_distance.join('\n')}' > snp_distances
+                echo '${params.mtbseq_snp_distance.join('\n')}' > snp_distances
 
-            for distance in \$(cat snp_distances); do
-                echo "${lineage},\${distance},${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Joint,${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend,${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/${lineage}_samples.txt" >> mtbseq-group.tuple.csv
-            done
+                for distance in \$(cat snp_distances); do
+                    echo "${lineage},\${distance},${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Joint,${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend,${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/${lineage}_samples.txt" >> mtbseq-group.tuple.csv
+                done
 
         # Check the Amend file is it actually has any sequences in the fasta
-            fasta=Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta
-            sum_len=\$(seqkit stats -T \${fasta} | sed '1d' | head -1 | cut -f5)
+            sum_len=\$(seqkit stats -T \${mtbseq_fasta_out} | sed '1d' | head -1 | cut -f5)
                 if [[ \${sum_len} == 0 ]]; then
-                    echo "Error: The Amend/ FASTA file \${fasta} is empty." >&2
+                    echo "Error: The Amend/ FASTA file \${mtbseq_fasta_out} is empty." >&2
                     exit 1
-                fi        
+                fi
+
         """
 }

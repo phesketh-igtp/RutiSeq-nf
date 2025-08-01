@@ -286,7 +286,8 @@ workflow {
                         PAIRWISE_WF.out.analysis_summary,
                         PAIRWISE_WF.out.who_resistance,
                         PAIRWISE_WF.out.tbdb_resistance,
-                        PAIRWISE_WF.out.phylogeny_plotting_ch
+                        PAIRWISE_WF.out.phylogeny_plotting_ch,
+                        PAIRWISE_WF.out.cluster_handover
                     )
 
         /*

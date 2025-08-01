@@ -73,23 +73,31 @@ workflow PAIRWISE_WF {
         // Run the pairwise analysis by lineages
             MTBSEQ_LINEAGE_JOINT_AMEND( runID, lineage_samples_ch )
 
-            // row[0] lineage, distance, join_dir, amend_dir, samples_txt
-            mtbseq_group_ch = MTBSEQ_LINEAGE_JOINT_AMEND.out.mtbseq_group_tuple_csv
-                            .splitCsv(header: false, sep: ',')
-                            .map { row ->
-                                def (lineage, distance, joint_path, amend_path, samples_path) = row
-                                tuple(lineage, distance, joint_path, amend_path, samples_path)
-                            }
-                // DEBUG: View the channel
-                //mtbseq_group_ch.view()
+                // row[0] lineage, distance, join_dir, amend_dir, samples_txt
+                mtbseq_group_ch = MTBSEQ_LINEAGE_JOINT_AMEND.out.mtbseq_group_tuple_csv
+                                .splitCsv(header: false, sep: ',')
+                                .map { row ->
+                                    def (lineage, distance, joint_path, amend_path, samples_path) = row
+                                    tuple(lineage, distance, joint_path, amend_path, samples_path)
+                                }
+                    // DEBUG: View the channel
+                    //mtbseq_group_ch.view()
 
             MTBSEQ_LINEAGE_GROUP( runID, mtbseq_group_ch )
 
-            CONCATENATED_VARIABLE_REGION_PHYLOGENY( runID, MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch )
-
         // Collect all cluster and matrix outputs
             bbdd_clusters = MTBSEQ_LINEAGE_GROUP.out.clusters.collect()
+            MTBSEQ_LINEAGE_GROUP.out.handover
+                .collectFile(name: 'handover', newLine: true)
+                .set { merged_handover }
+
+
+
             CONCATENATE_CLUSTERS(bbdd_clusters)
+
+        // Assemble all the variable region phylogenies
+            CONCATENATED_VARIABLE_REGION_PHYLOGENY( runID, 
+                                                    MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch )
 
         // Create a channel to emit for the nexus generation
             nexus_creation_ch = MTBSEQ_LINEAGE_JOINT_AMEND.out.mtbseq_group_tuple_csv
@@ -98,9 +106,6 @@ workflow PAIRWISE_WF {
                                 def (lineage, distance, joint_path, amend_path, samples_path) = row
                                 tuple(lineage, joint_path, amend_path)
                             }
-                // DEBUG: View the channel
-                //nexus_creation_ch.view()
-
     emit:
         pairwise_clusters     = CONCATENATE_CLUSTERS.out.pairwise_clusters
         analysis_summary      = COMPILE_SEQUENCING_STATS.out.analysis_summary
@@ -108,6 +113,7 @@ workflow PAIRWISE_WF {
         tbdb_resistance       = COMPILE_SEQUENCING_STATS.out.tbdb_resistance
         phylogeny_plotting_ch = CONCATENATED_VARIABLE_REGION_PHYLOGENY.out.phylogeny_plotting_ch
         nexus_creation_ch     = nexus_creation_ch
+        cluster_handover      = merged_handover
 
 }
 

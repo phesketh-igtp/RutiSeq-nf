@@ -9,6 +9,8 @@ process PREPARE_NEXUS_PATHS{
         It generates a CSV file with the paths to the NEXUS files and the
         corresponding tab files. The CSV file is used as input for the
         GENERATE_NEXUS process.
+        The tuple has the following format:
+        ["lineage", "clusterID", "fasta_path", "tab_path"]
 */
 
     conda params.snp_profiling_env 
@@ -16,6 +18,8 @@ process PREPARE_NEXUS_PATHS{
     tag "${lineage}"
 
     publishDir "${params.outDir}/results/networks/${lineage}/", mode: 'copy'
+
+    errorStrategy 'ignore'
 
     input:
         tuple val(lineage), 
@@ -25,12 +29,12 @@ process PREPARE_NEXUS_PATHS{
 
 
     output:
-        path("nexus.tuple.csv"), emit: nexus_tuple
+        path("nexus.tuple.csv"), optional: true, emit: nexus_tuple
 
     script:
 
     """
-    lin=\$(cat ${lineage} | sed 's/lineage/L/g')
+    lin=\$(echo "${lineage}" | sed 's/lineage/L/g')
 
     # Identify the unique clusters
         grep "${lineage}" ${pairwise_clusters} \\
@@ -48,20 +52,26 @@ process PREPARE_NEXUS_PATHS{
             fi
         done < unique.clusters.list
 
-    # Create a CSV for generating a tuple of the paths
-        for clusterID in `cat final_clusters.list`; do
-            grep "\${clusterID}" ${pairwise_clusters} | cut -f1 | tr '\n' ';' > tmp-string
-            echo "${lineage},\${clusterID},${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta,${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab" >> nexus.tuple.csv
-            rm tmp-string
-        done
+    # In the scenarip where the whole lineage is not present in the pairwise_clusters file
+        if [ ! -s final_clusters.list ]; then
 
-    # Remove any unclustered clusters (nX-)
-        cat nexus.tuple.csv | grep -v ",nX-" > tmp.nexus.tuple.csv
-        mv tmp.nexus.tuple.csv nexus.tuple.csv
+                echo "No clusters found for lineage ${lineage}. Exiting."
+                echo "" > nexus.tuple.csv
 
-    # touch the output incase the file is empty
-        touch nexus.tuple.csv
+        else
 
+            # Create a CSV for generating a tuple of the paths
+                for clusterID in `cat final_clusters.list`; do
+                    grep "\${clusterID}" ${pairwise_clusters} | cut -f1 | tr '\n' ';' > tmp-string
+                    echo "${lineage},\${clusterID},${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta,${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab" >> nexus.tuple.csv
+                    rm tmp-string
+                done
+
+            # Remove any unclustered clusters (nX-)
+                cat nexus.tuple.csv | grep -v ",nX-" > tmp.nexus.tuple.csv
+                mv tmp.nexus.tuple.csv nexus.tuple.csv
+
+        fi
     """
 
 }

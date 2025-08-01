@@ -19,21 +19,23 @@ process PROCESS_CLUSTERS {
         val(runID)
         path(pairwise_clusters)
         path(analysis_summary)
+        path(cluster_handover)
 
     output:
         path("processed_clusters.tsv"),         emit: pairwise_clusters_processed
         path("${runID}_processed_clusters.tsv")
+        path("${runID}_singletons.tsv")
 
     script:
+    
         """
-        Rscript ${params.r_script_dir}/process_clusters.R #\
-                #--clusters ${pairwise_clusters} \
-                #--summary ${analysis_summary}
+        # Load the R script for processing clusters
+            Rscript ${params.r_script_dir}/process_clusters.R
 
-            cp processed_clusters.tsv ${runID}_processed_clusters.tsv
-
-        cp processed_clusters.tsv ${params.outDir}/results/
-        cp ${pairwise_clusters} ${params.outDir}/results/
+        # Split the cluster into singletons and processed clusters
+            grep 'nX-' processed_clusters.tsv > ${runID}_singletons.tsv
+            grep -v 'nX-' processed_clusters.tsv > ${runID}_processed_clusters.tsv
+            cp ${runID}_processed_clusters.tsv processed_clusters.tsv 
         """
 
 }
