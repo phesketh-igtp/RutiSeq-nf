@@ -50,6 +50,11 @@ process GENERATE_NEXUS {
                     1>>.command.out \\
                     2>>.command.err || true
 
+            bash ${params.script_dir}/shell/add-nexus-dates.sh \\
+                    -i fasta/${clusterID}_refseq.fasta \\
+                    -m ${params.metadata} \\
+                    -p nexus/${clusterID}
+
         # simplify the name of the file
             cat ${snp_tab} > ${clusterID}.snp.tab
 

@@ -14,13 +14,16 @@ process CONCATENATE_CLUSTERS {
         The output file is named "unprocessed_clusters.tsv".
 */
 
+    conda params.r_stats_env
+
     publishDir "${params.outDir}/bbdd/results/main/", mode: 'copy'
 
     input:
         path(clusters)
 
     output:
-        path("unprocessed_clusters.tsv"),          emit: pairwise_clusters
+        path("unprocessed_clusters.tsv"),   emit: pairwise_clusters_unprocessed
+        path("processed_clusters.tsv"),     emit: pairwise_clusters_processed
 
     script:
 
@@ -33,6 +36,13 @@ process CONCATENATE_CLUSTERS {
                 cat \$file >> unprocessed_clusters.tsv
             done
 
+        # Load the R script for processing clusters
+            Rscript ${params.r_script_dir}/process_clusters.R
+
+        # Split the cluster into singletons and processed clusters
+            grep 'nX-' processed_clusters.tsv > ${params.outDir}/results/${params.runID}/clusters/singletons.tsv
+            grep -v 'nX-' processed_clusters.tsv > ${params.outDir}/results/${params.runID}/clusters/clusters.tsv
+            cp ${params.runID}_processed_clusters.tsv processed_clusters.tsv
         """
 
 }

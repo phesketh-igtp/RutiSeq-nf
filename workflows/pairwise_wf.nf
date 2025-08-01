@@ -87,11 +87,6 @@ workflow PAIRWISE_WF {
 
         // Collect all cluster and matrix outputs
             bbdd_clusters = MTBSEQ_LINEAGE_GROUP.out.clusters.collect()
-            MTBSEQ_LINEAGE_GROUP.out.handover
-                .collectFile(name: 'handover', newLine: true)
-                .set { merged_handover }
-
-
 
             CONCATENATE_CLUSTERS(bbdd_clusters)
 
@@ -107,13 +102,13 @@ workflow PAIRWISE_WF {
                                 tuple(lineage, joint_path, amend_path)
                             }
     emit:
-        pairwise_clusters     = CONCATENATE_CLUSTERS.out.pairwise_clusters
-        analysis_summary      = COMPILE_SEQUENCING_STATS.out.analysis_summary
-        who_resistance        = COMPILE_SEQUENCING_STATS.out.who_resistance
-        tbdb_resistance       = COMPILE_SEQUENCING_STATS.out.tbdb_resistance
-        phylogeny_plotting_ch = CONCATENATED_VARIABLE_REGION_PHYLOGENY.out.phylogeny_plotting_ch
-        nexus_creation_ch     = nexus_creation_ch
-        cluster_handover      = merged_handover
+        processed_clusters     = CONCATENATE_CLUSTERS.out.pairwise_clusters_processed
+        unprocessed_clusters   = CONCATENATE_CLUSTERS.out.pairwise_clusters_unprocessed
+        analysis_summary       = COMPILE_SEQUENCING_STATS.out.analysis_summary
+        who_resistance         = COMPILE_SEQUENCING_STATS.out.who_resistance
+        tbdb_resistance        = COMPILE_SEQUENCING_STATS.out.tbdb_resistance
+        phylogeny_plotting_ch  = CONCATENATED_VARIABLE_REGION_PHYLOGENY.out.phylogeny_plotting_ch
+        nexus_creation_ch      = nexus_creation_ch
 
 }
 

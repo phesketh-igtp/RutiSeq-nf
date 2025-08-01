@@ -1,4 +1,4 @@
-include { PROCESS_CLUSTERS           }   from '../modules/summary_wf/summary/process-clusters/main.nf'
+//include { PROCESS_CLUSTERS           }   from '../modules/summary_wf/summary/process-clusters/main.nf'
 include { GENERATE_SUMMARY_REPORT    }   from '../modules/summary_wf/summary/summary-report/main.nf'
 include { PLOT_MAIN_PHYLOGENY        }   from '../modules/summary_wf/summary/plot-phylogeny/main.nf'
 include { PREPARE_NEXUS_PATHS        }   from '../modules/summary_wf/summary/prepare-nexus-paths/main.nf'
@@ -17,12 +17,12 @@ workflow SUMMARY_WF{
 
     take:
         runID
-        pairwise_clusters
+        processed_clusters
+        unprocessed_clusters
         analysis_summary
         who_resistance
         tbdb_resistance
         phylogeny_plotting_ch
-        cluster_handover
 
     main:
 
@@ -34,26 +34,30 @@ workflow SUMMARY_WF{
 
 
         
-            PROCESS_CLUSTERS( runID, pairwise_clusters, analysis_summary, cluster_handover )
+           // PROCESS_CLUSTERS( runID, pairwise_clusters, analysis_summary, cluster_handover )
 
         // Generate summary XLSX and CSV files for final results    
             GENERATE_SUMMARY_REPORT( runID,
-                                        PROCESS_CLUSTERS.out.pairwise_clusters_processed,
+                                        processed_clusters,
+                                        //PROCESS_CLUSTERS.out.pairwise_clusters_processed,
                                         analysis_summary,
                                         who_resistance,
                                         tbdb_resistance
                                     )
 
         // Plot main ML phylogeny
-            PLOT_MAIN_PHYLOGENY( runID, phylogeny_plotting_ch,
-                                    PROCESS_CLUSTERS.out.pairwise_clusters_processed,
-                                    pairwise_clusters )
+            PLOT_MAIN_PHYLOGENY( runID, 
+                                    phylogeny_plotting_ch,
+                                    //PROCESS_CLUSTERS.out.pairwise_clusters_processed,
+                                    processed_clusters,
+                                    unprocessed_clusters 
+                                )
 
         // Generate base NEXUS files for each cluster
             PREPARE_NEXUS_PATHS( phylogeny_plotting_ch,
-                                    PROCESS_CLUSTERS.out.pairwise_clusters_processed )
-
-                clusters_ch = PROCESS_CLUSTERS.out.pairwise_clusters_processed
+                                    //PROCESS_CLUSTERS.out.pairwise_clusters_processed
+                                    processed_clusters 
+                                )
 
                 nexus_ch = PREPARE_NEXUS_PATHS.out.nexus_tuple
                                 .splitCsv(header: false, sep: ',')
@@ -65,7 +69,7 @@ workflow SUMMARY_WF{
                 // DEBUG: view the channel 
                 ///nexus_ch.view()
 
-            GENERATE_NEXUS( runID, clusters_ch, nexus_ch )
+            GENERATE_NEXUS( runID, processed_clusters, nexus_ch )
 
             TABULATE_VARIANT_SITES( runID, GENERATE_NEXUS.out.variant_sites_for_tabulation )
 

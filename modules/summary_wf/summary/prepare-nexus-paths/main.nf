@@ -29,7 +29,7 @@ process PREPARE_NEXUS_PATHS{
 
 
     output:
-        path("nexus.tuple.csv"), optional: true, emit: nexus_tuple
+        path("nexus.tuple.csv"), emit: nexus_tuple
 
     script:
 
@@ -41,8 +41,7 @@ process PREPARE_NEXUS_PATHS{
             | cut -f7 \\
             | sort \\
             | uniq \\
-            | sed '1!{/^SampleID/d;}' \\
-            | grep -v "nX-L" > unique.clusters.list
+            | sed '1!{/^SampleID/d;}' > unique.clusters.list
 
     # Remove clusters that are smaller than 3 genomes
         while read clusterID; do
@@ -55,7 +54,7 @@ process PREPARE_NEXUS_PATHS{
     # In the scenarip where the whole lineage is not present in the pairwise_clusters file
         if [ ! -s final_clusters.list ]; then
 
-                echo "No clusters found for lineage ${lineage}. Exiting."
+                echo "No clusters found for lineage ${lineage}. Creating empty nexus file."
                 echo "" > nexus.tuple.csv
 
         else
