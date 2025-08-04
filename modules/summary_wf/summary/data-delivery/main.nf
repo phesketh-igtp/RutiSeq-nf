@@ -65,15 +65,23 @@ process PREPARE_DATA_DELIVERY{
             fi
 
         # Clean up: remove litter from the nexus generation
-            if compgen -G "${params.outDir}/results/${runID}/networks/*join*tab" > /dev/null; then
-                rm -rf ${params.outDir}/results/${runID}/networks/*join*tab
+            if compgen -G "${params.outDir}/results/${runID}/networks/*snp.tab" > /dev/null; then
+                rm -rf ${params.outDir}/results/${runID}/networks/*snp.tab
             fi
+
+            if compgen -G "${params.outDir}/results/${runID}/networks/*.clusters.tsv" > /dev/null; then
+                rm -rf ${params.outDir}/results/${runID}/networks/*.clusters.tsv
+            fi
+
             if [[ -f "${params.outDir}/results/${runID}/phylogeny/nexus.TT.tuple.csv" ]]; then
                 rm -f ${params.outDir}/results/${runID}/phylogeny/nexus.TT.tuple.csv
             fi
+            
             if [[ -d "${params.outDir}/results/${runID}/snps/cleanup-handover" ]]; then
                 rm -rf ${params.outDir}/results/${runID}/snps/cleanup-handover
             fi
+
+
         """
 
 }

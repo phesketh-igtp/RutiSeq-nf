@@ -30,7 +30,7 @@ process PLOT_MAIN_PHYLOGENY {
     script:
         """
         # How many genomes are clustered in this lineage
-        clustered_genomes=\$(grep '${lineage}' ${unprocessed_clusters} | grep -v 'ungrouped' | wc -l)
+        clustered_genomes=\$(grep '${lineage}' ${unprocessed_clusters} | grep -v 'singleton' | wc -l)
 
         if [[ \$clustered_genomes -gt 0 ]]; then
 

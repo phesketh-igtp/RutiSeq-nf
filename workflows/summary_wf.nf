@@ -11,6 +11,7 @@ include { PLOT_TIMETREES             }   from '../modules/summary_wf/summary/plo
 include { GENERATE_NEXUS_W_MRCA      }   from '../modules/summary_wf/summary/generate-nexus-with-ancestor/main.nf'
 include { GENERATE_ANNOTATED_NEXUS   }   from '../modules/summary_wf/summary/generate-nexus-with-metadata/main.nf'
 include { PREPARE_DATA_DELIVERY      }   from '../modules/summary_wf/summary/data-delivery/main.nf'
+//include { GENERATE_REPORT            }   from '../modules/summary_wf/summary/generate-report/main.nf'
 
 workflow SUMMARY_WF{
 
@@ -23,6 +24,7 @@ workflow SUMMARY_WF{
         who_resistance
         tbdb_resistance
         phylogeny_plotting_ch
+        nexus_creation_ch
 
     main:
 
@@ -32,8 +34,6 @@ workflow SUMMARY_WF{
 
         // Process clusters
 
-
-        
            // PROCESS_CLUSTERS( runID, pairwise_clusters, analysis_summary, cluster_handover )
 
         // Generate summary XLSX and CSV files for final results    
@@ -54,22 +54,22 @@ workflow SUMMARY_WF{
                                 )
 
         // Generate base NEXUS files for each cluster
-            PREPARE_NEXUS_PATHS( phylogeny_plotting_ch,
+            PREPARE_NEXUS_PATHS( nexus_creation_ch
+                                    //phylogeny_plotting_ch,
                                     //PROCESS_CLUSTERS.out.pairwise_clusters_processed
-                                    processed_clusters 
+                                    //processed_clusters 
                                 )
 
                 nexus_ch = PREPARE_NEXUS_PATHS.out.nexus_tuple
                                 .splitCsv(header: false, sep: ',')
                                 .map { row ->
-                                    def (lineage, clusterID, fasta, tab) = row
-                                    tuple(lineage, clusterID, file(fasta), file(tab))
+                                    def (lineage, clusterID, fasta, tab, clusters_tab) = row
+                                    tuple(lineage, clusterID, file(fasta), file(tab), file(clusters_tab))
                                     }
 
-                // DEBUG: view the channel 
-                ///nexus_ch.view()
+                // DEBUG: view the channel //nexus_ch.view()
 
-            GENERATE_NEXUS( runID, processed_clusters, nexus_ch)
+            GENERATE_NEXUS( nexus_ch )
 
             TABULATE_VARIANT_SITES( runID, GENERATE_NEXUS.out.variant_sites_for_tabulation )
 
@@ -87,7 +87,7 @@ workflow SUMMARY_WF{
                     .ifEmpty { error "${red}Metadata file not found/empty: ${params.metadata}. Correct your metadata path/file and resume the analysis with '-resume'${no_col}" }
 
                 // Create timetrees
-                GENERATE_TIMETREES(phylogeny_plotting_ch, ch_metadata)
+                GENERATE_TIMETREES( phylogeny_plotting_ch, ch_metadata )
 
                 PLOT_TIMETREES( runID, GENERATE_TIMETREES.out.timetrees_ch, processed_clusters)
                 
@@ -98,13 +98,14 @@ workflow SUMMARY_WF{
                             tuple(lineage, clusterID, file(fasta), file(tab), file(ancestor))
                         }
 
-                GENERATE_ANNOTATED_NEXUS(GENERATE_NEXUS.out.snp_fasta, 
+                GENERATE_ANNOTATED_NEXUS( GENERATE_NEXUS.out.annotated_nexus_ch, 
                                             params.metadata,)
 
+                /*
                 GENERATE_NEXUS_W_MRCA(timetree_ch, 
                                         processed_clusters
                                     )
-                
+                */
 
             } else {
                 log.info "${cyan}No metadata provided. TimeTrees and ancestral sequences will not be generated.${no_col}"
@@ -114,6 +115,8 @@ workflow SUMMARY_WF{
             //POST_SUMMARY_CLEANUP( CONCATENATED_VARIANT_FILES.out.cleanup_handover )
 
             PREPARE_DATA_DELIVERY( runID, CONCATENATED_VARIANT_FILES.out.cleanup_handover )
+
+            //GENERATE_REPORT()
 
 }
 

@@ -1,4 +1,4 @@
-process CONCATENATED_VARIABLE_REGION_PHYLOGENY {
+process SNP_PHYLOGENY {
 
 /*
     @author: Poppy J Hesketh Best

@@ -45,9 +45,10 @@ process MTBSEQ_LINEAGE_GROUP {
         path("Matrices/${lineage}.d${distance}.matrix.tsv"), emit: matrix_dir
 
         // Nexus output
-        tuple val(lineage),
-            path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta"),
-            path("Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab"),
+        tuple val(lineage), 
+            val(distance), 
+            path("${lineage}_snps.fasta"),
+            path("${lineage}_snps.tab"),
             path("Groups/${lineage}_d${distance}.clusters.tsv"), emit: nexus_ch
 
     script:
@@ -85,7 +86,7 @@ process MTBSEQ_LINEAGE_GROUP {
 
             grep 'group_' tmp.${lineage}_d${distance}.clusters.tsv \\
                     | sed "s@group_@@g" \\
-                    | sed s/$/-${distance}-${lineage}/g \\
+                    | sed s/\$/-${distance}-${lineage}/g \\
                     | sed 's/-lineage/-L/g' \\
                     > Groups/${lineage}_d${distance}.clusters.tsv
 
@@ -118,5 +119,8 @@ process MTBSEQ_LINEAGE_GROUP {
 
             # remove the intermediates
                 rm Matrices/tmp.${lineage}.*
+
+        cat Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta > ${lineage}_snps.fasta
+        cat Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab > ${lineage}_snps.tab
         """
 }

@@ -36,7 +36,7 @@ usage() {
 while getopts ":c:p:f:t:m:h" opt; do
     case ${opt} in
         c) clusterID="$OPTARG" ;;
-        p) pairwise_clusters="$OPTARG" ;;
+        ##p) pairwise_clusters="$OPTARG" ;;
         f) snp_fasta="$OPTARG" ;;
         t) snp_tab="$OPTARG" ;;
         m) mtbc_ancestor_path="$OPTARG" ;;
@@ -47,7 +47,7 @@ while getopts ":c:p:f:t:m:h" opt; do
 done
 
 # Check required arguments
-if [ -z "${clusterID:-}" ] || [ -z "${pairwise_clusters:-}" ] || [ -z "${snp_fasta:-}" ] || [ -z "${snp_tab:-}" ] || [ -z "${mtbc_ancestor_path:-}" ]; then
+if [ -z "${clusterID:-}" ] || [ -z "${snp_fasta:-}" ] || [ -z "${snp_tab:-}" ] || [ -z "${mtbc_ancestor_path:-}" ]; then
     echo "❌ Missing required arguments." >&2
     usage
 fi
@@ -56,10 +56,10 @@ fi
 mkdir -p nexus/ fasta/ positions/
 
 # Create list of genomes
-grep "${clusterID}" "${pairwise_clusters}" | cut -f1 > "${clusterID}.genomes.list"
+##grep "${clusterID}" "${pairwise_clusters}" | cut -f1 > "${clusterID}.genomes.list"
 
 # Extract FASTA for the cluster
-seqkit grep -w 0 -f "${clusterID}.genomes.list" "${snp_fasta}" > "${clusterID}.fasta"
+##seqkit grep -w 0 -f "${clusterID}.genomes.list" "${snp_fasta}" > "${clusterID}.fasta"
 
 # Run snp-sites
 snp-sites "${clusterID}.fasta" > "${clusterID}.snpsites.fasta"

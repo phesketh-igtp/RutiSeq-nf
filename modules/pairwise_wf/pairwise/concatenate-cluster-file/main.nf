@@ -29,20 +29,18 @@ process CONCATENATE_CLUSTERS {
     script:
 
         """
-        # Create a header
-            echo "lineage\tdistance\tgenomes\tgroup" > unprocessed_clusters.tsv
-
         # Concatenate all files
             for file in ${params.outDir}/bbdd/mtbseq/pairwise/*/Groups/*_d*.clusters.tsv; do 
+                cat \$file >> unprocessed_clusters.tsv
+            done
+
+            for file in ${params.outDir}/bbdd/mtbseq/pairwise/*/Groups/*_d*.singletons.tsv; do 
                 cat \$file >> unprocessed_clusters.tsv
             done
 
         # Load the R script for processing clusters
             Rscript ${params.r_script_dir}/process_clusters.R
 
-        # Split the cluster into singletons and processed clusters
-            grep 'nX-' processed_clusters.tsv > ${params.outDir}/results/${params.runID}/clusters/singletons.tsv
-            grep -v 'nX-' processed_clusters.tsv > ${params.outDir}/results/${params.runID}/clusters/clusters.tsv
         """
 
 }

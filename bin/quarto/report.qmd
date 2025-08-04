@@ -1,0 +1,169 @@
+---
+title: "RutiSeq Report"
+format: html
+execute:
+    echo: false
+    warning: false
+    message: false
+---
+
+# RutiSeq Report — Run ID: `r run_id`
+
+```{r setup, include=FALSE}
+# Load required libraries
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(DT)
+
+# Read environment variables
+run_id         <- Sys.getenv("runID")
+summary_file   <- Sys.getenv("analysisSummary")
+cluster_file   <- Sys.getenv("processedClusters")
+who_file       <- Sys.getenv("whoResistance")
+tbdb_file      <- Sys.getenv("tbdbResistance")
+report_dir     <- Sys.getenv("reportDir")
+
+# Load datasets
+summary_data   <- read_tsv(summary_file)
+clusters_data  <- read_tsv(cluster_file)
+who_data       <- read_tsv(who_file)
+tbdb_data      <- read_tsv(tbdb_file)
+```
+
+---
+
+# RutiSeq Report — Run ID: `r run_id`
+
+Cases - **Number of cases in `r run_id`:** `r run_id` |  **Total cases in RutiSeq-db:** `r run_id`
+Dates - **Most recent case:** `r run_id` | **Oldest case:** `r run_id`
+
+---
+
+## Database Summary
+
+::: {.panel-tabset}
+
+### `r run_id`
+
+```{r}
+# This table shows results only for the current run
+datatable(summary_data %>% filter(run_id == run_id), 
+            caption = paste("Results for run:", run_id))
+```
+
+### `RutiSeq-db`
+```{r}
+# This table shows results only for the current run
+datatable(summary_data %>% filter(run_id == run_id), 
+            caption = paste("Results for entire RutiSeq database))
+```
+
+:::
+
+---
+
+## MTBC Lineages
+
+```{r}
+
+```
+
+
+::: {.panel-tabset}
+
+### L1
+
+```{r}
+
+```
+
+### L2
+
+```{r}
+
+```
+
+### L3
+
+```{r}
+
+```
+
+### L4
+
+```{r}
+
+```
+
+### L5
+
+```{r}
+
+```
+
+### L6
+```{r}
+
+```
+
+:::
+
+
+
+---
+
+## Phylogeny
+
+::: {.panel-tabset}
+
+### L1
+
+```{r}
+rdata <- load(paste0(report_dir,"//lineage1.contree.Rdata")
+
+```
+
+### L2
+
+```{r}
+
+```
+
+### L3
+
+```{r}
+
+```
+
+### L4
+
+```{r}
+
+```
+
+### L5
+
+```{r}
+
+```
+
+### L6
+```{r}
+
+```
+
+:::
+
+---
+
+## Clusters
+
+> ⚠️ Note: Cluster identities are not preserved across runs. For accurate interpretation, avoid comparing cluster IDs between different reports.
+
+
+
+---
+
+## Cluster Growth
