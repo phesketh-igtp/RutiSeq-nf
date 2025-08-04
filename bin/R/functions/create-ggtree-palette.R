@@ -1,4 +1,4 @@
-create_tree_palette <- function(input, lin){
+create_tree_palette <- function(input, lin) {
 
   df <- input |>
     dplyr::count(merged_clusterID) |> # count unique superclusters
@@ -21,8 +21,8 @@ create_tree_palette <- function(input, lin){
   component_mapping_df <- input |>
     dplyr::select(!Tip_lable) |>
     tidyr::pivot_longer(cols = starts_with("t"),
-                 names_to = "distance",
-                 values_to = "component") |>
+                        names_to = "distance",
+                        values_to = "component") |>
     left_join(supercluster_palette, by = "merged_clusterID")
 
   # Prioritize the color of the largest supercluster for each

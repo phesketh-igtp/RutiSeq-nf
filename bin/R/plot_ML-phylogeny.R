@@ -241,6 +241,10 @@ p2.L <-     gheatmap(tree.p.c, tree.clusters.df,
 #··············································································#
 #··············································································#
 
+#·············· Export RData for using in later plots ··············#
+
+save.image(file = paste0(lineageID,".contree.Rdata"))
+
 #·············· Export trees ··············#
 
 pdf(file = paste0(lineageID,"_ML.contree.pdf"))
@@ -250,6 +254,3 @@ p2
 p2.L
 dev.off()
 
-#·············· Export RData for using in later plots ··············#
-
-save.image(file = paste0(lineageID,".contree.Rdata"))
