@@ -21,7 +21,6 @@ params:
   #samplesheet: "default_samplesheet"
 ---
 
-
 ```{r setup, include=FALSE}
 
 # Load required libraries
