@@ -247,13 +247,11 @@ In terms of antibiotic resistance, **`r paste(sensitive_counts)` isolates were S
 ::: {.panel-tabset}
 
 #### Main lineages
-
 ```{r}
 plot_ly(lineage_counts_df, labels = ~lineage, values = ~counts, type = 'pie')
 ```
 
 #### Sub-lineages
-
 ```{r}
 plot_ly(
   data = sublineage_counts,
@@ -271,7 +269,6 @@ plot_ly(
 ```
 
 #### Resistance profiles (WHO)
-
 ```{r}
 plot_ly(
   data = resistance_counts_df,
@@ -289,9 +286,7 @@ plot_ly(
 ```
 
 #### Failed QC
-
-If this table is empty, then great! All your new samples passed the quality metrics defined when you ran the RutiSeq workflow.
-
+If this table is empty, then great! All your new samples passed the quality metrics defined when you ran the RutiSeq workflow. Any failed variables will be colored in red.
 ```{r}
 # Build datatable with conditional formatting
 DT::datatable(
@@ -317,12 +312,53 @@ DT::datatable(
   )
 ```
 
-
 #### Read taxonomy
 
 ´Sylph´ is used to taxonomically classify the WGS reads from each isolate. Highlighted here is the taxnomic ompistion of the WGS reads, highlighting potentially contaminating samples that should be investigated more closely.
 ```{r}
 
+```
+
+#### SNP freq (main)
+This tab features a ridge plot displaying multiple histograms that show the number of SNP variations identified between isolates belonging to each lineage and the reference genome (H37Rv). For clarity, isolate identified as a mixed infection have been removed.
+
+```{r}
+snp_freq <- new_samples_df |> 
+    filter(`Infection type` != "Mixed") |>
+    select(lineage = `Main lineage`, nSNPs)
+ggplot(snp_freq, 
+        aes(x = nSNPs, 
+            y = lineage, 
+            fill = lineage)) +
+        ggridges::geom_density_ridges() +
+        ggridges::theme_ridges() + 
+        theme(legend.position = "none") +
+    ggthemes::scale_fill_colorblind() +
+    labs(x = "No. SNPs", y = "Lineage")
+```
+
+#### SNP freq (sub)
+This tab features a ridge plot displaying multiple histograms that show the number of SNP variations identified between isolates belonging to each lineage and the reference genome (H37Rv). For clarity, isolate identified as a mixed infection have been removed.
+
+```{r}
+snp_freq <- new_samples_df |> 
+    filter(`Infection type` != "Mixed") |>
+    select(lineage = `Sub-lineage`, nSNPs) |>
+    mutate(lineage = sapply(str_split(lineage, "\\."), function(parts) {
+      if (length(parts) >= 2) {
+        paste(parts[1], parts[2], sep = ".")
+      } else {
+        parts[1]
+      }
+    }))
+
+ggplot(snp_freq, 
+        aes(x = nSNPs, 
+            y = lineage)) +
+        ggridges::geom_density_ridges() +
+        ggridges::theme_ridges() + 
+        theme(legend.position = "none") +
+    labs(x = "No. SNPs", y = "Sub-lineage")
 ```
 
 :::
@@ -445,6 +481,53 @@ DT::datatable(
   )
 ```
 
+#### SNP freq (main)
+This tab features a ridge plot displaying multiple histograms that show the number of SNP variations identified between isolates belonging to each lineage and the reference genome (H37Rv). For clarity, isolate identified as a mixed infection have been removed.
+
+```{r}
+snp_freq <- analysisSummary_df |> 
+    filter(`Infection type` != "Mixed") |>
+    select(lineage = `Main lineage`, nSNPs)
+ggplot(snp_freq, 
+        aes(x = nSNPs, 
+            y = lineage, 
+            )
+          ) +
+        ggridges::geom_density_ridges(alpha=0.6, 
+                                      #stat="binline", 
+                                      bins=100) +
+        ggridges::theme_ridges() + 
+        theme(legend.position = "none") +
+    labs(x = "No. SNPs", y = "Lineage")
+```
+
+
+#### SNP freq (sub)
+This tab features a ridge plot displaying multiple histograms that show the number of SNP variations identified between isolates belonging to each lineage and the reference genome (H37Rv). For clarity, isolate identified as a mixed infection have been removed.
+
+```{r}
+snp_freq <- analysisSummary_df |> 
+  filter(`Infection type` != "Mixed") |>
+  select(lineage = `Sub-lineage`, nSNPs) |>
+  mutate(lineage = sapply(str_split(lineage, "\\."), function(parts) {
+    if (length(parts) >= 2) {
+      paste(parts[1], parts[2], sep = ".")
+    } else {
+      parts[1]
+    }
+  }))
+
+ggplot(snp_freq, 
+        aes(x = nSNPs, 
+            y = lineage)) +
+        ggridges::geom_density_ridges(alpha=0.6, 
+                                      #stat="binline", 
+                                      bins=100) +
+        ggridges::theme_ridges() + 
+        theme(legend.position = "none") +
+    labs(x = "No. SNPs", y = "Sub-lineage")
+```
+
 :::
 
 ## Outbreak Clusters
@@ -505,13 +588,6 @@ This section presents the outbreak clusters identified using SNP threshold clust
 
 ::: {.panel-tabset}
 
-### Table of clusters
-
-```{r}
-# Render interactive table
-DT::datatable(cluster_table, options = list(pageLength = 10, autoWidth = TRUE), filter = 'top')
-```
-
 ### Clusters (timeseries)
 
 In this tab, a time series of clusters and their growth is displayed in the scatterplot. Use the slider to visualize the expansion of clusters over time. Each data point represents an outbreak cluster, colored by its lineage.
@@ -537,3 +613,10 @@ In this tab, new clusters identified from the most recent analysis are presented
 ```
 
 :::
+
+### Table of clusters
+
+```{r}
+# Render interactive table
+DT::datatable(cluster_table, options = list(pageLength = 10, autoWidth = TRUE), filter = 'top')
+```
