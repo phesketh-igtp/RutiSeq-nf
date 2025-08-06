@@ -482,7 +482,7 @@ DT::datatable(
 ```
 
 #### SNP freq (main)
-This tab features a ridge plot displaying multiple histograms that show the number of SNP variations identified between isolates belonging to each lineage and the reference genome (H37Rv). For clarity, isolate identified as a mixed infection have been removed.
+This tab features a ridge plot displaying multiple histograms that show the number of SNP variations identified between isolates belonging to each lineage and the reference genome (H37Rv). For clarity, isolate identified as a mixed infection have been removed. This is of value to understand the overall SNP frequencies of your dataset, and can be used to help identify samples that have suspicoiusly high or low number of SNPs (this can sometimes indicate there is something unusualy about the isolate - which can in turn cause issues with clustering)
 
 ```{r}
 snp_freq <- analysisSummary_df |> 
@@ -503,7 +503,7 @@ ggplot(snp_freq,
 
 
 #### SNP freq (sub)
-This tab features a ridge plot displaying multiple histograms that show the number of SNP variations identified between isolates belonging to each lineage and the reference genome (H37Rv). For clarity, isolate identified as a mixed infection have been removed.
+This tab features a ridge plot displaying multiple histograms that show the number of SNP variations identified between isolates belonging to each sub-lineage and the reference genome (H37Rv). For clarity, isolate identified as a mixed infection have been removed. This is of value to understand the overall SNP frequencies of your dataset, and can be used to help identify samples that have suspicoiusly high or low number of SNPs (this can sometimes indicate there is something unusualy about the isolate - which can in turn cause issues with clustering)
 
 ```{r}
 snp_freq <- analysisSummary_df |> 
