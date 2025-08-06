@@ -1,169 +1,540 @@
 ---
 title: "RutiSeq Report"
-format: html
+date: today
+format: 
+  html:
+    self-contained: true
+    theme: cerulean
+    toc: true
+    toc-depth: 3        # Levels of headers to include
+    toc-location: right  # Can be "left", "right", or "inline"
 execute:
-    echo: false
-    warning: false
-    message: false
+  echo: false
+  warning: false
+  message: false
+params:
+  #runID: "default_run"
+  #analysisSummary: "default_file.analysisSummary"
+  #processedClusters: "default_processedClusters"
+  #whoResistance: "default_whoResistance"
+  #tbdbResistance: "default_tbdbResistance"
+  #samplesheet: "default_samplesheet"
 ---
 
-# RutiSeq Report — Run ID: `r run_id`
 
 ```{r setup, include=FALSE}
+
 # Load required libraries
 library(readr)
 library(dplyr)
 library(ggplot2)
 library(plotly)
 library(DT)
+library(lubridate)
+library(tidyverse)
 
 # Read environment variables
-run_id         <- Sys.getenv("runID")
-summary_file   <- Sys.getenv("analysisSummary")
-cluster_file   <- Sys.getenv("processedClusters")
-who_file       <- Sys.getenv("whoResistance")
-tbdb_file      <- Sys.getenv("tbdbResistance")
-report_dir     <- Sys.getenv("reportDir")
+#runID             <- params$runID
+#analysisSummary   <- params$analysisSummary
+#processedClusters <- params$processedClusters
+#whoResistance     <- params$whoResistance
+#tbdbResistance    <- params$tbdbResistance
+#samplesheet       <- params$samplesheet
+#minCov            <- params$minCov
+#minCovPerc        <- params$minCovPerc
+#minReads          <- params$minReads
 
 # Load datasets
-summary_data   <- read_tsv(summary_file)
-clusters_data  <- read_tsv(cluster_file)
-who_data       <- read_tsv(who_file)
-tbdb_data      <- read_tsv(tbdb_file)
+#analysisSummary_df   <- read_tsv(analysisSummary)
+#processedClusters_df <- read_tsv(processedClusters)
+#whoResistance_df     <- read_tsv(whoResistance)
+#tbdbResistance_df    <- read_tsv(tbdbResistance)
+#samplesheet_df       <- read_tsv(samplesheet)
+
+runID <- "test"
+minCov <- 50
+minCovPerc <- 0.95
+minReads <- 500000
+new_samples          <- read_tsv("/home/phesketh/Downloads/R013_20250728/tables/samplesheet.csv") |> select(Sample=sampleID)
+analysisSummary_df   <- read_tsv("/home/phesketh/Downloads/R013_20250728/tables/sequencingSummary.tsv")
+tbdbResistance_df    <- read_tsv("/home/phesketh/Downloads/R013_20250728/tables/tbdbResistance.tsv")
+whoResistance_df     <- read_tsv("/home/phesketh/Downloads/R013_20250728/tables/whoResistance.tsv")
+processedClusters_df <- read_tsv("/home/phesketh/Downloads/R013_20250728/tables/clusters.tsv")
+metadata_df          <- read_tsv("/home/phesketh/Downloads/R013_20250728/tables/metadata.tsv")
+
+# Extract and sort t= column names numerically
+t_cols <- names(processedClusters_df)[grepl("^t=", names(processedClusters_df))]
+t_cols_sorted <- t_cols[order(as.numeric(gsub("t.", "", t_cols)))]
 ```
 
 ---
 
-# RutiSeq Report — Run ID: `r run_id`
+## Analysis Parameters
 
-Cases - **Number of cases in `r run_id`:** `r run_id` |  **Total cases in RutiSeq-db:** `r run_id`
-Dates - **Most recent case:** `r run_id` | **Oldest case:** `r run_id`
+| **Category** | Value | 
+|-------------------------------|-----------------|
+| **Run ID** | `r paste(runID)` |
+| **Total genomes** | `r nrow(analysisSummary_df)` | 
+| **Total new cases** | `r nrow(new_samples)` | 
+| **SNP distance thresholds** | `r paste(t_cols_sorted, collapse = ", ")` (*default: 5, 10, 15*) |
+| **Minimum Coverage (depth):** | `r paste(minCov, "X")` (*default: 50 X*) |
+| **Minimum Coverage (deadth):** | `r paste(100*minCovPerc, "%")` (*default: 95 %*) |
+| **Minimum Reads:** | `r paste(format(minReads, big.mark = ",", scientific = FALSE))` (*default: 500,000*) |
 
+---
 ---
 
 ## Database Summary
 
-::: {.panel-tabset}
+This section summarizes the entire RutiSeq-db collection along with the most recently analyzed cases. It provides an overview of the lineages of the cases, resistance profiles, and identifies any isolates that failed to meet the minimum quality metrics. These failed isolates have been excluded from the clustering analysis.
 
-### `r run_id`
+### Sequencing summary
 
 ```{r}
-# This table shows results only for the current run
-datatable(summary_data %>% filter(run_id == run_id), 
-            caption = paste("Results for run:", run_id))
+## WGS libraries read totals
+library_reads <- analysisSummary_df |> select(Library, `Total Reads`)
+  newest_libraries <- analysisSummary_df |> 
+                        filter(Sample %in% new_samples$Sample) |> 
+                        select(Library) |> unique()
+newest_libraries_vec <- newest_libraries$Library
+
+## Cases over time
+analysisSummary_df <- left_join(analysisSummary_df, metadata_df, by = c("Sample" = "sampleID"))
+
+cases_over_time <- analysisSummary_df |>
+  mutate(
+    date = as.Date(date),
+    MonthYear = format(date, "%m-%y")
+  ) |>
+  select(MonthYear, lineage = `Main lineage`) |>
+  count(MonthYear, lineage, name = "n") |>  # <-- FIXED LINE
+  mutate(
+    MonthYearDate = as.Date(paste0("01-", MonthYear), format = "%d-%m-%y")
+  ) |>
+  arrange(lineage, MonthYearDate) |>  # Arrange by lineage for proper cumsum
+  group_by(lineage) |>                # Group by lineage for per-lineage cumsum
+  mutate(cumulative_cases = cumsum(n)) |>
+  ungroup()
 ```
 
-### `RutiSeq-db`
+In this section the raw sequence data is summarised with respect to current and past sequencing libraries. 
+
+::: {.panel-tabset}
+
+#### WGS
+
+In this tab the total number of WGS reads are summarised by libraries. The newest libraries are colored in red.
+
 ```{r}
-# This table shows results only for the current run
-datatable(summary_data %>% filter(run_id == run_id), 
-            caption = paste("Results for entire RutiSeq database))
+# Create the initial empty plot
+fig <- plot_ly()
+
+# Loop over unique libraries to add individual box traces
+for (lib in unique(library_reads$Library)) {
+  color <- if (lib %in% newest_libraries_vec) 'red' else 'gray'
+  
+  fig <- fig |>
+    add_trace(
+      data = filter(library_reads, Library == lib),
+      x = ~Library,
+      y = ~`Total Reads`,
+      type = 'box',
+      name = lib,
+      marker = list(color = color),
+      line = list(color = color),
+      fillcolor = color
+    )
+}
+
+# Optional layout formatting
+fig <- fig |> layout(
+  title = "Total Reads by Library",
+  yaxis = list(title = "Total Reads"),
+  xaxis = list(title = "Library")
+)
+
+fig
+```
+
+#### Cases over time
+
+```{r}
+plot_ly(
+  data  = cases_over_time,
+  x     = ~MonthYearDate,
+  y     = ~n,
+  color = ~lineage,
+  type  = 'scatter',
+  mode  = 'lines+markers'
+) |>
+  layout(
+    title = "Cases Over Time",
+    xaxis = list(title = "Month-Year"),
+    yaxis = list(title = "Number of Cases"),
+    showlegend = TRUE  # usually helpful to keep legend when coloring by lineage
+  )
+```
+
+#### Cumilative cases
+
+```{r}
+plot_ly(
+  data  = cases_over_time,
+  x     = ~MonthYearDate,
+  y     = ~cumulative_cases,
+  color = ~lineage,
+  type  = 'scatter',
+  mode  = 'lines+markers'
+) |>
+  layout(
+    title = "Cases Over Time (Cumilative)",
+    xaxis = list(title = "Month-Year"),
+    yaxis = list(title = "Number of Cases"),
+    showlegend = TRUE
+  )
+```
+
+
+:::
+
+### Newest cases: `r runID`
+
+```{r}
+# Main lineages
+new_samples_df <- analysisSummary_df |> filter(Sample %in% new_samples$Sample)
+
+lineage_counts <- new_samples_df |> 
+  count(`Main lineage`) |> 
+  select(lineage = `Main lineage`, counts = n)
+lineage_counts_df <- as.data.frame(lineage_counts)
+rownames(lineage_counts_df) <- lineage_counts_df$lineage
+
+# Sub lineages
+sublineage_counts <- new_samples_df |> 
+  count(`Main lineage`, `Sub-lineage`) |> 
+  select(lineage = `Main lineage`, sublineage = `Sub-lineage`, counts = n)
+
+# Resistance profiles (WHO)
+new_samples_df <- left_join(new_samples_df, tbdbResistance_df, by = c("Sample" = "sample"))
+resistance_counts_df <- new_samples_df |> count(lineage = `Main lineage`, DRT = `DR type (WHO)`)
+
+# Sample QC
+failed_samples_df <- new_samples_df |>
+                      mutate(
+                            `Unambiguous Total Bases (%)` = as.numeric(gsub(",", ".", `Unambiguous Total Bases (%)`)),
+                            `Total Reads` = as.numeric(`Total Reads`),
+                            `Unambiguous Coverage median` = as.numeric(`Unambiguous Coverage median`)) |> 
+                      filter(
+                            `Unambiguous Total Bases (%)` < minCovPerc |
+                            `Total Reads` < minReads |
+                            `Unambiguous Coverage median` < minCov |
+                            `Infection type` == "Mixed") |>
+                      select(Sample, `Total Reads`, `Unambiguous Total Bases (%)`, `Unambiguous Coverage median`,
+                      `Infection type`, `Lineages (fractions)`)
+
+# number of mixed infections
+mixed_infections  <- new_samples_df |> filter(`Infection type` == "Mixed") |> nrow()
+sensitive_counts  <- new_samples_df |> filter(`DR type (WHO)` == "Sensitive") |> nrow()
+resistance_counts <- new_samples_df |> filter(`DR type (WHO)` != "Sensitive") |> nrow()
+```
+
+This section provides a summary of the newest cases. There were **`r nrow(new_samples_df)` new cases
+**, representing **`r nrow(lineage_counts)`** distinct lineages.
+
+**`r nrow(failed_samples_df)` genome(s) failed the minimum quality criteria** (see parameters above) and should be reviewed, and **`r paste(mixed_infections)` genomes were identified as mixed infection(s)** (i.e., containing multiple lineages). These are highlighted in the Sample QC tab.
+
+In terms of antibiotic resistance, **`r paste(sensitive_counts)` isolates were Sensitive**, while **`r paste(resistance_counts)` were Resistant**. Resistant isolates are summarised in the Resistance profiles (WHO) tab.
+
+::: {.panel-tabset}
+
+#### Main lineages
+
+```{r}
+plot_ly(lineage_counts_df, labels = ~lineage, values = ~counts, type = 'pie')
+```
+
+#### Sub-lineages
+
+```{r}
+plot_ly(
+  data = sublineage_counts,
+  x = ~lineage,
+  y = ~counts,
+  color = ~sublineage,
+  type = 'bar'
+) |>
+  layout(
+    barmode = 'stack',
+    xaxis = list(title = "Lineage"),
+    yaxis = list(title = "Counts"),
+    legend = list(title = list(text = "Sublineage"))
+  )
+```
+
+#### Resistance profiles (WHO)
+
+```{r}
+plot_ly(
+  data = resistance_counts_df,
+  x = ~DRT,
+  y = ~n,
+  color = ~lineage,
+  type = 'bar'
+) |>
+  layout(
+    barmode = 'stack',
+    xaxis = list(title = "Drug Resistance Type (WHO)"),
+    yaxis = list(title = "Counts"),
+    legend = list(title = list(text = "Lineage"))
+  )
+```
+
+#### Failed QC
+
+If this table is empty, then great! All your new samples passed the quality metrics defined when you ran the RutiSeq workflow.
+
+```{r}
+# Build datatable with conditional formatting
+DT::datatable(
+  failed_samples_df,
+  options = list(pageLength = 10, autoWidth = TRUE),
+  filter = 'top'
+  ) |>
+  formatStyle(
+    'Total Reads',
+    color = styleInterval(minReads, c('red', 'black'))
+  ) |>
+  formatStyle(
+    'Unambiguous Total Bases (%)',
+    color = styleInterval(minCovPerc, c('red', 'black'))
+  ) |>
+  formatStyle(
+    'Unambiguous Coverage median',
+    color = styleInterval(minCov, c('red', 'black'))
+  ) |>
+  formatStyle(
+    'Infection type',
+    color = styleEqual("Mixed", "red")
+  )
+```
+
+
+#### Read taxonomy
+
+´Sylph´ is used to taxonomically classify the WGS reads from each isolate. Highlighted here is the taxnomic ompistion of the WGS reads, highlighting potentially contaminating samples that should be investigated more closely.
+```{r}
+
 ```
 
 :::
 
----
-
-## MTBC Lineages
+### RutiSeq-db
 
 ```{r}
+# Main lineages
+lineage_counts <- analysisSummary_df |> 
+  count(`Main lineage`) |> 
+  select(lineage = `Main lineage`, counts = n)
+lineage_counts_df <- as.data.frame(lineage_counts)
+rownames(lineage_counts_df) <- lineage_counts_df$lineage
 
+# Sub lineages
+sublineage_counts <- analysisSummary_df |> 
+  count(`Main lineage`, `Sub-lineage`) |> 
+  select(lineage = `Main lineage`, sublineage = `Sub-lineage`, counts = n)
+
+# Resistance profiles (WHO)
+analysisSummary_df <- left_join(analysisSummary_df, tbdbResistance_df, by = c("Sample" = "sample"))
+resistance_counts_df <- analysisSummary_df |> count(lineage = `Main lineage`, DRT = `DR type (WHO)`)
+
+## Sample QC tables
+failed_samples_df <- analysisSummary_df |>
+                      mutate(
+                            `Unambiguous Total Bases (%)` = as.numeric(gsub(",", ".", `Unambiguous Total Bases (%)`)),
+                            `Total Reads` = as.numeric(`Total Reads`),
+                            `Unambiguous Coverage median` = as.numeric(`Unambiguous Coverage median`)) |> 
+                      filter(
+                            `Unambiguous Total Bases (%)` < minCovPerc |
+                            `Total Reads` < minReads |
+                            `Unambiguous Coverage median` < minCov |
+                            `Infection type` == "Mixed") |>
+                      select(Sample, `Total Reads`, `Unambiguous Total Bases (%)`, `Unambiguous Coverage median`,
+                      `Infection type`, `Lineages (fractions)`)
+
+# number of mixed infections
+mixed_infections  <- analysisSummary_df |> filter(`Infection type` == "Mixed") |> nrow()
+sensitive_counts  <- analysisSummary_df |> filter(`DR type (WHO)` == "Sensitive") |> nrow()
+resistance_counts <- analysisSummary_df |> filter(`DR type (WHO)` != "Sensitive") |> nrow()
 ```
 
+This section provides a summary of the entire database, including the most recent additions. The database currently contains **`r nrow(analysisSummary_df)` samples**, representing **`r nrow(lineage_counts)`** distinct lineages.
+
+**`r nrow(failed_samples_df)` genome(s) failed the minimum quality criteria** (see parameters above) and should be reviewed, and **`r paste(mixed_infections)` genomes were identified as mixed infection(s)** (i.e., containing multiple lineages). These are highlighted in the Sample QC tab.
+
+In terms of antibiotic resistance, **`r paste(sensitive_counts)` isolates were Sensitive**, while **`r paste(resistance_counts)` were Resistant**. Resistant isolates are summarised in the Resistance profiles (WHO) tab.
 
 ::: {.panel-tabset}
 
-### L1
+#### Main lineages
+
+```{r}
+plot_ly(lineage_counts_df, labels = ~lineage, values = ~counts, type = 'pie')
+```
+
+#### Sub-lineages
+
+```{r}
+plot_ly(
+  data = sublineage_counts,
+  x = ~lineage,
+  y = ~counts,
+  color = ~sublineage,
+  type = 'bar'
+) |>
+  layout(
+    barmode = 'stack',
+    xaxis = list(title = "Lineage"),
+    yaxis = list(title = "Counts"),
+    legend = list(title = list(text = "Sublineage"))
+  )
+```
+
+#### Resistance profiles (WHO)
+
+```{r}
+plot_ly(
+  data = resistance_counts_df,
+  x = ~DRT,
+  y = ~n,
+  color = ~lineage,
+  type = 'bar'
+) |>
+  layout(
+    barmode = 'stack',
+    xaxis = list(title = "Drug Resistance Type (WHO)"),
+    yaxis = list(title = "Counts"),
+    legend = list(title = list(text = "Lineage"))
+  )
+```
+
+#### Sample QC
+
+If this table is empty, then great! All your new samples passed the quality metrics defined when you ran the RutiSeq workflow. Any failed variables will be colored in red.
+
+```{r}
+# Build datatable with conditional formatting
+DT::datatable(
+  failed_samples_df,
+  options = list(pageLength = 10, autoWidth = TRUE),
+  filter = 'top'
+  ) |>
+  formatStyle(
+    'Total Reads',
+    color = styleInterval(minReads, c('red', 'black'))
+  ) |>
+  formatStyle(
+    'Unambiguous Total Bases (%)',
+    color = styleInterval(minCovPerc, c('red', 'black'))
+  ) |>
+  formatStyle(
+    'Unambiguous Coverage median',
+    color = styleInterval(minCov, c('red', 'black'))
+  ) |>
+  formatStyle(
+    'Infection type',
+    color = styleEqual("Mixed", "red")
+  )
+```
+
+:::
+
+## Outbreak Clusters
+
+```{r}
+## Table of processedClusters_df# Reorder the full data frame
+cluster_table <- processedClusters_df |>
+  select(SampleID, lineage, all_of(t_cols_sorted))
+
+## Clusters by lineage
+cluster_table_long <- cluster_table |> 
+  pivot_longer(cols = all_of(t_cols_sorted),
+                names_to = "threshold",
+                values_to = "clusterID")
+
+cluster_table_long_counts <- cluster_table_long |> 
+  select(lineage, threshold, clusterID) |>
+  distinct() |>
+  count(lineage, threshold)
+
+# Example data frame (replace with your actual cluster data)
+cluster_table_meta_df <- left_join(processedClusters_df, metadata_df, 
+                                  by = c("SampleID" = "sampleID"))
+# Sample data (replace this with your real data)
+cluster_table_meta_timeseries <- 
+  cluster_table_meta_df |>
+  pivot_longer(
+    cols = all_of(t_cols_sorted),
+    names_to = "threshold",
+    values_to = "clusterID"
+  ) |>
+  select(lineage, date, threshold, clusterID) |>
+  mutate(date = as.Date(date)) |>
+  filter(!is.na(clusterID)) |>
+  mutate(month = floor_date(date, "month"))  # convert to month
+
+# Calculate cumulative counts over time per clusterID and threshold
+cumulative_counts_monthly <- cluster_table_meta_timeseries |>
+  group_by(threshold, clusterID, lineage, month) |>
+  summarise(count = n(), .groups = "drop") |>
+  arrange(threshold, clusterID, month) |>
+  group_by(threshold, clusterID, lineage) |>
+  mutate(cumulative_count = cumsum(count)) |>
+  ungroup()
+
+## Newest clusters 
+new_samples_clusterID <- cluster_table_long |> 
+    filter(SampleID %in% new_samples$Sample) |> 
+    select(clusterID)
+
+cluster_table_long_new <- cluster_table_long |> 
+    filter(clusterID %in% new_samples_clusterID$clusterID)
+```
+
+This section presents the outbreak clusters identified using SNP threshold clustering, based on the defined thresholds (`r paste(t_cols_sorted, collapse = ", ")`). Cluster identifiers follow the format: `Cluster number`**–**`SNP distance`**–**`Lineage`.
+
+> ⚠️ Cluster identifiers are not preserved across analyses. For accurate interpretation, avoid comparing cluster IDs between different reports. If consistency is required, consider exporting the cluster assignments and creating your own internal naming convention, or updating the cluster files to remain consistent with past cluster identifies. This feature may change in the future, but there are currently no plans to implement persistent clusterIDs.
+
+::: {.panel-tabset}
+
+### Table of clusters
+
+```{r}
+# Render interactive table
+DT::datatable(cluster_table, options = list(pageLength = 10, autoWidth = TRUE), filter = 'top')
+```
+
+### Clusters (timeseries)
+
+In this tab, a time series of clusters and their growth is displayed in the scatterplot. Use the slider to visualize the expansion of clusters over time. Each data point represents an outbreak cluster, colored by its lineage.
 
 ```{r}
 
 ```
 
-### L2
+### Growing clusters
+
+In this tab, clusters identified within the RutiSeq-db that have grown with the addition of new cases are highlighted.
 
 ```{r}
 
 ```
 
-### L3
+### New clusters
 
-```{r}
+In this tab, new clusters identified from the most recent analysis are presented. Each cluster is summarized by the number of isolates, resistance profiles, and the identities of the isolates within the cluster.
 
-```
-
-### L4
-
-```{r}
-
-```
-
-### L5
-
-```{r}
-
-```
-
-### L6
 ```{r}
 
 ```
 
 :::
-
-
-
----
-
-## Phylogeny
-
-::: {.panel-tabset}
-
-### L1
-
-```{r}
-rdata <- load(paste0(report_dir,"//lineage1.contree.Rdata")
-
-```
-
-### L2
-
-```{r}
-
-```
-
-### L3
-
-```{r}
-
-```
-
-### L4
-
-```{r}
-
-```
-
-### L5
-
-```{r}
-
-```
-
-### L6
-```{r}
-
-```
-
-:::
-
----
-
-## Clusters
-
-> ⚠️ Note: Cluster identities are not preserved across runs. For accurate interpretation, avoid comparing cluster IDs between different reports.
-
-
-
----
-
-## Cluster Growth

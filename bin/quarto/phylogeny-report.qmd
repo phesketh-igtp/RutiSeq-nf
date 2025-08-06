@@ -1,0 +1,143 @@
+---
+title: "Interactive Phylogeny"
+date: today
+format: 
+  html:
+    self-contained: true
+    theme: cerulean
+execute:
+  echo: false
+  warning: false
+  message: false
+params:
+  runID: "default_run"
+  lineage: "default_lineage"
+  RData: "default_file.Rdata"
+---
+## Introduction
+
+Below are interactive maximum-likelihood phylogenies rooted on MTBC_anc ([Comas *et al*., 2013](https://pubmed.ncbi.nlm.nih.gov/23995134/)), with tips colored according to cluster assignments at specified SNP distance thresholds. An interactive table is also included, listing all identified clusters and their corresponding cluster IDs to assist in locating specific isolates.
+
+Use this HTML report to visually inspect clusters—identify non-monophyletic groups or any potentially spurious clusters that may warrant further investigation or subdivision.
+
+> ℹ️ You can interact with the plots by zooming and panning, which is particularly useful for exploring larger phylogenies. Use the legend to selectively display clusters of interest or to toggle tip labels on and off.
+> 
+> ℹ️ At the bottom of the plot legend, you’ll find a category labeled Aa trace. This controls the display of isolate names on the phylogeny. You can toggle it on or off to enhance readability or to anonymize the plot when needed.
+
+
+```{r}
+#| echo: false
+
+library(ggtree)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+
+# Read environment variables
+runID             <- params$runID
+Rdata_file        <- params$RData
+lineage_selection <- params$lineage
+lineage           <- lineage_selection
+
+#load(Rdata_file)  # loads tree_rooted and possibly other objects
+load(Rdata_file)
+
+# Build base tree with labels
+i_tree <- ggtree(tree_rooted)
+
+# Join metadata - update this if lineage-specific metadata needed
+metat <- i_tree$data |>
+    dplyr::inner_join(tree.clusters, by = c("label" = "SampleID"))
+
+# Function to load data per lineage and plot data
+interactive_tree <- function(threshold) {
+
+    p <- i_tree +
+    geom_point(data = metat |> filter(!is.na(.data[[threshold]])),
+                aes(x = x, y = y, 
+                    colour = .data[[threshold]], 
+                    label = label)) +
+    ggtitle(paste('SNP threshold:', threshold))
+
+    plotly::ggplotly(p, height = 1000, width = 700) |>
+        plotly::add_text(data = metat$data[metat$data$isTip, ],  x = ~x,  y = ~y,  
+                        text = ~label,
+                        textposition = 'right'
+                        )
+
+}
+```
+
+```{r}
+#| echo: false
+#| warning: true
+
+# Extract and sort t= column names numerically
+t_cols <- names(metat)[grepl("^t.", names(metat))]
+t_cols_sorted <- t_cols[order(as.numeric(gsub("t.", "", t_cols)))]
+t_cols_pretty <- gsub("^t\\.", "t=", t_cols_sorted)
+
+tmp.dat <- i_tree$data
+total_genomes <- tmp.dat |> select(label) |> unique() |> nrow()
+```
+
+## Summary
+
+| **Category**                | Value                                      |
+|-----------------------------|--------------------------------------------|
+| **Run ID**                  | `r runID`                                  |
+| **Lineage **                | `r lineage`                                |
+| **Total genomes**           | `r total_genomes`                          |
+| **SNP distance thresholds** | `r paste(t_cols_pretty, collapse = ", ")`  |
+
+## Interactive phylogeny
+
+::: {.panel-tabset}
+
+### t=5
+```{r}
+#| echo: false
+interactive_tree(threshold = "t.5")
+```
+
+### t=10
+```{r}
+#| echo: false
+interactive_tree(threshold = "t.10")
+```
+
+### t=15
+```{r}
+#| echo: false
+interactive_tree(threshold = "t.15")
+```
+
+:::
+
+---
+
+## Clusters
+
+Use this interactive table to identify the clusterIDs for a particular isolate of interest. Empty cells indicate that the genome was a singleton at that clustering threshold.
+
+
+## Cluster Table
+
+```{r}
+# Reorder the full data frame
+table <- metat %>%
+  select(SampleID = label, lineage, all_of(t_cols_sorted)) |>
+  filter(SampleID != "H37Rv") |>
+  filter(SampleID != "MTB_anc")
+
+library(DT)
+
+# Example data frame (replace with your actual cluster data)
+# Render interactive table
+datatable(table, options = list(pageLength = 10, autoWidth = TRUE), filter = 'top')
+```
+
+
+---
+
+
