@@ -126,3 +126,117 @@ outgroups <- c("MTB_anc", "H37Rv")
 #·············· Export RData for using in later plots ··············#
 
 save.image(file = paste0(lineageID, ".contree.Rdata"))
+
+#·············· Export RData for using in later plots ··············#
+
+# Rectangular trees
+
+# Plot base trees - rectangular and circular
+tree.p.r <- ggtree(tree_rooted, linewidth=0.5,
+                layout = "rectangular"
+                ) %<+% 
+            tree.clusters +
+            geom_tiplab(aes(label=Tip_lable,
+                color = label %in% outgroups),
+                size = 2.5, align = TRUE
+                ) +
+            scale_color_manual(values=c("#000000", "#FF0000")
+            )
+
+p1 <-   gheatmap(tree.p.r, tree.clusters.df,
+                offset = 0.1,
+                width = 1,
+                colnames_angle = 0,
+                colnames_offset_y = -0.8,
+                font.size = 2,
+                color = "#3a3a3a"
+                ) +
+        scale_fill_manual(values = color_palette,
+                na.value = "white", 
+                name = "Unique\nclusterID\n(with lineage)"
+                ) + 
+        ggtitle(paste0("IQ-Tree ML Phylogeny | ", lineageID)
+        ) +
+        theme(legend.position = "none"
+        )
+
+# Add the cluster informations
+p1.L <-     gheatmap(tree.p.r, tree.clusters.df,
+                    offset = 0.1, 
+                    width = 1,
+                    colnames_angle = 0, 
+                    colnames_offset_y = -0.8,
+                    font.size = 2, 
+                    color = "#3a3a3a"
+                    ) +
+            scale_fill_manual(values = color_palette,
+                    na.value = "white", 
+                    name = "Unique\nclusterID\n(with lineage)"
+                    ) +
+            ggtitle(paste0("IQ-Tree ML Phylogeny | ", lineageID)
+            ) +
+            theme(legend.position = "bottom", 
+                    legend.title = element_text(size = 4),
+                    legend.text=element_text(size=4),
+                    legend.key.size = unit(0.1, "cm")
+                    ) +
+            guides(fill = guide_legend(ncol = 10)
+            )
+
+# Circular (dendrogram) trees
+tree.p.c <- ggtree(tree_rooted,
+                linewidth=0.1,
+                layout = "circular",
+                branch.length = 'none'
+                ) %<+%
+            tree.clusters +
+            geom_tiplab(aes(label=Tip_lable,
+                color = label %in% outgroups),
+                size = 2.5, align = TRUE
+                ) +
+            scale_color_manual(values=c("#000000", "#FF0000")
+            )
+
+p2 <-       gheatmap(tree.p.c, tree.clusters.df, 
+                offset = 10, 
+                width = 0.3,
+                colnames_angle = 45, 
+                colnames_offset_y = -0.8,
+                font.size = 5, 
+                color = "#3a3a3a"
+                ) +
+            scale_fill_manual(values = color_palette,
+                na.value = "white", 
+                name = "Unique\nclusterID\n(with lineage)"
+                ) +
+            ggtitle(paste0("IQ-Tree ML Phylogeny | Branch-length ignored | ", lineageID)) +
+            theme(legend.position = "none"
+            )
+
+p2.L <-     gheatmap(tree.p.c, tree.clusters.df, 
+                offset = 10, width = 0.3,
+                colnames_angle = 0, colnames_offset_y = -0.8,
+                font.size = 2, color = "#3a3a3a"
+                ) +
+            scale_fill_manual(values = color_palette,
+                na.value = "white", 
+                name = "Unique\nclusterID\n(with lineage)"
+                ) +
+            ggtitle(paste0("IQ-Tree ML Phylogeny | Branch-length ignored | ", lineageID)) +
+            theme(legend.position = "bottom",
+                legend.title = element_text(size = 6),
+                legend.text=element_text(size=6),
+                legend.key.size = unit(0.2, "cm")
+                )
+
+#··············································································#
+#··············································································#
+
+#·············· Export trees ··············#
+
+pdf(file = paste0(lineageID,"_ML.contree.pdf"))
+p1
+p1.L
+p2
+p2.L
+dev.off()

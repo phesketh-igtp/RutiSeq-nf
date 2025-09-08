@@ -68,7 +68,7 @@ Rscript -e '
                 sep = ",", col.names = NA, quote = FALSE)
 ' "${meta}"
 
-sed -i '' '/^$/d' tmp.dates_mat.csv
+sed -i '/^$/d' tmp.dates_mat.csv
 
 grep '>' ${aln} | sed 's/>//g' > tmp.sampleid.list
 

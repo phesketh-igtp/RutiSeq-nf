@@ -16,15 +16,14 @@ process GENERATE_NEXUS {
 
     tag "cluster: ${clusterID}"
 
-    publishDir "${params.outDir}/results/${runID}/networks/", mode: 'copy'
+    publishDir "${params.outDir}/results/${params.runID}/networks/", mode: 'copy'
 
     input:
-        val(runID)
-        file(pairwise_clusters)
         tuple val(lineage), 
                 val(clusterID),
                 file(snp_fasta),
-                file(snp_tab)
+                file(snp_tab),
+                file(clusters_tab)
 
     output:
         path("fasta/*"),        optional: true
@@ -40,14 +39,28 @@ process GENERATE_NEXUS {
                 path("positions/${clusterID}_genomic_positions.tab"),
                 path("${clusterID}.snp.tab"),   emit: variant_sites_for_tabulation
 
+        tuple val(lineage), 
+                val(clusterID),
+                file("fasta/${clusterID}_refseq.fasta"),
+                file(clusters_tab),     emit: annotated_nexus_ch
+
     script:
 
         """
+        # Get the list of genomes in the cluster
+            grep -w "${clusterID}" ${clusters_tab} \\
+                | cut -f3 > tmp.sampleIDs
+
+            grep -f tmp.sampleIDs ${snp_fasta} \\
+                | sed  's/>//g' \\
+                | sort | uniq >genomes.list
+        
+        seqkit grep -w 0 -f "genomes.list" "${snp_fasta}" > "${clusterID}.fasta"
+
         # run the nexus script
             bash ${params.script_dir}/shell/create-variable-region-nexus.sh \\
                     -c ${clusterID} \\
-                    -p ${pairwise_clusters} \\
-                    -f ${snp_fasta} \\
+                    -f ${clusterID}.fasta \\
                     -t ${snp_tab} \\
                     -m ${params.mtbc_ancestor_path} \\
                     1>>.command.out \\

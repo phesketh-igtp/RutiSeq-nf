@@ -22,30 +22,34 @@ process PREPARE_NEXUS_PATHS{
     errorStrategy 'ignore'
 
     input:
-        tuple val(lineage), 
-                path(contree), 
-                path(alignments)
-        path pairwise_clusters
-
+        tuple val(lineage),
+            val(distance),
+            path(snp_fasta),
+            path(snps_tab),
+            path(clusters_tab)
 
     output:
         path("nexus.tuple.csv"), emit: nexus_tuple
+        path(clusters_tab),      emit: clusters_tab
 
     script:
+
+    def snp_fasta_path="${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta"
+    def snp_tab_path="${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab"
+    def clusters_tab_path="${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Groups/${lineage}_d${distance}.clusters.tsv"
 
     """
     lin=\$(echo "${lineage}" | sed 's/lineage/L/g')
 
     # Identify the unique clusters
-        grep "${lineage}" ${pairwise_clusters} \\
-            | cut -f7 \\
+        grep -w "${lineage}" ${clusters_tab} \\
+            | cut -f4 \\
             | sort \\
-            | uniq \\
-            | sed '1!{/^SampleID/d;}' > unique.clusters.list
+            | uniq > unique.clusters.list
 
     # Remove clusters that are smaller than 3 genomes
         while read clusterID; do
-            count=\$(grep -c "\${clusterID}" "${pairwise_clusters}")
+            count=\$(grep -c "\${clusterID}" "${clusters_tab}")
             if [ "\${count}" -ge 3 ]; then
                 echo "\${clusterID}" >> final_clusters.list
             fi
@@ -61,8 +65,8 @@ process PREPARE_NEXUS_PATHS{
 
             # Create a CSV for generating a tuple of the paths
                 for clusterID in `cat final_clusters.list`; do
-                    grep "\${clusterID}" ${pairwise_clusters} | cut -f1 | tr '\n' ';' > tmp-string
-                    echo "${lineage},\${clusterID},${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta,${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab" >> nexus.tuple.csv
+                    grep "\${clusterID}" ${clusters_tab} | cut -f1 | tr '\n' ';' > tmp-string
+                    echo "${lineage},\${clusterID},${snp_fasta_path},${snp_tab_path},${clusters_tab_path}" >> nexus.tuple.csv
                     rm tmp-string
                 done
 

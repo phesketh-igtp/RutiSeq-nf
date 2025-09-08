@@ -44,7 +44,12 @@ process MTBSEQ_LINEAGE_GROUP {
         path("Matrices/*")
         path("Matrices/${lineage}.d${distance}.matrix.tsv"), emit: matrix_dir
 
-        path("${lineage}_handover.txt"),                     emit: handover
+        // Nexus output
+        tuple val(lineage), 
+            val(distance), 
+            path("${lineage}_snps.fasta"),
+            path("${lineage}_snps.tab"),
+            path("Groups/${lineage}_d${distance}.clusters.tsv"), emit: nexus_ch
 
     script:
 
@@ -76,10 +81,17 @@ process MTBSEQ_LINEAGE_GROUP {
         # Wrangle the group list into a useful format
             cat Groups/${lineage}_d${distance}.groups \\
                     | sed '0,/### Output as lists:/d' \\
-                        > Groups/${lineage}_d${distance}.clusters.tsv
-                    
-        # Add lineage and SNP distance the tsv file
-            sed -i "s@^@${lineage}\t${distance}\t@g" Groups/${lineage}_d${distance}.clusters.tsv
+                    | sed "s@^@${lineage}\tdist_${distance}\t@g" \\
+                        > tmp.${lineage}_d${distance}.clusters.tsv
+
+            grep 'group_' tmp.${lineage}_d${distance}.clusters.tsv \\
+                    | sed "s@group_@@g" \\
+                    | sed s/\$/-${distance}-${lineage}/g \\
+                    | sed 's/-lineage/-L/g' \\
+                    > Groups/${lineage}_d${distance}.clusters.tsv
+
+            grep 'ungrouped' tmp.${lineage}_d${distance}.clusters.tsv \\
+                    | sed "s@ungrouped@singleton@g" > Groups/${lineage}_d${distance}.singletons.tsv
 
         # Move and rename the matrices
             mv Groups/${lineage}*.matrix Matrices/${lineage}.d${distance}.matrix
@@ -108,8 +120,7 @@ process MTBSEQ_LINEAGE_GROUP {
             # remove the intermediates
                 rm Matrices/tmp.${lineage}.*
 
-        # Handover to prevent reruns
-            echo "${lineage} handover" > ${lineage}_handover.txt
-
+        cat Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta > ${lineage}_snps.fasta
+        cat Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab > ${lineage}_snps.tab
         """
 }

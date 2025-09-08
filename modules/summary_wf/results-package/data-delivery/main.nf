@@ -1,4 +1,4 @@
-process DATA_DELIVERY{
+process PREPARE_DATA_DELIVERY{
 
 /*
     @author: Poppy J Hesketh Best
@@ -51,12 +51,12 @@ process DATA_DELIVERY{
             fi
 
         # Tidy up the phylogeny output
-            mkdir -p ${params.outDir}/results/${runID}/phylogeny/html-out
+            mkdir -p ${params.outDir}/results/${runID}/phylogeny/pdf-out
             mkdir -p ${params.outDir}/results/${runID}/phylogeny/Rdata-out
 
         # Move PDF files if they exist
-            if compgen -G "${params.outDir}/results/${runID}/phylogeny/*.html" > /dev/null; then
-                mv ${params.outDir}/results/${runID}/phylogeny/*.pdf ${params.outDir}/results/${runID}/phylogeny/html-out/
+            if compgen -G "${params.outDir}/results/${runID}/phylogeny/*.pdf" > /dev/null; then
+                mv ${params.outDir}/results/${runID}/phylogeny/*.pdf ${params.outDir}/results/${runID}/phylogeny/pdf-out/
             fi
 
         # Move Rdata files if they exist
@@ -64,16 +64,36 @@ process DATA_DELIVERY{
                 mv ${params.outDir}/results/${runID}/phylogeny/*.Rdata ${params.outDir}/results/${runID}/phylogeny/Rdata-out/
             fi
 
+        # Create the results table directory
+            mkdir -p ${params.outDir}/results/${runID}/tables/
+
+            ## populate the results table directory with relevant files
+                if compgen -G "${params.outDir}/results/${runID}/tables/*.tsv" > /dev/null; then
+                    mv ${params.outDir}/results/${runID}/tables/*.tsv ${params.outDir}/results/${runID}/tables/
+                fi
+
+                if compgen -G "${params.outDir}/results/${runID}/tables/*.csv" > /dev/null; then
+                    mv ${params.outDir}/results/${runID}/tables/*.csv ${params.outDir}/results/${runID}/tables/
+                fi
+
         # Clean up: remove litter from the nexus generation
-            if compgen -G "${params.outDir}/results/${runID}/networks/*join*tab" > /dev/null; then
-                rm -rf ${params.outDir}/results/${runID}/networks/*join*tab
+            if compgen -G "${params.outDir}/results/${runID}/networks/*snp.tab" > /dev/null; then
+                rm -rf ${params.outDir}/results/${runID}/networks/*snp.tab
             fi
+
+            if compgen -G "${params.outDir}/results/${runID}/networks/*.clusters.tsv" > /dev/null; then
+                mv ${params.outDir}/results/${runID}/networks/*.clusters.tsv ${params.outDir}/results/${runID}/tables/
+            fi
+
             if [[ -f "${params.outDir}/results/${runID}/phylogeny/nexus.TT.tuple.csv" ]]; then
                 rm -f ${params.outDir}/results/${runID}/phylogeny/nexus.TT.tuple.csv
             fi
+            
             if [[ -d "${params.outDir}/results/${runID}/snps/cleanup-handover" ]]; then
                 rm -rf ${params.outDir}/results/${runID}/snps/cleanup-handover
             fi
+
+
         """
 
 }

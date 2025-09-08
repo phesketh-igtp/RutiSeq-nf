@@ -1,0 +1,170 @@
+---
+title: "Interactive Phylogeny"
+date: today
+format: 
+  html:
+    self-contained: true
+    theme: cerulean
+execute:
+  echo: false
+  warning: false
+  message: false
+params:
+  runID: "default_run"
+  lineage: "default_lineage"
+  RData: "default_file.Rdata"
+---
+## Introduction
+
+Below are interactive maximum-likelihood phylogenies rooted on MTBC_anc ([Comas *et al*., 2013](https://pubmed.ncbi.nlm.nih.gov/23995134/)), with tips colored according to cluster assignments at specified SNP distance thresholds. An interactive table is also included, listing all identified clusters and their corresponding cluster IDs to assist in locating specific isolates.
+
+Use this HTML report to visually inspect clusters—identify non-monophyletic groups or any potentially spurious clusters that may warrant further investigation or subdivision.
+
+> ℹ️ Tips for exploring the phylogeny:
+> - Use zooming and panning to navigate large trees.
+> - The legend lets you show/hide clusters or tip labels.
+> - The `Aa trace` option toggles genome/cases identifiers for readability or anonymization.
+> - Double-click a clusterID in the legend to highlight only that cluster.
+> - Cross-reference highlighted clusters with the interactive table below to inspect topology.
+
+```{r, load_packages}
+#| eval: true
+#| echo: false
+#| warning: false
+packages <- c(
+    "ggtree", "ape", "dplyr", "ggplot2", "plotly", "DT"
+)
+
+# Identify missing packages
+missing_pkgs <- packages[!packages %in% installed.packages()[, "Package"]]
+
+# Install missing packages
+if (length(missing_pkgs) > 0) {
+    install.packages(missing_pkgs, dependencies = TRUE)
+}
+
+# Load all packages
+invisible(lapply(packages, library, character.only = TRUE))
+
+set.seed(1234)
+```
+
+
+```{r, import_data}
+#| eval: true
+#| echo: false
+#| warning: false
+# Read environment variables
+runID             <- params$runID
+Rdata_file        <- params$RData
+lineage_selection <- params$lineage
+lineage           <- lineage_selection
+
+#load(Rdata_file)  # loads tree_rooted and possibly other objects
+load(Rdata_file)
+
+# Build base tree with labels
+i_tree <- ggtree(tree_rooted)
+
+# Join metadata - update this if lineage-specific metadata needed
+metat <- i_tree$data |>
+    dplyr::inner_join(tree.clusters, by = c("label" = "SampleID"))
+
+# Function to load data per lineage and plot data
+interactive_tree <- function(threshold) {
+
+    p <- i_tree +
+    geom_point(data = metat |> filter(!is.na(.data[[threshold]])),
+                aes(x = x, y = y, 
+                    colour = .data[[threshold]], 
+                    label = label)) +
+    ggtitle(paste('SNP threshold:', threshold))
+
+    plotly::ggplotly(p, height = 1000, width = 700) |>
+        plotly::add_text(data = metat$data[metat$data$isTip, ],  x = ~x,  y = ~y,  
+                        text = ~label,
+                        textposition = 'right'
+                        )
+
+}
+```
+
+```{r, col_pal}
+#| eval: false
+#| echo: true
+#| warning: false
+
+# Extract and sort t= column names numerically
+t_cols <- names(metat)[grepl("^t.", names(metat))]
+t_cols_sorted <- t_cols[order(as.numeric(gsub("t.", "", t_cols)))]
+t_cols_pretty <- gsub("^t\\.", "t=", t_cols_sorted)
+
+tmp.dat <- i_tree$data
+total_genomes <- tmp.dat |> select(label) |> unique() |> nrow()
+```
+
+## Summary
+
+| **Category**                | Value                                      |
+|-----------------------------|--------------------------------------------|
+| **Run ID**                  | `r runID`                                  |
+| **Lineage **                | `r lineage`                                |
+| **Total genomes**           | `r total_genomes`                          |
+| **SNP distance thresholds** | `r paste(t_cols_pretty, collapse = ", ")`  |
+
+## Interactive phylogeny
+
+::: {.panel-tabset}
+
+### t=5
+```{r, tree_t5}
+#| eval: false
+#| echo: true
+#| warning: false
+interactive_tree(threshold = "t.5")
+```
+
+### t=10
+```{r, tree_t10}
+#| eval: false
+#| echo: true
+#| warning: false
+interactive_tree(threshold = "t.10")
+```
+
+### t=15
+```{r, tree_t15}
+#| eval: false
+#| echo: true
+#| warning: false
+interactive_tree(threshold = "t.15")
+```
+
+:::
+
+---
+
+## Clusters
+
+Use this interactive table to identify the clusterIDs for a particular isolate of interest. Empty cells indicate that the genome was a singleton at that clustering threshold.
+
+
+## Cluster Table
+
+```{r, dt_table}
+# Reorder the full data frame
+table <- metat %>%
+  select(SampleID = label, lineage, all_of(t_cols_sorted)) |>
+  filter(SampleID != "H37Rv") |>
+  filter(SampleID != "MTB_anc")
+
+library(DT)
+
+# Example data frame (replace with your actual cluster data)
+# Render interactive table
+datatable(table, options = list(pageLength = 10, autoWidth = TRUE), filter = 'top')
+```
+
+---
+
+

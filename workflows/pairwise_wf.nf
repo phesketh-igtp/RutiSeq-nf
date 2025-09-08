@@ -1,12 +1,12 @@
-include { TBPROFILER_COMPILE_TBDB }                 from '../modules/pairwise_wf/tbprofiler/compile.tbdb/main.nf'
-include { TBPROFILER_COMPILE_WHO }                  from '../modules/pairwise_wf/tbprofiler/compile.who/main.nf'
-include { MTBSEQ_STATS_COMPILE }                    from '../modules/pairwise_wf/mtbseq/stats-compile/main.nf'
-include { COMPILE_SEQUENCING_STATS }                from '../modules/pairwise_wf/filtering/compile-sequencing-stats/main.nf'
-include { PREPARE_PAIRWISE_CHANNELS }               from '../modules/pairwise_wf/filtering/prepare_pairwise_channels/main.nf'
-include { MTBSEQ_LINEAGE_JOINT_AMEND }              from '../modules/pairwise_wf/mtbseq/lineage_joint-amend/main.nf'
-include { MTBSEQ_LINEAGE_GROUP }                    from '../modules/pairwise_wf/mtbseq/lineage_group/main.nf'
-include { CONCATENATED_VARIABLE_REGION_PHYLOGENY }  from '../modules/pairwise_wf/phylogeny/concatenated_snp_phylogeny/main.nf'
-include { CONCATENATE_CLUSTERS }                    from '../modules/pairwise_wf/pairwise/concatenate-cluster-file/main.nf'
+include { TBPROFILER_COMPILE_TBDB }     from '../modules/pairwise_wf/tbprofiler/compile.tbdb/main.nf'
+include { TBPROFILER_COMPILE_WHO }      from '../modules/pairwise_wf/tbprofiler/compile.who/main.nf'
+include { MTBSEQ_STATS_COMPILE }        from '../modules/pairwise_wf/mtbseq/stats-compile/main.nf'
+include { COMPILE_SEQUENCING_STATS }    from '../modules/pairwise_wf/filtering/compile-sequencing-stats/main.nf'
+include { PREPARE_PAIRWISE_CHANNELS }   from '../modules/pairwise_wf/filtering/prepare_pairwise_channels/main.nf'
+include { MTBSEQ_LINEAGE_JOINT_AMEND }  from '../modules/pairwise_wf/mtbseq/lineage_joint-amend/main.nf'
+include { MTBSEQ_LINEAGE_GROUP }        from '../modules/pairwise_wf/mtbseq/lineage_group/main.nf'
+include { SNP_PHYLOGENY }               from '../modules/pairwise_wf/phylogeny/concatenated_snp_phylogeny/main.nf'
+include { CONCATENATE_CLUSTERS }        from '../modules/pairwise_wf/pairwise/concatenate-cluster-file/main.nf'
 
 workflow PAIRWISE_WF {
     
@@ -88,12 +88,14 @@ workflow PAIRWISE_WF {
         // Collect all cluster and matrix outputs
             bbdd_clusters = MTBSEQ_LINEAGE_GROUP.out.clusters.collect()
 
-            CONCATENATE_CLUSTERS(bbdd_clusters)
+            CONCATENATE_CLUSTERS(bbdd_clusters, 
+                                COMPILE_SEQUENCING_STATS.out.analysis_summary
+                                )
 
         // Assemble all the variable region phylogenies
-            CONCATENATED_VARIABLE_REGION_PHYLOGENY( runID, 
-                                                    MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch )
+            SNP_PHYLOGENY( runID, MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch )
 
+/*
         // Create a channel to emit for the nexus generation
             nexus_creation_ch = MTBSEQ_LINEAGE_JOINT_AMEND.out.mtbseq_group_tuple_csv
                             .splitCsv(header: false, sep: ',')
@@ -101,14 +103,16 @@ workflow PAIRWISE_WF {
                                 def (lineage, distance, joint_path, amend_path, samples_path) = row
                                 tuple(lineage, joint_path, amend_path)
                             }
+*/
+
     emit:
         processed_clusters     = CONCATENATE_CLUSTERS.out.pairwise_clusters_processed
         unprocessed_clusters   = CONCATENATE_CLUSTERS.out.pairwise_clusters_unprocessed
         analysis_summary       = COMPILE_SEQUENCING_STATS.out.analysis_summary
         who_resistance         = COMPILE_SEQUENCING_STATS.out.who_resistance
         tbdb_resistance        = COMPILE_SEQUENCING_STATS.out.tbdb_resistance
-        phylogeny_plotting_ch  = CONCATENATED_VARIABLE_REGION_PHYLOGENY.out.phylogeny_plotting_ch
-        nexus_creation_ch      = nexus_creation_ch
+        phylogeny_plotting_ch  = SNP_PHYLOGENY.out.phylogeny_plotting_ch
+        nexus_creation_ch      = MTBSEQ_LINEAGE_GROUP.out.nexus_ch
 
 }
 

@@ -5,51 +5,46 @@ library(dplyr,      quietly = TRUE, verbose = FALSE)
 #··············································································#
 
 # Import the dataframes
-raw_clust <- read.delim("unprocessed_clusters.tsv", header=FALSE, sep = "\t") |> distinct()
-colnames(raw_clust) <- c("lineage","dSNP","genomes","group")
-raw_clust <- raw_clust |> mutate(dSNP = paste0("dSNP_", dSNP))
+raw_clust <- read.delim("unprocessed_clusters.tsv",
+                        header = FALSE, sep = "\t") |>
+  distinct()
 
-raw_clust <- raw_clust |> 
-                pivot_wider(names_from = dSNP, values_from = group) |> ungroup() |>
-                distinct()
+colnames(raw_clust) <- c("lineage", "dSNP", "genomes", "int_clusterID")
 
-sampleIDs <- read.delim("sequencing_summary.csv", header=TRUE, sep = ",") |>
-                select(Sample) |>
-                mutate(genomes=Sample) |>
-                separate_wider_delim(genomes, delim = "_", 
-                                        names = c("genomes", "library"), 
-                                        too_few = "align_end") |>
-                select(SampleID=Sample,genomes)
+raw_clust <- raw_clust |>
+  mutate(dSNP = gsub("dist_", "t=", dSNP))
+
+# Process the sampleIDs
+sample_id_df <- read.delim("sequencing_summary.csv",
+                           header = TRUE, sep = ",") |>
+  select(Sample) |>
+  mutate(genomes = Sample) |>
+  separate_wider_delim(genomes, delim = "_",
+                       names = c("genomes", "library"),
+                       too_few = "align_end") |>
+  select(SampleID = Sample, genomes)
+
+# Merge and pivot the data
+raw_clust <- left_join(raw_clust, sample_id_df) |>
+  distinct() |>
+  select(SampleID, lineage, dSNP, int_clusterID) |>
+  pivot_wider(names_from = dSNP, values_from = int_clusterID)
+
+# Extract and sort t= column names numerically
+t_cols <- names(raw_clust)[grepl("^t=", names(raw_clust))]
+t_cols_sorted <- t_cols[order(as.numeric(gsub("t=", "", t_cols)))]
+
+# Reorder the full data frame
+raw_clust <- raw_clust %>%
+  select(SampleID, lineage, all_of(t_cols_sorted))
+
+# Create the merged clusterID
+raw_clust <- raw_clust %>%
+  unite("merged_clusterID", all_of(t_cols_sorted), sep = "/", remove = FALSE) |>
+  select(SampleID, lineage, all_of(t_cols_sorted), merged_clusterID)
 
 #··············································································#
 #··············································································#
 
-# Simplify the names of the groups
-raw_clust$dSNP_5<-gsub("group_","n",as.character(raw_clust$dSNP_5))
-raw_clust$dSNP_5<-gsub("ungrouped","nX",as.character(raw_clust$dSNP_5))
-raw_clust$dSNP_10<-gsub("group_","i",as.character(raw_clust$dSNP_10))
-raw_clust$dSNP_10<-gsub("ungrouped","iX",as.character(raw_clust$dSNP_10))
-raw_clust$dSNP_15<-gsub("group_","v",as.character(raw_clust$dSNP_15))
-raw_clust$dSNP_15<-gsub("ungrouped","vX",as.character(raw_clust$dSNP_15))
-
-# Create grouping IDs that contain the Lineage information
-transmission <- raw_clust |> mutate(SNP_nd5.id10.vd15 = paste0(dSNP_5,".",dSNP_10,".",dSNP_15, "-", lineage))
-transmission <- transmission |> mutate(SNP_d5_L = paste0(dSNP_5,"-", lineage))
-transmission <- transmission |> mutate(SNP_d10_L = paste0(dSNP_10,"-", lineage))
-transmission <- transmission |> mutate(SNP_d15_L = paste0(dSNP_15,"-", lineage))
-
-transmission$SNP_nd5.id10.vd15<-gsub("lineage","L",as.character(transmission$SNP_nd5.id10.vd15))
-transmission$SNP_d5_L<-gsub("lineage","L",as.character(transmission$SNP_d5_L))
-transmission$SNP_d10_L<-gsub("lineage","L",as.character(transmission$SNP_d10_L))
-transmission$SNP_d15_L<-gsub("lineage","L",as.character(transmission$SNP_d15_L))
-
-transmission <- transmission |> distinct()
-
-# Get the real sample ID instead of the truncated one
-transmission.master.clusters <- left_join(transmission, sampleIDs) |>
-            select(SampleID,lineage,dSNP_5,dSNP_10,
-            dSNP_15,SNP_nd5.id10.vd15,SNP_d5_L,SNP_d10_L,SNP_d15_L) |>
-            distinct()
-
-write.table(transmission.master.clusters, "processed_clusters.tsv", 
-                        sep = "\t", row.names = FALSE, quote = FALSE)
+write.table(raw_clust, "processed_clusters.tsv",
+            sep = "\t", row.names = FALSE, quote = FALSE)

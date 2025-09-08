@@ -14,16 +14,14 @@ process GENERATE_NEXUS_W_MRCA {
 
     tag "cluster: ${clusterID}"
 
-    publishDir "${params.outDir}/results/${runID}/networks/", mode: 'copy'
+    publishDir "${params.outDir}/results/${params.runID}/networks/", mode: 'copy'
 
     input:
-        val(runID)
         tuple val(lineage), 
                 val(clusterID),
                 file(snp_fasta),
                 file(snp_tab),
                 file(ancestor)
-                
         file(pairwise_clusters)
 
     output:
