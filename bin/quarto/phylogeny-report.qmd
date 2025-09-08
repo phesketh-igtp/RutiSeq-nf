@@ -20,11 +20,17 @@ Below are interactive maximum-likelihood phylogenies rooted on MTBC_anc ([Comas 
 
 Use this HTML report to visually inspect clusters—identify non-monophyletic groups or any potentially spurious clusters that may warrant further investigation or subdivision.
 
-> ℹ️ You can interact with the plots by zooming and panning, which is particularly useful for exploring larger phylogenies. Use the legend to selectively display clusters of interest or to toggle tip labels on and off.
-> 
-> ℹ️ At the bottom of the plot legend, you’ll find a category labeled Aa trace. This controls the display of isolate names on the phylogeny. You can toggle it on or off to enhance readability or to anonymize the plot when needed.
+> ℹ️ Tips for exploring the phylogeny:
+> - Use zooming and panning to navigate large trees.
+> - The legend lets you show/hide clusters or tip labels.
+> - The `Aa trace` option toggles genome/cases identifiers for readability or anonymization.
+> - Double-click a clusterID in the legend to highlight only that cluster.
+> - Cross-reference highlighted clusters with the interactive table below to inspect topology.
 
-```{r}
+```{r, load_packages}
+#| eval: true
+#| echo: false
+#| warning: false
 packages <- c(
     "ggtree", "ape", "dplyr", "ggplot2", "plotly", "DT"
 )
@@ -44,7 +50,7 @@ set.seed(1234)
 ```
 
 
-```{r}
+```{r, import_data}
 #| eval: true
 #| echo: false
 #| warning: false
@@ -83,9 +89,10 @@ interactive_tree <- function(threshold) {
 }
 ```
 
-```{r}
-#| echo: false
-#| warning: true
+```{r, col_pal}
+#| eval: false
+#| echo: true
+#| warning: false
 
 # Extract and sort t= column names numerically
 t_cols <- names(metat)[grepl("^t.", names(metat))]
@@ -110,20 +117,26 @@ total_genomes <- tmp.dat |> select(label) |> unique() |> nrow()
 ::: {.panel-tabset}
 
 ### t=5
-```{r}
-#| echo: false
+```{r, tree_t5}
+#| eval: false
+#| echo: true
+#| warning: false
 interactive_tree(threshold = "t.5")
 ```
 
 ### t=10
-```{r}
-#| echo: false
+```{r, tree_t10}
+#| eval: false
+#| echo: true
+#| warning: false
 interactive_tree(threshold = "t.10")
 ```
 
 ### t=15
-```{r}
-#| echo: false
+```{r, tree_t15}
+#| eval: false
+#| echo: true
+#| warning: false
 interactive_tree(threshold = "t.15")
 ```
 
@@ -138,7 +151,7 @@ Use this interactive table to identify the clusterIDs for a particular isolate o
 
 ## Cluster Table
 
-```{r}
+```{r, dt_table}
 # Reorder the full data frame
 table <- metat %>%
   select(SampleID = label, lineage, all_of(t_cols_sorted)) |>
