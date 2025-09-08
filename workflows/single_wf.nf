@@ -4,6 +4,7 @@ include { ADAPTORS_AND_DOWNSAMPLING }       from '../modules/single_wf/fastp/ada
 include { TBPROFILER_PROFILE_TBDB }         from '../modules/single_wf/tbprofiler/profile.tbdb/main.nf'
 include { TBPROFILER_PROFILE_WHO }          from '../modules/single_wf/tbprofiler/profile.who/main.nf'
 include { MTBSEQ_SINGLE }                   from '../modules/single_wf/mtbseq/single/main.nf'
+include { MTBSEQ_SINGLE_ONT }               from '../modules/single_wf/mtbseq/single_ont/main.nf'
 include { SNP_PROFILING_SINGLE }            from '../modules/single_wf/snp-barcoding/single.profiling/main.nf'
 include { SNP_ANNOTATING_SINGLE }           from '../modules/single_wf/snp-barcoding/single.annotating/main.nf'
 include { POST_SINGLE_BBDD_CLEANUP }        from '../modules/single_wf/post-wf-cleaup/single-bbdd-cleanup/main.nf'
