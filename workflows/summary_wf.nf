@@ -10,7 +10,7 @@ include { GENERATE_TIMETREES         }   from '../modules/summary_wf/summary/gen
 include { PLOT_TIMETREES             }   from '../modules/summary_wf/summary/plot-timetrees/main.nf'
 include { GENERATE_NEXUS_W_MRCA      }   from '../modules/summary_wf/summary/generate-nexus-with-ancestor/main.nf'
 include { GENERATE_ANNOTATED_NEXUS   }   from '../modules/summary_wf/summary/generate-nexus-with-metadata/main.nf'
-include { PREPARE_DATA_DELIVERY      }   from '../modules/summary_wf/summary/data-delivery/main.nf'
+include { DATA_DELIVERY              }   from '../modules/summary_wf/summary/data-delivery/main.nf'
 //include { GENERATE_REPORT            }   from '../modules/summary_wf/summary/generate-report/main.nf'
 
 workflow SUMMARY_WF{

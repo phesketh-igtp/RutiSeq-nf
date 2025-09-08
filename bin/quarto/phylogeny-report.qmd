@@ -24,15 +24,30 @@ Use this HTML report to visually inspect clusters—identify non-monophyletic gr
 > 
 > ℹ️ At the bottom of the plot legend, you’ll find a category labeled Aa trace. This controls the display of isolate names on the phylogeny. You can toggle it on or off to enhance readability or to anonymize the plot when needed.
 
+```{r}
+packages <- c(
+    "ggtree", "ape", "dplyr", "ggplot2", "plotly", "DT"
+)
+
+# Identify missing packages
+missing_pkgs <- packages[!packages %in% installed.packages()[, "Package"]]
+
+# Install missing packages
+if (length(missing_pkgs) > 0) {
+    install.packages(missing_pkgs, dependencies = TRUE)
+}
+
+# Load all packages
+invisible(lapply(packages, library, character.only = TRUE))
+
+set.seed(1234)
+```
+
 
 ```{r}
+#| eval: true
 #| echo: false
-
-library(ggtree)
-library(dplyr)
-library(ggplot2)
-library(plotly)
-
+#| warning: false
 # Read environment variables
 runID             <- params$runID
 Rdata_file        <- params$RData
@@ -136,7 +151,6 @@ library(DT)
 # Render interactive table
 datatable(table, options = list(pageLength = 10, autoWidth = TRUE), filter = 'top')
 ```
-
 
 ---
 

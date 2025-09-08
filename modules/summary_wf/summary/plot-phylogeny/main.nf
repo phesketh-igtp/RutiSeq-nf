@@ -24,7 +24,6 @@ process PLOT_MAIN_PHYLOGENY {
         path(unprocessed_clusters, stageAs: "unprocesses_clusters.tsv")
 
     output:
-        path("${lineage}_ML.contree.pdf", optional:true)
         path("${lineage}.contree.Rdata", optional:true)
         path("${lineage}_phylogeny-report.html", optional:true)
 
@@ -47,7 +46,11 @@ process PLOT_MAIN_PHYLOGENY {
             cp ${params.script_dir}/quarto/phylogeny-report.qmd phylogeny-report.qmd
 
             # Render the phylogeny report using Quarto
-            quarto render phylogeny-report.qmd -P runID=${params.runID} -P lineage=${lineage} -P RData=${lineage}.contree.Rdata --output ${lineage}_ML-phylogeny.html
+            quarto render phylogeny-report.qmd \\
+                -P runID=${params.runID} \\
+                -P lineage=${lineage} \\
+                -P RData=${lineage}.contree.Rdata \\
+                --output ${lineage}_ML-phylogeny.html
 
         else 
 
