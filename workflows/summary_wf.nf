@@ -114,7 +114,7 @@ workflow SUMMARY_WF{
         // Cleanup unwanted files
             //POST_SUMMARY_CLEANUP( CONCATENATED_VARIANT_FILES.out.cleanup_handover )
 
-            PREPARE_DATA_DELIVERY( runID, CONCATENATED_VARIANT_FILES.out.cleanup_handover )
+            DATA_DELIVERY( runID, CONCATENATED_VARIANT_FILES.out.cleanup_handover )
 
             //GENERATE_REPORT()
 

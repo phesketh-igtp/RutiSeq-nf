@@ -55,7 +55,7 @@ process TBPROFILER_PROFILE_TBDB {
                 -1 ${mtbc_forward} \\
                 -2 ${mtbc_reverse} \\
                 -p tbdb-${sampleID} \\
-                --txt --dir . \\
+                --txt --dir . --platform illumina \\
                 --db tbdb/tbdb ${additional_args}
 
 		# Touch the output files to the correct directory
