@@ -41,7 +41,8 @@ process TBPROFILER_PROFILE_TBDB {
             path(mtbc_forward), path(mtbc_reverse), path(mtbseq_class), 
             path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars),  
             path("results/tbdb-${sampleID}.results.txt"), // generated in this module
-            path(who_out), path(mtbseq_vcf),                            emit: updated_sample_ch2
+            path(who_out), // generated in this module
+            path(mtbseq_vcf),                            emit: updated_sample_ch2
 
     script:
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
@@ -49,6 +50,7 @@ process TBPROFILER_PROFILE_TBDB {
         """
         # Update the database
             tb-profiler update_tbdb
+            tb-profiler update_tbdb --branch who
 
         # Run TB-Proiler using TBDB database
             tb-profiler profile \\
