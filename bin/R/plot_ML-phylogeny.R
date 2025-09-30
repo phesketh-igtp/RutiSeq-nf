@@ -1,11 +1,26 @@
-library(ape)
-library(ggtree)
-library(ggrepel)
-library(tidyverse)
-library(patchwork)
-library(randomcoloR)
-library(tidytree)
-library(argparse)
+
+#··············································································#
+#··············································································#
+
+#!/usr/bin/env R
+
+# load libraries
+packages <- c(
+    "ape", "ggtree", "ggrepel", "tidyverse", "patchwork",
+    "randomcoloR", "tidytree", "argparse")
+
+# Identify missing packages
+missing_pkgs <- packages[!packages %in% installed.packages()[, "Package"]]
+
+# Install missing packages
+if (length(missing_pkgs) > 0) {
+    install.packages(missing_pkgs, dependencies = TRUE)
+}
+
+# Load all packages
+invisible(lapply(packages, library, character.only = TRUE))
+
+set.seed(1234)
 
 #··············································································#
 #··············································································#

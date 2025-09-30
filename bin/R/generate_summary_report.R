@@ -1,7 +1,21 @@
-library(dplyr,      quietly = TRUE)
-library(tidyverse,  quietly = TRUE)
-library(argparse,   quietly = TRUE)
-library(openxlsx,   quietly = TRUE)
+#!/usr/bin/env R
+
+# load libraries
+packages <- c(
+    "dplyr", "tidyverse", "argparse", "openxlsx")
+
+# Identify missing packages
+missing_pkgs <- packages[!packages %in% installed.packages()[, "Package"]]
+
+# Install missing packages
+if (length(missing_pkgs) > 0) {
+    install.packages(missing_pkgs, dependencies = TRUE)
+}
+
+# Load all packages
+invisible(lapply(packages, library, character.only = TRUE))
+
+set.seed(1234)
 
 #··············································································#
 #··············································································#

@@ -1,6 +1,21 @@
 # load libraries
-library(argparse)
-library(tidyverse)
+packages <- c(
+    "argparse", "tidyverse")
+
+# Identify missing packages
+missing_pkgs <- packages[!packages %in% installed.packages()[, "Package"]]
+
+# Install missing packages
+if (length(missing_pkgs) > 0) {
+    install.packages(missing_pkgs, dependencies = TRUE)
+}
+
+# Load all packages
+invisible(lapply(packages, library, character.only = TRUE))
+
+set.seed(1234)
+
+########################################################################################################
 
 # Create a parser for the script
 parser <- ArgumentParser(description = "Script to process MTBseq and TBProfiler data")
