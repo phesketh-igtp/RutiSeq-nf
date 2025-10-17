@@ -1,5 +1,24 @@
-# Load necessary library
-library(optparse)
+#!/usr/bin/env R
+
+# load libraries
+packages <- c(
+    "optparse")
+
+# Identify missing packages
+missing_pkgs <- packages[!packages %in% installed.packages()[, "Package"]]
+
+# Install missing packages
+if (length(missing_pkgs) > 0) {
+    install.packages(missing_pkgs, dependencies = TRUE)
+}
+
+# Load all packages
+invisible(lapply(packages, library, character.only = TRUE))
+
+set.seed(1234)
+
+#··············································································#
+#··············································································#
 
 # Define command-line options
     option_list <- list(

@@ -1,8 +1,23 @@
+#!/usr/bin/env Rscript
+
 # load libraries
-library(argparse)
-library(tidyverse)
-library(dplyr)
-library(tidyr)
+packages <- c("argparse", "tidyverse", "dplyr", "tidyr", "seqinr")
+
+# Identify missing packages
+missing_pkgs <- packages[!packages %in% installed.packages()[, "Package"]]
+
+# Install missing packages
+if (length(missing_pkgs) > 0) {
+  install.packages(missing_pkgs, dependencies = TRUE)
+}
+
+# Load all packages
+invisible(lapply(packages, library, character.only = TRUE))
+
+set.seed(1234)
+
+#··············································································#
+#··············································································#
 
 # Assign file names to objects
 tbprof_file <- "tbdb-tbprofiler.txt"

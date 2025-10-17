@@ -15,7 +15,6 @@ include { DATA_DELIVERY              }   from '../modules/summary_wf/summary/dat
 
 workflow SUMMARY_WF{
 
-
     take:
         runID
         processed_clusters

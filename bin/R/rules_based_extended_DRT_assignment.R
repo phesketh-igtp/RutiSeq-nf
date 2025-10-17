@@ -18,11 +18,24 @@
 #' @version 1.0.0
 #' @date 2025-05-13
 #' @chagelog
-#'    v1.0.0-2025+05-13: Intial versions (draft)
+#'    v1.0.0-2025:05-13: Intial versions (draft)
 
 ################################################################################
 
-library(tidyverse)
+# load libraries
+packages <- c("tidyverse")
+
+# Identify missing packages
+missing_pkgs <- packages[!packages %in% installed.packages()[, "Package"]]
+
+# Install missing packages
+if (length(missing_pkgs) > 0) {
+  install.packages(missing_pkgs, dependencies = TRUE)
+}
+
+# Load all packages
+invisible(lapply(packages, library, character.only = TRUE))
+
 set.seed(1234)
 
 ################################################################################

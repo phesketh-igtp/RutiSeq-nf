@@ -57,6 +57,9 @@ process MTBSEQ_LINEAGE_GROUP {
 
         """
         mkdir -p Groups/ Matrices
+        
+        # Clean up the last results
+        rm -f ${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Groups/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u*_phylo_w*_d*
 
         ## MTBseq TBgroups using the first SNP distance
             MTBseq --step TBgroups \\

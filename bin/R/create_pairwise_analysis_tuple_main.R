@@ -1,8 +1,23 @@
 #!/usr/bin/env R
 
-library(dplyr, quietly = TRUE)
-library(stringr, quietly = TRUE)
-library(readr, quietly = TRUE)
+# load libraries
+packages <- c(
+    "dplyr", "stringr", "readr")
+
+# Identify missing packages
+missing_pkgs <- packages[!packages %in% installed.packages()[, "Package"]]
+
+# Install missing packages
+if (length(missing_pkgs) > 0) {
+    install.packages(missing_pkgs, dependencies = TRUE)
+}
+
+# Load all packages
+invisible(lapply(packages, library, character.only = TRUE))
+
+set.seed(1234)
+
+########################################################################################################
 
 # Import dataframes
 main_lineages <- readr::read_delim("selected_main-lineage_split.list",
