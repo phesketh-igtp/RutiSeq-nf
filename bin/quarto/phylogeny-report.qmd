@@ -91,27 +91,23 @@ interactive_tree <- function(threshold) {
 ```
 
 ```{r, col_pal}
-#| eval: false
+#| eval: true
 #| echo: true
 #| warning: false
-
-# Extract and sort t= column names numerically
+# Extract and sort t=column names numerically
 t_cols <- names(metat)[grepl("^t.", names(metat))]
 t_cols_sorted <- t_cols[order(as.numeric(gsub("t.", "", t_cols)))]
 t_cols_pretty <- gsub("^t\\.", "t=", t_cols_sorted)
-
-tmp.dat <- i_tree$data
-total_genomes <- tmp.dat |> select(label) |> unique() |> nrow()
 ```
 
 ## Summary
 
-| **Category**                | Value                                      |
-|-----------------------------|--------------------------------------------|
-| **Run ID**                  | `r runID`                                  |
-| **Lineage **                | `r lineage`                                |
-| **Total genomes**           | `r total_genomes`                          |
-| **SNP distance thresholds** | `r paste(t_cols_pretty, collapse = ", ")`  |
+| **Category**               | Value                                     |
+|----------------------------|-------------------------------------------|
+| **Run ID**                 | `r runID`                                 |
+| **Lineage**                | `r lineage`                               |
+| **Total genomes**          | `r (metat |> nrow()) - 2`                 |
+| **SNP distance thresholds**| `r paste(t_cols_pretty, collapse = ", ")` |
 
 ## Interactive phylogeny
 
@@ -119,7 +115,7 @@ total_genomes <- tmp.dat |> select(label) |> unique() |> nrow()
 
 ### t=5
 ```{r, tree_t5}
-#| eval: false
+#| eval: true
 #| echo: true
 #| warning: false
 interactive_tree(threshold = "t.5")
@@ -127,7 +123,7 @@ interactive_tree(threshold = "t.5")
 
 ### t=10
 ```{r, tree_t10}
-#| eval: false
+#| eval: true
 #| echo: true
 #| warning: false
 interactive_tree(threshold = "t.10")
@@ -135,7 +131,7 @@ interactive_tree(threshold = "t.10")
 
 ### t=15
 ```{r, tree_t15}
-#| eval: false
+#| eval: true
 #| echo: true
 #| warning: false
 interactive_tree(threshold = "t.15")
@@ -149,10 +145,12 @@ interactive_tree(threshold = "t.15")
 
 Use this interactive table to identify the clusterIDs for a particular isolate of interest. Empty cells indicate that the genome was a singleton at that clustering threshold.
 
-
 ## Cluster Table
 
 ```{r, dt_table}
+#| eval: true
+#| echo: true
+#| warning: false
 # Reorder the full data frame
 table <- metat %>%
   select(SampleID = label, lineage, all_of(t_cols_sorted)) |>
@@ -173,31 +171,49 @@ datatable(table, options = list(pageLength = 10, autoWidth = TRUE), filter = 'to
 Monophylogeny of the clusters are tested using the R pacakge `MonoPhy` (). This will generate a summar of each genom's monophyly-status, which taxa cause problems in monophyly. This only applies to genomes that are in clusters.
 
 ```{r, monophyly_test}
+#| eval: true
+#| echo: true
+#| warning: false
 # create f for monophyly test (sampleID, decreasing SNP threshold clsuterIDs)
 ## eg: sampleID t_15  t_10  t_5
-monophyl_df <- select(sampleID = label, all_of(t_cols_sorted))
+monophyl_df <- tree.clusters |> select(label = SampleID, all_of(t_cols_sorted))
+
+# prune tree to ensure only tree in meta are in tree
+# Get the list of sample labels that should remain
+tips_to_keep <- monophyl_df$label
+
+# Get all tips currently in the tree
+all_tips <- tree_rooted$tip.label
+
+# Identify tips NOT in your metadata
+tips_to_drop <- setdiff(all_tips, tips_to_keep)
+
+# Prune the tree
+tree_pruned <- drop.tip(tree_rooted, tips_to_drop)
+
+# Optional: confirm
+cat("Original tips:", length(all_tips), "\n")
+cat("Kept tips:", length(tree_pruned$tip.label), "\n")
+cat("Dropped tips:", length(tips_to_drop), "\n")
 
 # Run AssessMonophyly
-solution1 <- AssessMonophyly(tree_rooted, monophyl_df)
+solution1 <- AssessMonophyly(tree_pruned, monophyl_df)
 
-# Extract TipStates for *all* thresholds automatically
-monophyl_res <- map_dfr(
-  names(solution),
-  function(nm) {
-    df <- solution[[nm]]$TipStates
-    thr <- gsub("codi_cluster_|SNPs", "", nm)  # get threshold number from name
-    colnames(df) <- c("sampleID",
-                      paste0("clustID_", thr),
-                      paste0("clustID_", thr, "_status"))
-    df
-  },
-  .id = "threshold"
-) %>%
-  select(-threshold) %>% # optional
-  reduce(full_join, by = "sampleID")  # combine all thresholds by sampleID
+# Extract TipStates tables from AssessMonophyly result
+tip_status_list <- lapply(names(solution1), function(tcol) {
+  df <- solution1[[tcol]]$TipStates |> 
+    dplyr::select(Tip, Status) |> 
+    dplyr::rename(label = Tip, !!tcol := Status)
+})
+
+# Join all t.X status columns by 'label'
+status_df <- Reduce(function(x, y) dplyr::full_join(x, y, by = "label"), tip_status_list)
+
+# Optional: ensure order matches monophyl_df
+status_df <- monophyl_df |> dplyr::select(label) |> dplyr::left_join(status_df, by = "label")
 
 # Print as interative table
-datatable(monophyl_res, options = list(pageLength = 5, autoWidth = TRUE), filter = 'top')
+datatable(status_df, options = list(pageLength = 5, autoWidth = TRUE), filter = 'top')
 ```
 
 
