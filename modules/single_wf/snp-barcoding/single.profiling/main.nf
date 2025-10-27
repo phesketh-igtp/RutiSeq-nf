@@ -33,8 +33,8 @@ process SNP_PROFILING_SINGLE {
 
     output:
         tuple val(sampleID), 
-                path("${sampleID}.gatk.vcf.gz"), 
-                path("${sampleID}.gatk.vcf.gz.tbi"),                 emit: gatk_vcf_ch
+                path("${sampleID}.gatk.bcf.gz"), 
+                path("${sampleID}.gatk.bcf.gz.tbi"),                 emit: gatk_vcf_ch
 
         // tuple for updating the sample ch
         tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
@@ -54,8 +54,10 @@ process SNP_PROFILING_SINGLE {
         --vcf-sample-list sample.list \\
         > ${sampleID}.gatk.vcf
 
-    bgzip -c ${sampleID}.gatk.vcf > ${sampleID}.gatk.vcf.gz
+    #bcftools view -O b9 ${sampleID}.gatk.vcf -o ${sampleID}.gatk.bcf.gz
+    #bcftools index ${sampleID}.gatk.bcf.gz
 
+    bgzip -c ${sampleID}.gatk.vcf > ${sampleID}.gatk.vcf.gz
     tabix -p vcf ${sampleID}.gatk.vcf.gz
 
     rm sample.list
