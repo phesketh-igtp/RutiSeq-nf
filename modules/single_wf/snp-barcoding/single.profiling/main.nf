@@ -33,8 +33,8 @@ process SNP_PROFILING_SINGLE {
 
     output:
         tuple val(sampleID), 
-                path("${sampleID}.gatk.bcf.gz"), 
-                path("${sampleID}.gatk.bcf.gz.tbi"),                 emit: gatk_vcf_ch
+                path("${sampleID}.gatk.vcf.gz"), 
+                path("${sampleID}.gatk.vcf.gz.tbi"),                 emit: gatk_vcf_ch
 
         // tuple for updating the sample ch
         tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
