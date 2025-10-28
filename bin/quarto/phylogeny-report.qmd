@@ -119,7 +119,7 @@ total_genomes <- tmp.dat |> select(label) |> unique() |> nrow()
 
 ### t=5
 ```{r, tree_t5}
-#| eval: false
+#| eval: true
 #| echo: true
 #| warning: false
 interactive_tree(threshold = "t.5")
@@ -127,7 +127,7 @@ interactive_tree(threshold = "t.5")
 
 ### t=10
 ```{r, tree_t10}
-#| eval: false
+#| eval: true
 #| echo: true
 #| warning: false
 interactive_tree(threshold = "t.10")
@@ -135,7 +135,7 @@ interactive_tree(threshold = "t.10")
 
 ### t=15
 ```{r, tree_t15}
-#| eval: false
+#| eval: true
 #| echo: true
 #| warning: false
 interactive_tree(threshold = "t.15")
