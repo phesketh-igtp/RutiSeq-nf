@@ -92,26 +92,22 @@ interactive_tree <- function(threshold) {
 
 ```{r, col_pal}
 #| eval: true
-#| echo: false
+#| echo: true
 #| warning: false
-
-# Extract and sort t= column names numerically
+# Extract and sort t=column names numerically
 t_cols <- names(metat)[grepl("^t.", names(metat))]
 t_cols_sorted <- t_cols[order(as.numeric(gsub("t.", "", t_cols)))]
 t_cols_pretty <- gsub("^t\\.", "t=", t_cols_sorted)
-
-tmp.dat <- i_tree$data
-total_genomes <- tmp.dat |> select(label) |> unique() |> nrow()
 ```
 
 ## Summary
 
-| **Category**                | Value                                      |
-|-----------------------------|--------------------------------------------|
-| **Run ID**                  | `r runID`                                  |
-| **Lineage **                | `r lineage`                                |
-| **Total genomes**           | `r total_genomes`                          |
-| **SNP distance thresholds** | `r paste(t_cols_pretty, collapse = ", ")`  |
+| **Category**               | Value                                     |
+|----------------------------|-------------------------------------------|
+| **Run ID**                 | `r runID`                                 |
+| **Lineage**                | `r lineage`                               |
+| **Total genomes**          | `r (metat |> nrow()) - 2`                 |
+| **SNP distance thresholds**| `r paste(t_cols_pretty, collapse = ", ")` |
 
 ## Interactive phylogeny
 
@@ -149,10 +145,12 @@ interactive_tree(threshold = "t.15")
 
 Use this interactive table to identify the clusterIDs for a particular isolate of interest. Empty cells indicate that the genome was a singleton at that clustering threshold.
 
-
 ## Cluster Table
 
 ```{r, dt_table}
+#| eval: true
+#| echo: true
+#| warning: false
 # Reorder the full data frame
 table <- metat %>%
   select(SampleID = label, lineage, all_of(t_cols_sorted)) |>
@@ -203,7 +201,6 @@ solution1 <- AssessMonophyly(tree_pruned, monophyl_df)
 
 # Extract TipStates tables from AssessMonophyly result
 tip_status_list <- lapply(names(solution1), function(tcol) {
-
   df <- solution1[[tcol]]$TipStates |> 
     dplyr::select(Tip, Status) |> 
     dplyr::rename(label = Tip, !!tcol := Status)
@@ -215,15 +212,8 @@ status_df <- Reduce(function(x, y) dplyr::full_join(x, y, by = "label"), tip_sta
 # Optional: ensure order matches monophyl_df
 status_df <- monophyl_df |> dplyr::select(label) |> dplyr::left_join(status_df, by = "label")
 
-# remove the unknown rows
-status_df_filtered <- status_df %>%
-  # ensure we’re comparing as character (avoid factor issues)
-  mutate(across(all_of(t_cols_sorted), as.character)) %>%
-  # keep rows where NOT all values in the int_cols_sorted are "unknown"
-  filter(rowSums(across(all_of(t_cols_sorted)) == "unknown") < length(t_cols_sorted))
-
 # Print as interative table
-datatable(status_df_filtered, options = list(pageLength = 5, autoWidth = TRUE), filter = 'top')
+datatable(status_df, options = list(pageLength = 5, autoWidth = TRUE), filter = 'top')
 ```
 
 
