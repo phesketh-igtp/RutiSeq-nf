@@ -7,6 +7,10 @@ process PLOT_MAIN_PHYLOGENY {
     @description:
         Plot the main phylogeny for the analysis, using the ML tree and cluster heatmap if clusters are present.
         If no clusters are present, plot the ML tree without the cluster heatmap.
+    @changelog:
+        2025-04-01: Initial version.
+        2025-10-01: Remove static tree PDF and replaced with quarto report generation.
+        2025-10-28: Corrected the Quarto report, that was not producing the MonoPhyl output. 
 */
 
     tag "${lineage}"
