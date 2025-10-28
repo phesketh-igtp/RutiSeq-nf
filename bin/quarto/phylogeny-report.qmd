@@ -170,40 +170,60 @@ datatable(table, options = list(pageLength = 10, autoWidth = TRUE), filter = 'to
 
 ## Monophylogeny test
 
-Monophylogeny of the clusters are tested using the R pacakge `MonoPhy` (). This will generate a summar of each genom's monophyly-status, which taxa cause problems in monophyly. This only applies to genomes that are in clusters.
+Monophylogeny of the clusters are tested using the R pacakge `MonoPhy` (https://github.com/oschwery/MonoPhy). This will generate a summary of each genome's monophyly-status. This only applies to genomes that are in clusters.
 
 ```{r, monophyly_test}
-# prune the tree of the references
-tips_to_drop <- c("H37Rv", "MTB_anc")
-tree_rooted_pruned <- drop.tip(tree_rooted, tips_to_drop)
-leaves <- tree_rooted_pruned$tip.label
-
+#| eval: true
+#| echo: true
+#| warning: false
 # create f for monophyly test (sampleID, decreasing SNP threshold clsuterIDs)
 ## eg: sampleID t_15  t_10  t_5
-monophyl_df <- table |> select(label = SampleID, all_of(t_cols_sorted)) |>
-  filter(label %in% leaves)
+monophyl_df <- tree.clusters |> select(label = SampleID, all_of(t_cols_sorted))
+
+# prune tree to ensure only tree in meta are in tree
+# Get the list of sample labels that should remain
+tips_to_keep <- monophyl_df$label
+
+# Get all tips currently in the tree
+all_tips <- tree_rooted$tip.label
+
+# Identify tips NOT in your metadata
+tips_to_drop <- setdiff(all_tips, tips_to_keep)
+
+# Prune the tree
+tree_pruned <- drop.tip(tree_rooted, tips_to_drop)
+
+# Optional: confirm
+cat("Original tips:", length(all_tips), "\n")
+cat("Kept tips:", length(tree_pruned$tip.label), "\n")
+cat("Dropped tips:", length(tips_to_drop), "\n")
 
 # Run AssessMonophyly
-solution1 <- AssessMonophyly(tree_rooted_pruned, monophyl_df)
+solution1 <- AssessMonophyly(tree_pruned, monophyl_df)
 
-# Extract TipStates for *all* thresholds automatically
-monophyl_res <- map_dfr(
-  names(solution),
-  function(nm) {
-    df <- solution[[nm]]$TipStates
-    thr <- gsub("codi_cluster_|SNPs", "", nm)  # get threshold number from name
-    colnames(df) <- c("sampleID",
-                      paste0("clustID_", thr),
-                      paste0("clustID_", thr, "_status"))
-    df
-  },
-  .id = "threshold"
-) %>%
-  select(-threshold) %>% # optional
-  reduce(full_join, by = "sampleID")  # combine all thresholds by sampleID
+# Extract TipStates tables from AssessMonophyly result
+tip_status_list <- lapply(names(solution1), function(tcol) {
+
+  df <- solution1[[tcol]]$TipStates |> 
+    dplyr::select(Tip, Status) |> 
+    dplyr::rename(label = Tip, !!tcol := Status)
+})
+
+# Join all t.X status columns by 'label'
+status_df <- Reduce(function(x, y) dplyr::full_join(x, y, by = "label"), tip_status_list)
+
+# Optional: ensure order matches monophyl_df
+status_df <- monophyl_df |> dplyr::select(label) |> dplyr::left_join(status_df, by = "label")
+
+# remove the unknown rows
+status_df_filtered <- status_df %>%
+  # ensure we’re comparing as character (avoid factor issues)
+  mutate(across(all_of(t_cols_sorted), as.character)) %>%
+  # keep rows where NOT all values in the int_cols_sorted are "unknown"
+  filter(rowSums(across(all_of(t_cols_sorted)) == "unknown") < length(t_cols_sorted))
 
 # Print as interative table
-datatable(monophyl_res, options = list(pageLength = 5, autoWidth = TRUE), filter = 'top')
+datatable(status_df_filtered, options = list(pageLength = 5, autoWidth = TRUE), filter = 'top')
 ```
 
 
