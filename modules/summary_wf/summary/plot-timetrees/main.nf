@@ -37,8 +37,6 @@ process PLOT_TIMETREES {
         mkdir -p ancestors/
         
         Rscript ${params.r_script_dir}/plot_TimeTree-phylogeny.R \\
-                --lineageID ${lineage} \\
-                --rlibrary ${params.r_script_dir} \\
                 1>>.command.out \\
                 2>>.command.err || true
 
@@ -50,7 +48,7 @@ process PLOT_TIMETREES {
             | sed '1!{/^SampleID/d;}' \\
             | sed '1!{/^nX-/d;}' | sed '1!{/^NA-/d;}' > unique.clusters.list
 
-        # Get list of genomes that have less than 5 clusters
+        # Get list of clusters that have less than 5 genomes
         cut -f7 processed_clusters.tsv | awk '{count[\$1]++} END {for (word in count) if (count[word] > 4) print word}' > frequent_values.txt
         
         for clusterID in `cat unique.clusters.list`; do
