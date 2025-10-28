@@ -2,11 +2,11 @@
 
 nextflow.enable.dsl = 2
 
-include { FILE_CHECK }                  from './modules/single_wf/init-file-checks/main.nf'
-include { SINGLE_WF }                   from './subworkflows/single_wf.nf'
-include { PAIRWISE_WF }                 from './subworkflows/pairwise_wf.nf'
-include { SUMMARY_WF }                  from './subworkflows/summary_wf.nf'
-//include { BARCODING_WF }                from './workflows/barcoding_wf.nf'
+include { FILE_CHECK }      from './modules/single_wf/init-file-checks/main.nf'
+include { SINGLE_WF }       from './workflows/single_wf.nf'
+include { PAIRWISE_WF }     from './workflows/pairwise_wf.nf'
+include { SUMMARY_WF }      from './workflows/summary_wf.nf'
+//include { BARCODING_WF }      from './workflows/barcoding_wf.nf'
 
 /* 
     Help Message
