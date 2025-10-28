@@ -173,12 +173,18 @@ datatable(table, options = list(pageLength = 10, autoWidth = TRUE), filter = 'to
 Monophylogeny of the clusters are tested using the R pacakge `MonoPhy` (). This will generate a summar of each genom's monophyly-status, which taxa cause problems in monophyly. This only applies to genomes that are in clusters.
 
 ```{r, monophyly_test}
+# prune the tree of the references
+tips_to_drop <- c("H37Rv", "MTB_anc")
+tree_rooted_pruned <- drop.tip(tree_rooted, tips_to_drop)
+leaves <- tree_rooted_pruned$tip.label
+
 # create f for monophyly test (sampleID, decreasing SNP threshold clsuterIDs)
 ## eg: sampleID t_15  t_10  t_5
-monophyl_df <- select(sampleID = label, all_of(t_cols_sorted))
+monophyl_df <- table |> select(label = SampleID, all_of(t_cols_sorted)) |>
+  filter(label %in% leaves)
 
 # Run AssessMonophyly
-solution1 <- AssessMonophyly(tree_rooted, monophyl_df)
+solution1 <- AssessMonophyly(tree_rooted_pruned, monophyl_df)
 
 # Extract TipStates for *all* thresholds automatically
 monophyl_res <- map_dfr(
