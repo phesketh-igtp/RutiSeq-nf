@@ -54,8 +54,10 @@ process SNP_PROFILING_SINGLE {
         --vcf-sample-list sample.list \\
         > ${sampleID}.gatk.vcf
 
-    bgzip -c ${sampleID}.gatk.vcf > ${sampleID}.gatk.vcf.gz
+    #bcftools view -O b9 ${sampleID}.gatk.vcf -o ${sampleID}.gatk.bcf.gz
+    #bcftools index ${sampleID}.gatk.bcf.gz
 
+    bgzip -c ${sampleID}.gatk.vcf > ${sampleID}.gatk.vcf.gz
     tabix -p vcf ${sampleID}.gatk.vcf.gz
 
     rm sample.list

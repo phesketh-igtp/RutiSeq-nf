@@ -168,7 +168,7 @@ datatable(table, options = list(pageLength = 10, autoWidth = TRUE), filter = 'to
 
 ## Monophylogeny test
 
-Monophylogeny of the clusters are tested using the R pacakge `MonoPhy` (). This will generate a summar of each genom's monophyly-status, which taxa cause problems in monophyly. This only applies to genomes that are in clusters.
+Monophylogeny of the clusters are tested using the R pacakge `MonoPhy` (https://github.com/oschwery/MonoPhy). This will generate a summary of each genome's monophyly-status. This only applies to genomes that are in clusters.
 
 ```{r, monophyly_test}
 #| eval: true

@@ -7,6 +7,10 @@ process PLOT_MAIN_PHYLOGENY {
     @description:
         Plot the main phylogeny for the analysis, using the ML tree and cluster heatmap if clusters are present.
         If no clusters are present, plot the ML tree without the cluster heatmap.
+    @changelog:
+        2025-04-01: Initial version.
+        2025-10-01: Remove static tree PDF and replaced with quarto report generation.
+        2025-10-28: Corrected the Quarto report, that was not producing the MonoPhyl output. 
 */
 
     tag "${lineage}"
@@ -24,8 +28,8 @@ process PLOT_MAIN_PHYLOGENY {
         path(unprocessed_clusters, stageAs: "unprocesses_clusters.tsv")
 
     output:
-        path("${lineage}.contree.Rdata", optional:true)
-        path("${lineage}_phylogeny-report.html", optional:true)
+        path("${lineage}.contree.Rdata")
+        path("${lineage}_phylogeny-report.html")
 
     script:
         """
@@ -51,15 +55,9 @@ process PLOT_MAIN_PHYLOGENY {
                 -P lineage=${lineage} \\
                 -P RData=${lineage}.contree.Rdata \\
                 --output ${lineage}_ML-phylogeny.html
-
-        else 
-
+        
+        else
             echo "This lineage contains no clusters - plotting phylogeny without cluster heatmap"
-
-            Rscript ${params.r_script_dir}/plot_ML-phylogeny.no-clusters.R \\
-                    --lineageID ${lineage}
-
         fi
         """
-        
 }
