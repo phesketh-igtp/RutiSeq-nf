@@ -24,8 +24,8 @@ process PLOT_MAIN_PHYLOGENY {
         path(unprocessed_clusters, stageAs: "unprocesses_clusters.tsv")
 
     output:
-        path("${lineage}.contree.Rdata", optional:true)
-        path("${lineage}_phylogeny-report.html", optional:true)
+        path("${lineage}.contree.Rdata")
+        path("${lineage}_phylogeny-report.html")
 
     script:
         """
@@ -51,15 +51,9 @@ process PLOT_MAIN_PHYLOGENY {
                 -P lineage=${lineage} \\
                 -P RData=${lineage}.contree.Rdata \\
                 --output ${lineage}_ML-phylogeny.html
-
-        else 
-
+        
+        else
             echo "This lineage contains no clusters - plotting phylogeny without cluster heatmap"
-
-            Rscript ${params.r_script_dir}/plot_ML-phylogeny.no-clusters.R \\
-                    --lineageID ${lineage}
-
         fi
         """
-        
 }
