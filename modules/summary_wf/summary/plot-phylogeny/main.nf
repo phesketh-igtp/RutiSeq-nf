@@ -29,7 +29,7 @@ process PLOT_MAIN_PHYLOGENY {
 
     output:
         path("${lineage}.contree.Rdata")
-        path("${lineage}_phylogeny-report.html")
+        path("${lineage}_ML-phylogeny.html")
 
     script:
         """
