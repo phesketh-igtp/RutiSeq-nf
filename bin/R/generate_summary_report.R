@@ -46,23 +46,22 @@ OUT <- args$output
 
 # Import all dataframes
 summary <- read.delim("sequencing_summary.csv",  header = TRUE,
-                      sep = ",",  check.names = FALSE)
+    sep = ",",  check.names = FALSE)
 
 who_res <- read.delim("who_resistance_summary.csv",  header = TRUE,
-                      sep = ",",  check.names = FALSE) |>
-  select(Sample = sample, `DR type`)
+    sep = ",",  check.names = FALSE)
 
 tbdb_res <- read.delim("tbdb_resistance_summary.csv", header = TRUE,
-                       sep = ",",  check.names = FALSE)
+    sep = ",",  check.names = FALSE)
 
 clusters <- read.delim("processed_clusters.tsv", header = TRUE,
-                       sep = "\t", check.names = FALSE)
+    sep = "\t", check.names = FALSE)
 
 who_corr <- read.delim("tbprofiler-DR-corrections.csv", header = TRUE,
-                       sep = ";", check.names = FALSE) |>
-  select(Sample = sample,
-         corr_DRType = DRT,
-         corr_DRTypeExt = DRT_ext)
+    sep = ";", check.names = FALSE) |>
+    select(Sample = sample,
+        corr_DRType = DRT,
+        corr_DRTypeExt = DRT_ext)
 
 #··············································································#
 #··············································································#
@@ -74,9 +73,9 @@ who_res_min <- left_join(who_res, who_corr)
 summary.tmp <- left_join(summary, who_res_min)
 
 summary_xlsx <- dictionary_rename(df = summary.tmp,
-                                  dict_path = paste(rlibrary, "/dict/xlsx_sheet1.dict.csv",
-                                  sep="")
-                                  )
+    dict_path = paste(rlibrary, "/dict/xlsx_sheet1.dict.csv",
+    sep="")
+    )
 
 #··············································································#
 #··············································································#
