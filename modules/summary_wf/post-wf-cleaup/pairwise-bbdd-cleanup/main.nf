@@ -22,14 +22,12 @@ process POST_SINGLE_BBDD_CLEANUP {
         # Check and remove files only if they exist
 
         for file in \\
-            "${params.outDir}/bbdd/mtbseq/samples/*/*R1*fastq.gz" \\
-            "${params.outDir}/bbdd/mtbseq/samples/*/*R2*fastq.gz" \\
+            "${params.outDir}/bbdd/mtbseq/samples/*/*fastq.gz" \\
             "${params.outDir}/bbdd/mtbseq/samples/*/tbdb-*.results.txt" \\
             "${params.outDir}/bbdd/mtbseq/samples/*/who-*.results.txt" \\
             "${params.outDir}/bbdd/mtbseq/samples/*/Mapping_and_Variant_Statistics.tab" \\
             "${params.outDir}/bbdd/mtbseq/samples/*/Strain_Classification.tab" \\
-            "${params.outDir}/bbdd/mtbseq/samples/*/SNP-Profiles/*R1*fastq.gz" \\
-            "${params.outDir}/bbdd/mtbseq/samples/*/SNP-Profiles/*R2*fastq.gz" \\
+            "${params.outDir}/bbdd/mtbseq/samples/*/SNP-Profiles/*fastq.gz" \\
             "${params.outDir}/bbdd/mtbseq/samples/*/SNP-Profiles/tbdb-*.results.txt" \\
             "${params.outDir}/bbdd/mtbseq/samples/*/SNP-Profiles/who-*.results.txt" \\
             "${params.outDir}/bbdd/mtbseq/samples/*/SNP-Profiles/Mapping_and_Variant_Statistics.tab" \\
@@ -46,7 +44,7 @@ process POST_SINGLE_BBDD_CLEANUP {
             "${params.outDir}/bbdd/read-qc/mtbc_reads/*_mtbc_R1.fastq.gz" \\
             "${params.outDir}/bbdd/read-qc/mtbc_reads/*_mtbc_R2.fastq.gz"; 
         do
-            if [ -f \$file ] || [ -e \$file ]; then rm \$file; fi
+            if [ -f \$file ] || [ -e \$file ]; then rm -f \$file; fi
         done
 
         # Compress the outputs from MTBSeq mpileup
