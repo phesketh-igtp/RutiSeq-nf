@@ -5,7 +5,7 @@ process COMPILE_SEQUENCING_STATS {
     @date: 2025-04-01
     @version: 1.0
     @description:
-        In this module the sequencing statistics for the BBDD are
+        In this module the sequencing statistics for the db are
         calculated with Rscripts. The output is a summary of the
         sequencing statistics, the tbdb and who resistance  summaries
         and a list of the genomes which pass the minimum quality
@@ -16,7 +16,7 @@ process COMPILE_SEQUENCING_STATS {
 
     conda params.r_stats_env
 
-    publishDir "${params.outDir}/bbdd/results/", mode: 'copy'
+    publishDir "${params.outDir}/db/results/", mode: 'copy'
 
     input:
         val(runID)

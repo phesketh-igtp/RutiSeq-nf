@@ -16,7 +16,7 @@ process CONCATENATE_CLUSTERS {
 
     conda params.r_stats_env
 
-    publishDir "${params.outDir}/bbdd/results/main/", mode: 'copy'
+    publishDir "${params.outDir}/db/results/main/", mode: 'copy'
 
     input:
         path(clusters)
@@ -30,11 +30,11 @@ process CONCATENATE_CLUSTERS {
 
         """
         # Concatenate all files
-            for file in ${params.outDir}/bbdd/mtbseq/pairwise/*/Groups/*_d*.clusters.tsv; do 
+            for file in ${params.outDir}/db/mtbseq/pairwise/*/Groups/*_d*.clusters.tsv; do 
                 cat \$file >> unprocessed_clusters.tsv
             done
 
-            for file in ${params.outDir}/bbdd/mtbseq/pairwise/*/Groups/*_d*.singletons.tsv; do 
+            for file in ${params.outDir}/db/mtbseq/pairwise/*/Groups/*_d*.singletons.tsv; do 
                 cat \$file >> unprocessed_clusters.tsv
             done
 

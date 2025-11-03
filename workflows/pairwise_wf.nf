@@ -86,9 +86,9 @@ workflow PAIRWISE_WF {
             MTBSEQ_LINEAGE_GROUP( runID, mtbseq_group_ch )
 
         // Collect all cluster and matrix outputs
-            bbdd_clusters = MTBSEQ_LINEAGE_GROUP.out.clusters.collect()
+            db_clusters = MTBSEQ_LINEAGE_GROUP.out.clusters.collect()
 
-            CONCATENATE_CLUSTERS(bbdd_clusters, 
+            CONCATENATE_CLUSTERS(db_clusters, 
                                 COMPILE_SEQUENCING_STATS.out.analysis_summary
                                 )
 

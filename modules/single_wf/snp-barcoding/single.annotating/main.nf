@@ -19,7 +19,7 @@ process SNP_ANNOTATING_SINGLE {
             } else { 'community.wave.seqera.io/library/bcftools_snpeff_varscan_vcftools:3fa84761d1a9bed3' }
     }
 
-    publishDir "${params.outDir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/", mode: 'copy'
+    publishDir "${params.outDir}/db/mtbseq/samples/${sampleID}/SNP-Profiles/", mode: 'copy'
 
     input:
         tuple val(sampleID), path(mtbseq_vcf), path(mtbseq_vcf_index)

@@ -28,26 +28,26 @@ process DATA_DELIVERY{
 
         # TBProfiler results 
             mkdir -p ${params.outDir}/results/${runID}/tbprofiler/
-            if [[ -f "${params.outDir}/bbdd/tbprofiler/tbdb-tbprofiler.txt" ]]; then
-                cp ${params.outDir}/bbdd/tbprofiler/tbdb-tbprofiler.txt ${params.outDir}/results/${runID}/tbprofiler/tbdb-tbprofiler.txt
+            if [[ -f "${params.outDir}/db/tbprofiler/tbdb-tbprofiler.txt" ]]; then
+                cp ${params.outDir}/db/tbprofiler/tbdb-tbprofiler.txt ${params.outDir}/results/${runID}/tbprofiler/tbdb-tbprofiler.txt
             fi
-            if [[ -f "${params.outDir}/bbdd/tbprofiler/who-only/who-tbprofiler.txt" ]]; then
-                cp ${params.outDir}/bbdd/tbprofiler/who-only/who-tbprofiler.txt ${params.outDir}/results/${runID}/tbprofiler/who-tbprofiler.txt
+            if [[ -f "${params.outDir}/db/tbprofiler/who-only/who-tbprofiler.txt" ]]; then
+                cp ${params.outDir}/db/tbprofiler/who-only/who-tbprofiler.txt ${params.outDir}/results/${runID}/tbprofiler/who-tbprofiler.txt
             fi
 
         # MTBseq results
             mkdir -p ${params.outDir}/results/${runID}/mtbseq/
-            if [[ -f "${params.outDir}/bbdd/mtbseq/pairwise/Mapping_and_Variant_Statistics.tab" ]]; then
-                cp ${params.outDir}/bbdd/mtbseq/pairwise/Mapping_and_Variant_Statistics.tab ${params.outDir}/results/${runID}/mtbseq/
+            if [[ -f "${params.outDir}/db/mtbseq/pairwise/Mapping_and_Variant_Statistics.tab" ]]; then
+                cp ${params.outDir}/db/mtbseq/pairwise/Mapping_and_Variant_Statistics.tab ${params.outDir}/results/${runID}/mtbseq/
             fi
-            if [[ -f "${params.outDir}/bbdd/mtbseq/pairwise/Strain_Classification.tab" ]]; then
-                cp ${params.outDir}/bbdd/mtbseq/pairwise/Strain_Classification.tab ${params.outDir}/results/${runID}/mtbseq/
+            if [[ -f "${params.outDir}/db/mtbseq/pairwise/Strain_Classification.tab" ]]; then
+                cp ${params.outDir}/db/mtbseq/pairwise/Strain_Classification.tab ${params.outDir}/results/${runID}/mtbseq/
             fi
 
         # Matrices
             mkdir -p ${params.outDir}/results/${runID}/matrices/
-            if compgen -G "${params.outDir}/bbdd/mtbseq/pairwise/*/Matrices/*.matrix.tsv.gz" > /dev/null; then
-                cp ${params.outDir}/bbdd/mtbseq/pairwise/*/Matrices/*.matrix.tsv ${params.outDir}/results/${runID}/matrices/
+            if compgen -G "${params.outDir}/db/mtbseq/pairwise/*/Matrices/*.matrix.tsv.gz" > /dev/null; then
+                cp ${params.outDir}/db/mtbseq/pairwise/*/Matrices/*.matrix.tsv ${params.outDir}/results/${runID}/matrices/
             fi
 
         # Tidy up the phylogeny output

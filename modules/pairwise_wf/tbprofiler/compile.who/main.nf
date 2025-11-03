@@ -24,7 +24,7 @@ process TBPROFILER_COMPILE_WHO {
             } else { 'quay.io/biocontainers/tb-profiler' }
     }
     
-    publishDir "${params.outDir}/bbdd/tbprofiler/who-only/", mode: 'copy'
+    publishDir "${params.outDir}/db/tbprofiler/who-only/", mode: 'copy'
 
     input:
         val runID
@@ -41,7 +41,7 @@ process TBPROFILER_COMPILE_WHO {
         mkdir -p results/
 
         # create the symbolic links to the result directories
-            ln -s ${params.outDir}/bbdd/tbprofiler/who-only/results/* results/
+            ln -s ${params.outDir}/db/tbprofiler/who-only/results/* results/
 
         # run the `tb-profiler collate` function
             tb-profiler collate

@@ -13,7 +13,7 @@ process MTBSEQ_STATS_COMPILE {
             - Strain_Classification.tab
 */
 
-    publishDir "${params.outDir}/bbdd/mtbseq/pairwise/", mode: 'copy'
+    publishDir "${params.outDir}/db/mtbseq/pairwise/", mode: 'copy'
 
     input:
         path stats_files
@@ -27,12 +27,12 @@ process MTBSEQ_STATS_COMPILE {
         """
 
         # Concatenate all files, excluding the header
-        cat ${params.outDir}/bbdd/mtbseq/samples/*/Statistics/*.tab \\
+        cat ${params.outDir}/db/mtbseq/samples/*/Statistics/*.tab \\
                             | sed '/^Date/d' \\
                             | sed "s/'//g" > Mapping_and_Variant_Statistics.tab
         
         # Concatenate all files, excluding the header
-        cat ${params.outDir}/bbdd/mtbseq/samples/*/Classification/*.tab \\
+        cat ${params.outDir}/db/mtbseq/samples/*/Classification/*.tab \\
                             | sed '/^Date/d' \\
                             | sed "s/'//g" > Strain_Classification.tab
 

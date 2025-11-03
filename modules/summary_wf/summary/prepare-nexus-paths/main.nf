@@ -34,9 +34,9 @@ process PREPARE_NEXUS_PATHS{
 
     script:
 
-    def snp_fasta_path="${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta"
-    def snp_tab_path="${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab"
-    def clusters_tab_path="${params.outDir}/bbdd/mtbseq/pairwise/${lineage}/Groups/${lineage}_d${distance}.clusters.tsv"
+    def snp_fasta_path="${params.outDir}/db/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta"
+    def snp_tab_path="${params.outDir}/db/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab"
+    def clusters_tab_path="${params.outDir}/db/mtbseq/pairwise/${lineage}/Groups/${lineage}_d${distance}.clusters.tsv"
 
     """
     lin=\$(echo "${lineage}" | sed 's/lineage/L/g')
