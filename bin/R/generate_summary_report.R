@@ -68,9 +68,10 @@ who_corr <- read.delim("tbprofiler-DR-corrections.csv", header = TRUE,
 
 # Create the final results summary of the dataframe
 
-who_res_min <- left_join(who_res, who_corr)
+who_res_min <- left_join(who_res, who_corr,
+                        by = c("sample" = "Sample"))
 
-summary.tmp <- left_join(summary, who_res_min)
+summary.tmp <- left_join(summary, who_res_min) |> unique()
 
 summary_xlsx <- dictionary_rename(df = summary.tmp,
     dict_path = paste(rlibrary, "/dict/xlsx_sheet1.dict.csv",
@@ -90,7 +91,7 @@ addWorksheet(wb, "sequencing_summary")
 writeData(wb, "sequencing_summary", summary_xlsx, rowNames=FALSE)
 
 addWorksheet(wb, "resistance_table_who")
-writeData(wb, "resistance_table_who", who_res, rowNames=FALSE)
+writeData(wb, "resistance_table_who", who_res_min, rowNames=FALSE)
 
 addWorksheet(wb, "resistance_table_tbdb")
 writeData(wb, "resistance_table_tbdb", tbdb_res, rowNames=FALSE)
