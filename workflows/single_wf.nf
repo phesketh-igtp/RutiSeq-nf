@@ -7,7 +7,7 @@ include { MTBSEQ_SINGLE }                   from '../modules/single_wf/mtbseq/si
 include { MTBSEQ_SINGLE_ONT }               from '../modules/single_wf/mtbseq/single_ont/main.nf'
 include { SNP_PROFILING_SINGLE }            from '../modules/single_wf/snp-barcoding/single.profiling/main.nf'
 include { SNP_ANNOTATING_SINGLE }           from '../modules/single_wf/snp-barcoding/single.annotating/main.nf'
-include { POST_SINGLE_BBDD_CLEANUP }        from '../modules/single_wf/post-wf-cleaup/single-bbdd-cleanup/main.nf'
+include { POST_SINGLE_DB_CLEANUP }        from '../modules/single_wf/post-wf-cleaup/single-db-cleanup/main.nf'
 
 workflow SINGLE_WF {
 
@@ -60,13 +60,14 @@ workflow SINGLE_WF {
 
         // Remove and remaining Illumina adapters and downsample the reads (if necessary)
             ADAPTORS_AND_DOWNSAMPLING( branched_channel.with_reads )
+            //ADAPTORS_AND_DOWNSAMPLING_SE(branched_channel.with_reads_se )
 
 /*
             // Collect failed samples using collectFile
             failed_samples_report = ADAPTORS_AND_DOWNSAMPLING.out.failed_sample_entry
                 .collectFile(
                     name: "${params.runID}_failed_samples.txt",
-                    storeDir: "${params.outDir}/bbdd/read-qc/",
+                    storeDir: "${params.outDir}/db/read-qc/",
                     keepHeader: false,
                     skip: { it.size() == 0 }  // Skip empty files
                 ) { file ->
@@ -112,7 +113,7 @@ workflow SINGLE_WF {
             sampleid_list_ch = branched_channel_with_reads_updated.map { it[0] }
                 //sampleid_list_ch.view() // check the channel is as you would expect
 
-                POST_SINGLE_BBDD_CLEANUP(sampleid_list_ch)
+                POST_SINGLE_DB_CLEANUP(sampleid_list_ch)
 
     emit:
         single_updated_samples_ch   = final_updated_sample_ch

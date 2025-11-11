@@ -23,7 +23,7 @@ process SNP_PROFILING_SINGLE {
             else return null
         }
     
-    publishDir "${params.outDir}/bbdd/mtbseq/samples/${sampleID}/SNP-Profiles/", mode: 'copy'
+    publishDir "${params.outDir}/db/mtbseq/samples/${sampleID}/SNP-Profiles/", mode: 'copy'
 
     input:
         tuple val(sampleID), 
@@ -63,14 +63,14 @@ process SNP_PROFILING_SINGLE {
     rm sample.list
 
     # remove the published reads from the previous module:
-        rm -f  ${params.outDir}/bbdd/mtbseq/samples/${sampleID}/${sampleID}_mtbc_R1.fastq.gz
-        rm -f  ${params.outDir}/bbdd/mtbseq/samples/${sampleID}/${sampleID}_mtbc_R2.fastq.gz
-        rm -f  ${params.outDir}/bbdd/mtbseq/samples/${sampleID}/tbdb-${sampleID}.results.txt
-        rm -f  ${params.outDir}/bbdd/mtbseq/samples/${sampleID}/who-${sampleID}.results.txt
+        rm -f  ${params.outDir}/db/mtbseq/samples/${sampleID}/${sampleID}_mtbc_R1.fastq.gz
+        rm -f  ${params.outDir}/db/mtbseq/samples/${sampleID}/${sampleID}_mtbc_R2.fastq.gz
+        rm -f  ${params.outDir}/db/mtbseq/samples/${sampleID}/tbdb-${sampleID}.results.txt
+        rm -f  ${params.outDir}/db/mtbseq/samples/${sampleID}/who-${sampleID}.results.txt
 
     # Compress the outputs from MTBSeq mpileup
-        gzip --force --best ${params.outDir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileup
-        gzip --force --best ${params.outDir}/bbdd/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileuplog
+        gzip --force --best ${params.outDir}/db/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileup
+        gzip --force --best ${params.outDir}/db/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileuplog
     """
 
 }

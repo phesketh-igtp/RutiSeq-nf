@@ -33,7 +33,7 @@ process MTBSEQ_SINGLE_ONT {
             else return null
         }
     
-    publishDir "${params.outDir}/bbdd/mtbseq/samples/${sampleID}", mode: 'copy'
+    publishDir "${params.outDir}/db/mtbseq/samples/${sampleID}", mode: 'copy'
 
     input:
         tuple val(sampleID), 
@@ -109,9 +109,9 @@ process MTBSEQ_SINGLE_ONT {
             cat Statistics/Mapping_and_Variant_Statistics.tab > Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
 
         # remove the published reads from the previous module:
-            rm -f  ${params.outDir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R1.fastq.gz       
-            rm -f  ${params.outDir}/bbdd/tbprofiler/who-only/${sampleID}_mtbc_R2.fastq.gz
-            rm -f  ${params.outDir}/bbdd/tbprofiler/who-only/${sampleID}/tbdb-${sampleID}.results.txt
+            rm -f  ${params.outDir}/db/tbprofiler/who-only/${sampleID}_mtbc_R1.fastq.gz       
+            rm -f  ${params.outDir}/db/tbprofiler/who-only/${sampleID}_mtbc_R2.fastq.gz
+            rm -f  ${params.outDir}/db/tbprofiler/who-only/${sampleID}/tbdb-${sampleID}.results.txt
         """
 
 }

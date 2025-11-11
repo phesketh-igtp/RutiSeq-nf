@@ -15,7 +15,7 @@ process SYLPH_CLASSIFICATION {
 
     conda params.taxonomy_env
 
-    publishDir "${params.outDir}/bbdd/read-qc/", mode: 'copy'
+    publishDir "${params.outDir}/db/read-qc/", mode: 'copy'
 
     input:
         val(runID)
@@ -44,7 +44,7 @@ process SYLPH_CLASSIFICATION {
 
     # Profile the sketches with Sylph
         sylph profile \\
-            ${params.sylph_bbdd} \\
+            ${params.sylph_db} \\
             sylph/* \\
             --estimate-unknown \\
             --read-seq-id 0.99 \\
@@ -55,7 +55,7 @@ process SYLPH_CLASSIFICATION {
         mkdir -p my_existing_folder/
         sylph-tax download --download-to my_existing_folder/
         sylph-tax taxprof sylph.tsv \\
-            -t ${params.sylph_bbdd_id} \\
+            -t ${params.sylph_db_id} \\
             -o sylph/tax_
             
     # remove any empty files

@@ -25,7 +25,7 @@ process POST_SUMMARY_CLEANUP {
         done
 
         # Compress the outputs from MTBSeq mpileup
-        for fasta in "${params.outDir}/bbdd/results/networks/fasta/*"; do
+        for fasta in "${params.outDir}/db/results/networks/fasta/*"; do
             if [ -f \${fasta} ]; then gzip --best \${fasta}; fi
         """
 
