@@ -14,7 +14,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
         v1.1.0-2025-04-09: Changed - Removed the zipping of the files (caused issues)
 */
 
-    tag " ${runID}: ${lineage} "
+    tag "${params.runID}: ${lineage} "
 
     conda params.mtbseq_env
 
@@ -22,10 +22,9 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
     ///        } else { 'quay.io/biocontainers/mtbseq' }
     ///}
                 
-    publishDir "${params.outDir}/db/mtbseq/pairwise/${lineage}/", mode: 'copy', overwrite: true
+    publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/", mode: 'copy', overwrite: true
 
     input:
-        val runID
         tuple val(lineage), val(sampleIDs)
 
     output:
@@ -70,26 +69,26 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
             sampleID_count=\$(wc -l samplesID.list | cut -f1 -d' ')
             mtbseq_fasta_out=\$(echo -e "Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples\${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta")
 
-        if [[ ! -f "${params.outDir}/db/mtbseq/pairwise/${lineage}/\${mtbseq_fasta_out}" ]]; then
+        if [[ ! -f "${params.outDir}/db/comparison/mtbseq/${lineage}/\${mtbseq_fasta_out}" ]]; then
 
             ## The correct Amend/ file does not exist, so we need to run MTBseq Join and Amend steps
                 echo "Running MTBseq Join and Amend steps for lineage: ${lineage}"
                 
             # Remove any previously generated files to generate new ones
-                rm -rf ${params.outDir}/db/mtbseq/pairwise/${lineage}/Joint/*
-                rm -rf ${params.outDir}/db/mtbseq/pairwise/${lineage}/Amend/*  
+                rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Joint/*
+                rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Amend/*  
 
             # Create symbolic links to the apprpriate files (only if the file does not exist)
                     while IFS=',' read -r samples; do
 
-                        for file in ${params.outDir}/db/mtbseq/samples/\${samples}/Position_Tables/*.tab; do
+                        for file in ${params.outDir}/db/samples/\${samples}/mtbseq/Position_Tables/*.tab; do
                             dest="Position_Tables/\$(basename "\$file")"
                             if [[ ! -e "\$dest" && ! -L "\$dest" ]]; then
                                 ln -s "\$file" "\$dest"
                             fi
                         done
 
-                        for file in ${params.outDir}/db/mtbseq/samples/\${samples}/Called/*.tab; do
+                        for file in ${params.outDir}/db/samples/\${samples}/mtbseq/Called/*.tab; do
                             dest="Called/\$(basename "\$file")"
                             if [[ ! -e "\$dest" && ! -L "\$dest" ]]; then
                                 ln -s "\$file" "\$dest"
@@ -131,11 +130,12 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
         else
 
             echo "Skipping MTBseq Join and Amend steps for lineage: ${lineage}. Delete the existing files to re-run.
-                    ${params.outDir}/db/mtbseq/pairwise/${lineage}/Joint/ and ${params.outDir}/db/mtbseq/pairwise/${lineage}/Amend/"
+                    ${params.outDir}/db/comparison/mtbseq/${lineage}/Joint/ and 
+                    ${params.outDir}/db/comparison/mtbseq/${lineage}/Amend/"
 
             # Should be:
-            cp ${params.outDir}/db/mtbseq/pairwise/${lineage}/Joint/* Joint/
-            cp ${params.outDir}/db/mtbseq/pairwise/${lineage}/Amend/* Amend/
+            cp ${params.outDir}/db/comparison/mtbseq/${lineage}/Joint/* Joint/
+            cp ${params.outDir}/db/comparison/mtbseq/${lineage}/Amend/* Amend/
         
         fi
 
@@ -143,7 +143,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
                 echo '${params.mtbseq_snp_distance.join('\n')}' > snp_distances
 
                 for distance in \$(cat snp_distances); do
-                    echo "${lineage},\${distance},${params.outDir}/db/mtbseq/pairwise/${lineage}/Joint,${params.outDir}/db/mtbseq/pairwise/${lineage}/Amend,${params.outDir}/db/mtbseq/pairwise/${lineage}/${lineage}_samples.txt" >> mtbseq-group.tuple.csv
+                    echo "${lineage},\${distance},${params.outDir}/db/comparison/mtbseq/${lineage}/Joint,${params.outDir}/db/comparison/mtbseq/${lineage}/Amend,${params.outDir}/db/comparison/mtbseq/${lineage}/${lineage}_samples.txt" >> mtbseq-group.tuple.csv
                 done
 
         # Check the Amend file is it actually has any sequences in the fasta

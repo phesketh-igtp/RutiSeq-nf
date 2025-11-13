@@ -33,7 +33,7 @@ process MTBSEQ_SINGLE {
             else return null
         }
     
-    publishDir "${params.outDir}/db/mtbseq/samples/${sampleID}", mode: 'copy'
+    publishDir "${params.outDir}/db/samples/${sampleID}/mtbseq/", mode: 'copy'
 
     input:
         tuple val(sampleID), 
@@ -65,7 +65,7 @@ process MTBSEQ_SINGLE {
                 path("Position_Tables/${sampleID}.gatk_position_table.tab"), 
                 path("Called/${sampleID}.gatk_position_variants_*.tab"),  
                 path(tbdb_out), path(who_out), 
-                path(mtbseq_vcf),path("Mpileup/${sampleID}.gatk.mpileup"),              emit: updated_sample_ch4
+                path(mtbseq_vcf),path("Mpileup/${sampleID}.gatk.mpileup"), emit: updated_sample_ch3
 
     script:
 

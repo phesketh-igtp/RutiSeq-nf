@@ -1,5 +1,4 @@
-include { TBPROFILER_COMPILE_TBDB }     from '../modules/pairwise_wf/tbprofiler/compile.tbdb/main.nf'
-include { TBPROFILER_COMPILE_WHO }      from '../modules/pairwise_wf/tbprofiler/compile.who/main.nf'
+include { TBPROFILER_COMPILE }     from '../modules/pairwise_wf/tbprofiler/compile/main.nf'
 include { MTBSEQ_STATS_COMPILE }        from '../modules/pairwise_wf/mtbseq/stats-compile/main.nf'
 include { COMPILE_SEQUENCING_STATS }    from '../modules/pairwise_wf/filtering/compile-sequencing-stats/main.nf'
 include { PREPARE_PAIRWISE_CHANNELS }   from '../modules/pairwise_wf/filtering/prepare_pairwise_channels/main.nf'
@@ -7,15 +6,14 @@ include { MTBSEQ_LINEAGE_JOINT_AMEND }  from '../modules/pairwise_wf/mtbseq/line
 include { MTBSEQ_LINEAGE_GROUP }        from '../modules/pairwise_wf/mtbseq/lineage_group/main.nf'
 include { SNP_PHYLOGENY }               from '../modules/pairwise_wf/phylogeny/concatenated_snp_phylogeny/main.nf'
 include { CONCATENATE_CLUSTERS }        from '../modules/pairwise_wf/pairwise/concatenate-cluster-file/main.nf'
+include { SNIPPY_CORE }                 from '../modules/pairwise_wf/pairwise/snippy-core/main.nf'
 
 workflow PAIRWISE_WF {
     
     take:
-        runID
         mtbseq_stats_ch
         mtbseq_class_ch
-        tbdb_out_ch
-        who_out_ch
+        tbprofiler_out_ch
         sampleID_list
 
     main:
@@ -27,26 +25,28 @@ workflow PAIRWISE_WF {
         def no_col  = '\u001B[0m'
 
         // Compile TB-Profiler results
-            TBPROFILER_COMPILE_TBDB( runID, tbdb_out_ch )
-            TBPROFILER_COMPILE_WHO( runID, who_out_ch )
+            TBPROFILER_COMPILE( tbprofiler_out_ch )
 
         // Compile stats and classifications from MTBSeq
             MTBSEQ_STATS_COMPILE( mtbseq_stats_ch, mtbseq_class_ch )
 
+        // SNIPPY CORE
+            SNIPPY_CORE(MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_map_stats)
+
         // Determine infection type (Mixed vs Clonal using both tbprofiler and mtbseq outputs)
         //// and filter genomes based on quality parameters (min coverage)
-            COMPILE_SEQUENCING_STATS(   runID,
-                                        TBPROFILER_COMPILE_TBDB.out.tbdb_results,
-                                        TBPROFILER_COMPILE_TBDB.out.lineage_fractions,
-                                        TBPROFILER_COMPILE_WHO.out.who_results,
-                                        MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_strains,
-                                        MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_map_stats,
-                                        sampleID_list
+            COMPILE_SEQUENCING_STATS(
+                                    TBPROFILER_COMPILE.out.tbdb_results,
+                                    TBPROFILER_COMPILE.out.tbdb_fractions,
+                                    TBPROFILER_COMPILE.out.who_results,
+                                    MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_strains,
+                                    MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_map_stats,
+                                    sampleID_list
                                     )
 
-            PREPARE_PAIRWISE_CHANNELS(  runID,
-                                        COMPILE_SEQUENCING_STATS.out.pairwise_analysis_list,
-                                        sampleID_list
+            PREPARE_PAIRWISE_CHANNELS(
+                                    COMPILE_SEQUENCING_STATS.out.pairwise_analysis_list,
+                                    sampleID_list
                                     )
 
             // Create tuple and data channel from lineage_samples_paths.csv
@@ -71,7 +71,7 @@ workflow PAIRWISE_WF {
                 //lineage_samples_ch.view()
 
         // Run the pairwise analysis by lineages
-            MTBSEQ_LINEAGE_JOINT_AMEND( runID, lineage_samples_ch )
+            MTBSEQ_LINEAGE_JOINT_AMEND( lineage_samples_ch )
 
                 // row[0] lineage, distance, join_dir, amend_dir, samples_txt
                 mtbseq_group_ch = MTBSEQ_LINEAGE_JOINT_AMEND.out.mtbseq_group_tuple_csv
@@ -83,7 +83,7 @@ workflow PAIRWISE_WF {
                     // DEBUG: View the channel
                     //mtbseq_group_ch.view()
 
-            MTBSEQ_LINEAGE_GROUP( runID, mtbseq_group_ch )
+            MTBSEQ_LINEAGE_GROUP( mtbseq_group_ch )
 
         // Collect all cluster and matrix outputs
             db_clusters = MTBSEQ_LINEAGE_GROUP.out.clusters.collect()
@@ -93,7 +93,7 @@ workflow PAIRWISE_WF {
                                 )
 
         // Assemble all the variable region phylogenies
-            SNP_PHYLOGENY( runID, MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch )
+            SNP_PHYLOGENY( MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch )
 
 /*
         // Create a channel to emit for the nexus generation

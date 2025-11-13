@@ -16,10 +16,9 @@ process COMPILE_SEQUENCING_STATS {
 
     conda params.r_stats_env
 
-    publishDir "${params.outDir}/db/results/", mode: 'copy'
+    publishDir "${params.outDir}/db/comparison/summary/", mode: 'copy'
 
     input:
-        val(runID)
         path(tbdb_results)
         path(who_results)
         path(mtbseq_compiled_strains)
@@ -28,7 +27,7 @@ process COMPILE_SEQUENCING_STATS {
         val(sampleID_list)
 
     output:
-        path("${runID}.sequencing_summary.csv")
+        path("${params.runID}.sequencing_summary.csv")
 
         path("sequencing_summary.csv"),      emit: analysis_summary
         path("who_resistance_summary.csv"),  emit: who_resistance
@@ -48,15 +47,15 @@ process COMPILE_SEQUENCING_STATS {
     # Generate summary statistics and create the sampleID,lineage df for
     ## creating into a channel TODO: need to fix this script in generating the output for tuplec creation
         Rscript ${params.r_script_dir}/compile-sequencing-statistics.R \\
-                    --runID ${runID} \\
+                    --runID ${params.runID} \\
                     --dictionary_path ${params.r_script_dir}
 
     # Convert the list of sample IDs to a format suitable for grep
         echo '${sampleID_list.join("\n")}' > run_sample_ids.txt
 
     # Seperate out the genomes from this run into their own results file
-        grep -f run_sample_ids.txt ${runID}.sequencing_summary.csv > tmp.${runID}.sequencing_summary.csv
-        mv tmp.${runID}.sequencing_summary.csv ${runID}.sequencing_summary.csv
+        grep -f run_sample_ids.txt ${params.runID}.sequencing_summary.csv > tmp.${params.runID}.sequencing_summary.csv
+        mv tmp.${params.runID}.sequencing_summary.csv ${params.runID}.sequencing_summary.csv
 
     # Create the file to go to the tuple seperation
     Rscript -e 'library(tidyverse)

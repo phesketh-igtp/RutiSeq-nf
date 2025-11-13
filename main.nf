@@ -2,7 +2,7 @@
 
 nextflow.enable.dsl = 2
 
-include { FILE_CHECK }      from './modules/single_wf/init-file-checks/main.nf'
+include { PREPARE_SAMPLES } from './workflows/prepare-samples_wf.nf'
 include { SINGLE_WF }       from './workflows/single_wf.nf'
 include { PAIRWISE_WF }     from './workflows/pairwise_wf.nf'
 include { SUMMARY_WF }      from './workflows/summary_wf.nf'
@@ -116,103 +116,25 @@ workflow {
         ······································································································
         */
 
-        // Create channel from sample sheet
-            Channel
-                .fromPath(params.samplesheet)
-                .ifEmpty { error "Sample sheet file '${params.samplesheet}' not found or empty" }
-                .splitCsv(header: true, sep: ',')
-                .map { row ->
-                    def requiredColumns = ['originalID', 'sampleID', 'forward_path', 'reverse_path', 'type']
-                    def missingColumns = requiredColumns.findAll { !row.containsKey(it) }
-                    if (missingColumns) {
-                        error "Missing required column(s) in samplesheet: ${missingColumns.join(', ')}"
-                    }
-                        
-            // Check for empty paths
-                if (!row.forward_path.trim() || !row.reverse_path.trim()) {
-                    error "Empty file path found for sample ${row.sampleID}. Both forward and reverse paths must be provided."
-                    }
-                        
-                // Use the file function with error checking for the existence of the files
-                def forwardFile = file(row.forward_path.trim(), checkIfExists: true)
-                def reverseFile = file(row.reverse_path.trim(), checkIfExists: true)
-                        
-                tuple(row.sampleID.trim(), 
-                    forwardFile, 
-                    reverseFile, 
-                    row.type.trim()
-                    )
-                }
-                .branch {
-                    sample: it[3] == 'sample'
-                    control: it[3] == 'control'
-                }
-                .set { branched_samples_by_type }
-
-            // Remove the 'type' from the tuples and ensure only 3 elements
-            samples_ch = branched_samples_by_type.sample.map { it -> 
-                tuple(it[0], it[1], it[2]) // keep only the sampleID, forward and reverse reads
-            }
-
-            controls_ch = branched_samples_by_type.control.map { it -> 
-                tuple(it[0], it[1], it[2]) // keep only the sampleID, forward and reverse reads
-            }
-
-            // Report the samples part of the samplesheet
-                samples_ch.view { sampleID, forward, reverse ->
-                    "${color_cyan}Sample: ${color_green}$sampleID${color_reset} | ${color_cyan}Forward: ${color_green}$forward${color_reset} | ${color_cyan}Reverse: ${color_green}$reverse${color_reset}"
-                }
-
-             // Report the controls part of the samplesheet
-                controls_ch.view { sampleID, forward, reverse ->
-                    "${color_red}Control: ${color_green}$sampleID${color_reset} | ${color_red}Forward: ${color_green}$forward${color_reset} | ${color_red}Reverse: ${color_green}$reverse${color_reset}"
-                }
+        // Call the subworkflow
+            PREPARE_SAMPLES(
+                params.samplesheet,
+                )
+            
+            // Access the outputs
+            PREPARE_SAMPLES.out.samples.view { "Sample output: ${it}" }
+            PREPARE_SAMPLES.out.controls.view { "Control output: ${it}" }
+            PREPARE_SAMPLES.out.all_samples.view { "All samples output: ${it}" }
 
         /*
         ······································································································
-            INSPECT DATABASE FOR SINGLE_WD() INTERMEDIATE FILES
-                - Inspects the database for the sampleID and SINGLE_WF outputs and creates a channel contains paths
+            CONTROLS CHECKS (CONTROL_WF):
+                - Taxonomically classifies control samples, and confirms no reads belonging to the 
+                    Mycobacterium species specified
         ······································································································
         */
 
-        // Check if the genome has previously been analyzed
-            FILE_CHECK(samples_ch)
-
-            // After the FILE_CHECK process
-            verified_samples_ch = FILE_CHECK.out.sample_paths
-                .collectFile(name: 'all_sample_paths.txt', newLine: true, storeDir: params.outDir)
-                .ifEmpty { file("${params.outDir}/empty_all_sample_paths.txt") }
-
-            // Parse the samples into the desired tuple structure
-            comp_samples_ch = verified_samples_ch
-                .splitCsv()
-                .map { row -> 
-                    log.debug "DEBUG - Processing sample row: $row"
-                    if (row.size() == 10) {
-                        def (sampleID, forward, reverse, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = row
-                        tuple(
-                            sampleID,
-                            forward ? file(forward.trim()) : [],
-                            reverse ? file(reverse.trim()) : [],
-                            mtbseq_class ? file(mtbseq_class.trim()) : [],
-                            mtbseq_stats ? file(mtbseq_stats.trim()) : [],
-                            mtbseq_pos ? file(mtbseq_pos.trim()) : [],
-                            mtbseq_vars ? file(mtbseq_vars.trim()) : [],
-                            tbdb_out ? file(tbdb_out.trim()) : [],
-                            who_out ? file(who_out.trim()) : [],
-                            mtbseq_vcf ? file(mtbseq_vcf.trim()) : []
-                        )   
-                    } else {
-                        log.warn "Error with channel: $row"
-                        null
-                    }
-                }
-                .filter { it != null }
-
-            /*
-            // DEBUG:: Demonstrate the content of the channel
-            comp_samples_ch.view { sample -> "Sample: $sample" }
-            */
+            // CONTROL_WF(PREPARE_SAMPLES.out.controls.view )
 
         /*
         ······································································································
@@ -225,7 +147,7 @@ workflow {
         ······································································································
         */
 
-            SINGLE_WF( params.runID, comp_samples_ch )
+            SINGLE_WF( PREPARE_SAMPLES.out.all_samples )
                     
                 // DEBUG: Demonstrate the content of the channel
                 ///     SINGLE_WF.out.single_updated_samples_ch.view { sample -> "Sample: $sampleID" }
@@ -254,21 +176,18 @@ workflow {
                 sampleID_dump       =   pairwise_samples_ch.map { it -> it[0] ?: null }
                 mtbseq_class_files  =   pairwise_samples_ch.map { it -> it[3] ?: null }
                 mtbseq_stats_files  =   pairwise_samples_ch.map { it -> it[4] ?: null }
-                tbdb_out_files      =   pairwise_samples_ch.map { it -> it[7] ?: null }
-                who_out_files       =   pairwise_samples_ch.map { it -> it[8] ?: null }
+                tbprofiler_files    =   pairwise_samples_ch.map { it -> it[7] ?: null }
 
                 // make the channels
                 sampleID_list       =   sampleID_dump.collect()
                 mtbseq_stats_ch     =   mtbseq_stats_files.collect()
                 mtbseq_class_ch     =   mtbseq_class_files.collect()
-                tbdb_out_ch         =   tbdb_out_files.collect()
-                who_out_ch          =   who_out_files.collect()
+                tbprofiler_out_ch   =   tbprofiler_files.collect()
 
-            PAIRWISE_WF( params.runID, 
+            PAIRWISE_WF( 
                         mtbseq_stats_ch,
                         mtbseq_class_ch, 
-                        tbdb_out_ch,
-                        who_out_ch, 
+                        tbprofiler_out_ch,
                         sampleID_list
                         )
 
@@ -281,7 +200,7 @@ workflow {
         ······································································································
         */
 
-            SUMMARY_WF( params.runID,
+            SUMMARY_WF(
                         PAIRWISE_WF.out.processed_clusters,
                         PAIRWISE_WF.out.unprocessed_clusters,
                         PAIRWISE_WF.out.analysis_summary,

@@ -27,19 +27,15 @@ process POST_SINGLE_DB_CLEANUP {
         # Check and remove files only if they exist
             rm -f ${params.outDir}/db/read-qc/mtbc_reads/${sampleID}*.fastq.gz
 
-            rm -f ${params.outDir}/db/tbprofiler/${sampleID}*.fastq.gz
+            rm -f ${params.outDir}/db/sample/${sampleID}/tbprofiler/${sampleID}**.fastq.gz
 
-            rm -f ${params.outDir}/db/tbprofiler/who-only/${sampleID}*.fastq.gz       
-            rm -f ${params.outDir}/db/tbprofiler/who-only/${sampleID}/tbdb-${sampleID}.results.txt
+            rm -f ${params.outDir}/db/sample/${sampleID}/mtbseq/${sampleID}*.fastq.gz
+            rm -f ${params.outDir}/db/sample/${sampleID}/mtbseq/tbdb-${sampleID}.results.txt
+            rm -f ${params.outDir}/db/sample/${sampleID}/mtbseq/who-${sampleID}.results.txt
 
-            rm -f ${params.outDir}/db/mtbseq/samples/${sampleID}/${sampleID}*.fastq.gz
-            rm -f ${params.outDir}/db/mtbseq/samples/${sampleID}/tbdb-${sampleID}.results.txt
-            rm -f ${params.outDir}/db/mtbseq/samples/${sampleID}/who-${sampleID}.results.txt
-
-            rm -f ${params.outDir}/db/mtbseq/samples/${sampleID}/SNP-Profiles/${sampleID}*.fastq.gz
-            rm -f ${params.outDir}/db/mtbseq/samples/${sampleID}/SNP-Profiles/tbdb-${sampleID}*results.txt
-            rm -f ${params.outDir}/db/mtbseq/samples/${sampleID}/SNP-Profiles/who-${sampleID}*results.txt
-            rm -f ${params.outDir}/db/mtbseq/samples/${sampleID}/SNP-Profiles/*.tab
+            rm -f ${params.outDir}/db/sample/${sampleID}/snippy/${sampleID}*.fastq.gz
+            rm -f ${params.outDir}/db/sample/${sampleID}/snippy/tbdb-*.txt
+            rm -f ${params.outDir}/db/sample/${sampleID}/snippy/who-*.txt
         """
 
 }

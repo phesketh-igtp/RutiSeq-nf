@@ -13,7 +13,7 @@ process MTBSEQ_STATS_COMPILE {
             - Strain_Classification.tab
 */
 
-    publishDir "${params.outDir}/db/mtbseq/pairwise/", mode: 'copy'
+    publishDir "${params.outDir}/db/comparison/mtbseq/", mode: 'copy'
 
     input:
         path stats_files

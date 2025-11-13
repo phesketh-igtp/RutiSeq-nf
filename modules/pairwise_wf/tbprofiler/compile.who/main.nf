@@ -27,7 +27,6 @@ process TBPROFILER_COMPILE_WHO {
     publishDir "${params.outDir}/db/tbprofiler/who-only/", mode: 'copy'
 
     input:
-        val runID
         path (tbprofiler_who_results)
 
     output:

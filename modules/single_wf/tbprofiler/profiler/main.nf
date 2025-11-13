@@ -1,4 +1,4 @@
-process TBPROFILER_PROFILE_TBDB {
+process TBPROFILER_PROFILE {
 
 /*
 @author: Poppy J Hesketh Best
@@ -22,7 +22,7 @@ process TBPROFILER_PROFILE_TBDB {
             else return null
         }
         
-    publishDir "${params.outDir}/db/samples/${sampleID}/tbprofiler/", mode: 'move'
+    publishDir "${params.outDir}/db/samples/${sampleID}/tbprofiler/", mode: 'copy'
 
     input:
         tuple val(sampleID), 

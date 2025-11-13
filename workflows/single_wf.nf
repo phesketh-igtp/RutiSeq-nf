@@ -1,13 +1,11 @@
 include { SYLPH_CLASSIFICATION }            from '../modules/single_wf/sylph/read_classification/main.nf'
 //include { SYLPH_CLASSIFICATION_INSPECTION } from '../modules/single_wf/sylph/read_classification_inspection/main.nf'
 include { ADAPTORS_AND_DOWNSAMPLING }       from '../modules/single_wf/fastp/adaptor_and_downsampling/main.nf'
-include { TBPROFILER_PROFILE_TBDB }         from '../modules/single_wf/tbprofiler/profile.tbdb/main.nf'
-include { TBPROFILER_PROFILE_WHO }          from '../modules/single_wf/tbprofiler/profile.who/main.nf'
+include { TBPROFILER_PROFILE }              from '../modules/single_wf/tbprofiler/profiler/main.nf'
 include { MTBSEQ_SINGLE }                   from '../modules/single_wf/mtbseq/single/main.nf'
 include { MTBSEQ_SINGLE_ONT }               from '../modules/single_wf/mtbseq/single_ont/main.nf'
 include { SNP_PROFILING_SINGLE }            from '../modules/single_wf/snp-barcoding/single.profiling/main.nf'
-include { SNP_ANNOTATING_SINGLE }           from '../modules/single_wf/snp-barcoding/single.annotating/main.nf'
-include { POST_SINGLE_DB_CLEANUP }        from '../modules/single_wf/post-wf-cleaup/single-db-cleanup/main.nf'
+include { POST_SINGLE_DB_CLEANUP }          from '../modules/single_wf/post-wf-cleaup/single-db-cleanup/main.nf'
 
 workflow SINGLE_WF {
 
@@ -16,7 +14,6 @@ workflow SINGLE_WF {
     */
 
     take:
-        runID
         comp_samples_ch
 
     main:
@@ -47,7 +44,7 @@ workflow SINGLE_WF {
             // Combine the counts and log the message
                 with_reads_count.combine(without_reads_count)
                     .map { with_reads, without_reads -> 
-                        log.info "${green}runID: ${red}${runID}${green} || For ${cyan}SINGLE_WF()${green} : ${red}${with_reads}${green} samples || Skipped until ${cyan}PAIRWISE()${green}: ${red}${without_reads}${green} samples${no_col}"
+                        log.info "${green}runID: ${red}${params.runID}${green} || For ${cyan}SINGLE_WF()${green} : ${red}${with_reads}${green} samples || Skipped until ${cyan}PAIRWISE()${green}: ${red}${without_reads}${green} samples${no_col}"
                     }
 
         /*
@@ -80,7 +77,7 @@ workflow SINGLE_WF {
 */
 
         // Run SYLPH_CLASSIFICATION to classify the reads
-            SYLPH_CLASSIFICATION( runID )
+            SYLPH_CLASSIFICATION( params.runID )
 
 /*
                 // Identify reads that have mixed taxonomy
@@ -89,18 +86,16 @@ workflow SINGLE_WF {
 */
 
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
-            TBPROFILER_PROFILE_TBDB( ADAPTORS_AND_DOWNSAMPLING.out.updated_sample_ch1 )
-
-            TBPROFILER_PROFILE_WHO( TBPROFILER_PROFILE_TBDB.out.updated_sample_ch2 )
+            TBPROFILER_PROFILE( ADAPTORS_AND_DOWNSAMPLING.out.updated_sample_ch1 )
 
         // Run MTBSEQ_SINGLE
-            MTBSEQ_SINGLE( TBPROFILER_PROFILE_WHO.out.updated_sample_ch3 )
+            MTBSEQ_SINGLE( TBPROFILER_PROFILE.out.updated_sample_ch2 )
 
         // Run SNP_PROFILING_SINGLE using the mpileup output
-            SNP_PROFILING_SINGLE( MTBSEQ_SINGLE.out.updated_sample_ch4 )
+            SNP_PROFILING_SINGLE( MTBSEQ_SINGLE.out.updated_sample_ch3 )
 
             // create updated channel
-            branched_channel_with_reads_updated = SNP_PROFILING_SINGLE.out.updated_sample_ch5
+            branched_channel_with_reads_updated = SNP_PROFILING_SINGLE.out.updated_sample_ch4
 
         // Merge the processed samples with the samples without reads
             final_updated_sample_ch = branched_channel_with_reads_updated.mix(sample_ch_skip)

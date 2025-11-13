@@ -23,54 +23,52 @@ process SNP_PROFILING_SINGLE {
             else return null
         }
     
-    publishDir "${params.outDir}/db/mtbseq/samples/${sampleID}/SNP-Profiles/", mode: 'copy'
+    publishDir "${params.outDir}/db/samples/${sampleID}/snippy/", mode: 'copy'
 
     input:
         tuple val(sampleID), 
-                path(forward), path(reverse), path(mtbseq_class), 
+                path(fastq_1), path(fastq_2), path(mtbseq_class), 
                 path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
                 path(tbdb_out), path(who_out), path(mtbseq_vcf), path(mtbseq_mpileup)
 
     output:
-        tuple val(sampleID), 
-                path("${sampleID}.gatk.vcf.gz"), 
-                path("${sampleID}.gatk.vcf.gz.tbi"),                 emit: gatk_vcf_ch
-
         // tuple for updating the sample ch
-        tuple val(sampleID), path(forward), path(reverse), path(mtbseq_class), 
+        tuple val(sampleID), path(fastq_1), path(fastq_2), path(mtbseq_class), 
                 path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars),  
                 path(tbdb_out), path(who_out), 
-                path("${sampleID}.gatk.vcf.gz"),                     emit: updated_sample_ch5
+                path("${sampleID}.vcf"),                     emit: updated_sample_ch5
+
+        path("${sampleID}.aligned.fa")
+        path("${sampleID}.consensus.fa.gz")
+        path("${sampleID}.vcf")
 
     script:
+
     def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
     """
-    echo ${sampleID} > sample.list
+    # Check if R2 file has actual sequencing data
+        if [[ \$(zcat ${fastq_2} | head -n 4 | wc -l) -eq 4 ]]; then
+            echo "Using paired-end mode for ${sampleID}"
+            
+            snippy \\
+                --sampleID ${sampleID} \\
+                --outdir . \\
+                --reference ${params.snippy_reference} \\
+                --R1 ${fastq_1} --R2 ${fastq_2} \\
+                --force
+        else
+            echo "Using single-end mode for ${sampleID}"
+            
+            snippy \\
+                --sampleID ${sampleID} \\
+                --outdir . \\
+                --reference ${params.snippy_reference} \\
+                --se ${fastq_1} \\
+                --force
+        fi
 
-    varscan mpileup2cns ${mtbseq_mpileup} \\
-        ${additional_args} \\
-        --output-vcf 1 \\
-        --vcf-sample-list sample.list \\
-        > ${sampleID}.gatk.vcf
-
-    #bcftools view -O b9 ${sampleID}.gatk.vcf -o ${sampleID}.gatk.bcf.gz
-    #bcftools index ${sampleID}.gatk.bcf.gz
-
-    bgzip -c ${sampleID}.gatk.vcf > ${sampleID}.gatk.vcf.gz
-    tabix -p vcf ${sampleID}.gatk.vcf.gz
-
-    rm sample.list
-
-    # remove the published reads from the previous module:
-        rm -f  ${params.outDir}/db/mtbseq/samples/${sampleID}/${sampleID}_mtbc_R1.fastq.gz
-        rm -f  ${params.outDir}/db/mtbseq/samples/${sampleID}/${sampleID}_mtbc_R2.fastq.gz
-        rm -f  ${params.outDir}/db/mtbseq/samples/${sampleID}/tbdb-${sampleID}.results.txt
-        rm -f  ${params.outDir}/db/mtbseq/samples/${sampleID}/who-${sampleID}.results.txt
-
-    # Compress the outputs from MTBSeq mpileup
-        gzip --force --best ${params.outDir}/db/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileup
-        gzip --force --best ${params.outDir}/db/mtbseq/samples/${sampleID}/Mpileup/${sampleID}.gatk.mpileuplog
+        gzip --best ${sampleID}.consensus.fa
     """
 
 }

@@ -14,10 +14,9 @@ process SNP_PHYLOGENY {
 
     conda params.phylogeny_env
 
-    publishDir "${params.outDir}/db/mtbseq/pairwise/${lineage}/", mode: 'copy'
+    publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/", mode: 'copy'
 
     input:
-        val(runID)
         tuple val(lineage), 
                 path(fasta), 
                 path(tab)

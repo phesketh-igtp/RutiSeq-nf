@@ -1,4 +1,4 @@
-process TBPROFILER_PROFILE_TBDB {
+process TBPROFILER_PROFILE {
 
 /*
 @author: Poppy J Hesketh Best

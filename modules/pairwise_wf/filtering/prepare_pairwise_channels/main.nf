@@ -22,7 +22,6 @@ process PREPARE_PAIRWISE_CHANNELS {
     publishDir "${params.outDir}/results/", mode: 'copy'
     
     input:
-        val(runID)
         path(pairwise_analysis_list)
         val(sampleID_list)
 
