@@ -50,7 +50,6 @@ invisible(lapply(packages, library, character.only = TRUE))
 set.seed(1234)
 ```
 
-
 ```{r, import_data}
 #| eval: true
 #| echo: false

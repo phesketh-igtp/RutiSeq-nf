@@ -2,6 +2,7 @@
 
 nextflow.enable.dsl = 2
 
+include { CONTROL_WF }      from './workflows/control_wf.nf'
 include { PREPARE_SAMPLES } from './workflows/prepare-samples_wf.nf'
 include { SINGLE_WF }       from './workflows/single_wf.nf'
 include { PAIRWISE_WF }     from './workflows/pairwise_wf.nf'
@@ -134,7 +135,7 @@ workflow {
         ······································································································
         */
 
-            // CONTROL_WF(PREPARE_SAMPLES.out.controls.view )
+            CONTROL_WF( params.samplesheet )
 
         /*
         ······································································································
@@ -207,7 +208,9 @@ workflow {
                         PAIRWISE_WF.out.who_resistance,
                         PAIRWISE_WF.out.tbdb_resistance,
                         PAIRWISE_WF.out.phylogeny_plotting_ch,
-                        PAIRWISE_WF.out.nexus_creation_ch
+                        PAIRWISE_WF.out.nexus_creation_ch,
+                        CONTROL_WF.out.sylph_results,
+                        CONTROL_WF.out.reads_taxonomy_qc_report_out
                     )
 
         /*

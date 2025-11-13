@@ -180,9 +180,18 @@ workflow PREPARE_SAMPLES {
     all_samples_ch.view { "Final sample: ${it[0]}" }
 
     emit:
-    samples     = samples_ch         // tuple: [ sampleID, forward, reverse ]
-    controls    = controls_ch        // tuple: [ sampleID, forward, reverse ]
-    all_samples = all_samples_ch     // tuple: [ sampleID, forward, reverse, type, ... all other fields ]
-    verified    = verified_samples_ch // file: collected sample paths
+        all_samples = all_samples_ch     // tuple: [ sampleID, forward, reverse, type, ... all other fields ]
     
 }
+
+/*
+    @author: Poppy J Hesketh Best
+    @date: 2025-11-12
+    @version: 1.0.0
+    @description: 
+        This workflow prepares and validates samples from a samplesheet. It fetches SRA/ENA samples if needed,
+        checks for required columns and non-empty file paths, and verifies if samples have been previously analyzed.
+        Was originally in the main.nf, but moved to its own workflow for better modularity.
+    @changelog
+        v1.0.0-2025-11-12: Initial version
+*/

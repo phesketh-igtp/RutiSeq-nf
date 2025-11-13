@@ -20,6 +20,9 @@ process GENERATE_SUMMARY_REPORT {
         path sequencing_summary
         path who_resistance
         path tbdb_resistance
+        path(sylph_results, stageAs: 'sylph_results.tsv')
+        tuple path(html_report), path(warnings, stageAs: 'warnings.out')
+        
 
     output:
         path("${runID}_RutiSeq-results.xlsx")

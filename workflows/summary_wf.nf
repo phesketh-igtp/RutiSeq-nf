@@ -24,6 +24,8 @@ workflow SUMMARY_WF{
         tbdb_resistance
         phylogeny_plotting_ch
         nexus_creation_ch
+        sylph_results
+        reads_taxonomy_qc_report_out
 
     main:
 
@@ -41,7 +43,9 @@ workflow SUMMARY_WF{
                                         //PROCESS_CLUSTERS.out.pairwise_clusters_processed,
                                         analysis_summary,
                                         who_resistance,
-                                        tbdb_resistance
+                                        tbdb_resistance,
+                                        sylph_results,
+                                        reads_taxonomy_qc_report_out
                                     )
 
         // Plot main ML phylogeny
@@ -113,7 +117,11 @@ workflow SUMMARY_WF{
         // Cleanup unwanted files
             //POST_SUMMARY_CLEANUP( CONCATENATED_VARIANT_FILES.out.cleanup_handover )
 
-            DATA_DELIVERY( runID, CONCATENATED_VARIANT_FILES.out.cleanup_handover )
+            DATA_DELIVERY( 
+                        CONCATENATED_VARIANT_FILES.out.cleanup_handover,
+                        sylph_results,
+                        reads_taxonomy_qc_report_out
+                        )
 
             //GENERATE_REPORT()
 

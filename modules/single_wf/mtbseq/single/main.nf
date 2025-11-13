@@ -13,13 +13,10 @@ process MTBSEQ_SINGLE {
         the files needs to have the ${sampleID} in the name for the next steps, so I reverted back to
         just moving the files into a name structure. This is a bit of a hack, but it works for now.
             TODO: revisit this issue.
-
-        Like the previous modules, the input for this module is the paths to all the files
-        needed for a sample to proceed into the PAIRWISE_WF(), which litters the publish directory
-        these excess files and are removed at the very end. This was originally done with a IF argument
-        to only remove them if the files did not exist - this prevents nextflow complaining of they 
-        were not generated - but this created some sybtax errors, so I changed it to touching the 
-        files then removing them manually. TODO: might be to revisit this at a later date.
+    @chagelog
+        v1.0.0-2025-04-01: Initial version
+        v1.0.1-2025-04-04: Added more comments and description
+        v2.0.0-2025-06-10: Added support for different MTBSeq referencess
 */
 
     tag "$sampleID"
@@ -50,10 +47,8 @@ process MTBSEQ_SINGLE {
     output:
         path("Called/*")
         path("Classification/${sampleID}.Strain_Classification.tab")
-        path("Mpileup/*")
         path("Position_Tables/*")
         path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab")
-        path("Bam/*")
         path("GATK_Bam/*")
 
         // tuple for updating the sample_ch
@@ -69,12 +64,11 @@ process MTBSEQ_SINGLE {
 
     script:
 
-        def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
-
         """
         # Run MTBseq for a single sample
 
             MTBseq --step TBfull \\
+                --reference     ${params.mtbseq_reference} \\
                 --thread        ${task.cpus} \\
                 --minbqual      ${params.mtbseq_minbqual} \\
                 --mincovf       ${params.mtbseq_mincovf} \\
@@ -83,7 +77,7 @@ process MTBSEQ_SINGLE {
                 --minfreq       ${params.mtbseq_minfreq} \\
                 --unambig       ${params.mtbseq_unambig} \\
                 --window        ${params.mtbseq_window} \\
-                ${additional_args} \\
+                ${params.mtbseq_args} \\
                 1>>.command.out \\
                 2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 

@@ -9,6 +9,8 @@ process TBPROFILER_PROFILE {
     resistance genes using the TBDB database.
 @changelog:
     v1.0.1-2025-04-08: Fixed - correct tb-profiler db paths
+    v2.0.0-2025-11-13: Merged both TBDB and WHO profiling into a single module
+                        Added support for single-end reads
 */
 
     tag "$sampleID"
@@ -26,23 +28,21 @@ process TBPROFILER_PROFILE {
 
     input:
         tuple val(sampleID), 
-            path(mtbc_forward), path(mtbc_reverse), path(mtbseq_class), 
+            path(fastq_1), path(fastq_2), path(mtbseq_class), 
             path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
-            path(tbdb_out), path(who_out), path(mtbseq_vcf)
+            path(tbdb_out), path(who_out), path(snippy_vcf)
 
     output:
-        path("bam/tbdb-${sampleID}.bam")
-        path("vcf/tbdb-${sampleID}.targets.vcf.gz")
         path("results/tbdb-${sampleID}.results.json")
         path("results/tbdb-${sampleID}.results.txt")
 
         // tuple for updating the sample ch
         tuple val(sampleID), 
-            path(mtbc_forward), path(mtbc_reverse), path(mtbseq_class), 
+            path(fastq_1), path(fastq_2), path(mtbseq_class), 
             path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars),  
             path("results/tbdb-${sampleID}.results.txt"), // generated in this module
             path("results/who-${sampleID}.results.txt"), // generated in this module
-            path(mtbseq_vcf),                            emit: updated_sample_ch2
+            path(snippy_vcf),                            emit: updated_sample_ch2
 
     script:
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
@@ -53,12 +53,23 @@ process TBPROFILER_PROFILE {
             tb-profiler update_tbdb --branch who
 
         # Run TB-Proiler using TBDB database
+        if [[ ! ${fastq_2}]]; then
+            echo "Single-end reads detected, running TB-Profiler WHO database with single-end mode."
                 tb-profiler profile \\
-                    -1 ${mtbc_forward} \\
-                    -2 ${mtbc_reverse} \\
+                    -1 ${fastq_1} \\
                     -p tbdb-${sampleID} \\
-                    --txt --dir . --platform illumina \\
+                    --txt --dir . --platform nanopore \\
                     --db tbdb/tbdb ${additional_args}
+
+        else
+            echo "paired-end reads detected, running TB-Profiler WHO database with single-end mode."
+                tb-profiler profile \\
+                        -1 ${fastq_1} \\
+                        -2 ${fastq_2} \\
+                        -p tbdb-${sampleID} \\
+                        --txt --dir . --platform illumina \\
+                        --db tbdb/tbdb ${additional_args}
+        fi
 
         # Touch the output files to the correct directory
                 touch bam/tbdb-${sampleID}.bam
@@ -67,16 +78,23 @@ process TBPROFILER_PROFILE {
                 touch results/tbdb-${sampleID}.results.txt
 
         # Run the WHO database next:
-            tb-profiler profile \\
-                    -1 ${mtbc_forward} \\
-                    -2 ${mtbc_reverse} \\
+        if [[ ! ${fastq_2}]]; then
+            echo "Single-end reads detected, running TB-Profiler WHO database with single-end mode."
+                tb-profiler profile \\
+                    -1 ${fastq_1} \\
                     -p tbdb-${sampleID} \\
-                    --txt --dir . --platform illumina \\
+                    --txt --dir . --platform nanopore \\
                     --db tbdb/who ${additional_args}
 
-        # remove the published files from the previous module:
-            rm -f ${params.outDir}/db/read-qc/mtbc_reads/${sampleID}_mtbc_R1.fastq.gz
-            rm -f ${params.outDir}/db/read-qc/mtbc_reads/${sampleID}_mtbc_R2.fastq.gz
+        else
+            echo "paired-end reads detected, running TB-Profiler WHO database with single-end mode."
+                tb-profiler profile \\
+                        -1 ${fastq_1} \\
+                        -2 ${fastq_2} \\
+                        -p tbdb-${sampleID} \\
+                        --txt --dir . --platform illumina \\
+                        --db tbdb/who ${additional_args}
+        fi
         """
 }
 
