@@ -138,8 +138,8 @@ workflow PREPARE_SAMPLES {
 
     // Fetch SRA/ENA samples (if any in comp_samples_ch)
     FETCH_SRA(
-        branched_ENA_samples.sra_ena.map { tuple(it[0], it[3]) }
-    )
+                branched_ENA_samples.sra_ena.map { tuple(it[0], it[3]) }
+            )
 
     // Update the tuple with downloaded FASTQs
     updated_comp_sra_samples = branched_ENA_samples.sra_ena
