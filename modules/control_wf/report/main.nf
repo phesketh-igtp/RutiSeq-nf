@@ -12,7 +12,7 @@ process READ_TAXONOMY_QC_REPORT {
 
     conda params.r_stats_env
 
-    publishDir "${params.outdir}/RutiSeq/${params.runID}/reports", mode: 'move', overwrite: true
+    storeDir "${params.outDir}/db/qc/${params.runID}/"
 
     input:
         path(sylph_output, stageAs: 'sylph_classification.tsv')
@@ -28,7 +28,7 @@ process READ_TAXONOMY_QC_REPORT {
     
     """
     # Copy the quarto document to the work directory
-    cp ${params.scriptDir}/quarto/read_taxonomy_qc_report.qmd ${params.runID}_reads-controls-report.qmd
+    cp ${params.scriptDir}/quarto/reads-controls-report.qmd ${params.runID}_reads-controls-report.qmd
 
     # Render the report
         quarto render ${params.runID}_reads-controls-report.qmd \

@@ -17,7 +17,7 @@ execute:
 #| echo: false
 #| warning: false
 packages <- c(
-    "tidyverse", "plotly", "DT", "UpSetR"
+    "tidyverse", "plotly", "DT"
 )
 
 # Identify missing packages
@@ -52,7 +52,7 @@ metat <- read.csv("samplesheet.csv",
                   header = TRUE)
   metat$forward_base <- basename(metat$forward_path)
   metat$reverse_base <- basename(metat$reverse_path)
-colnames(metat)
+
 ska_distances <- read.delim("ska_distance.tsv")
 read_stats <- read.delim("read_stats.tsv")
 sylph_df <- read.delim("sylph_classification.tsv", 
@@ -74,7 +74,6 @@ metat2 <- metat |>
   select(sampleID, dataType=type, file, direction)
 
 read_stats <- left_join(read_stats, metat2, by = "file")
-colnames(read_stats)
 ```
 
 ```{r, interactive_read_bp_fun}
@@ -95,7 +94,6 @@ plot_stacked_reads <- function(df = read_stats, datatype_filter) {
               linetype = "dashed",
               linewidth = 1.5)  
   ggplotly(p)
-  p
 }
 ```
 
@@ -159,48 +157,62 @@ interactive_tax_bp <- function(df = sylph_long,
                               type_filter = NULL,
                               tax_level = NULL) {
 
-  # Convert tax_level (string) into a symbol for tidy evaluation
   tax_sym <- sym(tax_level)
 
-  # Filter and select data
-  plot_df <- df %>%
-    filter(type %in% type_filter) %>%
-    select(tax = !!tax_sym, identity, perc) %>%
-    filter(!is.na(tax)) %>%
-    group_by(identity, tax) %>%
-    summarise(mean_perc = mean(perc), .groups = "drop") %>%
-    group_by(identity) %>%
-    # Add "Unknown" to make total 100 if needed
-    summarise(
-      tax = c(tax, if(sum(mean_perc) < 100) "NaN" else NULL),
-      mean_perc = c(mean_perc, if(sum(mean_perc) < 100) 100 - sum(mean_perc) else NULL),
-      .groups = "drop"
-    )
+  plot_df <- df |>
+    filter(type %in% type_filter) |>
+    select(tax = !!tax_sym, identity, perc) |>
+    mutate(tax = ifelse(is.na(tax), "Unclassified", tax)) |> 
+    distinct() |>
+    group_by(tax, identity) |>
+    slice_max(perc, n = 1, with_ties = FALSE) |>
+    ungroup()
 
-    # Create a color palette for all taxa except Unclassified
-    taxa <- unique(plot_df$tax)
-    taxa_no_unclassified <- setdiff(taxa, "NaN")
-    palette <- scales::hue_pal()(length(taxa_no_unclassified))  # default ggplot colors
-    names(palette) <- taxa_no_unclassified
+  # -----------------------------
+  # ** Handle empty dataset **
+  # -----------------------------
+  if (nrow(plot_df) == 0) {
+    message("No taxa found for tax_level = ", tax_level,
+            " and type_filter = ", paste(type_filter, collapse = ", "))
 
-    # Add Unclassified as grey50
-    palette["Unclassified"] <- "grey50"
+    # Return an empty but valid plot
+    p <- ggplot() +
+      theme_void() +
+      labs(title = paste("No taxa detected at", tax_level, "level"))
 
-    # Plot
-    p <- ggplot(plot_df, aes(x = identity, y = mean_perc, fill = tax)) +
-      geom_col() +
-      theme_bw() +
-      labs(
-        x = "",
-        y = "Percentage of Reads",
-        fill = tax_level,
-        title = paste("Taxonomic Composition at", tax_level, "Level")
-      ) +
-      scale_fill_manual(values = palette) +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8))
+    return(ggplotly(p))
+  }
 
-    p
-    #ggplotly(p)
+  taxa <- unique(plot_df$tax)
+  taxa_classified <- taxa[taxa != "Unclassified"]
+
+  # If all remaining taxa = Unclassified
+  if (length(taxa_classified) == 0) {
+
+    palette <- c(Unclassified = "grey70")
+
+  } else {
+    palette <- scales::hue_pal()(length(taxa_classified))
+    names(palette) <- taxa_classified
+
+    if ("Unclassified" %in% taxa) {
+      palette <- c(palette, Unclassified = "grey70")
+    }
+  }
+
+  p <- ggplot(plot_df, aes(x = identity, y = perc, fill = tax)) +
+    geom_col() +
+    theme_bw() +
+    labs(
+      x = "",
+      y = "Percentage of Reads",
+      fill = tax_level,
+      title = paste("Taxonomic Composition at", tax_level, "Level")
+    ) +
+    scale_fill_manual(values = palette) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8))
+
+  ggplotly(p)
 }
 ```
 
@@ -374,8 +386,8 @@ p <- ggplot(pcoa_df,
   labs(title = "PCoA Plot of Kmer Distances",
       x = "PC1",
       y = "PC2")
-  p
-  #ggplotly(p)
+
+  ggplotly(p)
 ```
 
 ## ⚠️ Potentially Problematic Samples and Controls

@@ -129,8 +129,8 @@ workflow PREPARE_SAMPLES_WF {
         }
         .filter { it != null }
 
-    // Report final samples
-    all_samples_ch.view { "Final sample: ${it[0]}" }
+    // DEBUG: Report final samples
+    //all_samples_ch.view { "Final sample: ${it[0]}" }
 
     emit:
         all_samples   = all_samples_ch     // tuple: [ sampleID, forward, reverse, type, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf ]

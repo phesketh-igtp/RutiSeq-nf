@@ -39,7 +39,8 @@ workflow CONTROL_WF {
             READ_TAXONOMY_QC_REPORT( 
                                     SYLPH_CLASSIFICATION.out.sylph_out,
                                     SKA_PROFILING.out.ska_out,
-                                    READS_STATS.out.reads_stats_out
+                                    READS_STATS.out.reads_stats_out,
+                                    samplesheet
                                     )
 
     emit:
