@@ -1,15 +1,28 @@
 process READ_TAXONOMY_QC_REPORT {
 
+/*
+    @author: Poppy J hesketh Best
+    @date: 2025-11-17
+    @version: v1.0.0
+    @description:
+        Produces read statistics report from the outputs of Sylph, SKA2, seqkit.
+    @changelog:
+        v1.0.0-2025-11-17: Functioning module created.
+*/
+
+    conda params.r_stats_env
+
     publishDir "${params.outdir}/RutiSeq/${params.runID}/reports", mode: 'move', overwrite: true
 
     input:
-        path(sylph_output, stageAs: 'sylph_classification.csv')
-        path(ska_input, stageAs: 'ska_profiling.csv')
-        path(read_stats, stageAs: 'read_stats.csv')
+        path(sylph_output, stageAs: 'sylph_classification.tsv')
+        path(ska_input, stageAs: 'ska_distance.tsv')
+        path(read_stats, stageAs: 'read_stats.tsv')
+        path(samplesheet, stageAs: 'samplesheet.csv')
 
     output:
-    tuple path("${params.runID}_reads-controls-report.qmd"),
-        path("${params.runID}_warnings.out"), emit: reads_taxonomy_qc_report_out
+    tuple path("${params.runID}_reads-controls-report.qmd", optional: true),
+        path("${params.runID}_warnings.out", optional: true), emit: html
     
     script:
     

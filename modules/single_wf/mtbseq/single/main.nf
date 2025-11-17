@@ -34,8 +34,9 @@ process MTBSEQ_SINGLE {
 
     input:
         tuple val(sampleID), 
-                path(mtbc_forward), //, stageAs: "${sampleID}_R1.fastq.gz"
-                path(mtbc_reverse), //, stageAs: "${sampleID}_R2.fastq.gz"
+                path(fastq_1), 
+                path(fastq_2),
+                val(type),
                 path(mtbseq_class), 
                 path(mtbseq_stats), 
                 path(mtbseq_pos), 
@@ -49,18 +50,19 @@ process MTBSEQ_SINGLE {
         path("Classification/${sampleID}.Strain_Classification.tab")
         path("Position_Tables/*")
         path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab")
-        path("GATK_Bam/*")
 
         // tuple for updating the sample_ch
         tuple val(sampleID), 
-                path(mtbc_forward), 
-                path(mtbc_reverse), 
+                path(fastq_1), 
+                path(fastq_2),
+                val(type),
                 path("Classification/${sampleID}.Strain_Classification.tab"), 
                 path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab"), 
                 path("Position_Tables/${sampleID}.gatk_position_table.tab"), 
                 path("Called/${sampleID}.gatk_position_variants_*.tab"),  
-                path(tbdb_out), path(who_out), 
-                path(mtbseq_vcf),path("Mpileup/${sampleID}.gatk.mpileup"), emit: updated_sample_ch3
+                path(tbdb_out), 
+                path(who_out), 
+                path(mtbseq_vcf), emit: updated_sample_ch3
 
     script:
 
@@ -85,11 +87,6 @@ process MTBSEQ_SINGLE {
         ## this prevent clashes later on
             cat Classification/Strain_Classification.tab > Classification/${sampleID}.Strain_Classification.tab
             cat Statistics/Mapping_and_Variant_Statistics.tab > Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
-
-        # remove the published reads from the previous module:
-            rm -f  ${params.outDir}/db/tbprofiler/who-only/${sampleID}_mtbc_R1.fastq.gz       
-            rm -f  ${params.outDir}/db/tbprofiler/who-only/${sampleID}_mtbc_R2.fastq.gz
-            rm -f  ${params.outDir}/db/tbprofiler/who-only/${sampleID}/tbdb-${sampleID}.results.txt
         """
 
 }

@@ -7,6 +7,7 @@ include { MTBSEQ_LINEAGE_GROUP }        from '../modules/pairwise_wf/mtbseq/line
 include { SNP_PHYLOGENY }               from '../modules/pairwise_wf/phylogeny/concatenated_snp_phylogeny/main.nf'
 include { CONCATENATE_CLUSTERS }        from '../modules/pairwise_wf/pairwise/concatenate-cluster-file/main.nf'
 include { SNIPPY_CORE }                 from '../modules/pairwise_wf/pairwise/snippy-core/main.nf'
+//include { SNIPPY_PHYLOGENY }            from '../modules/pairwise_wf/pairwise/snippy-phylogeny/main.nf'
 
 workflow PAIRWISE_WF {
     

@@ -10,8 +10,6 @@ execute:
   echo: false
   warning: false
   message: false
-params:
-  runID: "default_run"
 ---
 
 ```{r, load_packages}
@@ -25,18 +23,19 @@ packages <- c(
 # Identify missing packages
 missing_pkgs <- packages[!packages %in% installed.packages()[, "Package"]]
 
-# Install missing packages
+# Install missing packages without prompt using Bristol mirror
 if (length(missing_pkgs) > 0) {
-    install.packages(missing_pkgs, dependencies = TRUE)
+    install.packages(
+        missing_pkgs,
+        dependencies = TRUE,
+        repos = "https://cran.ma.ic.ac.uk/"
+    )
 }
 
 # Load all packages
 invisible(lapply(packages, library, character.only = TRUE))
 
 set.seed(1234)
-
-# Read environment variables
-runID             <- params$runID
 ```
 
 ```{r, test_setwd}
@@ -44,9 +43,61 @@ runID             <- params$runID
 #| echo: false
 #| warning: false
 setwd("/Users/poppybest/Documents/Work/Github/RutiSeq-nf/bin/quarto/")
+setwd("/home/phesketh/Documents/GitHub/TBSEQ.cat-nf/bin/quarto")
+```
+
+```{r, import_df}
+# sampe metadata
+metat <- read.csv("samplesheet.csv", 
+                  header = TRUE)
+  metat$forward_base <- basename(metat$forward_path)
+  metat$reverse_base <- basename(metat$reverse_path)
+colnames(metat)
+ska_distances <- read.delim("ska_distance.tsv")
+read_stats <- read.delim("read_stats.tsv")
+sylph_df <- read.delim("sylph_classification.tsv", 
+                        header = TRUE, 
+                        check.names = FALSE)
+  colnames(sylph_df) <- sub("_R[12]\\.fastq\\.gz$", "", colnames(sylph_df))
 ```
 
 ## Total reads sequenced
+
+```{r, wrangle_reads_df}
+metat2 <- metat |>
+  select(sampleID, forward_base, reverse_base, type) |>
+  pivot_longer(
+    cols = c(forward_base, reverse_base),
+    names_to = "direction",
+    values_to = "file"
+  ) |>
+  select(sampleID, dataType=type, file, direction)
+
+read_stats <- left_join(read_stats, metat2, by = "file")
+colnames(read_stats)
+```
+
+```{r, interactive_read_bp_fun}
+plot_stacked_reads <- function(df = read_stats, datatype_filter) {
+  
+  # Filter data (allow multiple dataTypes)
+  df_filt <- df %>% 
+    filter(dataType %in% datatype_filter)
+  
+  # ggplot
+  p <- ggplot(df_filt, aes(x = sampleID, y = num_seqs, fill = direction)) +
+    geom_bar(stat = "identity", position = "stack") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    scale_fill_manual(values = c("#4679A3", "#A6739B")) +
+    geom_hline(yintercept = 1e6, 
+              color = "green", 
+              linetype = "dashed",
+              linewidth = 1.5)  
+  ggplotly(p)
+  p
+}
+```
 
 ::: {.panel-tabset}
 
@@ -55,7 +106,7 @@ setwd("/Users/poppybest/Documents/Work/Github/RutiSeq-nf/bin/quarto/")
 #| eval: false
 #| echo: true
 #| warning: false
-interactive_read_bp(type = c("sample","ENA","SRA"))
+plot_stacked_reads(datatype_filter = c("sample","ENA","SRA"))
 ```
 
 ### Controls
@@ -64,7 +115,7 @@ interactive_read_bp(type = c("sample","ENA","SRA"))
 #| eval: false
 #| echo: false
 #| warning: false
-interactive_read_bp(type = "control")
+plot_stacked_reads(datatype_filter = "control")
 ```
 
 :::
@@ -77,12 +128,10 @@ Reads were taxonomically classified using Sylph with the GDR220 database.
 #| eval: true
 #| echo: true
 #| warning: false
-sylph <- read.csv("sylph_classification.csv", check.names = FALSE, header = TRUE)
-index <- read.csv("meta.csv", check.names = FALSE, header = TRUE)
-colnames(index) <- c("identity", "type")
+index <- metat |> select(identity=sampleID, type) |> distinct()
 
 # Make ggplot compatible dataframe
-sylph_long <- sylph %>%
+sylph_long <- sylph_df %>%
   pivot_longer(
     cols = -clade_name,
     names_to = "identity",
@@ -97,12 +146,14 @@ sylph_long <- sylph %>%
     too_few = "align_start"    # or "drop" if you don’t need debug info
   )
 
-sylph_long <- sylph_long |> filter()
-
 # Add the index information (type: sample/ENA/SRA or control)
 sylph_long <- left_join(sylph_long, index)
 sylph_long$perc <- as.numeric(sylph_long$perc)
+```
 
+```{r, func_interactive_tax_bp}
+#| eval: true
+#| echo: true
 # Make function for plotting the data
 interactive_tax_bp <- function(df = sylph_long,
                               type_filter = NULL,
@@ -148,7 +199,8 @@ interactive_tax_bp <- function(df = sylph_long,
       scale_fill_manual(values = palette) +
       theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8))
 
-    ggplotly(p)
+    p
+    #ggplotly(p)
 }
 ```
 
@@ -280,7 +332,50 @@ In this section, the results of SKA2 k-mer comparison are used to generate PCoA 
 #| eval: true
 #| echo: true
 #| warning: false
+samples <- unique(c(ska_distances$Sample1, ska_distances$Sample2))
 
+#Initialize empty matrix
+dist_matrix <- matrix(0, nrow = length(samples), ncol = length(samples),
+                      dimnames = list(samples, samples))
+
+# Fill in distances
+for(i in 1:nrow(ska_distances)) {
+  s1 <- ska_distances$Sample1[i]
+  s2 <- ska_distances$Sample2[i]
+  d  <- ska_distances$Distance[i]
+  dist_matrix[s1, s2] <- d
+  dist_matrix[s2, s1] <- d   # symmetric
+}
+
+# Convert to dist object
+dist_obj <- as.dist(dist_matrix)
+
+# Run PCoA
+pcoa_res <- cmdscale(dist_obj, k = 2)  # 2D
+
+pcoa_df <- data.frame(
+  Sample = rownames(pcoa_res),
+  PC1 = pcoa_res[,1],
+  PC2 = pcoa_res[,2]
+)
+
+pcoa_df <- left_join(pcoa_df, index, by = c("Sample" = "identity"))
+
+# Plot
+p <- ggplot(pcoa_df, 
+            aes(
+                x = PC1, 
+                y = PC2, 
+                label = Sample,
+                color = type)) +
+  scale_fill_manual(values = c("#2A5783", "grey50")) +
+  geom_point(size = 4) +
+  theme_minimal() +
+  labs(title = "PCoA Plot of Kmer Distances",
+      x = "PC1",
+      y = "PC2")
+  p
+  #ggplotly(p)
 ```
 
 ## ⚠️ Potentially Problematic Samples and Controls

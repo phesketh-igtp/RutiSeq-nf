@@ -33,7 +33,7 @@ process SNP_PHYLOGENY {
 
     """
     # Create the fasta files for the phylogeny
-        bash ${params.script_dir}/shell/concatenate-variable-pylogeny-ancestors.sh \\
+        bash ${params.scriptDir}/shell/concatenate-variable-pylogeny-ancestors.sh \\
                 ${fasta} ${lineage} \\
                 ${tab} ${params.mtbc_ancestor_path}
 

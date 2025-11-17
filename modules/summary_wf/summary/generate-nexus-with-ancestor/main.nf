@@ -10,7 +10,7 @@ process GENERATE_NEXUS_W_MRCA {
         The process takes the output of the SNP profiling process and the pairwise clusters file.
 */
 
-    conda params.snp_profiling_env 
+    conda params.snippy_env 
 
     tag "cluster: ${clusterID}"
 

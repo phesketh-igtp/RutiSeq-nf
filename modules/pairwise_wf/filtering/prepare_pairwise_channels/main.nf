@@ -44,7 +44,7 @@ process PREPARE_PAIRWISE_CHANNELS {
             echo "Pairwise analysis at sub-lineage level lineage split"
 
                 # Run the script to generate pairwise analysis tuples
-                    Rscript ${params.r_script_dir}/create_pairwise_analysis_tuple_sub.R \\
+                    Rscript ${params.r_scriptDir}/create_pairwise_analysis_tuple_sub.R \\
                         1>>.command.out \\
                         2>>.command.err || true # i think this helps (?)
 
@@ -62,7 +62,7 @@ process PREPARE_PAIRWISE_CHANNELS {
             echo "Pairwise analysis at main-lineage level lineage split"
 
                 # Run the script to generate pairwise analysis tuples
-                    Rscript ${params.r_script_dir}/create_pairwise_analysis_tuple_main.R \\
+                    Rscript ${params.r_scriptDir}/create_pairwise_analysis_tuple_main.R \\
                         1>>.command.out \\
                         2>>.command.err || true # i think this helps (?)
 

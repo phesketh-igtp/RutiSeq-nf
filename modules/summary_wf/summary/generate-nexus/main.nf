@@ -12,7 +12,7 @@ process GENERATE_NEXUS {
         networks.
 */
 
-    conda params.snp_profiling_env 
+    conda params.snippy_env 
 
     tag "cluster: ${clusterID}"
 

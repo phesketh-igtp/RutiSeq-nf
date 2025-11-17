@@ -3,8 +3,6 @@ include { GENERATE_SUMMARY_REPORT    }   from '../modules/summary_wf/summary/sum
 include { PLOT_MAIN_PHYLOGENY        }   from '../modules/summary_wf/summary/plot-phylogeny/main.nf'
 include { PREPARE_NEXUS_PATHS        }   from '../modules/summary_wf/summary/prepare-nexus-paths/main.nf'
 include { GENERATE_NEXUS             }   from '../modules/summary_wf/summary/generate-nexus/main.nf'
-include { TABULATE_VARIANT_SITES     }   from '../modules/summary_wf/summary/tabulate-variant-positions/main.nf'
-include { CONCATENATED_VARIANT_FILES }   from '../modules/summary_wf/summary/concatenate-variant-positions/main.nf'
 include { POST_SUMMARY_CLEANUP       }   from '../modules/summary_wf/summary/post-summary-cleanup-handover/main.nf'
 include { GENERATE_TIMETREES         }   from '../modules/summary_wf/summary/generate-timetrees/main.nf'
 include { PLOT_TIMETREES             }   from '../modules/summary_wf/summary/plot-timetrees/main.nf'
@@ -71,15 +69,6 @@ workflow SUMMARY_WF{
 
             GENERATE_NEXUS( nexus_ch )
 
-            TABULATE_VARIANT_SITES( 
-                                GENERATE_NEXUS.out.variant_sites_for_tabulation 
-                                )
-
-            CONCATENATED_VARIANT_FILES( 
-                                        TABULATE_VARIANT_SITES.out.tabular_vars.collect(),
-                                        TABULATE_VARIANT_SITES.out.tabular_var_counts.collect()
-                                        )
-
         // If metadata is provided then the following modules are run
             if (params.metadata) {
                 log.info "${cyan}Metadata provided. Generating time trees and ancestral sequences.${no_col}"
@@ -118,13 +107,16 @@ workflow SUMMARY_WF{
                 log.info "${cyan}No metadata provided. TimeTrees and ancestral sequences will not be generated.${no_col}"
             }
 
+            finish_handover = GENERATE_NEXUS.out.annotated_nexus_ch \
+                                .mix( GENERATE_ANNOTATED_NEXUS.out.annotated_nexus_ch )
+
         // Cleanup unwanted files
             //POST_SUMMARY_CLEANUP( CONCATENATED_VARIANT_FILES.out.cleanup_handover )
 
-            DATA_DELIVERY( 
-                        CONCATENATED_VARIANT_FILES.out.cleanup_handover,
+            DATA_DELIVERY(
                         sylph_results,
-                        reads_taxonomy_qc_report_out
+                        reads_taxonomy_qc_report_out,
+                        finish_handover
                         )
 
             //GENERATE_REPORT()

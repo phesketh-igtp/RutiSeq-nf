@@ -39,7 +39,7 @@ process CONCATENATE_CLUSTERS {
             done
 
         # Load the R script for processing clusters
-            Rscript ${params.r_script_dir}/process_clusters.R
+            Rscript ${params.r_scriptDir}/process_clusters.R
 
         """
 

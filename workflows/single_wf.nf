@@ -12,6 +12,7 @@ workflow SINGLE_WF {
 
     take:
         comp_samples_ch
+        tbprofiler_db
 
     main:
 
@@ -44,10 +45,10 @@ workflow SINGLE_WF {
             nonskipped_samples_count.combine(skipped_samples_count)
                 .map { with_reads, without_reads -> 
                 log.info "${green}------------------------------------------------------------------------------------------------------------------------------------------${no_col}"
-                log.info "${green}runID: ${red}${params.runID}${green} || For ${cyan}SINGLE_WF()${green} : ${red}${with_reads}${green} samples || Skipped until ${cyan}PAIRWISE()${green}: ${red}${without_reads}${green} samples${no_col}"
+                log.info "${green}runID: ${red}${params.runID}${green} || For ${cyan}SINGLE_WF()${green} : ${red}${with_reads}${green} samples || Skippedd${green}: ${red}${without_reads}${green} samples${no_col}"
                 log.info "${green}------------------------------------------------------------------------------------------------------------------------------------------${no_col}"
-                log.info "${green}------------------------------------------------------------------------------------------------------------------------------------------${no_col}"
-                log.info "${red}Caution: If you expected all of the samples to be analysed, check for duplicated sampleIDs in: ${purple}${params.outDir}/RutiSeq/db/samples${no_col}"
+                log.info "${red}Caution: If you expected all of the samples to be analysed, check for duplicated sampleIDs in:${no_col}"
+                log.info "      - ${purple}${params.outDir}/RutiSeq/db/samples${no_col}"
                 log.info "${green}------------------------------------------------------------------------------------------------------------------------------------------${no_col}"
                 }
 
@@ -63,15 +64,11 @@ workflow SINGLE_WF {
             ADAPTORS_AND_DOWNSAMPLING( branched_channel.with_reads )
             //ADAPTORS_AND_DOWNSAMPLING_SE(branched_channel.with_reads_se )
 
-/*
-                // Identify reads that have mixed taxonomy
-                TODO: implement this module
-                SYLPH_CLASSIFICATION_INSPECTION( SYLPH_CLASSIFICATION.out.sylph_res, 
-                                                    failed_samples_report )
-*/
-
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
-            TBPROFILER_PROFILE( ADAPTORS_AND_DOWNSAMPLING.out.updated_sample_ch1 )
+            TBPROFILER_PROFILE( 
+                                ADAPTORS_AND_DOWNSAMPLING.out.updated_sample_ch1,
+                                tbprofiler_db
+                                )
 
         // Run MTBSEQ_SINGLE
             MTBSEQ_SINGLE( TBPROFILER_PROFILE.out.updated_sample_ch2 )

@@ -14,10 +14,13 @@ process DATA_DELIVERY {
     tag "${params.runID}"
 
     input:
-        path(handover)
         path(sylph_results, stageAs: 'sylph_results.tsv')
+
         tuple path(html_report, stageAs: "${params.runID}_reads-controls-report.html"),
             path(warnings, stageAs: 'warnings.out')
+        
+        path(nexus_handover)
+        
 
     script:
 

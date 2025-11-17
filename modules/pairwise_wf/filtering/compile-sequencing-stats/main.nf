@@ -41,14 +41,14 @@ process COMPILE_SEQUENCING_STATS {
 
     """
     # Create the lienage fraction strings
-        Rscript ${params.r_script_dir}/tbprofiler_lineage_fractions.R
+        Rscript ${params.r_scriptDir}/tbprofiler_lineage_fractions.R
             #--tbprofiler ${tbdb_results} --lineages lineages.fractions.txt
 
     # Generate summary statistics and create the sampleID,lineage df for
     ## creating into a channel TODO: need to fix this script in generating the output for tuplec creation
-        Rscript ${params.r_script_dir}/compile-sequencing-statistics.R \\
+        Rscript ${params.r_scriptDir}/compile-sequencing-statistics.R \\
                     --runID ${params.runID} \\
-                    --dictionary_path ${params.r_script_dir}
+                    --dictionary_path ${params.r_scriptDir}
 
     # Convert the list of sample IDs to a format suitable for grep
         echo '${sampleID_list.join("\n")}' > run_sample_ids.txt

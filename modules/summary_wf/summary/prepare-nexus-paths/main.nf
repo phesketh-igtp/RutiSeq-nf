@@ -13,7 +13,7 @@ process PREPARE_NEXUS_PATHS{
         ["lineage", "clusterID", "fasta_path", "tab_path"]
 */
 
-    conda params.snp_profiling_env 
+    conda params.snippy_env 
 
     tag "${lineage}"
 

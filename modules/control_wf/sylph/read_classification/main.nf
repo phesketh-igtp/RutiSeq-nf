@@ -4,24 +4,28 @@ process SYLPH_CLASSIFICATION {
 /*
     @author: Poppy J Hesketh Best
     @date: 2025-04-01
-    @version: 1.0
+    @version: 1.1.0
     @description: 
         Use sylph to classify reads from a sample.
         This process takes the sample ID and the Sylph database as input,
         and outputs a merged Sylph sequence abundance file.
     @changelog
         v1.0.0-2025-04-01: Initial version
+        v.1.1.0-2025-11-17: Modified for intergration with read QC report,
+                            and for workflow download of database (GTRDB-R220 only)
 */
 
-    conda params.taxonomy_env
+    conda params.readQC_env
 
-    publishDir "${params.outDir}/db/read-qc/", mode: 'copy'
+    publishDir "${params.outDir}/db/qc/${params.runID}/", mode: 'copy'
 
     input:
-        val(runID)
+        path(samplesheet)
+        tuple path(sylph_db),
+            path(sylph_tax)
 
     output:
-        path("${params.runID}.merged_sylph_sequence_abundance_file.tsv"), emit: sylph_res
+        path("${params.runID}.sylph_sequence_abundance_file.tsv"), emit: sylph_out
 
     script:
 
@@ -39,31 +43,30 @@ process SYLPH_CLASSIFICATION {
                 -d sylph/ \\
                 -t ${task.cpus}
 
-        done < <(sed '1d' ${params.samplesheet})
+        done < <(sed '1d' ${samplesheet})
 
 
     # Profile the sketches with Sylph
         sylph profile \\
-            ${params.sylph_db} \\
+            ${sylph_db} \\
             sylph/* \\
             --estimate-unknown \\
-            --read-seq-id 0.99 \\
+            --read-seq-id 0.98 \\
             -t ${task.cpus} \\
             -o sylph.tsv
 
     # Get taxonomy for the profiles
-        mkdir -p my_existing_folder/
-        sylph-tax download --download-to my_existing_folder/
         sylph-tax taxprof sylph.tsv \\
-            -t ${params.sylph_db_id} \\
+            -t ${sylph_tax}/* \\
             -o sylph/tax_
             
     # remove any empty files
             find sylph/ -type f -name 'tax_*.sylphmpa' -empty -delete
+
         sylph-tax merge \\
             sylph/tax_*.sylphmpa \\
             --column sequence_abundance \\
-            -o ${params.runID}.merged_sylph_sequence_abundance_file.tsv
+            -o ${params.runID}.sylph_sequence_abundance_file.tsv
     """
 
 

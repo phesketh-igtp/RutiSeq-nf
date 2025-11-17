@@ -28,75 +28,79 @@ process TBPROFILER_PROFILE {
 
     input:
         tuple val(sampleID), 
-            path(fastq_1), path(fastq_2), path(mtbseq_class), 
-            path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
-            path(tbdb_out), path(who_out), path(snippy_vcf)
+            path(fastq_1), 
+            path(fastq_2),
+            val(type),
+            path(mtbseq_class), 
+            path(mtbseq_stats), 
+            path(mtbseq_pos), 
+            path(mtbseq_vars), 
+            path(tbdb_out), 
+            path(who_out), 
+            path(snippy_vcf)
+
+        path(tbprofiler_db)
 
     output:
         path("results/tbdb-${sampleID}.results.json")
+        path("bam/tbdb-${sampleID}.bam")
         path("results/tbdb-${sampleID}.results.txt")
+        path("results/who-${sampleID}.results.json")
+        path("results/who-${sampleID}.results.txt")
 
         // tuple for updating the sample ch
         tuple val(sampleID), 
-            path(fastq_1), path(fastq_2), path(mtbseq_class), 
-            path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars),  
+            path(fastq_1), 
+            path(fastq_2),
+            val(type),
+            path(mtbseq_class), 
+            path(mtbseq_stats), 
+            path(mtbseq_pos), 
+            path(mtbseq_vars),  
             path("results/tbdb-${sampleID}.results.txt"), // generated in this module
             path("results/who-${sampleID}.results.txt"), // generated in this module
-            path(snippy_vcf),                            emit: updated_sample_ch2
+            path(snippy_vcf), emit: updated_sample_ch2
 
     script:
         def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
+        # Create output directories
+        mkdir -p bam vcf results
+
         # Update the database
-            tb-profiler update_tbdb
-            tb-profiler update_tbdb --branch who
+        #tb-profiler update_tbdb
+        #tb-profiler update_tbdb --branch who
 
-        # Run TB-Proiler using TBDB database
-        if [[ ! ${fastq_2}]]; then
-            echo "Single-end reads detected, running TB-Profiler WHO database with single-end mode."
-                tb-profiler profile \\
-                    -1 ${fastq_1} \\
-                    -p tbdb-${sampleID} \\
-                    --txt --dir . --platform nanopore \\
-                    --db tbdb/tbdb ${additional_args}
+        # Run TB-Profiler using TBDB database
+        if [[ ! -f "${fastq_2}" ]]; then
+            echo "Single-end reads detected, running TB-Profiler TBDB database with single-end mode."
+            tb-profiler profile \\
+                -1 ${fastq_1} \\
+                -p tbdb-${sampleID} \\
+                --txt --dir . --platform nanopore \\
+                --db tbdb/tbdb ${additional_args}
 
+            tb-profiler profile \\
+                -1 ${fastq_1} \\
+                -p who-${sampleID} \\
+                --txt --dir . --platform nanopore \\
+                --db tbdb/who ${additional_args}
         else
-            echo "paired-end reads detected, running TB-Profiler WHO database with single-end mode."
-                tb-profiler profile \\
-                        -1 ${fastq_1} \\
-                        -2 ${fastq_2} \\
-                        -p tbdb-${sampleID} \\
-                        --txt --dir . --platform illumina \\
-                        --db tbdb/tbdb ${additional_args}
-        fi
-
-        # Touch the output files to the correct directory
-                touch bam/tbdb-${sampleID}.bam
-                touch vcf/tbdb-${sampleID}.targets.vcf.gz
-                touch results/tbdb-${sampleID}.results.json
-                touch results/tbdb-${sampleID}.results.txt
-
-        # Run the WHO database next:
-        if [[ ! ${fastq_2}]]; then
-            echo "Single-end reads detected, running TB-Profiler WHO database with single-end mode."
-                tb-profiler profile \\
-                    -1 ${fastq_1} \\
-                    -p tbdb-${sampleID} \\
-                    --txt --dir . --platform nanopore \\
-                    --db tbdb/who ${additional_args}
-
-        else
-            echo "paired-end reads detected, running TB-Profiler WHO database with single-end mode."
-                tb-profiler profile \\
-                        -1 ${fastq_1} \\
-                        -2 ${fastq_2} \\
-                        -p tbdb-${sampleID} \\
-                        --txt --dir . --platform illumina \\
-                        --db tbdb/who ${additional_args}
+            echo "Paired-end reads detected, running TB-Profiler TBDB database with paired-end mode."
+            tb-profiler profile \\
+                -1 ${fastq_1} \\
+                -2 ${fastq_2} \\
+                -p tbdb-${sampleID} \\
+                --txt --dir . --platform illumina \\
+                --db tbdb/tbdb ${additional_args}
+            
+            tb-profiler profile \\
+                -1 ${fastq_1} \\
+                -2 ${fastq_2} \\
+                -p who-${sampleID} \\
+                --txt --dir . --platform illumina \\
+                --db tbdb/who ${additional_args}
         fi
         """
 }
-
-// ${params.outDir}/db/tbprofiler/tbdb/
-// --threads 2 --ram ${task.cpus} 

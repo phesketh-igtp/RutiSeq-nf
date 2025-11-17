@@ -1,5 +1,7 @@
 process SNIPPY_CORE {
 
+    conda params.snippy_env
+
     publishDir "${params.outDir}/db/comparison/snippy/", mode: 'copy'
 
     input:

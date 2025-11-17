@@ -2,12 +2,12 @@
 
 nextflow.enable.dsl = 2
 
-include { CONTROL_WF }         from './workflows/control_wf.nf'
 include { PREPARE_SAMPLES_WF } from './workflows/prepare-samples_wf.nf'
+include { DATABASE_ACCESS_WF } from './workflows/database.access_wf.nf'
+include { CONTROL_WF }         from './workflows/control_wf.nf'
 include { SINGLE_WF }          from './workflows/single_wf.nf'
 include { PAIRWISE_WF }        from './workflows/pairwise_wf.nf'
 include { SUMMARY_WF }         from './workflows/summary_wf.nf'
-//include { BARCODING_WF }      from './workflows/barcoding_wf.nf'
 
 /* 
     Help Message
@@ -129,13 +129,30 @@ workflow {
 
         /*
         ······································································································
+            DATABASE_ACCESS (DATABASE_ACCESS_WF):
+                - Download following databaset
+                    - Sylph GDR220
+                    - TB-Profiler (tbdb and who)
+        ······································································································
+        */
+
+            DATABASE_ACCESS_WF(
+                            params.runID
+                            )
+
+        /*
+        ······································································································
             CONTROLS CHECKS (CONTROL_WF):
                 - Taxonomically classifies control samples, and confirms no reads belonging to the 
                     Mycobacterium species specified
         ······································································································
         */
-/*
-            CONTROL_WF( params.samplesheet )
+
+            CONTROL_WF( 
+                    params.samplesheet,
+                    DATABASE_ACCESS_WF.out.sylph_db
+                    )
+
 
         /*
         ······································································································
@@ -148,11 +165,14 @@ workflow {
         ······································································································
         */
 
-            SINGLE_WF( PREPARE_SAMPLES_WF.out.all_samples )
+            SINGLE_WF( 
+                    PREPARE_SAMPLES_WF.out.all_samples,
+                    DATABASE_ACCESS_WF.out.tbprofiler_db
+                    )
                     
                 // DEBUG: Demonstrate the content of the channel
                 ///     SINGLE_WF.out.single_updated_samples_ch.view { sample -> "Sample: $sampleID" }
-
+/*
             // prepare the channel for the pairwise analysis
             pairwise_samples_ch = SINGLE_WF.out.single_updated_samples_ch
 
@@ -171,7 +191,7 @@ workflow {
 /*
             // Structure of the channel : pairwise_samples_ch
             /// [0] sampleID        [1] forward         [2] reverse     [3] mtbseq_class    [4] mtbseq_stats
-            /// [5] mtbseq_pos      [6] mtbseq_vars     [7] tbdb_out    [8] who_out         [9] mtbseq_vcf
+            /// [5] mtbseq_pos      [6] mtbseq_vars     [7] tbdb_out    [8] who_out         [9] snippy_vcf
 
             // filter channels of just the necessary output files contained within the tuple (by calling the index)
                 sampleID_dump       =   pairwise_samples_ch.map { it -> it[0] ?: null }
@@ -212,23 +232,7 @@ workflow {
                         CONTROL_WF.out.sylph_results,
                         CONTROL_WF.out.reads_taxonomy_qc_report_out
                     )
-
-        /*
-        ······································································································
-            BARCODING ANALYSIS (BARCODING_WF)
-                Perform barcoding analysis of the VCF files generated from the single workflow.
-                This analysis has a much lower priority
-        ······································································································
-        */
-/*
-            BARCODING_WF(
-                            params.runID,
-                            PAIRWISE_WF.out.pairwise_clusters
-                            PAIRWISE_WF.out.analysis_summary
-                            SUMMARY_WF.out.mjn_positions
-                        )
 */
-
 }
 
 /*

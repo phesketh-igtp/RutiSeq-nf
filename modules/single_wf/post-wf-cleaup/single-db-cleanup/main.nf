@@ -19,7 +19,7 @@ process POST_SINGLE_DB_CLEANUP {
     array 50
 
     input:
-        tuple val(sampleID)
+        val(sampleID)
 
     script:
 

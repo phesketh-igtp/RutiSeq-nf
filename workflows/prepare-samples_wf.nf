@@ -2,9 +2,8 @@
 // Subworkflow: Prepare and validate samples from samplesheet
 //
 
-include { FETCH_SRA }   from '../modules/prepare-samples_wf/fetch_sra/main'
-include { FILE_CHECK }  from '../modules/prepare-samples_wf/init-file-checks/main'
-
+include { FETCH_SRA }       from '../modules/prepare-samples_wf/fetch_sra/main'
+include { FILE_CHECK }      from '../modules/prepare-samples_wf/init-file-checks/main'
 
 workflow PREPARE_SAMPLES_WF {
     take:
@@ -58,24 +57,29 @@ workflow PREPARE_SAMPLES_WF {
 
     // Combine all samples (regular + fetched SRA/ENA)
     samples_ch = samples_by_type.regular
-        .map { tuple(it[0], it[1], it[2]) }
+        .map { tuple(it[0], it[1], it[2], it[3]) }  // Include type field
         .mix(
             FETCH_SRA.out.fetch_fastq_tuple
         )
 
     // Extract controls
     controls_ch = samples_by_type.control
-        .map { tuple(it[0], it[1], it[2]) }
+        .map { tuple(it[0], it[1], it[2], it[3]) }  // Include type field here too
+
+    /*
+    
+    // DEBUG THE CHANNELS:
 
     // Report samples
-    samples_ch.view { sampleID, forward, reverse ->
-        "${color_cyan}Sample: ${color_green}${sampleID}${color_reset} | ${color_cyan}Forward: ${color_green}${forward}${color_reset} | ${color_cyan}Reverse: ${color_green}${reverse}${color_reset}"
+    samples_ch.view { sampleID, forward, reverse, type ->
+        "${color_cyan}SampleID: ${color_green}${sampleID}${color_reset} | ${color_cyan}fastq_1: ${color_green}${forward}${color_reset} | ${color_cyan}fastq_2: ${color_green}${reverse}${color_reset} | ${color_cyan}Type: ${color_green}${type}${color_reset}"
     }
 
     // Report controls
-    controls_ch.view { sampleID, forward, reverse ->
-        "${color_red}Control: ${color_green}${sampleID}${color_reset} | ${color_red}Forward: ${color_green}${forward}${color_reset} | ${color_red}Reverse: ${color_green}${reverse}${color_reset}"
+    controls_ch.view { sampleID, forward, reverse, type ->
+        "${color_red}ControlID: ${color_green}${sampleID}${color_reset} | ${color_red}fastq_1: ${color_green}${forward}${color_reset} | ${color_red}fastq_2: ${color_green}${reverse}${color_reset} | ${color_red}Type: ${color_green}${type}${color_reset}"
     }
+    */
 
     // Check if samples have been previously analyzed
     FILE_CHECK(samples_ch)
@@ -129,9 +133,10 @@ workflow PREPARE_SAMPLES_WF {
     all_samples_ch.view { "Final sample: ${it[0]}" }
 
     emit:
-        all_samples = all_samples_ch     // tuple: [ sampleID, forward, reverse, type, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf ]
-        samples = samples_ch              // tuple: [ sampleID, forward, reverse ]
-        controls = controls_ch            // tuple: [ sampleID, forward, reverse ]
+        all_samples   = all_samples_ch     // tuple: [ sampleID, forward, reverse, type, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf ]
+        samples       = samples_ch              // tuple: [ sampleID, forward, reverse ]
+        controls      = controls_ch            // tuple: [ sampleID, forward, reverse ]
+
 }
 
 /*

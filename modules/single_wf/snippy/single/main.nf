@@ -17,58 +17,78 @@ process SNIPPY_SINGLE {
 
     tag "$sampleID"
 
-    conda params.snp_profiling_env
+    conda params.snippy_env
     
     container { 
-            if (workflow.containerEngine == 'singularity') return params.singularity_snp_profiling
-            else if (workflow.containerEngine == 'docker') return params.docker_snp_profiling
-            else if (workflow.containerEngine == 'apptainer') return params.apptainer_snp_profiling
-            else return null
-        }
-    
+        if (workflow.containerEngine == 'singularity') return params.singularity_snp_profiling
+        else if (workflow.containerEngine == 'docker') return params.docker_snp_profiling
+        else if (workflow.containerEngine == 'apptainer') return params.apptainer_snp_profiling
+        else return null
+    }
     publishDir "${params.outDir}/db/samples/${sampleID}/snippy/", mode: 'copy'
 
     input:
-        tuple val(sampleID), 
-                path(fastq_1), path(fastq_2), path(mtbseq_class), 
-                path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
-                path(tbdb_out), path(who_out), path(mtbseq_vcf), path(mtbseq_mpileup)
+    tuple val(sampleID), 
+        path(fastq_1), 
+        path(fastq_2), 
+        val(type),
+        path(mtbseq_class), 
+        path(mtbseq_stats), 
+        path(mtbseq_pos), 
+        path(mtbseq_vars), 
+        path(tbdb_out), 
+        path(who_out), 
+        path(mtbseq_vcf)
 
     output:
-        // tuple for updating the sample ch
-        tuple val(sampleID), path(fastq_1), path(fastq_2), path(mtbseq_class), 
-                path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars),  
-                path(tbdb_out), path(who_out), 
-                path("${sampleID}.vcf"),                     emit: updated_sample_ch4
+    // tuple for updating the sample ch
+    tuple val(sampleID), 
+        path(fastq_1), 
+        path(fastq_2), 
+        val(type),
+        path(mtbseq_class), 
+        path(mtbseq_stats), 
+        path(mtbseq_pos), 
+        path(mtbseq_vars),  
+        path(tbdb_out),
+        path(who_out), 
+        path("${sampleID}.vcf"), emit: updated_sample_ch4
 
-        path("${sampleID}.aligned.fa")
-        path("${sampleID}.consensus.fa.gz")
-        path("${sampleID}.vcf")
+    path("${sampleID}.aligned.fa")
+    path("${sampleID}.consensus.fa.gz")
+    path("${sampleID}.vcf")
+    path "versions.yml"
+
+    when:
+    task.ext.when == null || task.ext.when
 
     script:
-
-    def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
+    def additional_args = task.ext.additional_args ?: ''
 
     """
-    # Check if R2 file has actual sequencing data
-        if [[ \$(zcat ${fastq_2} | head -n 4 | wc -l) -eq 4 ]]; then
+    # Check if we have paired-end reads
+    if [[ -f "${fastq_2}" && -s "${fastq_2}" ]]; then
+        # Check if R2 file has actual sequencing data (more than just empty lines)
+        if [[ \$(zcat ${fastq_2} 2>/dev/null | head -n 4 | wc -l) -eq 4 ]]; then
             echo "Using paired-end mode for ${sampleID}"
             snippy \\
-                --sampleID ${sampleID} \\
-                --outdir . --force \\
-                --R1 ${fastq_1} --R2 ${fastq_2} \\
+                --outdir . \\
+                --force \\
+                --R1 ${fastq_1} \\
+                --R2 ${fastq_2} \\
                 --ref ${params.snippy_reference} \\
                 --mincov ${params.snippy_mincov} \\
                 --minfrac ${params.snippy_minfrac} \\
                 --mapqual ${params.snippy_mapqual} \\
                 --minqual ${params.snippy_minqual} \\
                 --basequal ${params.snippy_basequal} \\
-                ${params.snippy_args}  
+                --cpus ${task.cpus} \\
+                ${additional_args}
         else
-            echo "Using single-end mode for ${sampleID}"
+            echo "R2 file exists but appears empty, using single-end mode for ${sampleID}"
             snippy \\
-                --sampleID ${sampleID} \\
-                --outdir . --force \\
+                --outdir . \\
+                --force \\
                 --se ${fastq_1} \\
                 --ref ${params.snippy_reference} \\
                 --mincov ${params.snippy_mincov} \\
@@ -76,10 +96,49 @@ process SNIPPY_SINGLE {
                 --mapqual ${params.snippy_mapqual} \\
                 --minqual ${params.snippy_minqual} \\
                 --basequal ${params.snippy_basequal} \\
-                ${params.snippy_args}  
+                --cpus ${task.cpus} \\
+                ${additional_args}
         fi
+    else
+        echo "Using single-end mode for ${sampleID}"
+        snippy \\
+            --outdir . \\
+            --force \\
+            --se ${fastq_1} \\
+            --ref ${params.snippy_reference} \\
+            --mincov ${params.snippy_mincov} \\
+            --minfrac ${params.snippy_minfrac} \\
+            --mapqual ${params.snippy_mapqual} \\
+            --minqual ${params.snippy_minqual} \\
+            --basequal ${params.snippy_basequal} \\
+            --cpus ${task.cpus} \\
+            ${additional_args}
+    fi
 
-        gzip --best ${sampleID}.consensus.fa
+    # Rename output files to match expected names
+    mv snps.vcf ${sampleID}.vcf
+    mv snps.aligned.fa ${sampleID}.aligned.fa
+    mv snps.consensus.fa ${sampleID}.consensus.fa
+
+    # Compress consensus file
+    gzip --best ${sampleID}.consensus.fa
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        snippy: \$(snippy --version 2>&1 | grep -o 'snippy [0-9.]*' | cut -d' ' -f2)
+    END_VERSIONS
     """
 
+    stub:
+    """
+    touch ${sampleID}.aligned.fa
+    touch ${sampleID}.consensus.fa
+    gzip ${sampleID}.consensus.fa
+    touch ${sampleID}.vcf
+    
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        snippy: \$(snippy --version 2>&1 | grep -o 'snippy [0-9.]*' | cut -d' ' -f2)
+    END_VERSIONS
+    """
 }
