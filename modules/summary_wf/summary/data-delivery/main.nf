@@ -1,4 +1,4 @@
-process DATA_DELIVERY{
+process DATA_DELIVERY {
 
 /*
     @author: Poppy J Hesketh Best
@@ -16,7 +16,7 @@ process DATA_DELIVERY{
     input:
         path(handover)
         path(sylph_results, stageAs: 'sylph_results.tsv')
-        tuple path(html_report, stageAs: "${params.params.runID}_reads-controls-report.html"),
+        tuple path(html_report, stageAs: "${params.runID}_reads-controls-report.html"),
             path(warnings, stageAs: 'warnings.out')
 
     script:

@@ -16,12 +16,12 @@ process SNIPPY_CORE {
     """
     # Collect all the data from the snippy outputs
     for directory in "${params.outDir}/db/sample/*"; do
-        sampleID=snippyDir_$(basename \$directory)
+        sampleID="snippyDir_\$(basename \$directory)"
         mkdir -f \$directory
         ln -s \$directory/* \$sampleID/
     done
 
-    paths=$(echo snippyDir_*)
+    paths=\$(echo snippyDir_*)
 
     snippy-core \\
         --ref ${params.snippy_reference} \\

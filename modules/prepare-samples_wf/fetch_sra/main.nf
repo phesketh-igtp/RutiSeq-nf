@@ -19,7 +19,7 @@ process FETCH_SRA {
     input:
         tuple val(accession), 
             path(forward), path(reverse), 
-            val(type),  path(mtbseq_class),
+            val(type), path(mtbseq_class),
             path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
             path(tbdb_out), path(who_out), path(mtbseq_vcf)
     

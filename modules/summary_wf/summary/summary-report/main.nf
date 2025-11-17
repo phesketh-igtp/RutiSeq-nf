@@ -12,10 +12,9 @@ process GENERATE_SUMMARY_REPORT {
 
     conda params.r_stats_env
 
-    publishDir "${params.outDir}/results/${runID}/", mode: 'copy'
+    publishDir "${params.outDir}/results/${params.runID}/", mode: 'copy'
 
     input:
-        val runID
         path pairwise_clusters_processed
         path sequencing_summary
         path who_resistance
@@ -25,7 +24,7 @@ process GENERATE_SUMMARY_REPORT {
         
 
     output:
-        path("${runID}_RutiSeq-results.xlsx")
+        path("${params.runID}_RutiSeq-results.xlsx")
 
     script:
 
@@ -38,6 +37,6 @@ process GENERATE_SUMMARY_REPORT {
 
         Rscript ${params.r_script_dir}/generate_summary_report.R \\
                 --rlibrary ${params.r_script_dir} \\
-                --output ${runID}_RutiSeq-results.xlsx
+                --output ${params.runID}_RutiSeq-results.xlsx
         """
 }

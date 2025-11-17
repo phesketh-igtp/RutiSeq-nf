@@ -8,8 +8,7 @@ process READ_TAXONOMY_QC_REPORT {
         path(read_stats, stageAs: 'read_stats.csv')
 
     output:
-    tuple
-        path("${params.runID}_reads-controls-report.qmd"),
+    tuple path("${params.runID}_reads-controls-report.qmd"),
         path("${params.runID}_warnings.out"), emit: reads_taxonomy_qc_report_out
     
     script:

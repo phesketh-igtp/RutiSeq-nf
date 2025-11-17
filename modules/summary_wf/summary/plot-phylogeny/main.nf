@@ -17,10 +17,9 @@ process PLOT_MAIN_PHYLOGENY {
 
     conda params.r_phylogeny_env
 
-    publishDir "${params.outDir}/results/${runID}/phylogeny/", mode: 'copy'
+    publishDir "${params.outDir}/results/${params.runID}/phylogeny/", mode: 'copy'
 
     input:
-        val(runID)
         tuple val(lineage), 
             path(contree, stageAs: "snp.contree"), 
             path(alignments, stageAs: "snp.aln.fasta")
@@ -51,7 +50,7 @@ process PLOT_MAIN_PHYLOGENY {
 
             # Render the phylogeny report using Quarto
             quarto render phylogeny-report.qmd \\
-                -P runID=${params.runID} \\
+                -P params.runID=${params.params.runID} \\
                 -P lineage=${lineage} \\
                 -P RData=${lineage}.contree.Rdata \\
                 --output ${lineage}_ML-phylogeny.html

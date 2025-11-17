@@ -1,6 +1,6 @@
 process SKA_PROFILING {
 
-    conda '${params.conda_envs}/ska.yml'
+    conda params.snp_profiling_env
 
     input:
         path(sylph_classification_report, stageAs: 'sylph_classification.csv')

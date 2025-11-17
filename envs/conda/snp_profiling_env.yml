@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - bioconda::snippy=4.3.0
+  - bioconda::snippy=4.3.6
   - bioconda::bcftools=1.21
   - bioconda::emboss=6.6.0
   - bioconda::seqkit=2.10.0
@@ -11,3 +11,4 @@ dependencies:
   - bioconda::snpeff=5.2
   - bioconda::varscan=2.4.6
   - bioconda::vcftools=0.1.16
+  - bioconda::samtools=1.8.0

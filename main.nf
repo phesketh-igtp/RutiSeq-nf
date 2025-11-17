@@ -2,11 +2,11 @@
 
 nextflow.enable.dsl = 2
 
-include { CONTROL_WF }      from './workflows/control_wf.nf'
-include { PREPARE_SAMPLES } from './workflows/prepare-samples_wf.nf'
-include { SINGLE_WF }       from './workflows/single_wf.nf'
-include { PAIRWISE_WF }     from './workflows/pairwise_wf.nf'
-include { SUMMARY_WF }      from './workflows/summary_wf.nf'
+include { CONTROL_WF }         from './workflows/control_wf.nf'
+include { PREPARE_SAMPLES_WF } from './workflows/prepare-samples_wf.nf'
+include { SINGLE_WF }          from './workflows/single_wf.nf'
+include { PAIRWISE_WF }        from './workflows/pairwise_wf.nf'
+include { SUMMARY_WF }         from './workflows/summary_wf.nf'
 //include { BARCODING_WF }      from './workflows/barcoding_wf.nf'
 
 /* 
@@ -118,14 +118,14 @@ workflow {
         */
 
         // Call the subworkflow
-            PREPARE_SAMPLES(
+            PREPARE_SAMPLES_WF(
                 params.samplesheet,
                 )
             
             // Access the outputs
-            PREPARE_SAMPLES.out.samples.view { "Sample output: ${it}" }
-            PREPARE_SAMPLES.out.controls.view { "Control output: ${it}" }
-            PREPARE_SAMPLES.out.all_samples.view { "All samples output: ${it}" }
+            //PREPARE_SAMPLES.out.samples.view { "Sample output: ${it}" }
+            //PREPARE_SAMPLES.out.controls.view { "Control output: ${it}" }
+            PREPARE_SAMPLES_WF.out.all_samples.view { "All samples output: ${it}" }
 
         /*
         ······································································································
@@ -134,7 +134,7 @@ workflow {
                     Mycobacterium species specified
         ······································································································
         */
-
+/*
             CONTROL_WF( params.samplesheet )
 
         /*
@@ -148,7 +148,7 @@ workflow {
         ······································································································
         */
 
-            SINGLE_WF( PREPARE_SAMPLES.out.all_samples )
+            SINGLE_WF( PREPARE_SAMPLES_WF.out.all_samples )
                     
                 // DEBUG: Demonstrate the content of the channel
                 ///     SINGLE_WF.out.single_updated_samples_ch.view { sample -> "Sample: $sampleID" }
@@ -168,7 +168,7 @@ workflow {
                 - Produces molecular clock, with ML trees (with reference and ancestral reconstruction)
         ······································································································
         */
-
+/*
             // Structure of the channel : pairwise_samples_ch
             /// [0] sampleID        [1] forward         [2] reverse     [3] mtbseq_class    [4] mtbseq_stats
             /// [5] mtbseq_pos      [6] mtbseq_vars     [7] tbdb_out    [8] who_out         [9] mtbseq_vcf
@@ -200,7 +200,7 @@ workflow {
                 - Generate MJN files for visualisation in PopArt
         ······································································································
         */
-
+/*
             SUMMARY_WF(
                         PAIRWISE_WF.out.processed_clusters,
                         PAIRWISE_WF.out.unprocessed_clusters,

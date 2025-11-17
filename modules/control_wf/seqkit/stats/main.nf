@@ -1,6 +1,6 @@
 process READS_STATS {
 
-    conda "${params.projectDir}/env/conda/snp_profiling_env.yml"
+    conda params.snp_profiling_env
 
     input:
         path(samplesheet, stageAs: 'samplesheet.csv')

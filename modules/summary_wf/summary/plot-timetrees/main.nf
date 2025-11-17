@@ -16,10 +16,9 @@ process PLOT_TIMETREES {
 
     conda params.r_phylogeny_env
 
-    publishDir "${params.outDir}/results/${runID}/phylogeny/", mode: 'copy', overwrite: true
+    publishDir "${params.outDir}/results/${params.runID}/phylogeny/", mode: 'copy', overwrite: true
 
     input:
-        val(runID)
         tuple val(lineage), 
                 path(timetree),
                 path(ancestral_fasta)

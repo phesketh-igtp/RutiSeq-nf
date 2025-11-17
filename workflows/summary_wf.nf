@@ -16,7 +16,6 @@ include { DATA_DELIVERY              }   from '../modules/summary_wf/summary/dat
 workflow SUMMARY_WF{
 
     take:
-        runID
         processed_clusters
         unprocessed_clusters
         analysis_summary
@@ -35,29 +34,27 @@ workflow SUMMARY_WF{
 
         // Process clusters
 
-           // PROCESS_CLUSTERS( runID, pairwise_clusters, analysis_summary, cluster_handover )
-
         // Generate summary XLSX and CSV files for final results    
-            GENERATE_SUMMARY_REPORT( runID,
-                                        processed_clusters,
-                                        //PROCESS_CLUSTERS.out.pairwise_clusters_processed,
-                                        analysis_summary,
-                                        who_resistance,
-                                        tbdb_resistance,
-                                        sylph_results,
-                                        reads_taxonomy_qc_report_out
+            GENERATE_SUMMARY_REPORT(
+                                    processed_clusters,
+                                    analysis_summary,
+                                    who_resistance,
+                                    tbdb_resistance,
+                                    sylph_results,
+                                    reads_taxonomy_qc_report_out
                                     )
 
         // Plot main ML phylogeny
-            PLOT_MAIN_PHYLOGENY( runID, 
-                                    phylogeny_plotting_ch,
-                                    //PROCESS_CLUSTERS.out.pairwise_clusters_processed,
-                                    processed_clusters,
-                                    unprocessed_clusters 
+            PLOT_MAIN_PHYLOGENY(
+                                phylogeny_plotting_ch,
+                                //PROCESS_CLUSTERS.out.pairwise_clusters_processed,
+                                processed_clusters,
+                                unprocessed_clusters 
                                 )
 
         // Generate base NEXUS files for each cluster
-            PREPARE_NEXUS_PATHS( nexus_creation_ch
+            PREPARE_NEXUS_PATHS( 
+                                nexus_creation_ch
                                     //phylogeny_plotting_ch,
                                     //PROCESS_CLUSTERS.out.pairwise_clusters_processed
                                     //processed_clusters 
@@ -74,12 +71,14 @@ workflow SUMMARY_WF{
 
             GENERATE_NEXUS( nexus_ch )
 
-            TABULATE_VARIANT_SITES( runID, GENERATE_NEXUS.out.variant_sites_for_tabulation )
+            TABULATE_VARIANT_SITES( 
+                                GENERATE_NEXUS.out.variant_sites_for_tabulation 
+                                )
 
-            CONCATENATED_VARIANT_FILES(runID, 
-                    TABULATE_VARIANT_SITES.out.tabular_vars.collect(),
-                    TABULATE_VARIANT_SITES.out.tabular_var_counts.collect()
-                    )
+            CONCATENATED_VARIANT_FILES( 
+                                        TABULATE_VARIANT_SITES.out.tabular_vars.collect(),
+                                        TABULATE_VARIANT_SITES.out.tabular_var_counts.collect()
+                                        )
 
         // If metadata is provided then the following modules are run
             if (params.metadata) {
@@ -92,7 +91,10 @@ workflow SUMMARY_WF{
                 // Create timetrees
                 GENERATE_TIMETREES( phylogeny_plotting_ch, ch_metadata )
 
-                PLOT_TIMETREES( runID, GENERATE_TIMETREES.out.timetrees_ch, processed_clusters)
+                PLOT_TIMETREES(
+                            GENERATE_TIMETREES.out.timetrees_ch, 
+                            processed_clusters
+                            )
                 
                 timetree_ch = PLOT_TIMETREES.out.timetree_tuple
                         .splitCsv(header: false, sep: ',')
@@ -101,8 +103,10 @@ workflow SUMMARY_WF{
                             tuple(lineage, clusterID, file(fasta), file(tab), file(ancestor))
                         }
 
-                GENERATE_ANNOTATED_NEXUS( GENERATE_NEXUS.out.annotated_nexus_ch, 
-                                            params.metadata,)
+                GENERATE_ANNOTATED_NEXUS( 
+                                        GENERATE_NEXUS.out.annotated_nexus_ch, 
+                                        params.metadata
+                                        )
 
                 /*
                 GENERATE_NEXUS_W_MRCA(timetree_ch, 
