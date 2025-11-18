@@ -28,36 +28,35 @@ process SNIPPY_SINGLE {
     publishDir "${params.outDir}/db/samples/${sampleID}/snippy/", mode: 'copy'
 
     input:
-    tuple val(sampleID), 
-        path(fastq_1), 
-        path(fastq_2), 
-        val(type),
-        path(mtbseq_class), 
-        path(mtbseq_stats), 
-        path(mtbseq_pos), 
-        path(mtbseq_vars), 
-        path(tbdb_out), 
-        path(who_out), 
-        path(snippy_out)
+        tuple val(sampleID), 
+            path(fastq_1), 
+            path(fastq_2), 
+            val(type),
+            path(mtbseq_class), 
+            path(mtbseq_stats), 
+            path(mtbseq_pos), 
+            path(mtbseq_vars), 
+            path(tbdb_out), 
+            path(who_out), 
+            path(snippy_out)
 
     output:
-    // tuple for updating the sample ch
-    tuple val(sampleID), 
-        path(fastq_1), 
-        path(fastq_2), 
-        val(type),
-        path(mtbseq_class), 
-        path(mtbseq_stats), 
-        path(mtbseq_pos), 
-        path(mtbseq_vars),  
-        path(tbdb_out),
-        path(who_out), 
-        path("${sampleID}.vcf"), emit: updated_sample_ch4
+        // tuple for updating the sample ch
+        tuple val(sampleID), 
+            path(fastq_1), 
+            path(fastq_2), 
+            val(type),
+            path(mtbseq_class), 
+            path(mtbseq_stats), 
+            path(mtbseq_pos), 
+            path(mtbseq_vars),  
+            path(tbdb_out),
+            path(who_out), 
+            path("${sampleID}.vcf"), emit: updated_sample_ch4
 
-    path("${sampleID}.aligned.fa")
-    path("${sampleID}.consensus.fa.gz")
-    path("${sampleID}.vcf")
-    path "versions.yml"
+        path("${sampleID}.aligned.fa")
+        path("${sampleID}.consensus.fa.gz")
+        path("${sampleID}.vcf")
 
     when:
     task.ext.when == null || task.ext.when

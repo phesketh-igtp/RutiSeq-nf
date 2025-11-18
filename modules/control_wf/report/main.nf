@@ -12,7 +12,7 @@ process READ_TAXONOMY_QC_REPORT {
 
     conda params.r_stats_env
 
-    storeDir "${params.outDir}/db/qc/${params.runID}/"
+    publishDir "${params.outDir}/db/qc/${params.runID}/", mode: 'copy'
 
     input:
         path(sylph_output, stageAs: 'sylph_classification.tsv')

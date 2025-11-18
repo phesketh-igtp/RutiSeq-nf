@@ -61,13 +61,13 @@ process CONCATENATE_CLUSTERS {
 
         # List all cluster and singleton files
             cluster_files <- list.files(path = file.path(base_dir), 
-                                        pattern = "_d.*\\.clusters\\.tsv$", 
+                                        pattern = "_d.*\\.clusters\\.tsv\$", 
                                         recursive = TRUE, 
                                         full.names = TRUE
                                         )
 
             singleton_files <- list.files(path = file.path(base_dir), 
-                                        pattern = "_d.*\\.singletons\\.tsv$", 
+                                        pattern = "_d.*\\.singletons\\.tsv\$", 
                                         recursive = TRUE, 
                                         full.names = TRUE
                                         )

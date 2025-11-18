@@ -49,9 +49,9 @@ process SNP_PHYLOGENY {
                 /^>/ {next}  # Skip header lines
                 {
                     # Process sequence lines
-                    for (i = 1; i <= length($0); i++) {
+                    for (i = 1; i <= length(\$0); i++) {
                         position++
-                        print position "\t" substr($0, i, 1) >> "'"${lineage}.tmp.fasta_positions.tab"'"
+                        print position "\t" substr(\$0, i, 1) >> "'"${lineage}.tmp.fasta_positions.tab"'"
                     }
                 }' "${lineage}.tmp.fasta"
                     
@@ -59,7 +59,7 @@ process SNP_PHYLOGENY {
                 > ${lineage}.tmp.fasta_positions
 
     # 3. obtain the reference positions (H37Rv) for the cluster positions
-        awk 'NR==FNR {pos[$1+2]; next} FNR in pos {print $3}' \\
+        awk 'NR==FNR {pos[\$1+2]; next} FNR in pos {print \$3}' \\
             ${lineage}.tmp.fasta_positions ${tab} \\
             > ${lineage}.tmp_refseq
 
@@ -69,7 +69,7 @@ process SNP_PHYLOGENY {
         > Phylogeny/${lineage}.ref-H37Rv.fasta
 
     # 5. get the genomic positions of the SNPs
-        awk 'NR==FNR {pos[$1+2]; next} FNR in pos {print $1}' \\
+        awk 'NR==FNR {pos[\$1+2]; next} FNR in pos {print \$1}' \\
             ${lineage}.tmp.fasta_positions ${tab} \\
             > Phylogeny/${lineage}_genomic_positions.tab
 
@@ -79,7 +79,7 @@ process SNP_PHYLOGENY {
         gunzip ${lineage}.tmp.MTB_anc.pos.gz
 
     # 6. Get the same SNPs for the 'ancestor' genomes
-        awk 'NR==FNR {pos[$1]; next} FNR in pos {print $3}' \\
+        awk 'NR==FNR {pos[\$1]; next} FNR in pos {print \$3}' \\
             Phylogeny/${lineage}_genomic_positions.tab \\
             ${lineage}.tmp.MTB_anc.pos \\
             > ${lineage}.tmp.MTB_anc
