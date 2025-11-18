@@ -54,27 +54,17 @@ process TBPROFILER_COMPILE {
 
         # create the symbolic links to the result directories
             mv tbdb-* tmp/
-            ln -s ${params.outDir}/db/*/tbprofiler/results/tbdb-* results/;
+            ln -s ${params.outDir}/db/*/tbprofiler/results/tbdb-* results/
 
         # perform tb profiler compile:
             tb-profiler collate --full --mark_missing --all_variants --itol
 
-            sed -i 's/tbdb-//g' tbprofiler.txt
-            sed -i 's/tbdb-//g' tbprofiler.variants.csv
-            sed -i 's/tbdb-//g' tbprofiler.variants.txt
-            sed -i 's/tbdb-//g' tbprofiler.dr.indiv.itol.txt
-            sed -i 's/tbdb-//g' tbprofiler.dr.itol.txt
-            sed -i 's/tbdb-//g' tbprofiler.lineage.itol.txt
-            
-            mv tmp/* .
-
-        # Move the files to give them unique names
-            mv tbprofiler.txt tbdb-tbprofiler.txt
-            mv tbprofiler.variants.csv          tbdb-tbprofiler.variants.csv
-            mv tbprofiler.variants.txt          tbdb-tbprofiler.variants.txt
-            mv tbprofiler.dr.indiv.itol.txt     tbdb-tbprofiler.dr.indiv.itol.txt
-            mv tbprofiler.dr.itol.txt           tbdb-tbprofiler.dr.itol.txt
-            mv tbprofiler.lineage.itol.txt      tbdb-tbprofiler.lineage.itol.txt
+            sed 's/tbdb-//g' tbprofiler.txt                 > tbdb-tbprofiler.txt
+            sed 's/tbdb-//g' tbprofiler.variants.csv        > tbdb-tbprofiler.variants.csv
+            sed 's/tbdb-//g' tbprofiler.variants.txt        > tbdb-tbprofiler.variants.txt
+            sed 's/tbdb-//g' tbprofiler.dr.indiv.itol.txt   > tbdb-tbprofiler.dr.indiv.itol.txt
+            sed 's/tbdb-//g' tbprofiler.dr.itol.txt         > tbdb-tbprofiler.dr.itol.txt
+            sed 's/tbdb-//g' tbprofiler.lineage.itol.txt    > tbdb-tbprofiler.lineage.itol.txt
 
         # Get the fractions of all the lineages
             for file in results/tbdb-*.txt; do

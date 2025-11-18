@@ -45,7 +45,7 @@ workflow SINGLE_WF {
             nonskipped_samples_count.combine(skipped_samples_count)
                 .map { with_reads, without_reads -> 
                 log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
-                log.info "${green}runID: ${red}${params.runID}${green} || For ${cyan}SINGLE_WF()${green} : ${red}${with_reads}${green} samples || Skippedd${green}: ${red}${without_reads}${green} samples${no_col}"
+                log.info "${green}runID: ${red}${params.runID}${green} || For ${cyan}SINGLE_WF()${green} : ${red}${with_reads}${green} samples || Skipped${green}: ${red}${without_reads}${green} samples${no_col}"
                 log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
                 log.info "${red}⚠️ If you expected all of the samples to be analysed, check for duplicated sampleIDs in:${no_col}"
                 log.info "      - ${purple}${params.outDir}/RutiSeq/db/samples${no_col}"

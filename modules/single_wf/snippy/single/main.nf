@@ -38,7 +38,7 @@ process SNIPPY_SINGLE {
         path(mtbseq_vars), 
         path(tbdb_out), 
         path(who_out), 
-        path(mtbseq_vcf)
+        path(snippy_out)
 
     output:
     // tuple for updating the sample ch
@@ -76,7 +76,7 @@ process SNIPPY_SINGLE {
                 --force \\
                 --R1 ${fastq_1} \\
                 --R2 ${fastq_2} \\
-                --ref ${params.snippy_reference} \\
+                --reference ${params.snippy_reference} \\
                 --mincov ${params.snippy_mincov} \\
                 --minfrac ${params.snippy_minfrac} \\
                 --mapqual ${params.snippy_mapqual} \\
@@ -90,7 +90,7 @@ process SNIPPY_SINGLE {
                 --outdir . \\
                 --force \\
                 --se ${fastq_1} \\
-                --ref ${params.snippy_reference} \\
+                --reference ${params.snippy_reference} \\
                 --mincov ${params.snippy_mincov} \\
                 --minfrac ${params.snippy_minfrac} \\
                 --mapqual ${params.snippy_mapqual} \\
@@ -105,7 +105,7 @@ process SNIPPY_SINGLE {
             --outdir . \\
             --force \\
             --se ${fastq_1} \\
-            --ref ${params.snippy_reference} \\
+            --reference ${params.snippy_reference} \\
             --mincov ${params.snippy_mincov} \\
             --minfrac ${params.snippy_minfrac} \\
             --mapqual ${params.snippy_mapqual} \\
@@ -122,11 +122,6 @@ process SNIPPY_SINGLE {
 
     # Compress consensus file
     gzip --best ${sampleID}.consensus.fa
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        snippy: \$(snippy --version 2>&1 | grep -o 'snippy [0-9.]*' | cut -d' ' -f2)
-    END_VERSIONS
     """
 
     stub:

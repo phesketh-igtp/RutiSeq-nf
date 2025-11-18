@@ -172,7 +172,7 @@ workflow {
                     
                 // DEBUG: Demonstrate the content of the channel
                 ///     SINGLE_WF.out.single_updated_samples_ch.view { sample -> "Sample: $sampleID" }
-/*
+
             // prepare the channel for the pairwise analysis
             pairwise_samples_ch = SINGLE_WF.out.single_updated_samples_ch
 
@@ -188,12 +188,11 @@ workflow {
                 - Produces molecular clock, with ML trees (with reference and ancestral reconstruction)
         ······································································································
         */
-/*
+
             // Structure of the channel : pairwise_samples_ch
             /// [0] sampleID        [1] forward         [2] reverse     [3] mtbseq_class    [4] mtbseq_stats
             /// [5] mtbseq_pos      [6] mtbseq_vars     [7] tbdb_out    [8] who_out         [9] snippy_vcf
-
-            // filter channels of just the necessary output files contained within the tuple (by calling the index)
+            /// filter channels of just the necessary output files contained within the tuple (by calling the index)
                 sampleID_dump       =   pairwise_samples_ch.map { it -> it[0] ?: null }
                 mtbseq_class_files  =   pairwise_samples_ch.map { it -> it[3] ?: null }
                 mtbseq_stats_files  =   pairwise_samples_ch.map { it -> it[4] ?: null }

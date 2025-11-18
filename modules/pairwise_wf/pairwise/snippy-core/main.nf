@@ -9,7 +9,7 @@ process SNIPPY_CORE {
 
     output:
         path("core.snps")
-        path("core.vcf")
+        path("core.vcf.bgz")
         path("core.aln")
         path("core.aln.full")
 
@@ -20,7 +20,7 @@ process SNIPPY_CORE {
     for directory in "${params.outDir}/db/sample/*"; do
         sampleID="snippyDir_\$(basename \$directory)"
         mkdir -f \$directory
-        ln -s \$directory/* \$sampleID/
+        ln -s \$directory/snippy/* \$sampleID/
     done
 
     paths=\$(echo snippyDir_*)

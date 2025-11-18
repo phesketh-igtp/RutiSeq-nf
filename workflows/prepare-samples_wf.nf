@@ -66,21 +66,6 @@ workflow PREPARE_SAMPLES_WF {
     controls_ch = samples_by_type.control
         .map { tuple(it[0], it[1], it[2], it[3]) }  // Include type field here too
 
-    /*
-    
-    // DEBUG THE CHANNELS:
-
-    // Report samples
-    samples_ch.view { sampleID, forward, reverse, type ->
-        "${color_cyan}SampleID: ${color_green}${sampleID}${color_reset} | ${color_cyan}fastq_1: ${color_green}${forward}${color_reset} | ${color_cyan}fastq_2: ${color_green}${reverse}${color_reset} | ${color_cyan}Type: ${color_green}${type}${color_reset}"
-    }
-
-    // Report controls
-    controls_ch.view { sampleID, forward, reverse, type ->
-        "${color_red}ControlID: ${color_green}${sampleID}${color_reset} | ${color_red}fastq_1: ${color_green}${forward}${color_reset} | ${color_red}fastq_2: ${color_green}${reverse}${color_reset} | ${color_red}Type: ${color_green}${type}${color_reset}"
-    }
-    */
-
     // Check if samples have been previously analyzed
     FILE_CHECK(samples_ch)
 
