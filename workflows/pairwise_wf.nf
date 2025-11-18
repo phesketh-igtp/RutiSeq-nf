@@ -1,20 +1,17 @@
 include { TBPROFILER_COMPILE }     from '../modules/pairwise_wf/tbprofiler/compile/main.nf'
 include { MTBSEQ_STATS_COMPILE }        from '../modules/pairwise_wf/mtbseq/stats-compile/main.nf'
+include { SNIPPY_CORE }                 from '../modules/pairwise_wf/pairwise/snippy-core/main.nf'
+include { SNIPPY_PHYLOGENY }            from '../modules/pairwise_wf/pairwise/snippy-phylogeny/main.nf'
 include { COMPILE_SEQUENCING_STATS }    from '../modules/pairwise_wf/filtering/compile-sequencing-stats/main.nf'
 include { PREPARE_PAIRWISE_CHANNELS }   from '../modules/pairwise_wf/filtering/prepare_pairwise_channels/main.nf'
 include { MTBSEQ_LINEAGE_JOINT_AMEND }  from '../modules/pairwise_wf/mtbseq/lineage_joint-amend/main.nf'
 include { MTBSEQ_LINEAGE_GROUP }        from '../modules/pairwise_wf/mtbseq/lineage_group/main.nf'
 include { SNP_PHYLOGENY }               from '../modules/pairwise_wf/phylogeny/concatenated_snp_phylogeny/main.nf'
 include { CONCATENATE_CLUSTERS }        from '../modules/pairwise_wf/pairwise/concatenate-cluster-file/main.nf'
-include { SNIPPY_CORE }                 from '../modules/pairwise_wf/pairwise/snippy-core/main.nf'
-//include { SNIPPY_PHYLOGENY }            from '../modules/pairwise_wf/pairwise/snippy-phylogeny/main.nf'
 
 workflow PAIRWISE_WF {
     
     take:
-        mtbseq_stats_ch
-        mtbseq_class_ch
-        tbprofiler_out_ch
         sampleID_list
 
     main:
@@ -26,20 +23,15 @@ workflow PAIRWISE_WF {
         def no_col  = '\u001B[0m'
 
         // Compile TB-Profiler results
-            TBPROFILER_COMPILE( tbprofiler_out_ch )
+            TBPROFILER_COMPILE( sampleID_list )
 
         // Compile stats and classifications from MTBSeq
-            MTBSEQ_STATS_COMPILE( mtbseq_stats_ch, mtbseq_class_ch )
-
-        // SNIPPY CORE
-            SNIPPY_CORE(MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_map_stats)
+            MTBSEQ_STATS_COMPILE( sampleID_list )
 
         // Determine infection type (Mixed vs Clonal using both tbprofiler and mtbseq outputs)
         //// and filter genomes based on quality parameters (min coverage)
             COMPILE_SEQUENCING_STATS(
-                                    TBPROFILER_COMPILE.out.tbdb_results,
-                                    TBPROFILER_COMPILE.out.tbdb_fractions,
-                                    TBPROFILER_COMPILE.out.who_results,
+                                    TBPROFILER_COMPILE.out.tbdb_out,
                                     MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_strains,
                                     MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_map_stats,
                                     sampleID_list
@@ -95,6 +87,16 @@ workflow PAIRWISE_WF {
 
         // Assemble all the variable region phylogenies
             SNP_PHYLOGENY( MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch )
+
+
+        // SNIPPY_CORE and SNIPPY_PHYLOGENY
+        if ( params.snippy_core == true ) {
+            log.info "${green}Including SNIPPY_CORE analysis${no_col}"
+            SNIPPY_CORE( sampleID_list )
+            SNIPPY_PHYLOGENY( SNIPPY_CORE.out.snippy_out_ch )
+        } else {
+            log.info "${purple}Skipping SNIPPY_CORE and SNIPPY_PHYLOGENY analysis (params.snippy_core = ${params.snippy_core})${no_col}"
+        }
 
 /*
         // Create a channel to emit for the nexus generation

@@ -16,8 +16,9 @@ process MTBSEQ_STATS_COMPILE {
     publishDir "${params.outDir}/db/comparison/mtbseq/", mode: 'copy'
 
     input:
-        path stats_files
-        path mtbseq_class_files
+        val(sampleID_list)
+        //path(stats_files)
+        //path(mtbseq_class_files)
 
     output:
         path("Strain_Classification.tab"),              emit: mtbseq_compiled_strains
@@ -25,17 +26,15 @@ process MTBSEQ_STATS_COMPILE {
 
     script:
         """
-
         # Concatenate all files, excluding the header
-        cat ${params.outDir}/db/mtbseq/samples/*/Statistics/*.tab \\
-                            | sed '/^Date/d' \\
-                            | sed "s/'//g" > Mapping_and_Variant_Statistics.tab
+        cat ${params.outDir}/db/samples/*/mtbseq/Statistics/*.tab \\
+            | sed '/^Date/d' \\
+            | sed "s/'//g" > Mapping_and_Variant_Statistics.tab
         
         # Concatenate all files, excluding the header
-        cat ${params.outDir}/db/mtbseq/samples/*/Classification/*.tab \\
-                            | sed '/^Date/d' \\
-                            | sed "s/'//g" > Strain_Classification.tab
-
+        cat ${params.outDir}/db/samples/*/mtbseq/Classification/*.tab \\
+            | sed '/^Date/d' \\
+            | sed "s/'//g" > Strain_Classification.tab
         """
 
 }

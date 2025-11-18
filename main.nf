@@ -194,20 +194,10 @@ workflow {
             /// [5] mtbseq_pos      [6] mtbseq_vars     [7] tbdb_out    [8] who_out         [9] snippy_vcf
             /// filter channels of just the necessary output files contained within the tuple (by calling the index)
                 sampleID_dump       =   pairwise_samples_ch.map { it -> it[0] ?: null }
-                mtbseq_class_files  =   pairwise_samples_ch.map { it -> it[3] ?: null }
-                mtbseq_stats_files  =   pairwise_samples_ch.map { it -> it[4] ?: null }
-                tbprofiler_files    =   pairwise_samples_ch.map { it -> it[7] ?: null }
-
-                // make the channels
                 sampleID_list       =   sampleID_dump.collect()
-                mtbseq_stats_ch     =   mtbseq_stats_files.collect()
-                mtbseq_class_ch     =   mtbseq_class_files.collect()
-                tbprofiler_out_ch   =   tbprofiler_files.collect()
+                //  sampleID_list.view()
 
             PAIRWISE_WF( 
-                        mtbseq_stats_ch,
-                        mtbseq_class_ch, 
-                        tbprofiler_out_ch,
                         sampleID_list
                         )
 

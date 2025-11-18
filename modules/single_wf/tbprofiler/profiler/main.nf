@@ -24,7 +24,7 @@ process TBPROFILER_PROFILE {
             else return null
         }
         
-    publishDir "${params.outDir}/db/samples/${sampleID}/tbprofiler/", mode: 'copy'
+    publishDir "${params.outDir}/db/samples/${sampleID}/", mode: 'copy'
 
     input:
         tuple val(sampleID), 
@@ -42,11 +42,7 @@ process TBPROFILER_PROFILE {
         path(tbprofiler_db)
 
     output:
-        path("results/tbdb-${sampleID}.results.json")
-        path("bam/tbdb-${sampleID}.bam")
-        path("results/tbdb-${sampleID}.results.txt")
-        path("results/who-${sampleID}.results.json")
-        path("results/who-${sampleID}.results.txt")
+        path("tbprofiler/*")
 
         // tuple for updating the sample ch
         tuple val(sampleID), 
@@ -57,8 +53,8 @@ process TBPROFILER_PROFILE {
             path(mtbseq_stats), 
             path(mtbseq_pos), 
             path(mtbseq_vars),  
-            path("results/tbdb-${sampleID}.results.txt"), // generated in this module
-            path("results/who-${sampleID}.results.txt"), // generated in this module
+            path("tbprofiler/tbdb-${sampleID}.results.txt"), // generated in this module
+            path("tbprofiler/who-${sampleID}.results.txt"), // generated in this module
             path(snippy_vcf), emit: updated_sample_ch2
 
     script:
@@ -67,10 +63,6 @@ process TBPROFILER_PROFILE {
         """
         # Create output directories
         mkdir -p bam vcf results
-
-        # Update the database
-        #tb-profiler update_tbdb
-        #tb-profiler update_tbdb --branch who
 
         # Run TB-Profiler using TBDB database
         if [[ ! -f "${fastq_2}" ]]; then
@@ -102,5 +94,9 @@ process TBPROFILER_PROFILE {
                 --txt --dir . --platform illumina \\
                 --db tbdb/who ${additional_args}
         fi
+
+        # organis results
+            mv results/ tbprofiler/
+            mv bam/ tbprofiler/
         """
 }

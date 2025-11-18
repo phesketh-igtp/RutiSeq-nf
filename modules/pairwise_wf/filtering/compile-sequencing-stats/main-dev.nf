@@ -19,16 +19,16 @@ process COMPILE_SEQUENCING_STATS {
     publishDir "${params.outDir}/db/comparison/summary/", mode: 'copy'
 
     input:
-        tuple path(tbdb_out),
-            path(who_out),
-            path(lineage_fractions)
-        path(mtbseq_compiled_strains)
-        path(mtbseq_compiled_map_stats)
-        
-        val(sampleID_list)
+        path(tbdb_results, stageAs: "tbdb-tbprofiler.tsv")
+        path(who_results, stageAs: "who-tbprofiler.tsv")
+        path(mtbseq_compiled_strains, stageAs: "who-tbprofiler.tsv")
+        path(mtbseq_compiled_map_stats, stageAs: "who-tbprofiler.tsv")
+        path(lineage_fractions, stageAs: "who-tbprofiler.tsv")
+        val(sampleID_list, stageAs: "who-tbprofiler.tsv")
 
     output:
         path("${params.runID}.sequencing_summary.csv")
+
         path("sequencing_summary.csv"),      emit: analysis_summary
         path("who_resistance_summary.csv"),  emit: who_resistance
         path("tbdb_resistance_summary.csv"), emit: tbdb_resistance
@@ -40,6 +40,12 @@ process COMPILE_SEQUENCING_STATS {
     def additional_args = task.ext.compile_sequencing_stats ?: ''
 
     """
+
+    """
+}
+
+
+/*
     # Create the lienage fraction strings
         Rscript ${params.r_scriptDir}/tbprofiler_lineage_fractions.R
 
@@ -67,6 +73,4 @@ process COMPILE_SEQUENCING_STATS {
             # remove any ';' which is used in the mixed lienages
         grep -f min.qual.genomes tmp.pairwise_analysis.list.csv | grep -v ';' > pairwise_analysis.list.csv
         touch pairwise_analysis.list.csv
-
-    """
-}
+*/

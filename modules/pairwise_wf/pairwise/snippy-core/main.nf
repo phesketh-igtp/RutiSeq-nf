@@ -5,32 +5,27 @@ process SNIPPY_CORE {
     publishDir "${params.outDir}/db/comparison/snippy/", mode: 'copy'
 
     input:
-        path(mapping_stats)
+        val(sampleID_list)
 
     output:
         path("core.snps")
         path("core.vcf.bgz")
-        path("core.aln")
+        path("core.aln"), emit: snippy_out_ch
         path("core.aln.full")
 
     script:
 
     """
-    # Collect all the data from the snippy outputs
-    for directory in "${params.outDir}/db/sample/*"; do
-        sampleID="snippyDir_\$(basename \$directory)"
-        mkdir -f \$directory
-        ln -s \$directory/snippy/* \$sampleID/
-    done
+    # Collect all the paths for snippy core
+        paths=\$(echo ${params.outDir}/db/samples/*/snippy)
 
-    paths=\$(echo snippyDir_*)
-
-    snippy-core \\
-        --ref ${params.snippy_reference} \\
-        \$paths
+    # Run snippy core
+        snippy-core \\
+            --ref ${params.snippy_reference} \\
+            \$(echo ${params.outDir}/db/samples/*/snippy)
 
     # Housekeeping
-    bgzip -9 core.vcf
-    tabix -t core.vcf.bgz
+        bgzip -9 core.vcf
+        tabix -t core.vcf.bgz
     """
 }

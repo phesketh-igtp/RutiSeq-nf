@@ -31,40 +31,22 @@ process TBPROFILER_COMPILE {
     publishDir "${params.outDir}/db/comparison/tbprofiler/", mode: 'copy'
 
     input:
-        path(tbprofiler_results)
+        val(sampleID_list)
+        //path(tbprofiler_results)
 
     output:
-        path("tbdb-tbprofiler.txt"),                 emit: tbdb_results
-        path("lineages.fractions.txt"),              emit: lineage_fractions
-        path("tbdb-tbprofiler.dr.indiv.itol.txt")
-        path("tbdb-tbprofiler.dr.itol.txt")
-        path("tbdb-tbprofiler.lineage.itol.txt")
-        path("tbdb-tbprofiler.variants.csv")
-        path("tbdb-tbprofiler.variants.txt")
-        path("who-tbprofiler.txt"),                 emit: who_results
-        path("who-tbprofiler.dr.indiv.itol.txt")
-        path("who-tbprofiler.dr.itol.txt")
-        path("who-tbprofiler.lineage.itol.txt")
-        path("who-tbprofiler.variants.csv")
-        path("who-tbprofiler.variants.txt")
+    tuple path("tbdb-tbprofiler.txt"), 
+        path("who-tbprofiler.txt"),     
+        path("lineages.fractions.txt"), emit: tbdb_out
 
     script:
         """
         mkdir -p results/; mkdir -p bam/; mkdir -p vcf/; mkdir -p tmp/
 
         # create the symbolic links to the result directories
-            mv tbdb-* tmp/
-            ln -s ${params.outDir}/db/*/tbprofiler/results/tbdb-* results/
-
-        # perform tb profiler compile:
-            tb-profiler collate --full --mark_missing --all_variants --itol
-
-            sed 's/tbdb-//g' tbprofiler.txt                 > tbdb-tbprofiler.txt
-            sed 's/tbdb-//g' tbprofiler.variants.csv        > tbdb-tbprofiler.variants.csv
-            sed 's/tbdb-//g' tbprofiler.variants.txt        > tbdb-tbprofiler.variants.txt
-            sed 's/tbdb-//g' tbprofiler.dr.indiv.itol.txt   > tbdb-tbprofiler.dr.indiv.itol.txt
-            sed 's/tbdb-//g' tbprofiler.dr.itol.txt         > tbdb-tbprofiler.dr.itol.txt
-            sed 's/tbdb-//g' tbprofiler.lineage.itol.txt    > tbdb-tbprofiler.lineage.itol.txt
+            ln -s ${params.outDir}/db/samples/*/tbprofiler/tbdb-* results/
+            tb-profiler collate
+            sed 's/tbdb-//g' tbprofiler.txt > tbdb-tbprofiler.txt
 
         # Get the fractions of all the lineages
             for file in results/tbdb-*.txt; do
@@ -83,15 +65,8 @@ process TBPROFILER_COMPILE {
 
         # WHO database one:
             rm results/*
-            ln -s ${params.outDir}/db/*/tbprofiler/results/who-* results/;
-
-        # perform tb profiler compile:
-            tb-profiler collate --full --mark_missing --all_variants --itol
-            mv tbprofiler.txt tbdb-tbprofiler.txt
-            mv tbprofiler.variants.csv          tbdb-tbprofiler.variants.csv
-            mv tbprofiler.variants.txt          tbdb-tbprofiler.variants.txt
-            mv tbprofiler.dr.indiv.itol.txt     tbdb-tbprofiler.dr.indiv.itol.txt
-            mv tbprofiler.dr.itol.txt           tbdb-tbprofiler.dr.itol.txt
-            mv tbprofiler.lineage.itol.txt      tbdb-tbprofiler.lineage.itol.txt
+            ln -s ${params.outDir}/db/samples/*/tbprofiler/who-* results/
+            tb-profiler collate
+            sed 's/who-//g' tbprofiler.txt > who-tbprofiler.txt
         """
 }

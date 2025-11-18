@@ -16,7 +16,7 @@ process POST_SINGLE_DB_CLEANUP {
 
     tag "${sampleID}"
 
-    array 50
+    array 100
 
     input:
         val(sampleID)
@@ -25,9 +25,8 @@ process POST_SINGLE_DB_CLEANUP {
 
         """
         # Check and remove files only if they exist
-            rm -f ${params.outDir}/db/read-qc/mtbc_reads/${sampleID}*.fastq.gz
-
-            rm -f ${params.outDir}/db/sample/${sampleID}/tbprofiler/${sampleID}**.fastq.gz
+            rm -f ${params.outDir}/db/sample/${sampleID}/tbprofiler/*.fastq.gz
+            rm -f ${params.outDir}/db/sample/${sampleID}/tbprofiler/bam
 
             rm -f ${params.outDir}/db/sample/${sampleID}/mtbseq/${sampleID}*.fastq.gz
             rm -f ${params.outDir}/db/sample/${sampleID}/mtbseq/tbdb-${sampleID}.results.txt
