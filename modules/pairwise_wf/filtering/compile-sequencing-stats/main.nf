@@ -23,7 +23,7 @@ process COMPILE_SEQUENCING_STATS {
             path(who_results, stageAs: "who-tbprofiler.txt"),
             path(lineage_fractions, stageAs: "lineages.fractions.txt")
 
-        path(mtbseq_strains, stageAs: "Strain_Classification.tab.tab")
+        path(mtbseq_strains, stageAs: "Strain_Classification.tab")
         path(mtbseq_stats, stageAs: "Mapping_and_Variant_Statistics.tab")
 
     output:
@@ -70,9 +70,7 @@ process COMPILE_SEQUENCING_STATS {
     # Functions
     #··············································································#
     
-    dictionary_rename <- function(df,
-            dict_path = "${params.scriptDir}/R/dict/mtbseq_classification.dict.csv"
-            ) { 
+    dictionary_rename <- function(df, dict_path) { 
         # import dictionary
             dict <- read.csv(dict_path)
         # create vector name
@@ -326,7 +324,8 @@ process COMPILE_SEQUENCING_STATS {
     write.csv(minQual_genomes, 
         "pairwise_analysis.list.csv", 
         quote = FALSE, 
-        row.names = FALSE
+        row.names = FALSE,
+        col.names = FALSE
         )
     """
 }

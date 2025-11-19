@@ -10,7 +10,7 @@ snp_profiling_env:
 - community.wave.seqera.io/library/bcftools_emboss_seqkit_snp-sites_pruned:1a1022abcb91db63
 taxonkit_env:
 - community.wave.seqera.io/library/taxonkit:0.19.0--e60eeab4ec1369bc
-taxonomy_env:
+readQC_env:
 - community.wave.seqera.io/library/fastp_fastq-pair_kraken2_seqkit:8303c343b1f28ce5
 tbprofiler_env:
 - community.wave.seqera.io/library/tb-profiler:6.6.3--fb34c34b4a27d1b8

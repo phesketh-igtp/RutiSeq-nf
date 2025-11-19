@@ -14,7 +14,7 @@ process SYLPH_DB {
 
     tag "Sylph database: GTDB-R220"
     
-    conda params.taxonomy_env
+    conda params.readQC_env
 
     container { 
             if (workflow.containerEngine == 'singularity') return params.docker_sylph

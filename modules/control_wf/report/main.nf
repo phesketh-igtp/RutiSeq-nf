@@ -27,12 +27,17 @@ process READ_TAXONOMY_QC_REPORT {
     script:
     
     """
+    # Create an empty output incase the file is empty
+    > ${params.runID}_warnings.out
+    
     # Copy the quarto document to the work directory
     cp ${params.scriptDir}/quarto/reads-controls-report.qmd ${params.runID}_reads-controls-report.qmd
 
     # Render the report
         quarto render ${params.runID}_reads-controls-report.qmd \
             --to html
+
+    
     """
 
 }
