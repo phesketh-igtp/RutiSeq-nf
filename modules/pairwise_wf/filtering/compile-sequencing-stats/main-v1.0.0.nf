@@ -19,20 +19,20 @@ process COMPILE_SEQUENCING_STATS {
     publishDir "${params.outDir}/db/comparison/summary/", mode: 'copy'
 
     input:
-        path(tbdb_results, stageAs: "tbdb-tbprofiler.tsv")
-        path(who_results, stageAs: "who-tbprofiler.tsv")
-        path(mtbseq_compiled_strains, stageAs: "who-tbprofiler.tsv")
-        path(mtbseq_compiled_map_stats, stageAs: "who-tbprofiler.tsv")
-        path(lineage_fractions, stageAs: "who-tbprofiler.tsv")
-        val(sampleID_list, stageAs: "who-tbprofiler.tsv")
+        tuple path(tbdb_out),
+            path(who_out),
+            path(lineage_fractions)
+
+        path(mtbseq_compiled_strains)
+        path(mtbseq_compiled_map_stats)
+
+        val(sampleID_list)
 
     output:
         path("${params.runID}.sequencing_summary.csv")
-
         path("sequencing_summary.csv"),      emit: analysis_summary
         path("who_resistance_summary.csv"),  emit: who_resistance
         path("tbdb_resistance_summary.csv"), emit: tbdb_resistance
-
         path("pairwise_analysis.list.csv"),  emit: pairwise_analysis_list
 
     script:
@@ -40,26 +40,23 @@ process COMPILE_SEQUENCING_STATS {
     def additional_args = task.ext.compile_sequencing_stats ?: ''
 
     """
-
-    """
-}
-
-
-/*
     # Create the lienage fraction strings
-        Rscript ${params.r_scriptDir}/tbprofiler_lineage_fractions.R
+        Rscript ${params.scriptDir}/R/tbprofiler_lineage_fractions.R
 
     # Generate summary statistics and create the sampleID,lineage df for
     ## creating into a channel TODO: need to fix this script in generating the output for tuplec creation
-        Rscript ${params.r_scriptDir}/compile-sequencing-statistics.R \\
+        Rscript ${params.scriptDir}/R/compile-sequencing-statistics.R \\
                     --runID ${params.runID} \\
-                    --dictionary_path ${params.r_scriptDir}
+                    --dictionary_path "${params.scriptDir}/R/"
 
     # Convert the list of sample IDs to a format suitable for grep
         echo '${sampleID_list.join("\n")}' > run_sample_ids.txt
 
     # Seperate out the genomes from this run into their own results file
-        grep -f run_sample_ids.txt ${params.runID}.sequencing_summary.csv > tmp.${params.runID}.sequencing_summary.csv
+        grep -f run_sample_ids.txt \\
+            ${params.runID}.sequencing_summary.csv \\
+            > tmp.${params.runID}.sequencing_summary.csv
+
         mv tmp.${params.runID}.sequencing_summary.csv ${params.runID}.sequencing_summary.csv
 
     # Create the file to go to the tuple seperation
@@ -73,4 +70,5 @@ process COMPILE_SEQUENCING_STATS {
             # remove any ';' which is used in the mixed lienages
         grep -f min.qual.genomes tmp.pairwise_analysis.list.csv | grep -v ';' > pairwise_analysis.list.csv
         touch pairwise_analysis.list.csv
-*/
+    """
+}

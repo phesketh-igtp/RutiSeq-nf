@@ -34,7 +34,7 @@ workflow PAIRWISE_WF {
                                     TBPROFILER_COMPILE.out.tbdb_out,
                                     MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_strains,
                                     MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_map_stats,
-                                    sampleID_list
+
                                     )
 
             PREPARE_PAIRWISE_CHANNELS(

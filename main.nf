@@ -122,10 +122,10 @@ workflow {
                 params.samplesheet,
                 )
             
-            // Access the outputs
+            // DEBUG the outputs
             //PREPARE_SAMPLES.out.samples.view { "Sample output: ${it}" }
             //PREPARE_SAMPLES.out.controls.view { "Control output: ${it}" }
-            PREPARE_SAMPLES_WF.out.all_samples.view { "All samples output: ${it}" }
+            //PREPARE_SAMPLES_WF.out.all_samples.view { "All samples output: ${it}" }
 
         /*
         ······································································································

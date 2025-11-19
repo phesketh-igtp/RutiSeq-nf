@@ -19,7 +19,7 @@ process PREPARE_PAIRWISE_CHANNELS {
 
     conda params.r_stats_env
 
-    publishDir "${params.outDir}/results/", mode: 'copy'
+    publishDir "${params.outDir}/comparison/src/", mode: 'copy'
     
     input:
         path(pairwise_analysis_list)
@@ -32,7 +32,6 @@ process PREPARE_PAIRWISE_CHANNELS {
     script:
 
         """
-
         # Prapare the lists of sampleIDs and (sub)lineages for possible splits
 
             echo '${sampleID_list.join("\n")}' | sort | uniq > run_sample_ids.txt
