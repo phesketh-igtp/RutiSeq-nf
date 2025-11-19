@@ -1,31 +1,31 @@
 process SNIPPY_CORE {
-
-    conda params.snippy_env
-
+    conda "bioconda::snippy=4.6.0"
+    
     publishDir "${params.outDir}/db/comparison/snippy/", mode: 'copy'
 
     input:
-        val(sampleID_list)
+        val(sampleID_list)  // Collection of VCF files from snippy runs
+        path(vcf_files_ch)  // Reference genome file
 
     output:
-        path("core.snps")
-        path("core.vcf.bgz")
-        path("core.aln"), emit: snippy_out_ch
-        path("core.aln.full")
+        path("core.snps"), emit: snps
+        path("core.vcf.bgz"), emit: vcf_bgz
+        path("core.vcf.bgz.tbi"), emit: vcf_index
+        path("core.aln"), emit: alignment
+        path("core.aln.full"), emit: alignment_full
+        path("core.tab")
+        path("core.txt")
 
     script:
 
+    def vcf_dirs = vcf_files_ch.collect { it.parent }.join(' ')
+
     """
-    # Collect all the paths for snippy core
-        paths=\$(echo ${params.outDir}/db/samples/*/snippy)
+    # Run snippy core with collected VCF directories
+    snippy-core --ref ${params.snippy_reference} ${vcf_dirs}
 
-    # Run snippy core
-        snippy-core \\
-            --ref ${params.snippy_reference} \\
-            \$(echo ${params.outDir}/db/samples/*/snippy)
-
-    # Housekeeping
-        bgzip -9 core.vcf
-        tabix -t core.vcf.bgz
+    # Compress and index the VCF file
+    bgzip -c core.vcf > core.vcf.bgz
+    tabix -p vcf core.vcf.bgz
     """
 }

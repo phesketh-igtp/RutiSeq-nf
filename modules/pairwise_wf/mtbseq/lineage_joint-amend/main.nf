@@ -12,6 +12,10 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
     @changelog:
         v1.0.0-2025-04-01: Initial version
         v1.1.0-2025-04-09: Changed - Removed the zipping of the files (caused issues)
+
+    TODO: Would be better to compare the sampleIDs from the fasta files and 
+            if they are differente, then remove and repeat the analysis, or if they are the same
+            continue
 */
 
     tag "${params.runID}: ${lineage} "
