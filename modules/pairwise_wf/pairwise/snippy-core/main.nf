@@ -30,11 +30,13 @@ process SNIPPY_CORE {
         path("samples.list")
 
     script:
-    
+
     """
+    # Create the sample list of available results
     ls /imppc/labs/emlab/share/SMATB/RutiSeq/db/samples/ > samples.list
 
-    BASE="/imppc/labs/emlab/share/SMATB/RutiSeq/db/samples"
+    # Assign the base path
+    BASE="${params.outDir}/RutiSeq/db/samples"
 
     while read -r f; do
         src_dir="\$BASE/\$f/snippy"
@@ -78,29 +80,33 @@ process SNIPPY_CORE {
 
     done < samples.list
 
+    # Create path of directories for snippy core
     PATH=$(echo snippyDir_*)
 
-    snippy-core \\
-        --prefix core \\
-        --ref ${params.snippy_reference} \\
-        \$PATH
-    
-    snippy-core \\
-        --prefix core.masked \\
-        --ref ${params.snippy_reference} \\
-        --mask ${params.snippy_reference} \\
-        \$PATH
+    # The main alignments/core
+        snippy-core \\
+            --prefix core \\
+            --ref ${params.snippy_reference} \\
+            \$PATH
 
-    seqkit seq -w 0 core.full.aln > tmp.core.full.aln
-    mv tmp.core.full.aln core.full.aln
-    snp-dists -j 8 core.full.aln > core.distance.mat
-    snp-dists -j 8 -m core.full.aln > core.distance.mat.tsv
+        seqkit seq -w 0 core.full.aln > tmp.core.full.aln
+        mv tmp.core.full.aln core.full.aln
+        snp-dists -j 8 core.full.aln > core.distance.mat
+        snp-dists -j 8 -m core.full.aln > core.distance.mat.tsv
 
-    seqkit seq -w 0 core.masked.full.aln > tmp.core.masked.full.aln
-    mv tmp.core.masked.full.aln core.masked.full.aln
-    snp-dists -j 8 core.masked.full.aln > core.masked.distance.mat
-    snp-dists -j 8 -m core.masked.full.aln > core.masked.distance.mat.tsv
+    # The main masked alignments/core
+        snippy-core \\
+            --prefix core.masked \\
+            --ref ${params.snippy_reference} \\
+            --mask ${params.snippy_reference} \\
+            \$PATH
 
-    sed -i 's@snippyDir_@@g' core.*
+        seqkit seq -w 0 core.masked.full.aln > tmp.core.masked.full.aln
+        mv tmp.core.masked.full.aln core.masked.full.aln
+        snp-dists -j 8 core.masked.full.aln > core.masked.distance.mat
+        snp-dists -j 8 -m core.masked.full.aln > core.masked.distance.mat.tsv
+
+    # Remove the prefix
+        sed -i 's@snippyDir_@@g' core.*
     """
 }
