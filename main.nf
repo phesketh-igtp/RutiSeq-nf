@@ -209,7 +209,7 @@ workflow {
                 - Generate MJN files for visualisation in PopArt
         ······································································································
         */
-/*
+
             SUMMARY_WF(
                         PAIRWISE_WF.out.processed_clusters,
                         PAIRWISE_WF.out.unprocessed_clusters,
@@ -221,7 +221,7 @@ workflow {
                         CONTROL_WF.out.sylph_results,
                         CONTROL_WF.out.reads_taxonomy_qc_report_out
                     )
-*/
+
 }
 
 /*
