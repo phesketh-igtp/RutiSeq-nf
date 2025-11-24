@@ -1,5 +1,6 @@
 process SNIPPY_CORE {
-    conda "bioconda::snippy=4.6.0"
+
+    conda params.snippy_env
     
     publishDir "${params.outDir}/db/comparison/snippy/", mode: 'copy'
 
@@ -8,24 +9,98 @@ process SNIPPY_CORE {
         path(vcf_files_ch)  // Reference genome file
 
     output:
-        path("core.snps"), emit: snps
-        path("core.vcf.bgz"), emit: vcf_bgz
-        path("core.vcf.bgz.tbi"), emit: vcf_index
-        path("core.aln"), emit: alignment
-        path("core.aln.full"), emit: alignment_full
+        path("core.snps")
+        path("core.vcf")
+        path("core.aln")
+        path("core.aln.full")
         path("core.tab")
         path("core.txt")
+        path("core.masked.distance.mat")
+        path("core.masked.distance.mat.tsv")
+
+        path("core.masked.snps"), emit: snippy_core_snps
+        path("core.masked.vcf"), emit: snippy_core_vcf
+        path("core.masked.aln"), emit: snippy_core_alignment
+        path("core.masked.aln.full"), emit: snippy_core_alignment_full
+        path("core.masked.distance.mat")
+        path("core.masked.distance.mat.tsv")
+        path("core.masked.tab")
+        path("core.masked.txt")
+
+        path("samples.list")
 
     script:
-
-    def vcf_dirs = vcf_files_ch.collect { it.parent }.join(' ')
-
+    
     """
-    # Run snippy core with collected VCF directories
-    snippy-core --ref ${params.snippy_reference} ${vcf_dirs}
+    ls /imppc/labs/emlab/share/SMATB/RutiSeq/db/samples/ > samples.list
 
-    # Compress and index the VCF file
-    bgzip -c core.vcf > core.vcf.bgz
-    tabix -p vcf core.vcf.bgz
+    BASE="/imppc/labs/emlab/share/SMATB/RutiSeq/db/samples"
+
+    while read -r f; do
+        src_dir="\$BASE/\$f/snippy"
+        dest_dir="snippyDir_\$f"
+
+        # Check source directory
+        if [[ ! -d "\$src_dir" ]]; then
+            echo "No snippy directory for sample: \$f"
+            continue
+        fi
+
+        # Check for target files
+        vcf_files=("\$src_dir"/*.vcf)
+        fa_files=("\$src_dir"/*.aligned.fa)
+
+        vcf_exists=false
+        fa_exists=false
+
+        [[ -e "\${vcf_files[0]}" ]] && vcf_exists=true
+        [[ -e "\${fa_files[0]}" ]] && fa_exists=true
+
+        # Skip sample entirely if neither file type exists
+        if ! \$vcf_exists && ! \$fa_exists; then
+            echo "No VCF or aligned FASTA files found for \$f — skipping."
+            continue
+        fi
+
+        # Only create dest directory if needed
+        mkdir -p "\$dest_dir"
+
+        # Link only existing files
+        if \$vcf_exists; then
+            ln -sf "\$src_dir"/*.vcf "\$dest_dir"/
+            echo "✓ Linked VCF files for \$f"
+        fi
+
+        if \$fa_exists; then
+            ln -sf "\$src_dir"/*.aligned.fa "\$dest_dir"/
+            echo "✓ Linked aligned FASTA files for \$f"
+        fi
+
+    done < samples.list
+
+    PATH=$(echo snippyDir_*)
+
+    snippy-core \\
+        --prefix core \\
+        --ref ${params.snippy_reference} \\
+        \$PATH
+    
+    snippy-core \\
+        --prefix core.masked \\
+        --ref ${params.snippy_reference} \\
+        --mask ${params.snippy_reference} \\
+        \$PATH
+
+    seqkit seq -w 0 core.full.aln > tmp.core.full.aln
+    mv tmp.core.full.aln core.full.aln
+    snp-dists -j 8 core.full.aln > core.distance.mat
+    snp-dists -j 8 -m core.full.aln > core.distance.mat.tsv
+
+    seqkit seq -w 0 core.masked.full.aln > tmp.core.masked.full.aln
+    mv tmp.core.masked.full.aln core.masked.full.aln
+    snp-dists -j 8 core.masked.full.aln > core.masked.distance.mat
+    snp-dists -j 8 -m core.masked.full.aln > core.masked.distance.mat.tsv
+
+    sed -i 's@snippyDir_@@g' core.*
     """
 }
