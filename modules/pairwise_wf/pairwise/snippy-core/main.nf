@@ -18,14 +18,16 @@ process SNIPPY_CORE {
         path("core.masked.distance.mat")
         path("core.masked.distance.mat.tsv")
 
-        path("core.masked.snps"), emit: snippy_core_snps
-        path("core.masked.vcf"), emit: snippy_core_vcf
-        path("core.masked.aln"), emit: snippy_core_alignment
-        path("core.masked.aln.full"), emit: snippy_core_alignment_full
+        path("core.masked.snps"),       emit: snippy_core_snps
+        path("core.masked.vcf"),        emit: snippy_core_vcf
+        path("core.masked.aln"),        emit: snippy_core_alignment
+        path("core.masked.aln.full"),   emit: snippy_core_alignment_full
         path("core.masked.distance.mat")
         path("core.masked.distance.mat.tsv")
         path("core.masked.tab")
         path("core.masked.txt")
+
+        path("phylo.aln"),              emit: snippy_core_phylo_alignment
 
         path("samples.list")
 
@@ -70,18 +72,18 @@ process SNIPPY_CORE {
         # Link only existing files
         if \$vcf_exists; then
             ln -sf "\$src_dir"/*.vcf "\$dest_dir"/
-            echo "✓ Linked VCF files for \$f"
+            echo "Linked VCF files for \$f"
         fi
 
         if \$fa_exists; then
             ln -sf "\$src_dir"/*.aligned.fa "\$dest_dir"/
-            echo "✓ Linked aligned FASTA files for \$f"
+            echo "Linked aligned FASTA files for \$f"
         fi
 
     done < samples.list
 
     # Create path of directories for snippy core
-    PATH=$(echo snippyDir_*)
+    PATH=\$(echo snippyDir_*)
 
     # The main alignments/core
         snippy-core \\
@@ -105,6 +107,7 @@ process SNIPPY_CORE {
         mv tmp.core.masked.full.aln core.masked.full.aln
         snp-dists -j 8 core.masked.full.aln > core.masked.distance.mat
         snp-dists -j 8 -m core.masked.full.aln > core.masked.distance.mat.tsv
+        snp-sites -b -c -o phylo.aln core.masked.full.aln
 
     # Remove the prefix
         sed -i 's@snippyDir_@@g' core.*

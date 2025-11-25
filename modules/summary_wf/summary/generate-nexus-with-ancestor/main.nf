@@ -21,8 +21,9 @@ process GENERATE_NEXUS_W_MRCA {
                 val(clusterID),
                 file(snp_fasta),
                 file(snp_tab),
-                file(ancestor)
-        file(pairwise_clusters)
+                file(ancestor),
+                file(pairwise_clusters)
+
 
     output:
         tuple val(clusterID),

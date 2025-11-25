@@ -34,12 +34,6 @@ process GENERATE_NEXUS {
             path("fasta/${clusterID}_refseq.fasta"), emit: snp_fasta
 
         tuple val(lineage), 
-                val(clusterID), 
-                path("fasta/${clusterID}_refseq.fasta"),
-                path("positions/${clusterID}_genomic_positions.tab"),
-                path("${clusterID}.snp.tab"),   emit: variant_sites_for_tabulation
-
-        tuple val(lineage), 
                 val(clusterID),
                 file("fasta/${clusterID}_refseq.fasta"),
                 file(clusters_tab),     emit: annotated_nexus_ch

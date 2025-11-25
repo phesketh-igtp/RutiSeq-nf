@@ -100,8 +100,7 @@ workflow PAIRWISE_WF {
             SNIPPY_CORE( sampleID_list, vcf_files_ch )
 
             SNIPPY_PHYLOGENY( 
-                            SNIPPY_CORE.out.snippy_out_ch, 
-                            vcf_files_ch 
+                            SNIPPY_CORE.out.snippy_core_phylo_alignment
             )
         } else {
             log.info "${purple}Skipping SNIPPY_CORE and SNIPPY_PHYLOGENY analysis (params.snippy_core = ${params.snippy_core})${no_col}"

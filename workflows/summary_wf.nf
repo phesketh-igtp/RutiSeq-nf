@@ -45,7 +45,6 @@ workflow SUMMARY_WF{
         // Plot main ML phylogeny
             PLOT_MAIN_PHYLOGENY(
                                 phylogeny_plotting_ch,
-                                //PROCESS_CLUSTERS.out.pairwise_clusters_processed,
                                 processed_clusters,
                                 unprocessed_clusters 
                                 )
@@ -53,9 +52,6 @@ workflow SUMMARY_WF{
         // Generate base NEXUS files for each cluster
             PREPARE_NEXUS_PATHS( 
                                 nexus_creation_ch
-                                    //phylogeny_plotting_ch,
-                                    //PROCESS_CLUSTERS.out.pairwise_clusters_processed
-                                    //processed_clusters 
                                 )
 
                 nexus_ch = PREPARE_NEXUS_PATHS.out.nexus_tuple
@@ -69,46 +65,53 @@ workflow SUMMARY_WF{
 
             GENERATE_NEXUS( nexus_ch )
 
-        // If metadata is provided then the following modules are run
-            if (params.metadata) {
-                log.info "${cyan}Metadata provided. Generating time trees and ancestral sequences.${no_col}"
-                
-                // Channel for metadata file
-                ch_metadata = Channel.fromPath(params.metadata)
-                    .ifEmpty { error "${red}Metadata file not found/empty: ${params.metadata}. Correct your metadata path/file and resume the analysis with '-resume'${no_col}" }
+        // Always get the base nexus channel
+        base_nexus_ch = GENERATE_NEXUS.out.annotated_nexus_ch
 
-                // Create timetrees
-                GENERATE_TIMETREES( phylogeny_plotting_ch, ch_metadata )
+        // Conditionally mix with annotated nexus
+        if (params.metadata) {
+            log.info "${cyan}Metadata provided. Generating time trees and ancestral sequences.${no_col}"
 
-                PLOT_TIMETREES(
-                            GENERATE_TIMETREES.out.timetrees_ch, 
-                            processed_clusters
-                            )
-                
-                timetree_ch = PLOT_TIMETREES.out.timetree_tuple
-                        .splitCsv(header: false, sep: ',')
-                        .map { row ->
-                            def (lineage, clusterID, fasta, tab, ancestor) = row
-                            tuple(lineage, clusterID, file(fasta), file(tab), file(ancestor))
-                        }
+        //    TODO: Repair timetree generation steps
+            
+            // Channel for metadata file
+            ch_metadata = Channel.fromPath(params.metadata)
+                .ifEmpty { error "${red}Metadata file not found/empty: ${params.metadata}. Correct your metadata path/file and resume the analysis with '-resume'${no_col}" }
+/*
+            // Create timetrees
+            GENERATE_TIMETREES( phylogeny_plotting_ch, ch_metadata )
 
-                GENERATE_ANNOTATED_NEXUS( 
-                                        GENERATE_NEXUS.out.annotated_nexus_ch, 
-                                        params.metadata
-                                        )
+            PLOT_TIMETREES(
+                        GENERATE_TIMETREES.out.timetrees_ch, 
+                        processed_clusters
+                        )
+            
+            timetree_ch = PLOT_TIMETREES.out.timetree_tuple
+                    .splitCsv(header: false, sep: ',')
+                    .map { row ->
+                        def (lineage, clusterID, fasta, tab, ancestor, cluster_tab) = row
+                        tuple(lineage, clusterID, file(fasta), file(tab), file(ancestor), file(cluster_tab))
+                    }
 
-                /*
-                GENERATE_NEXUS_W_MRCA(timetree_ch, 
-                                        processed_clusters
+            GENERATE_ANNOTATED_NEXUS( 
+                                    GENERATE_NEXUS.out.annotated_nexus_ch, 
+                                    params.metadata
                                     )
-                */
 
-            } else {
-                log.info "${cyan}No metadata provided. TimeTrees and ancestral sequences will not be generated.${no_col}"
-            }
+            GENERATE_NEXUS_W_MRCA( timetree_ch,
+                                    PREPARE_NEXUS_PATHS.out.pairwise_clusters_processed
+                                    )
 
-            finish_handover = GENERATE_NEXUS.out.annotated_nexus_ch \
-                                .mix( GENERATE_ANNOTATED_NEXUS.out.annotated_nexus_ch )
+            // Mix both channels when metadata is provided
+            finish_handover = base_nexus_ch.mix(GENERATE_ANNOTATED_NEXUS.out.annotated_nexus_ch)
+*/
+        } else {
+            log.info "${cyan}No metadata provided. TimeTrees and ancestral sequences will not be generated.${no_col}"
+            
+            // Only use base nexus channel when no metadata
+            finish_handover = base_nexus_ch
+
+        }
 
         // Cleanup unwanted files
             //POST_SUMMARY_CLEANUP( CONCATENATED_VARIANT_FILES.out.cleanup_handover )
@@ -132,4 +135,5 @@ workflow SUMMARY_WF{
     @changelog
         v1.0.0-2024-11-01: Initial version
         v1.0.1-2025-04-04: Added documentation and comments
+        v2.0.0-2025-11-15: Remove creation of variant sites tables from summary workflow
 */
