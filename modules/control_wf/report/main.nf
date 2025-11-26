@@ -15,7 +15,10 @@ process READ_TAXONOMY_QC_REPORT {
     publishDir "${params.outDir}/db/qc/${params.runID}/", mode: 'copy'
 
     input:
-        path(sylph_output, stageAs: 'sylph_classification.tsv')
+        tuple path(sylph_sequence_abundance, stageAs: 'sylph_sequence_abundance.tsv'),
+            path(sylph_relative_abundance, stageAs: 'sylph_relative_abundance.tsv'),
+            path(sylph_coverage, stageAs: 'sylph_coverage.tsv')
+
         path(ska_input, stageAs: 'ska_distance.tsv')
         path(read_stats, stageAs: 'read_stats.tsv')
         path(samplesheet, stageAs: 'samplesheet.csv')
@@ -36,8 +39,6 @@ process READ_TAXONOMY_QC_REPORT {
     # Render the report
         quarto render ${params.runID}_reads-controls-report.qmd \
             --to html
-
-    
     """
 
 }

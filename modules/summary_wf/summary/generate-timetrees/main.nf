@@ -43,9 +43,18 @@ process GENERATE_TIMETREES {
 
     # Run the timetree
         treetime --aln ${alignments} \\
-                --tree ${contree} \\
-                --dates dates.tsv \\
-                --outdir ${lineage}_timetree
+            --tree ${contree} \\
+            --date dates.tsv \\
+            -o ${lineage}_timetree/
+
+    # Run IQtree timetree method
+        iqtree -s ${alignments} \\
+            -te ${contree} \\
+            --date ${alignments} \\
+            --date-ci 100 \\
+            --clock-sd 0.2 \\
+            -pre ${lineage}_timetree/iqtree_timetree \\
+            --dating LSD
     """
 
 }

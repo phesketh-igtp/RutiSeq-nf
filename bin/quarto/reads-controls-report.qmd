@@ -55,9 +55,10 @@ metat <- read.csv("samplesheet.csv",
 
 ska_distances <- read.delim("ska_distance.tsv")
 read_stats <- read.delim("read_stats.tsv")
-sylph_df <- read.delim("sylph_classification.tsv", 
+sylph_df <- read.delim("sylph_sequence_abundance.tsv", 
                         header = TRUE, 
                         check.names = FALSE)
+
   colnames(sylph_df) <- sub("_R[12]\\.fastq\\.gz$", "", colnames(sylph_df))
 ```
 

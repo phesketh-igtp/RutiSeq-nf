@@ -3,13 +3,14 @@ process SKA_PROFILING {
 /*
     @author: Poppy J hesketh Best
     @date: 2025-11-17
-    @version: v1.0.0
+    @version: v1.2.0
     @description:
         Created an input file from the samplesheet that is used by ska2
             to generate the ska profiles, before creating a 
             distance matrix of those profiles.
     @changelog:
         v1.0.0-2025-11-17: Functioning module created.
+        v1.1.0-2025-11-26: Modified to add params for ska2 profiling (--verbose).
 */
 
     conda params.readQC_env
@@ -39,12 +40,12 @@ process SKA_PROFILING {
             --proportion-reads ${params.ska_proportion_reads} \\
             --qual-filter ${params.ska_qual_filter} \\
             --min-qual ${params.ska_min_qual} \\
-            --threads ${task.cpus}
+            --threads ${task.cpus} \\
+            --verbose \\
 
-        ska distance \\
+        ska distance ${params.ska_distance_args} \\
             -o ska_distances.txt \\
             seqs.skf \\
-            --min-freq ${params.ska_min_freq} \\
-            ${params.ska_distance_args}
+            --min-freq ${params.ska_min_freq}
     """
 }
