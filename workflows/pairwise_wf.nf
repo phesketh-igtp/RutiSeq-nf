@@ -23,45 +23,103 @@ workflow PAIRWISE_WF {
         def no_col  = '\u001B[0m'
 
         // Compile TB-Profiler results
-            TBPROFILER_COMPILE( sampleID_list )
+        TBPROFILER_COMPILE( sampleID_list )
 
         // Compile stats and classifications from MTBSeq
-            MTBSEQ_STATS_COMPILE( sampleID_list )
+        MTBSEQ_STATS_COMPILE( sampleID_list )
 
         // Determine infection type (Mixed vs Clonal using both tbprofiler and mtbseq outputs)
         //// and filter genomes based on quality parameters (min coverage)
-            COMPILE_SEQUENCING_STATS(
-                                    TBPROFILER_COMPILE.out.tbdb_out,
-                                    MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_strains,
-                                    MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_map_stats,
+        COMPILE_SEQUENCING_STATS(
+                                TBPROFILER_COMPILE.out.tbdb_out,
+                                MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_strains,
+                                MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_map_stats,
+                                )
 
-                                    )
+        PREPARE_PAIRWISE_CHANNELS(
+                                COMPILE_SEQUENCING_STATS.out.pairwise_analysis_list,
+                                sampleID_list
+                                )
 
-            PREPARE_PAIRWISE_CHANNELS(
-                                    COMPILE_SEQUENCING_STATS.out.pairwise_analysis_list,
-                                    sampleID_list
-                                    )
+        // Create tuple and data channel from lineage_samples_paths.csv
+        /// the channel needs to be grouped by the lineage
+            lineage_samples_ch = PREPARE_PAIRWISE_CHANNELS.out.lineage_sample_tuple
+                .splitCsv(header: false)
+                .map { row -> tuple(row[0], row[1]) }
+                .groupTuple()
 
-            // Create tuple and data channel from lineage_samples_paths.csv
-            /// the channel needs to be grouped by the lineage
-                lineage_samples_ch = PREPARE_PAIRWISE_CHANNELS.out.lineage_sample_tuple
-                    .splitCsv(header: false)
-                    .map { row -> tuple(row[0], row[1]) }
-                    .groupTuple()
+            lineage_samples_ch.view { lineage, samples -> 
+                "${cyan}Clustering - ${green}Lineage: ${red}${lineage}${green} || Genomes: ${red}${samples.size()}${no_col}" }
 
-                lineage_samples_ch.view { lineage, samples -> 
-                    "${cyan}Clustering - ${green}Lineage: ${red}${lineage}${green} || Genomes: ${red}${samples.size()}${no_col}" }
+            skipped_lineages_ch = PREPARE_PAIRWISE_CHANNELS.out.skipped_lineages_tuple
+                .splitCsv(header: false)
+                .map { row -> tuple(row[0], row[1]) }
+                .groupTuple()
 
-                skipped_lineages_ch = PREPARE_PAIRWISE_CHANNELS.out.skipped_lineages_tuple
-                    .splitCsv(header: false)
-                    .map { row -> tuple(row[0], row[1]) }
-                    .groupTuple()
+            skipped_lineages_ch.view { lineage, samples -> 
+                "${purple}Skipping - Lineage: ${lineage} || Genomes: ${samples.size()}${no_col}" }
 
-                skipped_lineages_ch.view { lineage, samples -> 
-                    "${purple}Skipping - Lineage: ${lineage} || Genomes: ${samples.size()}${no_col}" }
+            /*
+            // Report the lineages and counts for clustering
+            */
+            // Count samples per lineage and total counts
+            lineage_counts_ch = lineage_samples_ch
+                .map { lineage, samples -> samples.size() }
+                .reduce(0) { acc, count -> acc + count }
+            skipped_lineage_counts_ch = skipped_lineages_ch
+                .map { lineage, samples -> samples.size() }
+                .reduce(0) { acc, count -> acc + count }
+            // Count number of lineages
+            lineage_groups_count = lineage_samples_ch
+                .map { lineage, samples -> 1 }
+                .reduce(0) { acc, count -> acc + count }
 
-                // DEBUG: View the grouped channel
-                //lineage_samples_ch.view()
+            skipped_lineage_groups_count = skipped_lineages_ch
+                .map { lineage, samples -> 1 }
+                .reduce(0) { acc, count -> acc + count }
+
+            // Create summary strings for lineages
+            lineage_summary_ch = lineage_samples_ch
+                .map { lineage, samples -> 
+                    "  ${cyan}Lineage: ${red}${lineage}${green} || Genomes: ${red}${samples.size()}${no_col}"
+                }
+                .collect()
+                .map { list -> list.join('\n') }
+
+            skipped_lineage_summary_ch = skipped_lineages_ch
+                .map { lineage, samples -> 
+                    "  ${purple}Skipped Lineage: ${lineage} || Genomes: ${samples.size()}${no_col}"
+                }
+                .collect()
+                .map { list -> list.join('\n') }
+
+            // Combine and log lineage summary
+            lineage_counts_ch
+                .combine(skipped_lineage_counts_ch)
+                .combine(lineage_groups_count)
+                .combine(skipped_lineage_groups_count)
+                .combine(lineage_summary_ch)
+                .combine(skipped_lineage_summary_ch)
+                .subscribe { total_genomes, skipped_genomes, active_lineages, skipped_lineages, lineage_details, skipped_details ->
+                    log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
+                    log.info "${green}PAIRWISE_WF() WORKFLOW SUMMARY${no_col}"
+                    log.info "${purple}Clustering analysis grouped by lineage for pairwise comparisons${no_col}"
+                    log.info "${purple}only lineages present in the current analysis is performed.${no_col}"
+                    log.info "${green}--pairwise_split ${params.pairwise_split}${no_col}"
+                    log.info "${green}runID: ${red}${params.runID}${green} || Active Lineages: ${red}${active_lineages}${green} (${red}${total_genomes}${green} genomes) || Skipped: ${red}${skipped_lineages}${green} lineages (${red}${skipped_genomes}${green} genomes)${no_col}"
+                    log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
+                    log.info "${green}Active lineages for clustering:${no_col}"
+                    log.info "${lineage_details}"
+                        if (skipped_genomes > 0) {
+                            log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
+                            log.info "${green}Skipped lineages:${no_col}"
+                            log.info "${skipped_details}"
+                        }
+                    log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
+                        }
+
+            // DEBUG: View the grouped channel
+            //lineage_samples_ch.view()
 
         // Run the pairwise analysis by lineages
             MTBSEQ_LINEAGE_JOINT_AMEND( lineage_samples_ch )

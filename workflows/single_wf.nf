@@ -50,10 +50,13 @@ workflow SINGLE_WF {
             .combine(skipped_samples_names)
             .subscribe { with_reads, without_reads, skipped_names_string ->
                 log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
+                log.info "${green}SINGLE_WF WORKFLOW SUMMARY${no_col}"
+                log.info "${purple}This workflow is additive, meaning if a sampleID already exists in the central database${no_col}"
+                log.info "${purple}and will not be re-analised. The sampleID must be manually removed/moved to another location.${no_col}"
                 log.info "${green}runID: ${red}${params.runID}${green} || For ${cyan}SINGLE_WF()${green} : ${red}${with_reads}${green} samples || Skipped${green}: ${red}${without_reads}${green} samples${no_col}"
                 log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
                 log.info "${green}Skipped samples are as follows:${no_col}"
-                log.info "${purple}${skipped_names_string}${no_col}"
+                log.info "${green}${skipped_names_string}${no_col}"
                 log.info "${red}⚠️  If you expected a samples to be analysed, rename you sampleID or remove duplicated sampleIDs in:${no_col}"
                 log.info "      - ${purple}${params.outDir}/RutiSeq/db/samples/${no_col}"
                 log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
