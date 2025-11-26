@@ -219,7 +219,7 @@ workflow {
                         PAIRWISE_WF.out.phylogeny_plotting_ch,
                         PAIRWISE_WF.out.nexus_creation_ch,
                         CONTROL_WF.out.sylph_results,
-                        CONTROL_WF.out.reads_taxonomy_qc_report_out
+                        CONTROL_WF.out.read_qc_report
                     )
 
 }

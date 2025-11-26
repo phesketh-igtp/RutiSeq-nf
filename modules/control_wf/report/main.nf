@@ -24,7 +24,7 @@ process READ_TAXONOMY_QC_REPORT {
         path(samplesheet, stageAs: 'samplesheet.csv')
 
     output:
-    tuple path("${params.runID}_reads-controls-report.qmd", optional: true),
+    tuple path("${params.runID}_reads-controls-report.html", optional: true),
         path("${params.runID}_warnings.out", optional: true), emit: html
     
     script:
