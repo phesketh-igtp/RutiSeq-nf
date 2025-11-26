@@ -41,16 +41,23 @@ workflow SINGLE_WF {
                 nonskipped_samples_count = branched_channel.with_reads.count()
                 skipped_samples_count = skipped_samples_ch.count()
 
-            // Combine the counts and log the message
-            nonskipped_samples_count.combine(skipped_samples_count)
-                .map { with_reads, without_reads -> 
+        // Extract [0] index and collect into a list, then join with commas
+        skipped_samples_names = skipped_samples_ch.map { it[0] }.collect().map { it.join(', ') }
+
+        // Combine and log
+        nonskipped_samples_count
+            .combine(skipped_samples_count)
+            .combine(skipped_samples_names)
+            .subscribe { with_reads, without_reads, skipped_names_string ->
                 log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
                 log.info "${green}runID: ${red}${params.runID}${green} || For ${cyan}SINGLE_WF()${green} : ${red}${with_reads}${green} samples || Skipped${green}: ${red}${without_reads}${green} samples${no_col}"
                 log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
-                log.info "${red}⚠️  If you expected all of the samples to be analysed, check for duplicated sampleIDs in:${no_col}"
-                log.info "      - ${purple}${params.outDir}/RutiSeq/db/samples${no_col}"
+                log.info "${green}Skipped samples are as follows:${no_col}"
+                log.info "${purple}${skipped_names_string}${no_col}"
+                log.info "${red}⚠️  If you expected all of the samples to be analysed, rename you sampleID or remove duplicated sampleIDs in:${no_col}"
+                log.info "      - ${purple}${params.outDir}/RutiSeq/db/samples/${no_col}"
                 log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
-                }
+            }
 
         /*
         // DEBUG:: View the results
