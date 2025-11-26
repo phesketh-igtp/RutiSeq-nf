@@ -16,6 +16,34 @@ workflow PREPARE_SAMPLES_WF {
     def color_reset  = '\u001B[0m'
     def color_cyan   = '\u001B[36m'
 
+    /* 
+    // Report parameters
+    */
+
+    // Simple parameter reporting using log.info
+    log.info "${green}=========================================================================================${no_col}"
+    log.info "${green}PIPELINE PARAMETER SUMMARY${no_col}"
+    log.info "${green}=========================================================================================${no_col}"
+    log.info "${purple}Run Configuration:${no_col}"
+    log.info "  ${cyan}Run ID:${no_col} ${red}${params.runID}${no_col}"
+    log.info "  ${cyan}Output Directory:${no_col} ${red}${params.outDir}${no_col}"
+    log.info "  ${cyan}Input Directory:${no_col} ${red}${params.inputDir}${no_col}"
+    log.info ""
+    log.info "${purple}Analysis Parameters:${no_col}"
+    log.info "  ${cyan}Min Coverage:${no_col} ${red}${params.minCoverage ?: 'default'}${no_col}"
+    log.info "  ${cyan}Quality Threshold:${no_col} ${red}${params.qualityThreshold ?: 'default'}${no_col}"
+    log.info "  ${cyan}Reference Genome:${no_col} ${red}${params.reference ?: 'not specified'}${no_col}"
+    log.info ""
+    log.info "${purple}Workflow Options:${no_col}"
+    log.info "  ${cyan}Skip QC:${no_col} ${red}${params.skipQC ? 'Yes' : 'No'}${no_col}"
+    log.info "  ${cyan}Save Intermediates:${no_col} ${red}${params.saveIntermediates ? 'Yes' : 'No'}${no_col}"
+    log.info "  ${cyan}Publish Mode:${no_col} ${red}${params.publishMode ?: 'copy'}${no_col}"
+    log.info "${green}=========================================================================================${no_col}"
+
+    /* 
+    // Prepare sample channels
+    */
+
     // Parse sample sheet and validate
     Channel
         .fromPath(samplesheet)

@@ -60,13 +60,14 @@ def helpMessage() {
 workflow {
 
     //def color_purple = '\u001B[35m'
-    def color_green  = '\u001B[32m'
-    def color_red    = '\u001B[31m'
-    def color_reset  = '\u001B[0m'
-    def color_cyan   = '\u001B[36m'
+    def green   = '\u001B[32m'
+    def red     = '\u001B[31m'
+    def no_col  = '\u001B[0m'
+    def cyan    = '\u001B[36m'
+    def purple  = '\u001B[35m'
 
     log.info """
-    ${color_cyan}
+    ${cyan}
     ════════════════════════════════════════════════════════════════════════
         ██████╗ ██╗   ██╗████████╗██╗███████╗███████╗ ██████╗                 
         ██╔══██╗██║   ██║╚══██╔══╝██║██╔════╝██╔════╝██╔═══██╗                
@@ -74,11 +75,25 @@ workflow {
         ██╔══██╗██║   ██║   ██║   ██║╚════██║██╔══╝  ██║▄▄ ██║                
         ██║  ██║╚██████╔╝   ██║   ██║███████║███████╗╚██████╔╝                
         ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝╚══════╝╚══════╝ ╚══▀▀═╝                 
-        ${color_green}Pre-release development version${color_cyan}   
+        ${green}Pre-release development version${cyan}   
     ════════════════════════════════════════════════════════════════════════
         RutiSeq.nf: Main workflow for the RutiSeq pipeline
     ════════════════════════════════════════════════════════════════════════
-    ${color_reset}
+    ${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}"
+    ${green}PIPELINE PARAMETER SUMMARY${no_col}"
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}"
+    ${purple}Run Configuration:${no_col}"
+    ${cyan}  Run ID:${no_col} ${red}${params.runID}${no_col}"
+    ${cyan}  Output Directory:${no_col} ${red}${params.outDir}${no_col}"
+    ${cyan}  Input Directory:${no_col} ${red}${params.inputDir}${no_col}"
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}"
+    ${purple}Analysis Parameters:${no_col}"
+    ${cyan}  Min Coverage:${no_col} ${red}${params.minCoverage ?: 'default'}${no_col}"
+    ${cyan}  Quality Threshold:${no_col} ${red}${params.qualityThreshold ?: 'default'}${no_col}"
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}"
+    ${purple}Workflow Options:${no_col}"
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}"
     """
 
     if (params.help) { helpMessage() }
@@ -222,6 +237,94 @@ workflow {
                         CONTROL_WF.out.read_qc_report
                     )
 
+
+    /* 
+    // Report parameters
+    */
+    log.info """
+    ${cyan}
+    ════════════════════════════════════════════════════════════════════════
+        ██████╗ ██╗   ██╗████████╗██╗███████╗███████╗ ██████╗                 
+        ██╔══██╗██║   ██║╚══██╔══╝██║██╔════╝██╔════╝██╔═══██╗                
+        ██████╔╝██║   ██║   ██║   ██║███████╗█████╗  ██║   ██║                
+        ██╔══██╗██║   ██║   ██║   ██║╚════██║██╔══╝  ██║▄▄ ██║                
+        ██║  ██║╚██████╔╝   ██║   ██║███████║███████╗╚██████╔╝                
+        ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝╚══════╝╚══════╝ ╚══▀▀═╝                 
+        ${green}Pre-release development version${cyan}   
+    ════════════════════════════════════════════════════════════════════════
+        RutiSeq.nf: Main workflow for the RutiSeq pipeline
+    ════════════════════════════════════════════════════════════════════════
+    ${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${green}PIPELINE PARAMETER SUMMARY${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${purple}Run Configuration:${no_col}
+    ${cyan}   Run ID:${no_col} ${red}${params.runID}${no_col}
+    ${cyan}   Output Directory:${no_col} ${red}${params.outDir}${no_col}
+    ${cyan}   Input Directory:${no_col} ${red}${params.inputDir}${no_col}
+    ${cyan}   Work Directory:${no_col} ${red}${workflow.workDir}${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${purple}Pairwise Analysis Configuration:${no_col}
+    ${cyan}   Pairwise Split:${no_col} ${red}${params.pairwise_split}${no_col}
+    ${cyan}   Main Lineages:${no_col} ${red}${params.lineage_pairwise_main.join(', ')}${no_col}
+    ${cyan}   Sub Lineages:${no_col} ${red}${params.lineage_pairwise_sub.join(', ')}${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${purple}FASTP Parameters:${no_col}
+    ${cyan}   Min length:${no_col} ${red}${params.fastp_length_required}${no_col}
+    ${cyan}   Max Reads:${no_col} ${red}${params.fastp_max_reads}${no_col}
+    ${cyan}   Min Reads:${no_col} ${red}${params.fastp_min_reads}${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${purple}MTBseq Parameters:${no_col}
+    ${cyan}   Reference:${no_col} ${red}${params.mtbseq_reference}${no_col}
+    ${cyan}   Min Base Quality:${no_col} ${red}${params.mtbseq_minbqual}${no_col}
+    ${cyan}   Min Coverage Forward:${no_col} ${red}${params.mtbseq_mincovf}${no_col}
+    ${cyan}   Min Coverage Reverse:${no_col} ${red}${params.mtbseq_mincovr}${no_col}
+    ${cyan}   Min Phred20:${no_col} ${red}${params.mtbseq_minphred20}${no_col}
+    ${cyan}   Min Frequency:${no_col} ${red}${params.mtbseq_minfreq}${no_col}
+    ${cyan}   Unambiguous:${no_col} ${red}${params.mtbseq_unambig}${no_col}
+    ${cyan}   Window:${no_col} ${red}${params.mtbseq_window}${no_col}
+    ${cyan}   SNP Distances:${no_col} ${red}${params.mtbseq_snp_distance.join(', ')}${no_col}
+    ${cyan}   Additional Args:${no_col} ${red}${params.mtbseq_args ?: 'none'}${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${purple}Snippy Parameters:${no_col}
+    ${cyan}   Reference:${no_col} ${red}${params.snippy_reference}${no_col}
+    ${cyan}   Min Coverage:${no_col} ${red}${params.snippy_mincov}${no_col}
+    ${cyan}   Min Fraction:${no_col} ${red}${params.snippy_minfrac}${no_col}
+    ${cyan}   Map Quality:${no_col} ${red}${params.snippy_mapqual}${no_col}
+    ${cyan}   Min Quality:${no_col} ${red}${params.snippy_minqual}${no_col}
+    ${cyan}   Base Quality:${no_col} ${red}${params.snippy_basequal}${no_col}
+    ${purple}Core Analysis:${no_col} ${red}${params.snippy_core ? 'Yes' : 'No'}${no_col}
+    ${cyan}   Additional Args:${no_col} ${red}${params.snippy_args ?: 'none'}${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${purple}IQ-Tree Parameters:${no_col}
+    ${cyan}   Bootstraps:${no_col} ${red}${params.iqtree_bootstraps}${no_col}
+    ${cyan}   Model:${no_col} ${red}${params.iqtree_model}${no_col}
+    ${cyan}   Additional Args:${no_col} ${red}${params.snippy_args ?: 'none'}${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${purple}Genome Filtering Parameters:${no_col}
+    ${cyan}   Min Coverage:${no_col} ${red}${params.filt_min_cov}${no_col}
+    ${cyan}   Min Depth:${no_col} ${red}${params.filt_min_depth}${no_col}
+    ${cyan}   Min Reads:${no_col} ${red}${params.filt_min_reads}${no_col}
+    ${cyan}   Additional Args:${no_col} ${red}${params.snippy_args ?: 'none'}${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${purple}ONT Parameters (WIP):${no_col}
+    ${cyan}   Min Coverage:${no_col} ${red}${params.ont_filt_min_cov}${no_col}
+    ${cyan}   Min Depth:${no_col} ${red}${params.ont_filt_min_depth}${no_col}
+    ${cyan}   Min Reads:${no_col} ${red}${params.ont_filt_min_reads}${no_col}
+    ${cyan}   Additional Args:${no_col} ${red}${params.snippy_args ?: 'none'}${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${purple}SKA Parameters:${no_col}
+    ${cyan}   K-mer Size:${no_col} ${red}${params.ska_kmer}${no_col}
+    ${cyan}   Min Count:${no_col} ${red}${params.ska_min_count}${no_col}
+    ${cyan}   Proportion Reads:${no_col} ${red}${params.ska_proportion_reads}${no_col}
+    ${cyan}   Quality Filter:${no_col} ${red}${params.ska_qual_filter}${no_col}
+    ${cyan}   Min Quality:${no_col} ${red}${params.ska_min_qual}${no_col}
+    ${cyan}   Min Frequency:${no_col} ${red}${params.ska_min_freq}${no_col}
+    ${cyan}   Build Args:${no_col} ${red}${params.ska_build_args ?: 'none'}${no_col}
+    ${cyan}   Distance Args:${no_col} ${red}${params.ska_distance_args ?: 'none'}${no_col}
+    ${cyan}   Additional Args:${no_col} ${red}${params.snippy_args ?: 'none'}${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    """
 }
 
 /*
