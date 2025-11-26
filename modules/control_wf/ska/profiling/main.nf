@@ -15,7 +15,7 @@ process SKA_PROFILING {
 
     conda params.readQC_env
 
-    storeDir "${params.outDir}/db/qc/${params.runID}/"
+    publishDir "${params.outDir}/db/qc/${params.runID}/"
 
     input:
         path(samplesheet, stageAs: "samplesheet.csv")

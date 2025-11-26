@@ -54,7 +54,7 @@ workflow SINGLE_WF {
                 log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
                 log.info "${green}Skipped samples are as follows:${no_col}"
                 log.info "${purple}${skipped_names_string}${no_col}"
-                log.info "${red}⚠️  If you expected all of the samples to be analysed, rename you sampleID or remove duplicated sampleIDs in:${no_col}"
+                log.info "${red}⚠️  If you expected a samples to be analysed, rename you sampleID or remove duplicated sampleIDs in:${no_col}"
                 log.info "      - ${purple}${params.outDir}/RutiSeq/db/samples/${no_col}"
                 log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
             }

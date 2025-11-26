@@ -46,6 +46,7 @@ workflow CONTROL_WF {
     emit:
         sylph_results   = SYLPH_CLASSIFICATION.out.sylph_out
         ska_results     = SKA_PROFILING.out.ska_out
+        read_qc_report  = READ_TAXONOMY_QC_REPORT.out.html
 
 }
 
