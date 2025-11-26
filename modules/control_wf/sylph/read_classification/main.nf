@@ -70,20 +70,20 @@ process SYLPH_CLASSIFICATION {
             -o sylph_tax/tax_
             
     # remove any empty files
-    #        find sylph_tax/ -type f -name 'tax_*.sylphmpa' -empty -delete
+            find sylph_tax/ -type f -name 'tax_*.sylphmpa' -empty -delete
 
         sylph-tax merge \\
-            sylph/tax_*.sylphmpa \\
+            sylph_tax/tax_*.sylphmpa \\
             --column sequence_abundance \\
             -o ${params.runID}.sylph_sequence_abundance.tsv
 
         sylph-tax merge \\
-            sylph/tax_*.sylphmpa \\
+            sylph_tax/tax_*.sylphmpa \\
             --column relative_abundance \\
             -o ${params.runID}.sylph_relative_abundance.tsv
         
         sylph-tax merge \\
-            sylph/tax_*.sylphmpa \\
+            sylph_tax/tax_*.sylphmpa \\
             --column relative_abundance \\
             -o ${params.runID}.sylph_coverage.tsv
     """

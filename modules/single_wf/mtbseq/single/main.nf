@@ -70,7 +70,6 @@ process MTBSEQ_SINGLE {
         # Run MTBseq for a single sample
 
             MTBseq --step TBfull \\
-                --reference     ${params.mtbseq_reference} \\
                 --thread        ${task.cpus} \\
                 --minbqual      ${params.mtbseq_minbqual} \\
                 --mincovf       ${params.mtbseq_mincovf} \\
