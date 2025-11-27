@@ -109,13 +109,8 @@ process SNIPPY_CORE {
         snp-dists -j 8 core.masked.full.aln > core.masked.distance.mat
         snp-dists -j 8 -m core.masked.full.aln > core.masked.distance.mat.tsv
 
-    # Extract variant sites for phylogeny
-        snp-sites -c -o phylo.variant-sites.aln core.masked.full.aln 
-        snp-sites -C -o phylo.invariant-sites.aln core.masked.full.aln
-
     # Remove the prefix
         sed -i 's@snippyDir_@@g' core.*
-        sed -i 's@snippyDir_@@g' phylo.*
     """
 }
 
@@ -127,19 +122,6 @@ process SNIPPY_CORE {
         This process performs the core SNP analysis for multiple samples
         using the Snippy-core tool from the Snippy pipeline.
     @details:
-        Bacterial whole genome phylogenetics often involves generating a consensus genome 
-            from your data + an appropriate reference genome, then combining these consensus 
-            genomes for different isolates, extracting the variant positions and using them 
-            to build a phylogenetic tree.
-        One problem with this is that the whole genome alignment usually consists primarily 
-            of invariant (monomorphic) sites. If you don’t take this into account when 
-            generating your phylogeny, the branch lengths of your tree will not be correct, 
-            and the topology of parts of the tree with short branches will potentially be affected.
-        The most common solution for this is to use ascertainment bias correction. However, 
-            there has been some rumblings for a while now that this is not an appropriate method. 
-            It should be self-evident that if we throw away information, one should not expect 
-            it to be magically recovered. I was recently privy to an interesting discussion of 
-            this issue, and thought it would be good to share the outcome of the discussion.
     @references: 
         https://bitsandbugs.org/2019/11/06/two-easy-ways-to-run-iq-tree-with-the-correct-number-of-constant-sites/
     @changelog
