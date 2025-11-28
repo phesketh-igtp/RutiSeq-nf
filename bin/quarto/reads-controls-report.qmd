@@ -47,11 +47,14 @@ setwd("/home/phesketh/Documents/GitHub/TBSEQ.cat-nf/bin/quarto")
 ```
 
 ```{r, import_df}
+#| eval: true
+#| echo: false
+#| warning: false
 # sampe metadata
 metat <- read.csv("samplesheet.csv", 
                   header = TRUE)
-  metat$forward_base <- basename(metat$forward_path)
-  metat$reverse_base <- basename(metat$reverse_path)
+metat$forward_base <- basename(metat$forward_path)
+metat$reverse_base <- basename(metat$reverse_path)
 
 ska_distances <- read.delim("ska_distance.tsv")
 read_stats <- read.delim("read_stats.tsv")
@@ -59,12 +62,25 @@ sylph_df <- read.delim("sylph_sequence_abundance.tsv",
                         header = TRUE, 
                         check.names = FALSE)
 
-  colnames(sylph_df) <- sub("_R[12]\\.fastq\\.gz$", "", colnames(sylph_df))
+colnames(sylph_df) <- sub("_R[12]\\.fastq\\.gz$", "", colnames(sylph_df))
+
+sylph_cov <- read.delim("sylph_coverage.tsv",
+                        header = TRUE, 
+                        check.names = FALSE)
+colnames(sylph_cov) <- sub("_R[12]\\.fastq\\.gz$", "", colnames(sylph_cov))
+
+sylph_real_abund <- read.delim("sylph_relative_abundance.tsv", 
+                        header = TRUE, 
+                        check.names = FALSE)
+colnames(sylph_real_abund) <- sub("_R[12]\\.fastq\\.gz$", "", colnames(sylph_real_abund))
 ```
 
 ## Total reads sequenced
 
 ```{r, wrangle_reads_df}
+#| eval: true
+#| echo: false
+#| warning: false
 metat2 <- metat |>
   select(sampleID, forward_base, reverse_base, type) |>
   pivot_longer(
@@ -75,10 +91,15 @@ metat2 <- metat |>
   select(sampleID, dataType=type, file, direction)
 
 read_stats <- left_join(read_stats, metat2, by = "file")
+colnames(read_stats)
 ```
 
 ```{r, interactive_read_bp_fun}
-plot_stacked_reads <- function(df = read_stats, datatype_filter) {
+#| eval: true
+#| echo: false
+#| warning: false
+plot_stacked_reads <- function(df = read_stats, 
+                              datatype_filter) {
   
   # Filter data (allow multiple dataTypes)
   df_filt <- df %>% 
@@ -101,8 +122,8 @@ plot_stacked_reads <- function(df = read_stats, datatype_filter) {
 ::: {.panel-tabset}
 
 ### Samples
-```{r, tree_t10}
-#| eval: false
+```{r, read_counts_samps}
+#| eval: true
 #| echo: true
 #| warning: false
 plot_stacked_reads(datatype_filter = c("sample","ENA","SRA"))
@@ -110,8 +131,8 @@ plot_stacked_reads(datatype_filter = c("sample","ENA","SRA"))
 
 ### Controls
 
-```{r, import_data}
-#| eval: false
+```{r, read_counts_ctrl}
+#| eval: true
 #| echo: false
 #| warning: false
 plot_stacked_reads(datatype_filter = "control")
@@ -127,10 +148,12 @@ Reads were taxonomically classified using Sylph with the GDR220 database.
 #| eval: true
 #| echo: true
 #| warning: false
-index <- metat |> select(identity=sampleID, type) |> distinct()
+index <- metat |> 
+  select(identity=sampleID, type) |> 
+  distinct()
 
 # Make ggplot compatible dataframe
-sylph_long <- sylph_df %>%
+sylph_long <- sylph_df |>
   pivot_longer(
     cols = -clade_name,
     names_to = "identity",
@@ -140,10 +163,14 @@ sylph_long <- sylph_df %>%
   separate_wider_delim(
     clade_name,
     delim = "|",
-    names = c("Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species", "Genome"),
+    names = c("Domain", "Phylum", "Class",
+              "Order", "Family", "Genus", 
+              "Species", "Genome"),
     too_many = "debug",  # merge extra pieces into the last column
     too_few = "align_start"    # or "drop" if you don’t need debug info
-  )
+    ) |>
+  select(!Genome) |>
+  filter(!if_any(c(Phylum, Class, Order, Family, Genus, Species), is.na))
 
 # Add the index information (type: sample/ENA/SRA or control)
 sylph_long <- left_join(sylph_long, index)
@@ -388,7 +415,7 @@ p <- ggplot(pcoa_df,
       x = "PC1",
       y = "PC2")
 
-  ggplotly(p)
+ggplotly(p)
 ```
 
 ## ⚠️ Potentially Problematic Samples and Controls

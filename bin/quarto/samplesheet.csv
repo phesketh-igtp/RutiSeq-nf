@@ -1,4 +1,0 @@
-originalID,sampleID,forward_path,reverse_path,type
-47_174,47-174_L28,/imppc/labs/emlab/share/TBSEQ/RUNS/20241129_TBSEQ_Run28/47-174-MT_L28_S26_L001_R1_001.fastq.gz,/imppc/labs/emlab/share/TBSEQ/RUNS/20241129_TBSEQ_Run28/47-174-MT_L28_S26_L001_R2_001.fastq.gz,sample
-29_178,29-178_R001,/imppc/labs/emlab/share/TBSEQ/RUNS/20250127_LCMN_RUN_001/29-178-MT_R001_S49_L001_R1_001.fastq.gz,/imppc/labs/emlab/share/TBSEQ/RUNS/20250127_LCMN_RUN_001/29-178-MT_R001_S49_L001_R2_001.fastq.gz,sample
-47_227,47-227_R01720,/imppc/labs/emlab/share/TBSEQ/RUNS/20250000_LCMN_MERGE/47-227-MT_R01720_R1.fastq.gz,/imppc/labs/emlab/share/TBSEQ/RUNS/20250000_LCMN_MERGE/47-227-MT_R01720_R2.fastq.gz,sample
