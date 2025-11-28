@@ -239,7 +239,7 @@ workflow {
 
 
     /* 
-    // Report parameters
+    // Report workflow parameters
     */
     log.info """
     ${cyan}
@@ -269,7 +269,7 @@ workflow {
     ${cyan}   Main Lineages:${no_col} ${red}${params.lineage_pairwise_main.join(', ')}${no_col}
     ${cyan}   Sub Lineages:${no_col} ${red}${params.lineage_pairwise_sub.join(', ')}${no_col}
     ${green}════════════════════════════════════════════════════════════════════════${no_col}
-    ${purple}FASTP Parameters:${no_col}
+    ${purple}fastp Parameters:${no_col}
     ${cyan}   Min length:${no_col} ${red}${params.fastp_length_required}${no_col}
     ${cyan}   Max Reads:${no_col} ${red}${params.fastp_max_reads}${no_col}
     ${cyan}   Min Reads:${no_col} ${red}${params.fastp_min_reads}${no_col}
