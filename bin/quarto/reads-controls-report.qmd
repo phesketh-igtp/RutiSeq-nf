@@ -42,8 +42,8 @@ set.seed(1234)
 #| eval: false
 #| echo: false
 #| warning: false
-setwd("/Users/poppybest/Documents/Work/Github/RutiSeq-nf/bin/quarto/")
-setwd("/home/phesketh/Documents/GitHub/TBSEQ.cat-nf/bin/quarto")
+#setwd("/Users/poppybest/Documents/Work/Github/RutiSeq-nf/bin/quarto/")
+#setwd("/home/phesketh/Documents/GitHub/TBSEQ.cat-nf/bin/quarto")
 ```
 
 ```{r, import_df}
@@ -409,7 +409,7 @@ p <- ggplot(pcoa_df,
                 label = Sample,
                 color = type)) +
   scale_fill_manual(values = c("#2A5783", "grey50")) +
-  geom_point(size = 4) +
+  geom_point(size = 2) +
   theme_minimal() +
   labs(title = "PCoA Plot of Kmer Distances",
       x = "PC1",

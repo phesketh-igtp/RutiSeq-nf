@@ -1,6 +1,7 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl = 2
+params.version = '1.2.0-beta'
 
 include { PREPARE_SAMPLES_WF } from './workflows/prepare-samples_wf.nf'
 include { DATABASE_ACCESS_WF } from './workflows/database.access_wf.nf'
@@ -65,36 +66,6 @@ workflow {
     def no_col  = '\u001B[0m'
     def cyan    = '\u001B[36m'
     def purple  = '\u001B[35m'
-
-    log.info """
-    ${cyan}
-    ════════════════════════════════════════════════════════════════════════
-        ██████╗ ██╗   ██╗████████╗██╗███████╗███████╗ ██████╗                 
-        ██╔══██╗██║   ██║╚══██╔══╝██║██╔════╝██╔════╝██╔═══██╗                
-        ██████╔╝██║   ██║   ██║   ██║███████╗█████╗  ██║   ██║                
-        ██╔══██╗██║   ██║   ██║   ██║╚════██║██╔══╝  ██║▄▄ ██║                
-        ██║  ██║╚██████╔╝   ██║   ██║███████║███████╗╚██████╔╝                
-        ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝╚══════╝╚══════╝ ╚══▀▀═╝                 
-        ${green}Pre-release development version${cyan}   
-    ════════════════════════════════════════════════════════════════════════
-        RutiSeq.nf: Main workflow for the RutiSeq pipeline
-    ════════════════════════════════════════════════════════════════════════
-    ${no_col}
-    ${green}════════════════════════════════════════════════════════════════════════${no_col}"
-    ${green}PIPELINE PARAMETER SUMMARY${no_col}"
-    ${green}════════════════════════════════════════════════════════════════════════${no_col}"
-    ${purple}Run Configuration:${no_col}"
-    ${cyan}  Run ID:${no_col} ${red}${params.runID}${no_col}"
-    ${cyan}  Output Directory:${no_col} ${red}${params.outDir}${no_col}"
-    ${cyan}  Input Directory:${no_col} ${red}${params.inputDir}${no_col}"
-    ${green}════════════════════════════════════════════════════════════════════════${no_col}"
-    ${purple}Analysis Parameters:${no_col}"
-    ${cyan}  Min Coverage:${no_col} ${red}${params.minCoverage ?: 'default'}${no_col}"
-    ${cyan}  Quality Threshold:${no_col} ${red}${params.qualityThreshold ?: 'default'}${no_col}"
-    ${green}════════════════════════════════════════════════════════════════════════${no_col}"
-    ${purple}Workflow Options:${no_col}"
-    ${green}════════════════════════════════════════════════════════════════════════${no_col}"
-    """
 
     if (params.help) { helpMessage() }
 
@@ -242,19 +213,17 @@ workflow {
     // Report workflow parameters
     */
     log.info """
-    ${cyan}
-    ════════════════════════════════════════════════════════════════════════
+    ${green}════════════════════════════════════════════════════════════════════════${cyan}
         ██████╗ ██╗   ██╗████████╗██╗███████╗███████╗ ██████╗                 
         ██╔══██╗██║   ██║╚══██╔══╝██║██╔════╝██╔════╝██╔═══██╗                
         ██████╔╝██║   ██║   ██║   ██║███████╗█████╗  ██║   ██║                
         ██╔══██╗██║   ██║   ██║   ██║╚════██║██╔══╝  ██║▄▄ ██║                
         ██║  ██║╚██████╔╝   ██║   ██║███████║███████╗╚██████╔╝                
         ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝╚══════╝╚══════╝ ╚══▀▀═╝                 
-        ${green}Pre-release development version${cyan}   
-    ════════════════════════════════════════════════════════════════════════
-        RutiSeq.nf: Main workflow for the RutiSeq pipeline
-    ════════════════════════════════════════════════════════════════════════
-    ${no_col}
+        ${green}Pre-release development version${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════
+    ${cyan}    RutiSeq.nf: Main workflow for the RutiSeq pipeline (${params.version})${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════
     ${green}════════════════════════════════════════════════════════════════════════${no_col}
     ${green}PIPELINE PARAMETER SUMMARY${no_col}
     ${green}════════════════════════════════════════════════════════════════════════${no_col}
@@ -330,7 +299,7 @@ workflow {
 /*
     @author: Poppy J Hesketh Best
     @date: 2025-04-04
-    @version: 1.0.0-beta
+    @version: 1.2.0-beta
     @description: 
         This is the main workflow for the RutiSeq-nf pipeline. It is designed to be run with Nextflow and 
         takes a samplesheet as input. The workflow performs the following steps:
