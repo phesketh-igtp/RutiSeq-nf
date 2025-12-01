@@ -48,16 +48,10 @@ workflow PAIRWISE_WF {
                 .map { row -> tuple(row[0], row[1]) }
                 .groupTuple()
 
-            lineage_samples_ch.view { lineage, samples -> 
-                "${cyan}Clustering - ${green}Lineage: ${red}${lineage}${green} || Genomes: ${red}${samples.size()}${no_col}" }
-
             skipped_lineages_ch = PREPARE_PAIRWISE_CHANNELS.out.skipped_lineages_tuple
                 .splitCsv(header: false)
                 .map { row -> tuple(row[0], row[1]) }
                 .groupTuple()
-
-            skipped_lineages_ch.view { lineage, samples -> 
-                "${purple}Skipping - Lineage: ${lineage} || Genomes: ${samples.size()}${no_col}" }
 
             /*
             // Report the lineages and counts for clustering

@@ -29,7 +29,7 @@ process CONCATENATE_CLUSTERS {
     script:
 
         """
-        #!/usr/bin/env R
+        #!/usr/bin/env Rscript --vanilla
 
         #--------------------------------------------------------------------------#
         # Load packages
