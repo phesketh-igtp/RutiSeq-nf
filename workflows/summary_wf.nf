@@ -66,12 +66,8 @@ workflow SUMMARY_WF{
         // Your current code
             GENERATE_NEXUS( nexus_ch )
 
-        // Always get the base nexus channel
-            base_nexus_ch = GENERATE_NEXUS.out.annotated_nexus_ch
-                .mix(GENERATE_NEXUS.out.annotated_nexus_ch)
-
         // Collect all outputs before passing to DATA_DELIVERY
-            collected_nexus_ch = base_nexus_ch.collect()
+            collected_handover_out = GENERATE_NEXUS.out.handover_out.collect()
 
         // Conditionally mix with annotated nexus
         if (params.metadata) {
@@ -118,7 +114,7 @@ workflow SUMMARY_WF{
             log.info "${cyan}No metadata provided. TimeTrees and ancestral sequences will not be generated.${no_col}"
             
             // Only use base nexus channel when no metadata
-            finish_handover = collected_nexus_ch
+            finish_handover = collected_handover_out
 
         }
 

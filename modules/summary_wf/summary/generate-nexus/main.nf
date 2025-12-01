@@ -30,6 +30,10 @@ process GENERATE_NEXUS {
                 val(clusterID),
                 file("fasta/${clusterID}_refseq.fasta"),
                 file(clusters_tab),     emit: annotated_nexus_ch
+        
+        path("handover.out"),     emit: handover_out
+        
+
 
     script:
 
@@ -125,6 +129,8 @@ process GENERATE_NEXUS {
         if [[ ! -f positions/${clusterID}_genomic_positions.tab ]]; then 
             echo "Nexus generation failed" > nexus/${clusterID}_refseq.nex
         fi
+
+        touch handover.out
         """
 
 }
