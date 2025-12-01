@@ -34,7 +34,6 @@ process CONCATENATE_CLUSTERS {
         #--------------------------------------------------------------------------#
         # Load packages
         #--------------------------------------------------------------------------#
-        cat("\\n=== LOADING PACKAGES ===\\n")
 
         # Set a default CRAN mirror (avoids prompt)
         options(repos = c(CRAN = "https://cloud.r-project.org"))
