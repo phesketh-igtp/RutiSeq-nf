@@ -3,7 +3,7 @@ process PREPARE_NEXUS_PATHS{
 /*
     @author: Poppy J Hesketh Best
     @date: 2025-04-01
-    @version: 1.0
+    @version: 1.0.2
     @description:
         This process prepares the paths for the NEXUS files for each cluster.
         It generates a CSV file with the paths to the NEXUS files and the
@@ -11,6 +11,10 @@ process PREPARE_NEXUS_PATHS{
         GENERATE_NEXUS process.
         The tuple has the following format:
         ["lineage", "clusterID", "fasta_path", "tab_path"]
+    @changelog:
+        v1.0.0-2025-04-01: Initial version
+        v1.0.1-2025-04-04: Added filtering to remove clusters with less than 3 genomes
+        v1.0.2-2025-12-01: Updated the paths for the new system.
 */
 
     conda params.snippy_env 
@@ -34,9 +38,9 @@ process PREPARE_NEXUS_PATHS{
 
     script:
 
-    def snp_fasta_path="${params.outDir}/db/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta"
-    def snp_tab_path="${params.outDir}/db/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab"
-    def clusters_tab_path="${params.outDir}/db/mtbseq/pairwise/${lineage}/Groups/${lineage}_d${distance}.clusters.tsv"
+    def snp_fasta_path="${params.outDir}/db/comparison/mtbseq/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta"
+    def snp_tab_path="${params.outDir}/db/comparison/mtbseq/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab"
+    def clusters_tab_path="${params.outDir}/db/comparison/mtbseq/${lineage}/Groups/${lineage}_d${distance}.clusters.tsv"
 
     """
     lin=\$(echo "${lineage}" | sed 's/lineage/L/g')
