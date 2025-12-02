@@ -29,9 +29,9 @@ process GENERATE_NEXUS {
         tuple val(lineage), 
                 val(clusterID),
                 file("fasta/${clusterID}_refseq.fasta"),
-                file(clusters_tab),     emit: annotated_nexus_ch
+                file(clusters_tab),        emit: annotated_nexus_ch
         
-        path("handover.out"),     emit: handover_out
+        path("${clusterID}.handover.out"), emit: handover_out
         
 
 
@@ -130,7 +130,7 @@ process GENERATE_NEXUS {
             echo "Nexus generation failed" > nexus/${clusterID}_refseq.nex
         fi
 
-        touch handover.out
+        echo > "${clusterID}.handover" > ${clusterID}.handover.out
         """
 
 }

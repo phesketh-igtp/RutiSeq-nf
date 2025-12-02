@@ -14,6 +14,7 @@ process DATA_DELIVERY {
     tag "${params.runID}"
 
     input:
+        path(sylph_results)
 
         tuple path(html_report, stageAs: "${params.runID}_reads-controls-report.html"),
             path(warnings, stageAs: 'warnings.out')
