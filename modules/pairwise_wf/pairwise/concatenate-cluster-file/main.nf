@@ -248,8 +248,11 @@ process CONCATENATE_CLUSTERS {
                         col.names = FALSE, 
                         quote = FALSE)
             cat("Successfully wrote unprocessed_clusters.tsv\\n")
+        }, error = function(e) {
+            cat("ERROR writing unprocessed_clusters.tsv:", e\$message, "\\n")
+            quit(status = 1)
+        })
         """
-
 }
 
 /*
