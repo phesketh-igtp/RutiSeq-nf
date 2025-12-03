@@ -1,13 +1,14 @@
-include { TBPROFILER_COMPILE }     from '../modules/pairwise_wf/tbprofiler/compile/main.nf'
-include { MTBSEQ_STATS_COMPILE }        from '../modules/pairwise_wf/mtbseq/stats-compile/main.nf'
-include { SNIPPY_CORE }                 from '../modules/pairwise_wf/pairwise/snippy-core/main.nf'
-include { SNIPPY_PHYLOGENY }            from '../modules/pairwise_wf/pairwise/snippy-phylogeny/main.nf'
-include { COMPILE_SEQUENCING_STATS }    from '../modules/pairwise_wf/filtering/compile-sequencing-stats/main.nf'
-include { PREPARE_PAIRWISE_CHANNELS }   from '../modules/pairwise_wf/filtering/prepare_pairwise_channels/main.nf'
-include { MTBSEQ_LINEAGE_JOINT_AMEND }  from '../modules/pairwise_wf/mtbseq/lineage_joint-amend/main.nf'
-include { MTBSEQ_LINEAGE_GROUP }        from '../modules/pairwise_wf/mtbseq/lineage_group/main.nf'
-include { SNP_PHYLOGENY }               from '../modules/pairwise_wf/phylogeny/concatenated_snp_phylogeny/main.nf'
-include { CONCATENATE_CLUSTERS }        from '../modules/pairwise_wf/pairwise/concatenate-cluster-file/main.nf'
+include { TBPROFILER_COMPILE }         from '../modules/pairwise_wf/tbprofiler/compile/main.nf'
+include { MTBSEQ_STATS_COMPILE }       from '../modules/pairwise_wf/mtbseq/stats-compile/main.nf'
+include { SNIPPY_CORE }                from '../modules/pairwise_wf/pairwise/snippy-core/main.nf'
+include { SNIPPY_PHYLOGENY }           from '../modules/pairwise_wf/pairwise/snippy-phylogeny/main.nf'
+include { COMPILE_SEQUENCING_STATS }   from '../modules/pairwise_wf/filtering/compile-sequencing-stats/main.nf'
+include { PREPARE_PAIRWISE_CHANNELS }  from '../modules/pairwise_wf/filtering/prepare_pairwise_channels/main.nf'
+include { MTBSEQ_LINEAGE_JOINT_AMEND } from '../modules/pairwise_wf/mtbseq/lineage_joint-amend/main.nf'
+include { MTBSEQ_LINEAGE_GROUP }       from '../modules/pairwise_wf/mtbseq/lineage_group/main.nf'
+include { PREPROCESS_CLUSTER }         from '../modules/pairwise_wf/pairwise/preprocess_clusters/main.nf'
+include { SNP_PHYLOGENY }              from '../modules/pairwise_wf/phylogeny/concatenated_snp_phylogeny/main.nf'
+include { CONCATENATE_CLUSTERS }       from '../modules/pairwise_wf/pairwise/concatenate-cluster-file/main.nf'
 
 workflow PAIRWISE_WF {
     
@@ -133,9 +134,12 @@ workflow PAIRWISE_WF {
             MTBSEQ_LINEAGE_GROUP( mtbseq_group_ch )
 
         // Collect all cluster and matrix outputs
-            db_clusters = MTBSEQ_LINEAGE_GROUP.out.clusters.collect()
+            PREPROCESS_CLUSTER( MTBSEQ_LINEAGE_GROUP.out.clusters )
 
-            CONCATENATE_CLUSTERS(db_clusters, 
+            processed_clusters_collected = PREPROCESS_CLUSTER.out.pairwise_clusters_processed.collect()
+
+            CONCATENATE_CLUSTERS(
+                                processed_clusters_collected, 
                                 COMPILE_SEQUENCING_STATS.out.analysis_summary
                                 )
 
@@ -177,7 +181,7 @@ workflow PAIRWISE_WF {
         who_resistance         = COMPILE_SEQUENCING_STATS.out.who_resistance
         tbdb_resistance        = COMPILE_SEQUENCING_STATS.out.tbdb_resistance
         phylogeny_plotting_ch  = SNP_PHYLOGENY.out.phylogeny_plotting_ch
-        nexus_creation_ch      = MTBSEQ_LINEAGE_GROUP.out.nexus_ch
+        nexus_creation_ch      = PREPROCESS_CLUSTER.out.nexus_ch
 
 }
 

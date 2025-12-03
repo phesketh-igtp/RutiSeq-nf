@@ -25,7 +25,7 @@ process MTBSEQ_LINEAGE_GROUP {
     ///        } else { 'quay.io/biocontainers/mtbseq' }
     ///}
                 
-    publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/", mode: 'copy'
+    publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/", mode: 'copy', pattern: "Groups/*,Matrices/*"
 
     input:
         tuple val(lineage), 
@@ -35,10 +35,6 @@ process MTBSEQ_LINEAGE_GROUP {
                 path(sample_txt)
 
     output:
-        // Groups
-        path("Groups/*")
-        path("Groups/${lineage}_d${distance}.clusters.tsv"), emit: clusters
-
         //Matrix ouput
         path("Matrices/*")
         path("Matrices/${lineage}.d${distance}.matrix.tsv"), emit: matrix_dir
@@ -48,7 +44,8 @@ process MTBSEQ_LINEAGE_GROUP {
             val(distance), 
             path("${lineage}_snps.fasta"),
             path("${lineage}_snps.tab"),
-            path("Groups/${lineage}_d${distance}.clusters.tsv"), emit: nexus_ch
+            path("Groups/${lineage}_d${distance}.clusters.tsv"), 
+            path("Groups/${lineage}_d${distance}.singletons.tsv"), emit: clusters
 
     script:
 
