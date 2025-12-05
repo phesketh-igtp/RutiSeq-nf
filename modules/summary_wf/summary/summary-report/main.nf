@@ -19,8 +19,11 @@ process GENERATE_SUMMARY_REPORT {
         path sequencing_summary
         path who_resistance
         path tbdb_resistance
-        path(sylph_results, stageAs: 'sylph_results.tsv')
         tuple path(html_report), path(warnings, stageAs: 'warnings.out')
+
+        tuple path(sylph_sequence_abundance, stageAs: 'sylph_results.tsv'),
+            path(sylph_relative_abundance, stageAs: 'sylph_relative_abundance.tsv')
+            path(sylph_coverage, stageAs: 'sylph_coverage.tsv')
         
 
     output:
@@ -126,9 +129,8 @@ process GENERATE_SUMMARY_REPORT {
 
         summary_xlsx <- dictionary_rename(
             df = summary.tmp,
-            dict_path = "${params.scriptDir}/R/dict/xlsx_sheet1.dict.csv"),
-            sep=""
-            )
+            dict_path = "${params.scriptDir}/R/dict/xlsx_sheet1.dict.csv",
+            sep=",")
 
         #··············································································#
         # Assemble the XLSX spreadsheet
