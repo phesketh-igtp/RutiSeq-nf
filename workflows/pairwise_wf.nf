@@ -76,14 +76,14 @@ workflow PAIRWISE_WF {
             // Create summary strings for lineages
             lineage_summary_ch = lineage_samples_ch
                 .map { lineage, samples -> 
-                    "  ${cyan}Lineage: ${red}${lineage}${green} || Genomes: ${red}${samples.size()}${no_col}"
+                    "  ${cyan}Lineage: ${red}${lineage}${green} (n = ${red}${samples.size()}${no_col})"
                 }
                 .collect()
                 .map { list -> list.join('\n') }
 
             skipped_lineage_summary_ch = skipped_lineages_ch
                 .map { lineage, samples -> 
-                    "  ${purple}Skipped Lineage: ${lineage} || Genomes: ${samples.size()}${no_col}"
+                    "  ${purple}Skipped Lineage: ${lineage} (n = ${samples.size()}${no_col})"
                 }
                 .collect()
                 .map { list -> list.join('\n') }
