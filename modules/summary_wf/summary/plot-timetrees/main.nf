@@ -35,7 +35,7 @@ process PLOT_TIMETREES {
         """
         mkdir -p ancestors/
         
-        Rscript ${params.r_script_dir}/plot_TimeTree-phylogeny.R \\
+        Rscript ${params.scriptDir}/R/plot_TimeTree-phylogeny.R \\
                 1>>.command.out \\
                 2>>.command.err || true
 

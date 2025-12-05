@@ -30,7 +30,7 @@ process TABULATE_VARIANT_SITES {
     script:
 
         """
-        Rscript ${params.r_script_dir}/tabulate_variant_sites.R \\
+        Rscript ${params.scriptDir}/R/tabulate_variant_sites.R \\
             --cluster   ${clusterID} \\
             --fasta     ${snp_alignments} \\
             --positions ${genomic_possitions} \\

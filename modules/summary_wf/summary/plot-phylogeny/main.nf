@@ -41,16 +41,16 @@ process PLOT_MAIN_PHYLOGENY {
             echo "This lineage contains clusters - plotting phylogeny with cluster heatmap"
 
             # plot phylogeny with clsuter heatmap
-            Rscript ${params.r_script_dir}/plot_ML-phylogeny.R \\
+            Rscript ${params.scriptDir}/R/plot_ML-phylogeny.R \\
                     --lineageID ${lineage} \\
-                    --rlibrary ${params.r_script_dir}
+                    --rlibrary ${params.scriptDir}/R/
 
             # Copy the phylogeny report to the output directory
-            cp ${params.script_dir}/quarto/phylogeny-report.qmd phylogeny-report.qmd
+            cp ${params.scriptDir}/quarto/phylogeny-report.qmd phylogeny-report.qmd
 
             # Render the phylogeny report using Quarto
             quarto render phylogeny-report.qmd \\
-                -P params.runID=${params.params.runID} \\
+                -P params.runID=${params.runID} \\
                 -P lineage=${lineage} \\
                 -P RData=${lineage}.contree.Rdata \\
                 --output ${lineage}_ML-phylogeny.html
