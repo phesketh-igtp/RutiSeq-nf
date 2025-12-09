@@ -19,7 +19,7 @@ process PREPARE_NEXUS_PATHS{
 
     conda params.snippy_env 
 
-    tag "${lineage} (t=${distance})"
+    tag "${lineage}; t = ${distance}"
 
     publishDir "${params.outDir}/results/networks/${lineage}/", mode: 'copy'
 
