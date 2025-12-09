@@ -16,14 +16,18 @@ process GENERATE_SUMMARY_REPORT {
 
     input:
         path pairwise_clusters_processed
+
         path sequencing_summary
+
         path who_resistance
         path tbdb_resistance
-        tuple path(html_report), path(warnings, stageAs: 'warnings.out')
 
         tuple path(sylph_sequence_abundance, stageAs: 'sylph_results.tsv'),
-            path(sylph_relative_abundance, stageAs: 'sylph_relative_abundance.tsv')
+            path(sylph_relative_abundance, stageAs: 'sylph_relative_abundance.tsv'),
             path(sylph_coverage, stageAs: 'sylph_coverage.tsv')
+
+        tuple path(html_report), 
+            path(warnings, stageAs: 'warnings.out')
         
 
     output:
@@ -129,8 +133,8 @@ process GENERATE_SUMMARY_REPORT {
 
         summary_xlsx <- dictionary_rename(
             df = summary.tmp,
-            dict_path = "${params.scriptDir}/R/dict/xlsx_sheet1.dict.csv",
-            sep=",")
+            dict_path = "${params.scriptDir}/R/dict/xlsx_sheet1.dict.csv"
+            )
 
         #··············································································#
         # Assemble the XLSX spreadsheet
@@ -167,7 +171,7 @@ process GENERATE_SUMMARY_REPORT {
                 rowNames = FALSE)
 
         addWorksheet(wb, "sylph_classification")
-            writeData(sylph_out,
+            writeData(wb,
                 "sylph_classification",
                 sylph_out,
                 rowNames = FALSE)
