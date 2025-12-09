@@ -50,7 +50,7 @@ process PLOT_MAIN_PHYLOGENY {
 
             # Render the phylogeny report using Quarto
             quarto render phylogeny-report.qmd \\
-                -P params.runID=${params.runID} \\
+                -P runID=${params.runID} \\
                 -P lineage=${lineage} \\
                 -P RData=${lineage}.contree.Rdata \\
                 --output ${lineage}_ML-phylogeny.html

@@ -1,0 +1,63 @@
+--- 
+title: "RutiSeq"
+format:
+    dashboard:
+        logo: images/logo.png
+        orientation: columns
+        theme: yeti
+---
+
+```{r, load_packages}
+#| eval: true
+#| echo: false
+#| warning: false
+
+packages <- c(
+    "tidyverse", "plotly", "DT",
+    "httr2", "sf", "leaflet", "gt"
+)
+
+# Identify missing packages
+missing_pkgs <- packages[!packages %in% installed.packages()[, "Package"]]
+
+# Install missing packages without prompt using Bristol mirror
+if (length(missing_pkgs) > 0) {
+    install.packages(
+        missing_pkgs,
+        dependencies = TRUE,
+        repos = "https://cran.ma.ic.ac.uk/"
+    )
+}
+
+# Load all packages
+invisible(lapply(packages, library, character.only = TRUE))
+
+set.seed(1234)
+```
+
+# Database
+
+```{r, load_packages}
+#| eval: true
+#| echo: false
+#| warning: false
+
+#setwd("/home/phesketh/Documents/GitHub/TBSEQ.cat-nf/bin/quarto")
+summary_df <- read.csv("sequencing_summary.csv")
+
+# Count of genomes in database
+n_genomes <- nrow(summary_df)
+genomes_counts <- paste(n_genomes, "genomes", sep =" ")
+
+mag_pal <- colorBin("inferno", domain = 1:8, bins = c(0:5, 8))
+
+# Count box
+genomes_map <- genomes_counts |> 
+  leaflet() |> 
+  addLegend(title = "Magnitude", colors = mag_pal(0:5), labels = c("<1", 1:4,">5")) |> 
+  addTiles("http://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}", options = tileOptions(minZoom = 5, maxZoom = 10)) 
+```
+
+
+
+# Lineages
