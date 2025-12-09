@@ -25,7 +25,7 @@ process PREPROCESS_CLUSTER {
     ///        } else { 'quay.io/biocontainers/mtbseq' }
     ///}
                 
-    publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/Groups/", mode: 'copy', pattern: ".clusters.tsv"
+    publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/Groups/", mode: 'copy'
 
     input:
         // Nexus output
@@ -42,9 +42,9 @@ process PREPROCESS_CLUSTER {
             val(distance), 
             path("${lineage}_snps.fasta"),
             path("${lineage}_snps.tab"),
-            path("${lineage}_d${distance}.clusters.tsv"), emit: nexus_ch
+            path("${lineage}_d${distance}.processed.clusters.tsv"), emit: nexus_ch
 
-        path("${lineage}_d${distance}.clusters.tsv"), emit: pairwise_clusters_processed
+        path("${lineage}_d${distance}.processed.clusters.tsv"), emit: pairwise_clusters_processed
 
     script:
 
@@ -158,7 +158,7 @@ process PREPROCESS_CLUSTER {
 
         write.table(
             clusters,
-            file = "${lineage}_d${distance}.clusters.tsv",
+            file = "${lineage}_d${distance}.processed.clusters.tsv",
             sep = "\\t",
             row.names = FALSE,
             col.names = FALSE,

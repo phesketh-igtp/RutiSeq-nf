@@ -104,6 +104,7 @@ process GENERATE_NEXUS {
             echo "No SNPs detected for ${clusterID}, creating minimal output files"
             
             # Create empty/minimal files
+            cp ${clusterID}.fasta fasta/${clusterID}_refseq.fasta
             touch ${clusterID}.snpsites.fasta
             touch positions/${clusterID}_positions.tab
             touch positions/${clusterID}_genomic_positions.tab
@@ -118,16 +119,12 @@ process GENERATE_NEXUS {
 
         # Final checks (your existing code)
         # check if the nexus generation was successful
-        if [[ ! -f fasta/${clusterID}_refseq.fasta ]]; then 
-            echo "Nexus generation failed" > fasta/${clusterID}_refseq.fasta
+        if [[ ! -f positions/${clusterID}_genomic_positions.tab ]]; then 
+            echo "No SNPs detected for ${clusterID}" > positions/${clusterID}_genomic_positions.tab
         fi
 
         if [[ ! -f positions/${clusterID}_genomic_positions.tab ]]; then 
-            echo "Nexus generation failed" > positions/${clusterID}_genomic_positions.tab
-        fi
-
-        if [[ ! -f positions/${clusterID}_genomic_positions.tab ]]; then 
-            echo "Nexus generation failed" > nexus/${clusterID}_refseq.nex
+            echo "No SNPs detected for ${clusterID}, nexus generation failed." > nexus/${clusterID}_refseq.nex
         fi
 
         echo > "${clusterID}.handover" > ${clusterID}.handover.out
