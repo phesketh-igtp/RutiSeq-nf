@@ -76,7 +76,7 @@ workflow PAIRWISE_WF {
             // Create summary strings for lineages
             lineage_summary_ch = lineage_samples_ch
                 .map { lineage, samples -> 
-                    "  ${cyan}Lineage: ${red}${lineage}${green} (n = ${red}${samples.size()})${no_col}"
+                    "  ${cyan}Lineage: ${lineage} (n = ${samples.size()})${no_col}"
                 }
                 .collect()
                 .map { list -> list.join('\n') }
