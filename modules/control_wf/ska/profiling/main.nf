@@ -11,6 +11,7 @@ process SKA_PROFILING {
     @changelog:
         v1.0.0-2025-11-17: Functioning module created.
         v1.1.0-2025-11-26: Modified to add params for ska2 profiling (--verbose).
+        v1.2.0-2025-12-19: Modified to handle when the samlesheet has an empty line
 */
 
     conda params.readQC_env
@@ -27,9 +28,10 @@ process SKA_PROFILING {
     
     """
     # Make the sample sheet for ska2
-        sed 's@,@\t@g' samplesheet.csv \\
-            | cut -f2,3,4  \\
-            | tail -n +2 \\
+        sed 's@,@\t@g' samplesheet.csv \
+            | cut -f2,3,4 \
+            | tail -n +2 \
+            | sed '/^[[:space:]]*\$/d' \
             > input.txt
 
     # Run SKA profiling
