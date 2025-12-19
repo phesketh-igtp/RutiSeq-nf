@@ -22,7 +22,7 @@ process CONCATENATE_CLUSTERS {
             cat("ERROR occurred at:", date(), "\\n")
             cat("Traceback:\\n")
             traceback()
-            quit(status = 1)
+            #quit(status = 1)
         })
 
         cat("=== CONCATENATE_CLUSTERS DEBUG START ===\\n")
@@ -59,7 +59,7 @@ process CONCATENATE_CLUSTERS {
                 cat("Package installation completed\\n")
             }, error = function(e) {
                 cat("ERROR installing packages:", e\$message, "\\n")
-                quit(status = 1)
+                #quit(status = 1)
             })
         }
 
@@ -71,7 +71,7 @@ process CONCATENATE_CLUSTERS {
                 cat("Successfully loaded:", pkg, "\\n")
             }, error = function(e) {
                 cat("ERROR loading package", pkg, ":", e\$message, "\\n")
-                quit(status = 1)
+                #quit(status = 1)
             })
         }
 
@@ -83,7 +83,7 @@ process CONCATENATE_CLUSTERS {
         # Check sequencing summary file
         if (!file.exists("sequencing_summary.csv")) {
             cat("ERROR: sequencing_summary.csv not found\\n")
-            quit(status = 1)
+            #quit(status = 1)
         }
         cat("sequencing_summary.csv found\\n")
 
@@ -95,7 +95,7 @@ process CONCATENATE_CLUSTERS {
             cat("ERROR: Base directory does not exist:", base_dir, "\\n")
             cat("Available directories:\\n")
             print(list.dirs("${params.outDir}", recursive = TRUE))
-            quit(status = 1)
+            #quit(status = 1)
         }
         cat("Base directory exists\\n")
 
@@ -122,7 +122,7 @@ process CONCATENATE_CLUSTERS {
             cat("ERROR: No cluster or singleton files found\\n")
             cat("Files in base directory:\\n")
             print(list.files(base_dir, recursive = TRUE))
-            quit(status = 1)
+            #quit(status = 1)
         }
 
         cat("Files to process:\\n")
@@ -144,7 +144,7 @@ process CONCATENATE_CLUSTERS {
                 df_list[[i]] <- df
             }, error = function(e) {
                 cat("ERROR reading file", f, ":", e\$message, "\\n")
-                quit(status = 1)
+                #quit(status = 1)
             })
         }
 
@@ -190,13 +190,15 @@ process CONCATENATE_CLUSTERS {
                 select(Sample) |>
                 mutate(genomes = Sample) |>
                 separate_wider_delim(genomes, delim = "_",
-                                    names = c("genomes", "library"),
-                                    too_few = "align_end") |>
-                select(SampleID = Sample, genomes)
+                            names = c("id", "library"),
+                            too_few = "align_end",
+                            too_many = "drop") |>
+                distinct() |>
+                select(SampleID = Sample, genomes = id)
             cat("Sample ID dataframe: Rows:", nrow(sample_id_df), "\\n")
         }, error = function(e) {
             cat("ERROR processing sequencing summary:", e\$message, "\\n")
-            quit(status = 1)
+            #quit(status = 1)
         })
 
         # Merge and pivot the data
@@ -238,7 +240,7 @@ process CONCATENATE_CLUSTERS {
             cat("Successfully wrote processed_clusters.tsv\\n")
         }, error = function(e) {
             cat("ERROR writing processed_clusters.tsv:", e\$message, "\\n")
-            quit(status = 1)
+            #quit(status = 1)
         })
 
         tryCatch({
@@ -250,7 +252,7 @@ process CONCATENATE_CLUSTERS {
             cat("Successfully wrote unprocessed_clusters.tsv\\n")
         }, error = function(e) {
             cat("ERROR writing unprocessed_clusters.tsv:", e\$message, "\\n")
-            quit(status = 1)
+            #quit(status = 1)
         })
         """
 }
