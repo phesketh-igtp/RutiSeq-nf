@@ -2,6 +2,7 @@ include { TBPROFILER_COMPILE }         from '../modules/pairwise_wf/tbprofiler/c
 include { MTBSEQ_STATS_COMPILE }       from '../modules/pairwise_wf/mtbseq/stats-compile/main.nf'
 include { SNIPPY_CORE }                from '../modules/pairwise_wf/pairwise/snippy-core/main.nf'
 include { SNIPPY_PHYLOGENY }           from '../modules/pairwise_wf/pairwise/snippy-phylogeny/main.nf'
+include { SNIPPY_DATED_PHYLOGENY }     from '../modules/summary_wf/summary/generate-snippy-timetrees/main.nf'
 include { COMPILE_SEQUENCING_STATS }   from '../modules/pairwise_wf/filtering/compile-sequencing-stats/main.nf'
 include { PREPARE_PAIRWISE_CHANNELS }  from '../modules/pairwise_wf/filtering/prepare_pairwise_channels/main.nf'
 include { MTBSEQ_LINEAGE_JOINT_AMEND } from '../modules/pairwise_wf/mtbseq/lineage_joint-amend/main.nf'
@@ -9,6 +10,8 @@ include { MTBSEQ_LINEAGE_GROUP }       from '../modules/pairwise_wf/mtbseq/linea
 include { PREPROCESS_CLUSTER }         from '../modules/pairwise_wf/pairwise/preprocess_clusters/main.nf'
 include { SNP_PHYLOGENY }              from '../modules/pairwise_wf/phylogeny/concatenated_snp_phylogeny/main.nf'
 include { CONCATENATE_CLUSTERS }       from '../modules/pairwise_wf/pairwise/concatenate-cluster-file/main.nf'
+include { DATED_PHYLOGENY }            from '../modules/summary_wf/summary/generate-timetrees/main.nf'
+
 
 workflow PAIRWISE_WF {
     
@@ -146,22 +149,48 @@ workflow PAIRWISE_WF {
         // Assemble all the variable region phylogenies
             SNP_PHYLOGENY( MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch )
 
-
         // SNIPPY_CORE and SNIPPY_PHYLOGENY
-        if ( params.snippy_core == true ) {
+        if ( params.snippy_core ) { // Only run if enabled in params (--snippy_core 'true')
+            
             log.info "${green}Including SNIPPY_CORE analysis${no_col}"
 
             vcf_files_ch = Channel
-                .fromPath("${params.outDir}/**/snippy/*.vcf")  // Recursive search
+                .fromPath("${params.outDir}/*/snippy/*.vcf")
                 .collect()
 
-            SNIPPY_CORE( sampleID_list, vcf_files_ch )
+            SNIPPY_CORE( 
+                        sampleID_list, 
+                        vcf_files_ch,
+                        COMPILE_SEQUENCING_STATS.out.pairwise_analysis_list
+                        )
 
             SNIPPY_PHYLOGENY( 
                             SNIPPY_CORE.out.snippy_core_phylo_alignment
-            )
+                            )
+
+            // Generate dated phylogenies if metadata is provided
+            if (params.metadata) {
+                SNIPPY_DATED_PHYLOGENY( 
+                                        SNIPPY_PHYLOGENY.out.snippy_core_dated_phylogeny,
+                                        params.metadata
+                                    )
+            }
+
         } else {
             log.info "${purple}Skipping SNIPPY_CORE and SNIPPY_PHYLOGENY analysis (params.snippy_core = ${params.snippy_core})${no_col}"
+        }
+
+        // Time tree generation and ancestral sequence reconstruction
+        if (params.metadata) {
+
+            // Create timetrees
+            DATED_PHYLOGENY( 
+                            MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch, 
+                            params.metadata
+                            )
+
+        } else {
+            log.info "${cyan}No metadata provided. TimeTrees and ancestral sequences will not be inferred.${no_col}"
         }
 
 /*
@@ -180,8 +209,9 @@ workflow PAIRWISE_WF {
         analysis_summary       = COMPILE_SEQUENCING_STATS.out.analysis_summary
         who_resistance         = COMPILE_SEQUENCING_STATS.out.who_resistance
         tbdb_resistance        = COMPILE_SEQUENCING_STATS.out.tbdb_resistance
-        phylogeny_plotting_ch  = SNP_PHYLOGENY.out.phylogeny_plotting_ch
+        phylogeny_plotting_ch  = SNP_PHYLOGENY.out.main_phylogeny_out
         nexus_creation_ch      = PREPROCESS_CLUSTER.out.nexus_ch
+        dated_phylogeny_ch     = DATED_PHYLOGENY.out.timetrees_out
 
 }
 
@@ -194,4 +224,5 @@ workflow PAIRWISE_WF {
     @changelog
         v1.0.0-2024-11-01: Initial version
         v1.0.1-2025-04-04: Added documentation and comments
+        v1.1.0-2026-01-05: Added SNIPPY_DATED_PHYLOGENY module for dated phylogenies from snippy core alignments
 */

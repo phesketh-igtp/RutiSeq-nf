@@ -6,7 +6,7 @@ process SNIPPY_CORE {
 
     input:
         val(sampleID_list)  // Collection of VCF files from snippy runs
-        path(vcf_files_ch)  // Reference genome file
+        path(pairwise_analysis_list) // purely to trigger execution when pairwise analysis is run
 
     output:
         path("core.snps")

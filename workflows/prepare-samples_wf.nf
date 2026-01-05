@@ -11,19 +11,27 @@ workflow PREPARE_SAMPLES_WF {
 
     main:
 
-    def color_green  = '\u001B[32m'
-    def color_red    = '\u001B[31m'
-    def color_reset  = '\u001B[0m'
-    def color_cyan   = '\u001B[36m'
+    def green  = '\u001B[32m'
+    def red    = '\u001B[31m'
+    def reset  = '\u001B[0m'
+    def cyan   = '\u001B[36m'
 
     /* 
     // Prepare sample channels
     */
 
+    // Parse sample sheet and validate samplesheet file exists
+    def samplesheet_file = file(samplesheet)
+    if (!samplesheet_file.exists()) {
+        error "${red}Sample sheet file ${cyan}'${samplesheet}'${red} not found${reset}"
+    }
+    if (samplesheet_file.isEmpty()) {
+        error "${red}Sample sheet file ${green}'${samplesheet}'${red} is empty${reset}"
+    }
+
     // Parse sample sheet and validate
     Channel
         .fromPath(samplesheet)
-        .ifEmpty { error "Sample sheet file '${samplesheet}' not found or empty" }
         .splitCsv(header: true, sep: ',')
         .map { row ->
             def requiredColumns = ['originalID', 'sampleID', 'forward_path', 'reverse_path', 'type']
@@ -141,4 +149,5 @@ workflow PREPARE_SAMPLES_WF {
         v1.0.1-2025-11-14: Cleaned up redundancy, FETCH_SRA called once, complete samples keep empty FASTQs
         v1.0.2-2025-11-14: Added 'samples' and 'controls' to emit block
         v1.0.3-2025-11-14: Fixed CSV parsing to handle 11-12 element rows and 'null' strings
+        v1.0.4-2026-01-05: Improved error handling with samplesheet
 */

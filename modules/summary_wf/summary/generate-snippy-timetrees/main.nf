@@ -1,4 +1,4 @@
-process DATED_PHYLOGENY {
+process SNIPPY_DATED_PHYLOGENY {
 
 /*
     @author: Poppy J Hesketh Best
@@ -8,16 +8,14 @@ process DATED_PHYLOGENY {
         Generate timetrees for each lineage using the alignments and trees generated in the previous step.
 */
 
-    tag "${lineage}"
-
     conda params.phylogeny_env
 
-    publishDir "${params.outDir}/db/mtbseq/pairwise/${lineage}/", mode: 'copy'
+    publishDir "${params.outDir}/db/comparison/snippy/", mode: 'copy'
 
     input:
-        tuple val(lineage), 
-                path(fasta), 
-                path(tab)
+        tuple path(variant_aln), 
+            path(invariant_sites),
+            path(contree)
         path(metadata)
 
     output:
@@ -25,39 +23,29 @@ process DATED_PHYLOGENY {
                             emit: timetrees_out
 
     script:
+
     """
     # get genome IDs from fasta
-        grep '>' ${fasta} | sed 's@>@@g' > genomes.list
+        grep '>' ${variant_aln} \\
+        | sed 's@>@@g' \\
+        > genomes.list
 
     # Isolate the sames and sampleIDs
         echo "name\tdate" > dates.tsv
-        
         grep -f genomes.list  ${metadata} \\
                 | awk -F ',' '{print \$2,\$3}' \\
                 | sed 's@,@\t@g' \\
                 >> dates.tsv
-
         sed -i 's@ @\t@g' dates.tsv
-
-    # Perform main phylogeny
-        iqtree -s ${fasta} \\
-        -m ${params.iqtree_model} \\
-        -T AUTO \\
-        -ntmax ${params.cpus} \\
-        -B ${params.iqtree_bootstraps} \\
-        --prefix ${lineage}_reference-free
-
-    mkdir ${lineage}_timetree/
-
+    
     # Run the timetree
         treetime \\
-            --aln ${fasta} \\
-            --tree ${lineage}_reference-free.contree \\
+            --aln ${variant_aln} \\
+            --tree ${contree} \\
             --dates dates.tsv \\
             --outdir timetree/ \\
             --clock-std-dev 0.2 \\
-            --reroot 'least-squares' || \\
-    echo "TreeTime failed for ${lineage}, skipping time tree generation" >&2
+            --reroot 'least-squares'
     """
 
 }

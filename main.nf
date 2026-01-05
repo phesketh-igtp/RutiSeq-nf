@@ -204,8 +204,10 @@ workflow {
                         PAIRWISE_WF.out.tbdb_resistance,
                         PAIRWISE_WF.out.phylogeny_plotting_ch,
                         PAIRWISE_WF.out.nexus_creation_ch,
+                        PAIRWISE_WF.out.dated_phylogeny_ch,
                         CONTROL_WF.out.sylph_results,
                         CONTROL_WF.out.read_qc_report
+                        
                     )
 
 

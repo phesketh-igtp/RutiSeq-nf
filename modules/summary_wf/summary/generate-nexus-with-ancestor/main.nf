@@ -27,10 +27,10 @@ process GENERATE_NEXUS_W_MRCA {
 
     output:
         tuple val(clusterID),
-            path("nexus/${clusterID}_refseq_mrca.nex", optional: true), emit: nexus_w_no_metadata
+            path("nexus/${clusterID}_refseq_mrca.nex", optional: true)
         path("fasta/*"),        optional: true
         path("positions/*"),    optional: true
-        path("nexus/*"),        optional: true
+        path("nexus/*"),        optional: true, emit: nexus_w_mrca_out
 
     script:
 

@@ -26,7 +26,7 @@ process SNP_PHYLOGENY {
         
         tuple val(lineage), path("Phylogeny/${lineage}_ML.contree"),
                             path("Phylogeny/${lineage}.ref-H37Rv_MTBc-anc.aln.fasta"), 
-                            emit: phylogeny_plotting_ch
+                            emit: main_phylogeny_out
 
     script:
 

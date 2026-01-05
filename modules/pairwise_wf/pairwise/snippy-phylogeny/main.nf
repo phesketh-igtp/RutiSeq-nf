@@ -9,42 +9,28 @@ process SNIPPY_PHYLOGENY {
 
     output:
         path("core_ml*")
+        
+        tuple path("core.masked.full.filt98.variants.aln"), 
+            path("core.masked.full.invariants"),
+            path("core_ml.contree"),
+            emit: snippy_core_dated_phylogeny
 
     script:
 
     """
-    # Join the M canettii and MTB_anc ancestral reference sequences to the variant and invariant site alignments
-    cat ${params.projectDir}/db/Mcanettii_outgroup/\$(basename ${params.snippy_reference} .gbk).aligned.fa \\
-        >> ${core_aln_full}
-    cat ${params.projectDir}/db/MTBc_ancestral_sequence/MTB_ancestor_reference.fasta \\
-        >> ${core_aln_full}
-
-    bedtools maskfasta \\
-        -fi ${core_aln_full} \\
-        -bed ${params.projectDir}/db/snippy_reference/\$(basename ${params.snippy_reference} .gbk).mask.bed \\
-        -fo core_aln_full_masked.fasta
-
     # Extract variant sites for phylogeny
-        snp-sites -c -o phylo.variant-sites.aln core_aln_full_masked.fasta
-        snp-sites -C -o phylo.invariant-sites.aln core_aln_full_masked.fasta
+        coresnpfilter -e -c 0.98 ${core_aln_full} > core.masked.full.filt98.variants.aln
+        coresnpfilter -e -c 0.98 ${core_aln_full} --table core.masked.full.filt98.variants.tab
+        coresnpfilter -C ${core_aln_full} > core.masked.full.invariants
 
     # Perform phylogeny
-    iqtree \\
-        -s          phylo.variant-sites.aln  \\
-        -fconst     phylo.invariant-sites.aln \\
-        -o          "NC_015848" \\
-        -m          ${params.iqtree_model} \\
-        -ntmax      ${task.cpus} -T AUTO \\
-        -B          ${params.iqtree_bootstraps} \\
-        --prefix    core_ml
-    
-    # Parameter file
-    echo -e "IQ-TREE2:
-        outgroup: "NC_015848"
-        model: ${params.iqtree_model}
-        threads: ${task.cpus}
-        bootstraps: ${params.iqtree_bootstraps}
-    " > core_ml.input.params
+        iqtree \\
+            -s          core.masked.full.filt98.variants.aln  \\
+            -fconst     core.masked.full.invariants \\
+            -m          ${params.iqtree_model} \\
+            -ntmax      ${task.cpus} -T AUTO \\
+            -B          ${params.iqtree_bootstraps} \\
+            --prefix    core_ml
     """
 }
 

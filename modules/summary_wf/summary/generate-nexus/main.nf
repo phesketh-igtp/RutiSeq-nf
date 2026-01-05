@@ -44,7 +44,7 @@ process GENERATE_NEXUS {
         # Get the list of genomes in the cluster
         grep -w ${clusterID} ${clusters_tab} \\
             | cut -f3 \\
-            | awk -F'-' 'NF > 1 && $2 != ""' \\
+            | awk -F'-' 'NF > 1 && \$2 != ""' \\
             > tmp.sampleIDs
 
         grep -f tmp.sampleIDs ${snp_fasta} \\
@@ -54,10 +54,10 @@ process GENERATE_NEXUS {
             > genomes.list
 
         # Check the number of genomes matches
-        if [ "$(wc -l < genomes.list)" -ne "$(wc -l < tmp.sampleIDs)" ]; then
+        if [ "\$(wc -l < genomes.list)" -ne "\$(wc -l < tmp.sampleIDs)" ]; then
             echo "ERROR: lengths are unequal — duplicated IDs creating issue" >&2
-            echo "genomes.list: $(wc -l < genomes.list)" >&2
-            echo "tmp.sampleIDs: $(wc -l < tmp.sampleIDs)" >&2
+            echo "genomes.list: \$(wc -l < genomes.list)" >&2
+            echo "tmp.sampleIDs: \$(wc -l < tmp.sampleIDs)" >&2
             exit 1
         fi
 
@@ -68,10 +68,10 @@ process GENERATE_NEXUS {
             ${clusterID}.fasta
 
         # Check the correct number of genomes were extracted
-        if [ "$(grep -c '>' ${clusterID}.fasta)" -ne "$(wc -l < genomes.list)" ]; then
+        if [ "\$(grep -c '>' ${clusterID}.fasta)" -ne "\$(wc -l < genomes.list)" ]; then
             echo "ERROR: fasta sequences extracted do not match expected number" >&2
-            echo "Extracted: $(grep -c '>' ${clusterID}.fasta)" >&2
-            echo "Expected: $(wc -l < genomes.list)" >&2
+            echo "Extracted: \$(grep -c '>' ${clusterID}.fasta)" >&2
+            echo "Expected: \$(wc -l < genomes.list)" >&2
             exit 1
         fi
         
