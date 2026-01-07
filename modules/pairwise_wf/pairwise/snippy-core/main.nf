@@ -84,31 +84,47 @@ process SNIPPY_CORE {
     done < samples.list
 
     # Create path of directories for snippy core
-    PATH=\$(echo snippyDir_*)
+    snippy_directories=\$(echo snippyDir_*)
 
     # The main alignments/core
         snippy-core --prefix core \\
             --ref ${params.snippy_reference} \\
-            \$PATH
+            \$snippy_directories
 
         seqkit seq -w 0 core.full.aln > tmp.core.full.aln
         mv tmp.core.full.aln core.full.aln
-        snp-dists -j 8 core.full.aln > core.distance.mat
-        snp-dists -j 8 -m core.full.aln > core.distance.mat.tsv
 
     # The main masked alignments/core
         snippy-core --prefix core.masked \\
             --ref ${params.snippy_reference} \\
             --mask ${params.snippy_reference} \\
-            \$PATH
+            \$snippy_directories
 
         seqkit seq -w 0 core.masked.full.aln > tmp.core.masked.full.aln
         mv tmp.core.masked.full.aln core.masked.full.aln
-        snp-dists -j 8 core.masked.full.aln > core.masked.distance.mat
-        snp-dists -j 8 -m core.masked.full.aln > core.masked.distance.mat.tsv
 
-    # Remove the prefix
+    ## Masked
+        snp-dists -j 16 core.masked.full.aln > core.masked.distance.mat
+        coresnpfilter -e -c 1.0 core.masked.full.aln > core.masked.full.filt100.variants.aln
+        coresnpfilter -e -c 1.0 core.masked.full.aln --table core.masked.full.filt100.variants.tab
+        coresnpfilter -e -c 0.95 core.masked.full.aln > core.masked.full.filt95.variants.aln
+        coresnpfilter -e -c 1.0 core.masked.full.aln --table core.masked.full.filt100.variants.tab
+        coresnpfilter -C core.masked.full.aln > core.masked.full.invariants.aln
+
+    ## Unmasked
+        snp-dists -j 16 core.unmasked.full.aln > core.unmasked.distance.mat
+        coresnpfilter -e -c 1.0 core.unmasked.full.aln > core.unmasked.full.filt100.variants.aln
+        coresnpfilter -e -c 1.0 core.unmasked.full.aln --table core.unmasked.full.filt100.variants.tab
+        coresnpfilter -e -c 0.95 core.unmasked.full.aln > core.unmasked.full.filt95.variants.aln
+        coresnpfilter -e -c 1.0 core.unmasked.full.aln --table core.unmasked.full.filt100.variants.tab
+        coresnpfilter -C core.unmasked.full.aln > core.unmasked.full.invariants.aln
+
+    # Clean up
+        # Remove the prefix
         sed -i 's@snippyDir_@@g' core.*
+        
+        # remove linked directories
+        rm -rf snippyDir_*
     """
 }
 
