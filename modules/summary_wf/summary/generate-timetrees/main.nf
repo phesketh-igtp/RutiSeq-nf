@@ -21,7 +21,12 @@ process DATED_PHYLOGENY {
         path(metadata)
 
     output:
-        path("timetree/*"), optional: true, 
+        path("${lineage}_timetree/")
+
+        tuple val(lineage), 
+                path("${lineage}_timetree/timetree.nexus"),
+                path("${lineage}_timetree/ancestral_sequences.fasta"), 
+                            optional: true, 
                             emit: timetrees_out
 
     script:
@@ -54,7 +59,7 @@ process DATED_PHYLOGENY {
             --aln ${fasta} \\
             --tree ${lineage}_reference-free.contree \\
             --dates dates.tsv \\
-            --outdir timetree/ \\
+            --outdir ${lineage}_timetree/ \\
             --clock-std-dev 0.2 \\
             --reroot 'least-squares' || \\
     echo "TreeTime failed for ${lineage}, skipping time tree generation" >&2

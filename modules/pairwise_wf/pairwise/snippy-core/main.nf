@@ -36,10 +36,10 @@ process SNIPPY_CORE {
 
     """
     # Create the sample list of available results
-    ls /imppc/labs/emlab/share/SMATB/RutiSeq/db/samples/ > samples.list
+    ls ${params.outDir}/db/samples/ > samples.list
 
     # Assign the base path
-    BASE="${params.outDir}/RutiSeq/db/samples"
+    BASE="${params.outDir}/db/samples"
 
     while read -r f; do
         src_dir="\$BASE/\$f/snippy"
@@ -87,8 +87,7 @@ process SNIPPY_CORE {
     PATH=\$(echo snippyDir_*)
 
     # The main alignments/core
-        snippy-core \\
-            --prefix core \\
+        snippy-core --prefix core \\
             --ref ${params.snippy_reference} \\
             \$PATH
 
@@ -98,8 +97,7 @@ process SNIPPY_CORE {
         snp-dists -j 8 -m core.full.aln > core.distance.mat.tsv
 
     # The main masked alignments/core
-        snippy-core \\
-            --prefix core.masked \\
+        snippy-core --prefix core.masked \\
             --ref ${params.snippy_reference} \\
             --mask ${params.snippy_reference} \\
             \$PATH

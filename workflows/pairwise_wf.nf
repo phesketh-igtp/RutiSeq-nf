@@ -12,7 +12,6 @@ include { SNP_PHYLOGENY }              from '../modules/pairwise_wf/phylogeny/co
 include { CONCATENATE_CLUSTERS }       from '../modules/pairwise_wf/pairwise/concatenate-cluster-file/main.nf'
 include { DATED_PHYLOGENY }            from '../modules/summary_wf/summary/generate-timetrees/main.nf'
 
-
 workflow PAIRWISE_WF {
     
     take:
@@ -154,13 +153,8 @@ workflow PAIRWISE_WF {
             
             log.info "${green}Including SNIPPY_CORE analysis${no_col}"
 
-            vcf_files_ch = Channel
-                .fromPath("${params.outDir}/*/snippy/*.vcf")
-                .collect()
-
             SNIPPY_CORE( 
-                        sampleID_list, 
-                        vcf_files_ch,
+                        sampleID_list,
                         COMPILE_SEQUENCING_STATS.out.pairwise_analysis_list
                         )
 
