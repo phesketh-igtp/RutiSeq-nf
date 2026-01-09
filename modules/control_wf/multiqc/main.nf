@@ -12,9 +12,7 @@ process MULTIQC {
 
     conda params.readQC_env
 
-    storeDir "${params.outDir}/db/qc/${params.runID}/", 
-        mode: 'copy',
-        overwrite: true
+    storeDir "${params.outDir}/db/qc/${params.runID}/"
 
     input:
         path(samplesheet, stageAs: 'samplesheet.csv')
