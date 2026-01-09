@@ -22,7 +22,8 @@ process PREPARE_NEXUS_PATHS{
     tag "${lineage}; t = ${distance}"
 
     publishDir "${params.outDir}/results/networks/${lineage}/", 
-        mode: 'copy', overwrite: true
+        mode: 'copy', 
+        overwrite: true
 
     errorStrategy 'ignore'
 

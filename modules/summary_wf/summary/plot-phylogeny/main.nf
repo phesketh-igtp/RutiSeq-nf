@@ -17,7 +17,9 @@ process PLOT_MAIN_PHYLOGENY {
 
     conda params.r_phylogeny_env
 
-    publishDir "${params.outDir}/results/${params.runID}/phylogeny/", mode: 'copy'
+    publishDir "${params.outDir}/results/${params.runID}/phylogeny/",
+        mode: 'copy', 
+        overwrite: true
 
     input:
         tuple val(lineage), 

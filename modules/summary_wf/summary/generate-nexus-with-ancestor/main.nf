@@ -14,7 +14,9 @@ process GENERATE_NEXUS_W_MRCA {
 
     tag "cluster: ${clusterID}"
 
-    publishDir "${params.outDir}/results/${params.runID}/networks/", mode: 'copy'
+    publishDir "${params.outDir}/results/${params.runID}/networks/", 
+        mode: 'copy', 
+        overwrite: true
 
     input:
         tuple val(lineage), 

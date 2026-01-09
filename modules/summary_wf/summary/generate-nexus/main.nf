@@ -4,12 +4,15 @@ process GENERATE_NEXUS {
 
     tag "cluster: ${clusterID}"
 
-    publishDir "${params.outDir}/results/${params.runID}/networks/", mode: 'copy', saveAs: { filename ->
-    if (filename.startsWith("fasta/") || filename.startsWith("positions/") || filename.startsWith("nexus/")) {
-        return filename
-    }
-    return null  // Don't publish anything else
-    }
+    publishDir "${params.outDir}/results/${params.runID}/networks/", 
+        mode: 'copy', 
+        overwrite: true, 
+        saveAs: { filename ->
+                    if (filename.startsWith("fasta/") || filename.startsWith("positions/") || filename.startsWith("nexus/")) {
+                        return filename
+                    }
+                    return null  // Don't publish anything else
+                }
 
     input:
         tuple val(lineage), 
@@ -32,8 +35,6 @@ process GENERATE_NEXUS {
                 file(clusters_tab),        emit: annotated_nexus_ch
         
         path("${clusterID}.handover.out"), emit: handover_out
-        
-
 
     script:
 

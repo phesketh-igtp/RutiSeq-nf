@@ -12,7 +12,9 @@ process GENERATE_SUMMARY_REPORT {
 
     conda params.r_stats_env
 
-    publishDir "${params.outDir}/results/${params.runID}/", mode: 'copy'
+    publishDir "${params.outDir}/results/${params.runID}/", 
+        mode: 'copy', 
+        overwrite: true
 
     input:
         path pairwise_clusters_processed
