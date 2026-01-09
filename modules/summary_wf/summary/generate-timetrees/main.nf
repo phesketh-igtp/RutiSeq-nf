@@ -12,7 +12,9 @@ process DATED_PHYLOGENY {
 
     conda params.phylogeny_env
 
-    publishDir "${params.outDir}/db/mtbseq/pairwise/${lineage}/", mode: 'copy'
+    publishDir "${params.outDir}/db/mtbseq/pairwise/${lineage}/", 
+        mode: 'copy',
+        overwrite: true
 
     input:
         tuple val(lineage), 

@@ -16,7 +16,9 @@ process COMPILE_SEQUENCING_STATS {
 
     conda params.r_stats_env
 
-    publishDir "${params.outDir}/db/comparison/summary/", mode: 'copy'
+    publishDir "${params.outDir}/db/comparison/summary/", 
+        mode: 'copy',
+        overwrite: true
 
     input:
         tuple path(tbdb_results, stageAs: "tbdb-tbprofiler.txt"), 

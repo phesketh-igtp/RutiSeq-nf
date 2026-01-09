@@ -2,7 +2,9 @@ process SNIPPY_PHYLOGENY {
 
     conda params.phylogeny_env
 
-    publishDir "${params.outDir}/db/comparison/snippy/", mode: 'copy'
+    publishDir "${params.outDir}/db/comparison/snippy/", 
+        mode: 'copy',
+        overwrite: true
 
     input:
         path(core_aln_full)

@@ -25,7 +25,9 @@ process SNIPPY_SINGLE {
         else if (workflow.containerEngine == 'apptainer') return params.apptainer_snp_profiling
         else return null
     }
-    publishDir "${params.outDir}/db/samples/${sampleID}/snippy/", mode: 'copy'
+    publishDir "${params.outDir}/db/samples/${sampleID}/snippy/", 
+        mode: 'copy',
+        overwrite: true
 
     input:
         tuple val(sampleID), 

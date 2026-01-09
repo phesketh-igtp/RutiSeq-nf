@@ -30,7 +30,9 @@ process MTBSEQ_SINGLE {
             else return null
         }
     
-    publishDir "${params.outDir}/db/samples/${sampleID}/mtbseq/", mode: 'copy'
+    publishDir "${params.outDir}/db/samples/${sampleID}/mtbseq/", 
+        mode: 'copy',
+        overwrite: true
 
     input:
         tuple val(sampleID), 

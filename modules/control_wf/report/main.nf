@@ -12,7 +12,9 @@ process READ_TAXONOMY_QC_REPORT {
 
     conda params.r_stats_env
 
-    publishDir "${params.outDir}/db/qc/${params.runID}/", mode: 'copy'
+    publishDir "${params.outDir}/db/qc/${params.runID}/", 
+        mode: 'copy',
+        overwrite: true
 
     input:
         tuple path(sylph_sequence_abundance, stageAs: 'sylph_sequence_abundance.tsv'),

@@ -3,7 +3,9 @@ process SYLPH_CLASSIFICATION {
 
     conda params.readQC_env
 
-    publishDir "${params.outDir}/db/qc/${params.runID}/"
+    publishDir "${params.outDir}/db/qc/${params.runID}/", 
+        mode: 'copy',
+        overwrite: true
 
     input:
         path(samplesheet)

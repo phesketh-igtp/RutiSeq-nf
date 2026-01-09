@@ -13,7 +13,9 @@ process MTBSEQ_STATS_COMPILE {
             - Strain_Classification.tab
 */
 
-    publishDir "${params.outDir}/db/comparison/mtbseq/", mode: 'copy'
+    publishDir "${params.outDir}/db/comparison/mtbseq/", 
+        mode: 'copy',
+        overwrite: true
 
     input:
         val(sampleID_list)

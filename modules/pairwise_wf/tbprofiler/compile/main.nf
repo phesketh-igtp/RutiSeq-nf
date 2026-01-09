@@ -28,7 +28,9 @@ process TBPROFILER_COMPILE {
         }
     }
 
-    publishDir "${params.outDir}/db/comparison/tbprofiler/", mode: 'copy'
+    publishDir "${params.outDir}/db/comparison/tbprofiler/", 
+        mode: 'copy',
+        overwrite: true
 
     input:
         val(sampleID_list)

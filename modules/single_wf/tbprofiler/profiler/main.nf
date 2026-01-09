@@ -24,7 +24,9 @@ process TBPROFILER_PROFILE {
             else return null
         }
         
-    publishDir "${params.outDir}/db/samples/${sampleID}/", mode: 'copy'
+    publishDir "${params.outDir}/db/samples/${sampleID}/", 
+        mode: 'copy',
+        overwrite: true
 
     input:
         tuple val(sampleID), 

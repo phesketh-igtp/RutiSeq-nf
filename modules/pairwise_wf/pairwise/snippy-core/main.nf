@@ -2,7 +2,9 @@ process SNIPPY_CORE {
 
     conda params.snippy_env
     
-    publishDir "${params.outDir}/db/comparison/snippy/", mode: 'copy'
+    publishDir "${params.outDir}/db/comparison/snippy/", 
+        mode: 'copy',
+        overwrite: true
 
     input:
         val(sampleID_list)  // Collection of VCF files from snippy runs

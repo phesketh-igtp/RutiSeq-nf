@@ -14,7 +14,9 @@ process SNP_PHYLOGENY {
 
     conda params.phylogeny_env
 
-    publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/", mode: 'copy'
+    publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/", 
+        mode: 'copy',
+        overwrite: true
 
     input:
         tuple val(lineage), 

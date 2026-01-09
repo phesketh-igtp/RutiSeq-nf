@@ -26,7 +26,9 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
     ///        } else { 'quay.io/biocontainers/mtbseq' }
     ///}
                 
-    publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/", mode: 'copy', overwrite: true
+    publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/",         
+        mode: 'copy', 
+        overwrite: true
 
     input:
         tuple val(lineage), val(sampleIDs)

@@ -25,7 +25,9 @@ process PREPROCESS_CLUSTER {
     ///        } else { 'quay.io/biocontainers/mtbseq' }
     ///}
                 
-    publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/Groups/", mode: 'copy'
+    publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/Groups/", 
+        mode: 'copy',
+        overwrite: true
 
     input:
         // Nexus output
