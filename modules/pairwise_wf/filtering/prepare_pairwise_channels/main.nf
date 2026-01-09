@@ -19,7 +19,7 @@ process PREPARE_PAIRWISE_CHANNELS {
 
     conda params.r_stats_env
 
-    publishDir "${params.outDir}/comparison/src/", mode: 'copy'
+    publishDir "${params.outDir}/db/comparison/src/", mode: 'copy'
     
     input:
         path(pairwise_analysis_list)

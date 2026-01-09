@@ -82,7 +82,10 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
                 
             # Remove any previously generated files to generate new ones
                 rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Joint/*
-                rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Amend/*  
+                rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Amend/*
+                rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Amend/*
+                rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Groups/*
+                rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Matrices/*
 
             # Create symbolic links to the apprpriate files (only if the file does not exist)
                     while IFS=',' read -r samples; do
