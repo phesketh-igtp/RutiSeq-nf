@@ -42,7 +42,7 @@ process GENERATE_NEXUS {
         # Create output directories
         mkdir -p nexus/ fasta/ positions/
 
-        rm ${params.outDir}/results/${params.runID}/networks/*/${clusterID}*
+        rm -rf ${params.outDir}/results/${params.runID}/networks/*/${clusterID}*
 
         # Get the list of genomes in the cluster
         grep -w ${clusterID} ${clusters_tab} \\
