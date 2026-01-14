@@ -8,7 +8,7 @@ process SNIPPY_CORE {
 
     input:
         val(sampleID_list)  // Collection of VCF files from snippy runs
-        path(pairwise_analysis_list) // purely to trigger execution when pairwise analysis is run
+        path(analysis_summary) // purely to trigger execution when pairwise analysis is run
 
     output:
         path("core.snps")
@@ -38,7 +38,12 @@ process SNIPPY_CORE {
 
     """
     # Create the sample list of available results
-    ls ${params.outDir}/db/samples/ > samples.list
+    ## removing the mixed samples and controls
+    grep -v "Mixed" ${analysis_summary} \\
+        | grep -v 'La1' \\
+        | grep -v 'La2' \\
+        | grep -v 'La3' \\
+        | cut -f1  > samples.list
 
     # Assign the base path
     BASE="${params.outDir}/db/samples"

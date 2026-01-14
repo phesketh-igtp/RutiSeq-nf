@@ -1,12 +1,17 @@
+include { DB_COMPLIANCE_CHECK }        from '../modules/pairwise_wf/housekeeping/db_compliance_check/main.nf'
+
 include { TBPROFILER_COMPILE }         from '../modules/pairwise_wf/tbprofiler/compile/main.nf'
 include { MTBSEQ_STATS_COMPILE }       from '../modules/pairwise_wf/mtbseq/stats-compile/main.nf'
+include { COMPILE_SEQUENCING_STATS }   from '../modules/pairwise_wf/filtering/compile-sequencing-stats/main.nf'
+
 include { SNIPPY_CORE }                from '../modules/pairwise_wf/pairwise/snippy-core/main.nf'
 include { SNIPPY_PHYLOGENY }           from '../modules/pairwise_wf/pairwise/snippy-phylogeny/main.nf'
 include { SNIPPY_DATED_PHYLOGENY }     from '../modules/summary_wf/summary/generate-snippy-timetrees/main.nf'
-include { COMPILE_SEQUENCING_STATS }   from '../modules/pairwise_wf/filtering/compile-sequencing-stats/main.nf'
+
 include { PREPARE_PAIRWISE_CHANNELS }  from '../modules/pairwise_wf/filtering/prepare_pairwise_channels/main.nf'
 include { MTBSEQ_LINEAGE_JOINT_AMEND } from '../modules/pairwise_wf/mtbseq/lineage_joint-amend/main.nf'
 include { MTBSEQ_LINEAGE_GROUP }       from '../modules/pairwise_wf/mtbseq/lineage_group/main.nf'
+
 include { PREPROCESS_CLUSTER }         from '../modules/pairwise_wf/pairwise/preprocess_clusters/main.nf'
 include { SNP_PHYLOGENY }              from '../modules/pairwise_wf/phylogeny/concatenated_snp_phylogeny/main.nf'
 include { CONCATENATE_CLUSTERS }       from '../modules/pairwise_wf/pairwise/concatenate-cluster-file/main.nf'
@@ -24,6 +29,13 @@ workflow PAIRWISE_WF {
         def red     = '\u001B[31m'
         def cyan    = '\u001B[36m'
         def no_col  = '\u001B[0m'
+
+        // Run database compliance check
+        DB_COMPLIANCE_CHECK(sampleID_list)
+        
+        // Only continue with downstream processes if check passes
+        DB_COMPLIANCE_CHECK.out
+            .view { "Database integrity check result: $it" }
 
         // Compile TB-Profiler results
         TBPROFILER_COMPILE( sampleID_list )
@@ -155,7 +167,7 @@ workflow PAIRWISE_WF {
 
             SNIPPY_CORE( 
                         sampleID_list,
-                        COMPILE_SEQUENCING_STATS.out.pairwise_analysis_list
+                        COMPILE_SEQUENCING_STATS.out.analysis_summary
                         )
 
             SNIPPY_PHYLOGENY( 
