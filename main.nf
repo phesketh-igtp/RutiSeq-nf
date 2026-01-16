@@ -1,12 +1,14 @@
 #!/usr/bin/env nextflow
 
 nextflow.enable.dsl = 2
+params.version = '1.2.0-beta'
 
-include { FILE_CHECK }      from './modules/single_wf/init-file-checks/main.nf'
-include { SINGLE_WF }       from './workflows/single_wf.nf'
-include { PAIRWISE_WF }     from './workflows/pairwise_wf.nf'
-include { SUMMARY_WF }      from './workflows/summary_wf.nf'
-//include { BARCODING_WF }      from './workflows/barcoding_wf.nf'
+include { PREPARE_SAMPLES_WF } from './workflows/prepare-samples_wf.nf'
+include { DATABASE_ACCESS_WF } from './workflows/database.access_wf.nf'
+include { CONTROL_WF }         from './workflows/control_wf.nf'
+include { SINGLE_WF }          from './workflows/single_wf.nf'
+include { PAIRWISE_WF }        from './workflows/pairwise_wf.nf'
+include { SUMMARY_WF }         from './workflows/summary_wf.nf'
 
 /* 
     Help Message
@@ -59,26 +61,11 @@ def helpMessage() {
 workflow {
 
     //def color_purple = '\u001B[35m'
-    def color_green  = '\u001B[32m'
-    def color_red    = '\u001B[31m'
-    def color_reset  = '\u001B[0m'
-    def color_cyan   = '\u001B[36m'
-
-    log.info """
-    ${color_cyan}
-    ════════════════════════════════════════════════════════════════════════
-        ██████╗ ██╗   ██╗████████╗██╗███████╗███████╗ ██████╗                 
-        ██╔══██╗██║   ██║╚══██╔══╝██║██╔════╝██╔════╝██╔═══██╗                
-        ██████╔╝██║   ██║   ██║   ██║███████╗█████╗  ██║   ██║                
-        ██╔══██╗██║   ██║   ██║   ██║╚════██║██╔══╝  ██║▄▄ ██║                
-        ██║  ██║╚██████╔╝   ██║   ██║███████║███████╗╚██████╔╝                
-        ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝╚══════╝╚══════╝ ╚══▀▀═╝                 
-        ${color_green}Pre-release development version${color_cyan}   
-    ════════════════════════════════════════════════════════════════════════
-        RutiSeq.nf: Main workflow for the RutiSeq pipeline
-    ════════════════════════════════════════════════════════════════════════
-    ${color_reset}
-    """
+    def green   = '\u001B[32m'
+    def red     = '\u001B[31m'
+    def no_col  = '\u001B[0m'
+    def cyan    = '\u001B[36m'
+    def purple  = '\u001B[35m'
 
     if (params.help) { helpMessage() }
 
@@ -116,103 +103,42 @@ workflow {
         ······································································································
         */
 
-        // Create channel from sample sheet
-            Channel
-                .fromPath(params.samplesheet)
-                .ifEmpty { error "Sample sheet file '${params.samplesheet}' not found or empty" }
-                .splitCsv(header: true, sep: ',')
-                .map { row ->
-                    def requiredColumns = ['originalID', 'sampleID', 'forward_path', 'reverse_path', 'type']
-                    def missingColumns = requiredColumns.findAll { !row.containsKey(it) }
-                    if (missingColumns) {
-                        error "Missing required column(s) in samplesheet: ${missingColumns.join(', ')}"
-                    }
-                        
-            // Check for empty paths
-                if (!row.forward_path.trim() || !row.reverse_path.trim()) {
-                    error "Empty file path found for sample ${row.sampleID}. Both forward and reverse paths must be provided."
-                    }
-                        
-                // Use the file function with error checking for the existence of the files
-                def forwardFile = file(row.forward_path.trim(), checkIfExists: true)
-                def reverseFile = file(row.reverse_path.trim(), checkIfExists: true)
-                        
-                tuple(row.sampleID.trim(), 
-                    forwardFile, 
-                    reverseFile, 
-                    row.type.trim()
-                    )
-                }
-                .branch {
-                    sample: it[3] == 'sample'
-                    control: it[3] == 'control'
-                }
-                .set { branched_samples_by_type }
-
-            // Remove the 'type' from the tuples and ensure only 3 elements
-            samples_ch = branched_samples_by_type.sample.map { it -> 
-                tuple(it[0], it[1], it[2]) // keep only the sampleID, forward and reverse reads
-            }
-
-            controls_ch = branched_samples_by_type.control.map { it -> 
-                tuple(it[0], it[1], it[2]) // keep only the sampleID, forward and reverse reads
-            }
-
-            // Report the samples part of the samplesheet
-                samples_ch.view { sampleID, forward, reverse ->
-                    "${color_cyan}Sample: ${color_green}$sampleID${color_reset} | ${color_cyan}Forward: ${color_green}$forward${color_reset} | ${color_cyan}Reverse: ${color_green}$reverse${color_reset}"
-                }
-
-             // Report the controls part of the samplesheet
-                controls_ch.view { sampleID, forward, reverse ->
-                    "${color_red}Control: ${color_green}$sampleID${color_reset} | ${color_red}Forward: ${color_green}$forward${color_reset} | ${color_red}Reverse: ${color_green}$reverse${color_reset}"
-                }
+        // Call the subworkflow
+            PREPARE_SAMPLES_WF(
+                params.samplesheet,
+                )
+            
+            // DEBUG the outputs
+            //PREPARE_SAMPLES.out.samples.view { "Sample output: ${it}" }
+            //PREPARE_SAMPLES.out.controls.view { "Control output: ${it}" }
+            //PREPARE_SAMPLES_WF.out.all_samples.view { "All samples output: ${it}" }
 
         /*
         ······································································································
-            INSPECT DATABASE FOR SINGLE_WD() INTERMEDIATE FILES
-                - Inspects the database for the sampleID and SINGLE_WF outputs and creates a channel contains paths
+            DATABASE_ACCESS (DATABASE_ACCESS_WF):
+                - Download following databaset
+                    - Sylph GDR220
+                    - TB-Profiler (tbdb and who)
         ······································································································
         */
 
-        // Check if the genome has previously been analyzed
-            FILE_CHECK(samples_ch)
+            DATABASE_ACCESS_WF(
+                            params.runID
+                            )
 
-            // After the FILE_CHECK process
-            verified_samples_ch = FILE_CHECK.out.sample_paths
-                .collectFile(name: 'all_sample_paths.txt', newLine: true, storeDir: params.outDir)
-                .ifEmpty { file("${params.outDir}/empty_all_sample_paths.txt") }
+        /*
+        ······································································································
+            CONTROLS CHECKS (CONTROL_WF):
+                - Taxonomically classifies control samples, and confirms no reads belonging to the 
+                    Mycobacterium species specified
+        ······································································································
+        */
 
-            // Parse the samples into the desired tuple structure
-            comp_samples_ch = verified_samples_ch
-                .splitCsv()
-                .map { row -> 
-                    log.debug "DEBUG - Processing sample row: $row"
-                    if (row.size() == 10) {
-                        def (sampleID, forward, reverse, mtbseq_class, mtbseq_stats, mtbseq_pos, mtbseq_vars, tbdb_out, who_out, mtbseq_vcf) = row
-                        tuple(
-                            sampleID,
-                            forward ? file(forward.trim()) : [],
-                            reverse ? file(reverse.trim()) : [],
-                            mtbseq_class ? file(mtbseq_class.trim()) : [],
-                            mtbseq_stats ? file(mtbseq_stats.trim()) : [],
-                            mtbseq_pos ? file(mtbseq_pos.trim()) : [],
-                            mtbseq_vars ? file(mtbseq_vars.trim()) : [],
-                            tbdb_out ? file(tbdb_out.trim()) : [],
-                            who_out ? file(who_out.trim()) : [],
-                            mtbseq_vcf ? file(mtbseq_vcf.trim()) : []
-                        )   
-                    } else {
-                        log.warn "Error with channel: $row"
-                        null
-                    }
-                }
-                .filter { it != null }
+            CONTROL_WF( 
+                    params.samplesheet,
+                    DATABASE_ACCESS_WF.out.sylph_db
+                    )
 
-            /*
-            // DEBUG:: Demonstrate the content of the channel
-            comp_samples_ch.view { sample -> "Sample: $sample" }
-            */
 
         /*
         ······································································································
@@ -225,7 +151,10 @@ workflow {
         ······································································································
         */
 
-            SINGLE_WF( params.runID, comp_samples_ch )
+            SINGLE_WF( 
+                    PREPARE_SAMPLES_WF.out.all_samples,
+                    DATABASE_ACCESS_WF.out.tbprofiler_db
+                    )
                     
                 // DEBUG: Demonstrate the content of the channel
                 ///     SINGLE_WF.out.single_updated_samples_ch.view { sample -> "Sample: $sampleID" }
@@ -248,27 +177,13 @@ workflow {
 
             // Structure of the channel : pairwise_samples_ch
             /// [0] sampleID        [1] forward         [2] reverse     [3] mtbseq_class    [4] mtbseq_stats
-            /// [5] mtbseq_pos      [6] mtbseq_vars     [7] tbdb_out    [8] who_out         [9] mtbseq_vcf
-
-            // filter channels of just the necessary output files contained within the tuple (by calling the index)
+            /// [5] mtbseq_pos      [6] mtbseq_vars     [7] tbdb_out    [8] who_out         [9] snippy_vcf
+            /// filter channels of just the necessary output files contained within the tuple (by calling the index)
                 sampleID_dump       =   pairwise_samples_ch.map { it -> it[0] ?: null }
-                mtbseq_class_files  =   pairwise_samples_ch.map { it -> it[3] ?: null }
-                mtbseq_stats_files  =   pairwise_samples_ch.map { it -> it[4] ?: null }
-                tbdb_out_files      =   pairwise_samples_ch.map { it -> it[7] ?: null }
-                who_out_files       =   pairwise_samples_ch.map { it -> it[8] ?: null }
-
-                // make the channels
                 sampleID_list       =   sampleID_dump.collect()
-                mtbseq_stats_ch     =   mtbseq_stats_files.collect()
-                mtbseq_class_ch     =   mtbseq_class_files.collect()
-                tbdb_out_ch         =   tbdb_out_files.collect()
-                who_out_ch          =   who_out_files.collect()
+                //  sampleID_list.view()
 
-            PAIRWISE_WF( params.runID, 
-                        mtbseq_stats_ch,
-                        mtbseq_class_ch, 
-                        tbdb_out_ch,
-                        who_out_ch, 
+            PAIRWISE_WF( 
                         sampleID_list
                         )
 
@@ -281,38 +196,112 @@ workflow {
         ······································································································
         */
 
-            SUMMARY_WF( params.runID,
+            SUMMARY_WF(
                         PAIRWISE_WF.out.processed_clusters,
                         PAIRWISE_WF.out.unprocessed_clusters,
                         PAIRWISE_WF.out.analysis_summary,
                         PAIRWISE_WF.out.who_resistance,
                         PAIRWISE_WF.out.tbdb_resistance,
                         PAIRWISE_WF.out.phylogeny_plotting_ch,
-                        PAIRWISE_WF.out.nexus_creation_ch
+                        PAIRWISE_WF.out.nexus_creation_ch,
+                        PAIRWISE_WF.out.dated_phylogeny_ch,
+                        CONTROL_WF.out.sylph_results,
+                        CONTROL_WF.out.read_qc_report
+                        
                     )
 
-        /*
-        ······································································································
-            BARCODING ANALYSIS (BARCODING_WF)
-                Perform barcoding analysis of the VCF files generated from the single workflow.
-                This analysis has a much lower priority
-        ······································································································
-        */
-/*
-            BARCODING_WF(
-                            params.runID,
-                            PAIRWISE_WF.out.pairwise_clusters
-                            PAIRWISE_WF.out.analysis_summary
-                            SUMMARY_WF.out.mjn_positions
-                        )
-*/
 
+    /* 
+    // Report workflow parameters
+    */
+    log.info """
+    ${green}════════════════════════════════════════════════════════════════════════${cyan}
+        ██████╗ ██╗   ██╗████████╗██╗███████╗███████╗ ██████╗                 
+        ██╔══██╗██║   ██║╚══██╔══╝██║██╔════╝██╔════╝██╔═══██╗                
+        ██████╔╝██║   ██║   ██║   ██║███████╗█████╗  ██║   ██║                
+        ██╔══██╗██║   ██║   ██║   ██║╚════██║██╔══╝  ██║▄▄ ██║                
+        ██║  ██║╚██████╔╝   ██║   ██║███████║███████╗╚██████╔╝                
+        ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝╚══════╝╚══════╝ ╚══▀▀═╝                 
+        ${green}Pre-release development version${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════
+    ${cyan}    RutiSeq.nf: Main workflow for the RutiSeq pipeline (${params.version})${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${green}PIPELINE PARAMETER SUMMARY${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${purple}Run Configuration:${no_col}
+    ${cyan}   Run ID:${no_col} ${red}${params.runID}${no_col}
+    ${cyan}   Output Directory:${no_col} ${red}${params.outDir}${no_col}
+    ${cyan}   Input Directory:${no_col} ${red}${params.inputDir}${no_col}
+    ${cyan}   Work Directory:${no_col} ${red}${workflow.workDir}${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${purple}Pairwise Analysis Configuration:${no_col}
+    ${cyan}   Pairwise Split:${no_col} ${red}${params.pairwise_split}${no_col}
+    ${cyan}   Main Lineages:${no_col} ${red}${params.lineage_pairwise_main.join(', ')}${no_col}
+    ${cyan}   Sub Lineages:${no_col} ${red}${params.lineage_pairwise_sub.join(', ')}${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${purple}fastp Parameters:${no_col}
+    ${cyan}   Min length:${no_col} ${red}${params.fastp_length_required}${no_col}
+    ${cyan}   Max Reads:${no_col} ${red}${params.fastp_max_reads}${no_col}
+    ${cyan}   Min Reads:${no_col} ${red}${params.fastp_min_reads}${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${purple}MTBseq Parameters:${no_col}
+    ${cyan}   Reference:${no_col} ${red}${params.mtbseq_reference}${no_col}
+    ${cyan}   Min Base Quality:${no_col} ${red}${params.mtbseq_minbqual}${no_col}
+    ${cyan}   Min Coverage Forward:${no_col} ${red}${params.mtbseq_mincovf}${no_col}
+    ${cyan}   Min Coverage Reverse:${no_col} ${red}${params.mtbseq_mincovr}${no_col}
+    ${cyan}   Min Phred20:${no_col} ${red}${params.mtbseq_minphred20}${no_col}
+    ${cyan}   Min Frequency:${no_col} ${red}${params.mtbseq_minfreq}${no_col}
+    ${cyan}   Unambiguous:${no_col} ${red}${params.mtbseq_unambig}${no_col}
+    ${cyan}   Window:${no_col} ${red}${params.mtbseq_window}${no_col}
+    ${cyan}   SNP Distances:${no_col} ${red}${params.mtbseq_snp_distance.join(', ')}${no_col}
+    ${cyan}   Additional Args:${no_col} ${red}${params.mtbseq_args ?: 'none'}${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${purple}Snippy Parameters:${no_col}
+    ${cyan}   Reference:${no_col} ${red}${params.snippy_reference}${no_col}
+    ${cyan}   Min Coverage:${no_col} ${red}${params.snippy_mincov}${no_col}
+    ${cyan}   Min Fraction:${no_col} ${red}${params.snippy_minfrac}${no_col}
+    ${cyan}   Map Quality:${no_col} ${red}${params.snippy_mapqual}${no_col}
+    ${cyan}   Min Quality:${no_col} ${red}${params.snippy_minqual}${no_col}
+    ${cyan}   Base Quality:${no_col} ${red}${params.snippy_basequal}${no_col}
+    ${purple}Core Analysis:${no_col} ${red}${params.snippy_core ? 'Yes' : 'No'}${no_col}
+    ${cyan}   Additional Args:${no_col} ${red}${params.snippy_args ?: 'none'}${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${purple}IQ-Tree Parameters:${no_col}
+    ${cyan}   Bootstraps:${no_col} ${red}${params.iqtree_bootstraps}${no_col}
+    ${cyan}   Model:${no_col} ${red}${params.iqtree_model}${no_col}
+    ${cyan}   Additional Args:${no_col} ${red}${params.snippy_args ?: 'none'}${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${purple}Genome Filtering Parameters:${no_col}
+    ${cyan}   Min Coverage:${no_col} ${red}${params.filt_min_cov}${no_col}
+    ${cyan}   Min Depth:${no_col} ${red}${params.filt_min_depth}${no_col}
+    ${cyan}   Min Reads:${no_col} ${red}${params.filt_min_reads}${no_col}
+    ${cyan}   Additional Args:${no_col} ${red}${params.snippy_args ?: 'none'}${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${purple}ONT Parameters (WIP):${no_col}
+    ${cyan}   Min Coverage:${no_col} ${red}${params.ont_filt_min_cov}${no_col}
+    ${cyan}   Min Depth:${no_col} ${red}${params.ont_filt_min_depth}${no_col}
+    ${cyan}   Min Reads:${no_col} ${red}${params.ont_filt_min_reads}${no_col}
+    ${cyan}   Additional Args:${no_col} ${red}${params.snippy_args ?: 'none'}${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    ${purple}SKA Parameters:${no_col}
+    ${cyan}   K-mer Size:${no_col} ${red}${params.ska_kmer}${no_col}
+    ${cyan}   Min Count:${no_col} ${red}${params.ska_min_count}${no_col}
+    ${cyan}   Proportion Reads:${no_col} ${red}${params.ska_proportion_reads}${no_col}
+    ${cyan}   Quality Filter:${no_col} ${red}${params.ska_qual_filter}${no_col}
+    ${cyan}   Min Quality:${no_col} ${red}${params.ska_min_qual}${no_col}
+    ${cyan}   Min Frequency:${no_col} ${red}${params.ska_min_freq}${no_col}
+    ${cyan}   Build Args:${no_col} ${red}${params.ska_build_args ?: 'none'}${no_col}
+    ${cyan}   Distance Args:${no_col} ${red}${params.ska_distance_args ?: 'none'}${no_col}
+    ${cyan}   Additional Args:${no_col} ${red}${params.snippy_args ?: 'none'}${no_col}
+    ${green}════════════════════════════════════════════════════════════════════════${no_col}
+    """
 }
 
 /*
     @author: Poppy J Hesketh Best
     @date: 2025-04-04
-    @version: 1.0.0-beta
+    @version: 1.2.0-beta
     @description: 
         This is the main workflow for the RutiSeq-nf pipeline. It is designed to be run with Nextflow and 
         takes a samplesheet as input. The workflow performs the following steps:

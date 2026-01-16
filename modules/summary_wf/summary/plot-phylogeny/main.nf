@@ -17,10 +17,11 @@ process PLOT_MAIN_PHYLOGENY {
 
     conda params.r_phylogeny_env
 
-    publishDir "${params.outDir}/results/${runID}/phylogeny/", mode: 'copy'
+    publishDir "${params.outDir}/results/${params.runID}/phylogeny/",
+        mode: 'copy', 
+        overwrite: true
 
     input:
-        val(runID)
         tuple val(lineage), 
             path(contree, stageAs: "snp.contree"), 
             path(alignments, stageAs: "snp.aln.fasta")
@@ -42,12 +43,12 @@ process PLOT_MAIN_PHYLOGENY {
             echo "This lineage contains clusters - plotting phylogeny with cluster heatmap"
 
             # plot phylogeny with clsuter heatmap
-            Rscript ${params.r_script_dir}/plot_ML-phylogeny.R \\
+            Rscript ${params.scriptDir}/R/plot_ML-phylogeny.R \\
                     --lineageID ${lineage} \\
-                    --rlibrary ${params.r_script_dir}
+                    --rlibrary ${params.scriptDir}/R/
 
             # Copy the phylogeny report to the output directory
-            cp ${params.script_dir}/quarto/phylogeny-report.qmd phylogeny-report.qmd
+            cp ${params.scriptDir}/quarto/phylogeny-report.qmd phylogeny-report.qmd
 
             # Render the phylogeny report using Quarto
             quarto render phylogeny-report.qmd \\

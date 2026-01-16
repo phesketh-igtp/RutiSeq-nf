@@ -10,26 +10,29 @@ process GENERATE_NEXUS_W_MRCA {
         The process takes the output of the SNP profiling process and the pairwise clusters file.
 */
 
-    conda params.snp_profiling_env 
+    conda params.snippy_env 
 
     tag "cluster: ${clusterID}"
 
-    publishDir "${params.outDir}/results/${params.runID}/networks/", mode: 'copy'
+    publishDir "${params.outDir}/results/${params.runID}/networks/", 
+        mode: 'copy', 
+        overwrite: true
 
     input:
         tuple val(lineage), 
                 val(clusterID),
                 file(snp_fasta),
                 file(snp_tab),
-                file(ancestor)
-        file(pairwise_clusters)
+                file(ancestor),
+                file(pairwise_clusters)
+
 
     output:
         tuple val(clusterID),
-            path("nexus/${clusterID}_refseq_mrca.nex", optional: true), emit: nexus_w_no_metadata
+            path("nexus/${clusterID}_refseq_mrca.nex", optional: true)
         path("fasta/*"),        optional: true
         path("positions/*"),    optional: true
-        path("nexus/*"),        optional: true
+        path("nexus/*"),        optional: true, emit: nexus_w_mrca_out
 
     script:
 

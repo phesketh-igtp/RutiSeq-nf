@@ -13,7 +13,7 @@ process SYLPH_CLASSIFICATION {
         v1.0.0-2025-04-01: Initial version
 */
 
-    conda params.taxonomy_env
+    conda params.readQC_env
 
     publishDir "${params.outDir}/db/read-qc/", mode: 'copy'
 

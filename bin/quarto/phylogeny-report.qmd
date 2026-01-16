@@ -11,9 +11,9 @@ execute:
   warning: false
   message: false
 params:
-  runID: "default_run"
-  lineage: "default_lineage"
-  RData: "default_file.Rdata"
+  runID: null
+  lineage: null
+  RData: null
 ---
 ## Introduction
 
@@ -49,7 +49,6 @@ invisible(lapply(packages, library, character.only = TRUE))
 
 set.seed(1234)
 ```
-
 
 ```{r, import_data}
 #| eval: true

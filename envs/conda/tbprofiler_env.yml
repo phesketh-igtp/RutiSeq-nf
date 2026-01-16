@@ -4,6 +4,6 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
+  - bioconda::tb-profiler=6.3.0
   - conda-forge::python=3.10
-  - bioconda::tb-profiler=6.6.3
   - bioconda::bcftools=1.12

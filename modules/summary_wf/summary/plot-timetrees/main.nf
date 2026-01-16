@@ -16,10 +16,9 @@ process PLOT_TIMETREES {
 
     conda params.r_phylogeny_env
 
-    publishDir "${params.outDir}/results/${runID}/phylogeny/", mode: 'copy', overwrite: true
+    publishDir "${params.outDir}/results/${params.runID}/phylogeny/", mode: 'copy', overwrite: true
 
     input:
-        val(runID)
         tuple val(lineage), 
                 path(timetree),
                 path(ancestral_fasta)
@@ -36,7 +35,7 @@ process PLOT_TIMETREES {
         """
         mkdir -p ancestors/
         
-        Rscript ${params.r_script_dir}/plot_TimeTree-phylogeny.R \\
+        Rscript ${params.scriptDir}/R/plot_TimeTree-phylogeny.R \\
                 1>>.command.out \\
                 2>>.command.err || true
 

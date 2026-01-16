@@ -25,10 +25,12 @@ process MTBSEQ_LINEAGE_GROUP {
     ///        } else { 'quay.io/biocontainers/mtbseq' }
     ///}
                 
-    publishDir "${params.outDir}/db/mtbseq/pairwise/${lineage}/", mode: 'copy'
+    publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/", 
+        mode: 'copy', 
+        overwrite: true,
+        pattern: "Groups/*,Matrices/*"
 
     input:
-        val runID
         tuple val(lineage), 
                 val(distance), 
                 path(joint_dir), 
@@ -36,10 +38,6 @@ process MTBSEQ_LINEAGE_GROUP {
                 path(sample_txt)
 
     output:
-        // Groups
-        path("Groups/*")
-        path("Groups/${lineage}_d${distance}.clusters.tsv"), emit: clusters
-
         //Matrix ouput
         path("Matrices/*")
         path("Matrices/${lineage}.d${distance}.matrix.tsv"), emit: matrix_dir
@@ -49,7 +47,8 @@ process MTBSEQ_LINEAGE_GROUP {
             val(distance), 
             path("${lineage}_snps.fasta"),
             path("${lineage}_snps.tab"),
-            path("Groups/${lineage}_d${distance}.clusters.tsv"), emit: nexus_ch
+            path("Groups/${lineage}_d${distance}.clusters.tsv"), 
+            path("Groups/${lineage}_d${distance}.singletons.tsv"), emit: clusters
 
     script:
 
@@ -59,7 +58,7 @@ process MTBSEQ_LINEAGE_GROUP {
         mkdir -p Groups/ Matrices
         
         # Clean up the last results
-        rm -f ${params.outDir}/db/mtbseq/pairwise/${lineage}/Groups/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u*_phylo_w*_d*
+        rm -f ${params.outDir}/db/comparison/mtbseq/${lineage}/Groups/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u*_phylo_w*_d*
 
         ## MTBseq TBgroups using the first SNP distance
             MTBseq --step TBgroups \\

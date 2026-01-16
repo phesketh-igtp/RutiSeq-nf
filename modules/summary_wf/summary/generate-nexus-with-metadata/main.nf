@@ -23,7 +23,9 @@ process GENERATE_ANNOTATED_NEXUS {
                 | cut -f3 \\
                 | grep - ${snp_fasta} \\
                 | sed  's/>//g' \\
-                | sort | uniq > genomes.list
+                | sort \\
+                | uniq \\
+                > genomes.list
 
         if [ ! -s genomes.list ]; then
 

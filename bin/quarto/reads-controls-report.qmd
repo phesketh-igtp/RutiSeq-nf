@@ -1,0 +1,447 @@
+---
+title: "Read Classification Report"
+date: today
+format: 
+  html:
+    self-contained: true
+    theme: cerulean
+    code-fold: true
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r, load_packages}
+#| eval: true
+#| echo: false
+#| warning: false
+packages <- c(
+    "tidyverse", "plotly", "DT"
+)
+
+# Identify missing packages
+missing_pkgs <- packages[!packages %in% installed.packages()[, "Package"]]
+
+# Install missing packages without prompt using Bristol mirror
+if (length(missing_pkgs) > 0) {
+    install.packages(
+        missing_pkgs,
+        dependencies = TRUE,
+        repos = "https://cran.ma.ic.ac.uk/"
+    )
+}
+
+# Load all packages
+invisible(lapply(packages, library, character.only = TRUE))
+
+set.seed(1234)
+```
+
+```{r, test_setwd}
+#| eval: false
+#| echo: false
+#| warning: false
+#setwd("/Users/poppybest/Documents/Work/Github/RutiSeq-nf/bin/quarto/")
+#setwd("/home/phesketh/Documents/GitHub/TBSEQ.cat-nf/bin/quarto")
+```
+
+```{r, import_df}
+#| eval: true
+#| echo: false
+#| warning: false
+# sampe metadata
+metat <- read.csv("samplesheet.csv", 
+                  header = TRUE)
+metat$forward_base <- basename(metat$forward_path)
+metat$reverse_base <- basename(metat$reverse_path)
+
+ska_distances <- read.delim("ska_distance.tsv")
+read_stats <- read.delim("read_stats.tsv")
+sylph_df <- read.delim("sylph_sequence_abundance.tsv", 
+                        header = TRUE, 
+                        check.names = FALSE)
+
+colnames(sylph_df) <- sub("_R[12]\\.fastq\\.gz$", "", colnames(sylph_df))
+
+sylph_cov <- read.delim("sylph_coverage.tsv",
+                        header = TRUE, 
+                        check.names = FALSE)
+colnames(sylph_cov) <- sub("_R[12]\\.fastq\\.gz$", "", colnames(sylph_cov))
+
+sylph_real_abund <- read.delim("sylph_relative_abundance.tsv", 
+                        header = TRUE, 
+                        check.names = FALSE)
+colnames(sylph_real_abund) <- sub("_R[12]\\.fastq\\.gz$", "", colnames(sylph_real_abund))
+```
+
+## Total reads sequenced
+
+```{r, wrangle_reads_df}
+#| eval: true
+#| echo: false
+#| warning: false
+metat2 <- metat |>
+  select(sampleID, forward_base, reverse_base, type) |>
+  pivot_longer(
+    cols = c(forward_base, reverse_base),
+    names_to = "direction",
+    values_to = "file"
+  ) |>
+  select(sampleID, dataType=type, file, direction)
+
+read_stats <- left_join(read_stats, metat2, by = "file")
+colnames(read_stats)
+```
+
+```{r, interactive_read_bp_fun}
+#| eval: true
+#| echo: false
+#| warning: false
+plot_stacked_reads <- function(df = read_stats, 
+                              datatype_filter) {
+  
+  # Filter data (allow multiple dataTypes)
+  df_filt <- df %>% 
+    filter(dataType %in% datatype_filter)
+  
+  # ggplot
+  p <- ggplot(df_filt, aes(x = sampleID, y = num_seqs, fill = direction)) +
+    geom_bar(stat = "identity", position = "stack") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    scale_fill_manual(values = c("#4679A3", "#A6739B")) +
+    geom_hline(yintercept = 1e6, 
+              color = "green", 
+              linetype = "dashed",
+              linewidth = 1.5)  
+  ggplotly(p)
+}
+```
+
+::: {.panel-tabset}
+
+### Samples
+```{r, read_counts_samps}
+#| eval: true
+#| echo: true
+#| warning: false
+plot_stacked_reads(datatype_filter = c("sample","ENA","SRA"))
+```
+
+### Controls
+
+```{r, read_counts_ctrl}
+#| eval: true
+#| echo: false
+#| warning: false
+plot_stacked_reads(datatype_filter = "control")
+```
+
+:::
+
+## Taxonomic Classification of Reads
+
+Reads were taxonomically classified using Sylph with the GDR220 database.
+
+```{r, interactive_tax_bp_func}
+#| eval: true
+#| echo: true
+#| warning: false
+index <- metat |> 
+  select(identity=sampleID, type) |> 
+  distinct()
+
+# Make ggplot compatible dataframe
+sylph_long <- sylph_df |>
+  pivot_longer(
+    cols = -clade_name,
+    names_to = "identity",
+    values_to = "perc"
+  ) |>
+  filter(perc != 0) |>
+  separate_wider_delim(
+    clade_name,
+    delim = "|",
+    names = c("Domain", "Phylum", "Class",
+              "Order", "Family", "Genus", 
+              "Species", "Genome"),
+    too_many = "debug",  # merge extra pieces into the last column
+    too_few = "align_start"    # or "drop" if you don’t need debug info
+    ) |>
+  select(!Genome) |>
+  filter(!if_any(c(Phylum, Class, Order, Family, Genus, Species), is.na))
+
+# Add the index information (type: sample/ENA/SRA or control)
+sylph_long <- left_join(sylph_long, index)
+sylph_long$perc <- as.numeric(sylph_long$perc)
+```
+
+```{r, func_interactive_tax_bp}
+#| eval: true
+#| echo: true
+# Make function for plotting the data
+interactive_tax_bp <- function(df = sylph_long,
+                              type_filter = NULL,
+                              tax_level = NULL) {
+
+  tax_sym <- sym(tax_level)
+
+  plot_df <- df |>
+    filter(type %in% type_filter) |>
+    select(tax = !!tax_sym, identity, perc) |>
+    mutate(tax = ifelse(is.na(tax), "Unclassified", tax)) |> 
+    distinct() |>
+    group_by(tax, identity) |>
+    slice_max(perc, n = 1, with_ties = FALSE) |>
+    ungroup()
+
+  # -----------------------------
+  # ** Handle empty dataset **
+  # -----------------------------
+  if (nrow(plot_df) == 0) {
+    message("No taxa found for tax_level = ", tax_level,
+            " and type_filter = ", paste(type_filter, collapse = ", "))
+
+    # Return an empty but valid plot
+    p <- ggplot() +
+      theme_void() +
+      labs(title = paste("No taxa detected at", tax_level, "level"))
+
+    return(ggplotly(p))
+  }
+
+  taxa <- unique(plot_df$tax)
+  taxa_classified <- taxa[taxa != "Unclassified"]
+
+  # If all remaining taxa = Unclassified
+  if (length(taxa_classified) == 0) {
+
+    palette <- c(Unclassified = "grey70")
+
+  } else {
+    palette <- scales::hue_pal()(length(taxa_classified))
+    names(palette) <- taxa_classified
+
+    if ("Unclassified" %in% taxa) {
+      palette <- c(palette, Unclassified = "grey70")
+    }
+  }
+
+  p <- ggplot(plot_df, aes(x = identity, y = perc, fill = tax)) +
+    geom_col() +
+    theme_bw() +
+    labs(
+      x = "",
+      y = "Percentage of Reads",
+      fill = tax_level,
+      title = paste("Taxonomic Composition at", tax_level, "Level")
+    ) +
+    scale_fill_manual(values = palette) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8))
+
+  ggplotly(p)
+}
+```
+
+### Samples
+
+::: {.panel-tabset}
+
+#### Phylum
+```{r, p__samples_tax}
+#| eval: true
+#| echo: true
+#| warning: false
+interactive_tax_bp(type_filter = c("sample","ENA","SRA"),
+                    tax_level = "Phylum")
+```
+
+#### Class
+```{r, c__samples_tax}
+#| eval: true
+#| echo: true
+#| warning: false
+interactive_tax_bp(type_filter = c("sample","ENA","SRA"),
+                    tax_level = "Class")
+```
+
+#### Order
+```{r, o__samples_tax}
+#| eval: true
+#| echo: true
+#| warning: false
+interactive_tax_bp(type_filter = c("sample","ENA","SRA"),
+                    tax_level = "Order")
+```
+
+#### Family
+```{r, f__samples_tax}
+#| eval: true
+#| echo: true
+#| warning: false
+interactive_tax_bp(type_filter = c("sample","ENA","SRA"),
+                    tax_level = "Family")
+```
+
+#### Genus
+```{r, g__samples_tax}
+#| eval: true
+#| echo: true
+#| warning: false
+interactive_tax_bp(type_filter = c("sample","ENA","SRA"),
+                    tax_level = "Genus")
+```
+
+#### Species
+```{r, s__samples_tax}
+#| eval: true
+#| echo: true
+#| warning: false
+interactive_tax_bp(type_filter = c("sample","ENA","SRA"),
+                    tax_level = "Species")
+```
+
+:::
+
+### Controls
+
+::: {.panel-tabset}
+
+#### Phylum
+```{r, p__controls_tax}
+#| eval: true
+#| echo: true
+#| warning: false
+interactive_tax_bp(type_filter = c("control", "controls", "CTRL"),
+                    tax_level = "Phylum")
+```
+
+#### Class
+```{r, c__controls_tax}
+#| eval: true
+#| echo: true
+#| warning: false
+interactive_tax_bp(type_filter = c("control", "controls", "CTRL"),
+                    tax_level = "Class")
+```
+
+#### Order
+```{r, o__controls_tax}
+#| eval: true
+#| echo: true
+#| warning: false
+interactive_tax_bp(type_filter = c("control", "controls", "CTRL"),
+                    tax_level = "Order")
+```
+
+#### Family
+```{r, f__controls_tax}
+#| eval: true
+#| echo: true
+#| warning: false
+interactive_tax_bp(type_filter = c("control", "controls", "CTRL"),
+                    tax_level = "Family")
+```
+
+#### Genus
+```{r, g__controls_tax}
+#| eval: true
+#| echo: true
+#| warning: false
+interactive_tax_bp(type_filter = c("control", "controls", "CTRL"),
+                    tax_level = "Genus")
+```
+
+#### Species
+```{r, s__controls_tax}
+#| eval: true
+#| echo: true
+#| warning: false
+interactive_tax_bp(type_filter = c("control", "controls", "CTRL"),
+                    tax_level = "Species")
+```
+
+:::
+
+## K-mer comparison between samples and controls
+
+In this section, the results of SKA2 k-mer comparison are used to generate PCoA plots, which illustrate the differences in k-mer composition between samples. The primary goal is to identify whether any of your controls overlap substantially with your samples, which could indicate potential contamination or sample bleed-through.
+
+```{r, ska_components}
+#| eval: true
+#| echo: true
+#| warning: false
+samples <- unique(c(ska_distances$Sample1, ska_distances$Sample2))
+
+#Initialize empty matrix
+dist_matrix <- matrix(0, nrow = length(samples), ncol = length(samples),
+                      dimnames = list(samples, samples))
+
+# Fill in distances
+for(i in 1:nrow(ska_distances)) {
+  s1 <- ska_distances$Sample1[i]
+  s2 <- ska_distances$Sample2[i]
+  d  <- ska_distances$Distance[i]
+  dist_matrix[s1, s2] <- d
+  dist_matrix[s2, s1] <- d   # symmetric
+}
+
+# Convert to dist object
+dist_obj <- as.dist(dist_matrix)
+
+# Run PCoA
+pcoa_res <- cmdscale(dist_obj, k = 2)  # 2D
+
+pcoa_df <- data.frame(
+  Sample = rownames(pcoa_res),
+  PC1 = pcoa_res[,1],
+  PC2 = pcoa_res[,2]
+)
+
+pcoa_df <- left_join(pcoa_df, index, by = c("Sample" = "identity"))
+
+# Plot
+p <- ggplot(pcoa_df, 
+            aes(
+                x = PC1, 
+                y = PC2, 
+                label = Sample,
+                color = type)) +
+  scale_fill_manual(values = c("#2A5783", "grey50")) +
+  geom_point(size = 2) +
+  theme_minimal() +
+  labs(title = "PCoA Plot of Kmer Distances",
+      x = "PC1",
+      y = "PC2")
+
+ggplotly(p)
+```
+
+## ⚠️ Potentially Problematic Samples and Controls
+
+The samples and controls highlighted in the table below contain reads that are **taxonomically mixed** at the *species level*. This is especially important when analyzing reads from a **single bacterial isolate**, as it helps identify potential **cross-contamination** within the sequencing run. For example, reads from other bacterial species may have inadvertently been included in your dataset.
+
+Controls are highlighted if they contain reads representing more than 1% of any taxonomic classification. If these reads match the species under study, this should be investigated as possible contamination. Use this table, along with the **PCoA plots above**, to assess and make informed judgments about potential contamination in your samples.
+
+```{r, dt_table}
+#| eval: true
+#| echo: true
+#| warning: false
+# Get the identities of mixed samples
+mixed_species_summary <- sylph_long %>%
+  select(identity, Species, perc, type) %>%
+  filter(!is.na(Species), perc > 1, perc < 95) %>%  # filter mixed species
+  distinct() %>%
+  group_by(identity, type) %>%
+  summarise(
+    `Mixed Species (>1%, <95%)` = paste0(Species, " (", perc, "%)", collapse = ", "),
+    .groups = "drop"
+  )
+
+#mixed_species_summary <- left_join(mixed_species_summary, reads_summary)
+
+# Example data frame (replace with your actual cluster data)
+# Render interactive table
+datatable(mixed_species_summary, options = list(pageLength = 10, autoWidth = TRUE), filter = 'top')
+```

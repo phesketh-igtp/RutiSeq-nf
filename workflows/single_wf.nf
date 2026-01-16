@@ -1,13 +1,8 @@
-include { SYLPH_CLASSIFICATION }            from '../modules/single_wf/sylph/read_classification/main.nf'
-//include { SYLPH_CLASSIFICATION_INSPECTION } from '../modules/single_wf/sylph/read_classification_inspection/main.nf'
 include { ADAPTORS_AND_DOWNSAMPLING }       from '../modules/single_wf/fastp/adaptor_and_downsampling/main.nf'
-include { TBPROFILER_PROFILE_TBDB }         from '../modules/single_wf/tbprofiler/profile.tbdb/main.nf'
-include { TBPROFILER_PROFILE_WHO }          from '../modules/single_wf/tbprofiler/profile.who/main.nf'
+include { TBPROFILER_PROFILE }              from '../modules/single_wf/tbprofiler/profiler/main.nf'
 include { MTBSEQ_SINGLE }                   from '../modules/single_wf/mtbseq/single/main.nf'
-include { MTBSEQ_SINGLE_ONT }               from '../modules/single_wf/mtbseq/single_ont/main.nf'
-include { SNP_PROFILING_SINGLE }            from '../modules/single_wf/snp-barcoding/single.profiling/main.nf'
-include { SNP_ANNOTATING_SINGLE }           from '../modules/single_wf/snp-barcoding/single.annotating/main.nf'
-include { POST_SINGLE_DB_CLEANUP }        from '../modules/single_wf/post-wf-cleaup/single-db-cleanup/main.nf'
+include { SNIPPY_SINGLE }                   from '../modules/single_wf/snippy/single/main.nf'
+include { POST_SINGLE_DB_CLEANUP }          from '../modules/single_wf/post-wf-cleaup/single-db-cleanup/main.nf'
 
 workflow SINGLE_WF {
 
@@ -16,8 +11,8 @@ workflow SINGLE_WF {
     */
 
     take:
-        runID
         comp_samples_ch
+        tbprofiler_db
 
     main:
 
@@ -29,26 +24,43 @@ workflow SINGLE_WF {
         def green   = '\u001B[32m'
         def red     = '\u001B[31m'
         def cyan    = '\u001B[36m'
+        def purple  = '\u001B[35m'
         def no_col  = '\u001B[0m'
 
         // Check if the input channel is empty
 
         // Use the branch operator to split the channel
             branched_channel = comp_samples_ch.branch {
-                with_reads: it[1] != [] && it[2] != [] // zero-indexed so [1] is the second value in the tuple, ect
-                without_reads: it[1] == [] || it[2] == [] }
+                with_reads: it[1] != []     // Has at least one read file
+                without_reads: it[1] == []  // No reads at all
+            }
 
-            sample_ch_skip = branched_channel.without_reads
+            skipped_samples_ch = branched_channel.without_reads
 
             // Count the number of samples in each channel
-                with_reads_count = branched_channel.with_reads.count()
-                without_reads_count = sample_ch_skip.count()
+                nonskipped_samples_count = branched_channel.with_reads.count()
+                skipped_samples_count = skipped_samples_ch.count()
 
-            // Combine the counts and log the message
-                with_reads_count.combine(without_reads_count)
-                    .map { with_reads, without_reads -> 
-                        log.info "${green}runID: ${red}${runID}${green} || For ${cyan}SINGLE_WF()${green} : ${red}${with_reads}${green} samples || Skipped until ${cyan}PAIRWISE()${green}: ${red}${without_reads}${green} samples${no_col}"
-                    }
+        // Extract [0] index and collect into a list, then join with commas
+        skipped_samples_names = skipped_samples_ch.map { it[0] }.collect().map { it.join(', ') }
+
+        // Combine and log
+        nonskipped_samples_count
+            .combine(skipped_samples_count)
+            .combine(skipped_samples_names)
+            .subscribe { with_reads, without_reads, skipped_names_string ->
+                log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
+                log.info "${green}SINGLE_WF WORKFLOW SUMMARY${no_col}"
+                log.info "${purple}This workflow is additive, meaning if a sampleID already exists in the central database${no_col}"
+                log.info "${purple}and will not be re-analised. The sampleID must be manually removed/moved to another location.${no_col}"
+                log.info "${green}runID: ${red}${params.runID}${green} || For ${cyan}SINGLE_WF()${green} : ${red}${with_reads}${green} samples || Skipped${green}: ${red}${without_reads}${green} samples${no_col}"
+                log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
+                log.info "${green}Skipped samples are as follows:${no_col}"
+                log.info "${green}${skipped_names_string}${no_col}"
+                log.info "${red}⚠️  If you expected a samples to be analysed, rename you sampleID or remove duplicated sampleIDs in:${no_col}"
+                log.info "      - ${purple}${params.outDir}/RutiSeq/db/samples/${no_col}"
+                log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
+            }
 
         /*
         // DEBUG:: View the results
@@ -62,51 +74,29 @@ workflow SINGLE_WF {
             ADAPTORS_AND_DOWNSAMPLING( branched_channel.with_reads )
             //ADAPTORS_AND_DOWNSAMPLING_SE(branched_channel.with_reads_se )
 
-/*
-            // Collect failed samples using collectFile
-            failed_samples_report = ADAPTORS_AND_DOWNSAMPLING.out.failed_sample_entry
-                .collectFile(
-                    name: "${params.runID}_failed_samples.txt",
-                    storeDir: "${params.outDir}/db/read-qc/",
-                    keepHeader: false,
-                    skip: { it.size() == 0 }  // Skip empty files
-                ) { file ->
-                    if (file.size() > 0) {
-                        return file.text
-                    } else {
-                        return ""
-                    }
-                }
-*/
-
-        // Run SYLPH_CLASSIFICATION to classify the reads
-            SYLPH_CLASSIFICATION( runID )
-
-/*
-                // Identify reads that have mixed taxonomy
-                SYLPH_CLASSIFICATION_INSPECTION( SYLPH_CLASSIFICATION.out.sylph_res, 
-                                                    failed_samples_report )
-*/
-
         // Run TBPROFILER_PROFILE_TBDB after MTBC_READ_QC is done
-            TBPROFILER_PROFILE_TBDB( ADAPTORS_AND_DOWNSAMPLING.out.updated_sample_ch1 )
-
-            TBPROFILER_PROFILE_WHO( TBPROFILER_PROFILE_TBDB.out.updated_sample_ch2 )
+            TBPROFILER_PROFILE( 
+                                ADAPTORS_AND_DOWNSAMPLING.out.updated_sample_ch1,
+                                tbprofiler_db
+                                )
 
         // Run MTBSEQ_SINGLE
-            MTBSEQ_SINGLE( TBPROFILER_PROFILE_WHO.out.updated_sample_ch3 )
+            MTBSEQ_SINGLE( TBPROFILER_PROFILE.out.updated_sample_ch2 )
 
         // Run SNP_PROFILING_SINGLE using the mpileup output
-            SNP_PROFILING_SINGLE( MTBSEQ_SINGLE.out.updated_sample_ch4 )
+            SNIPPY_SINGLE( MTBSEQ_SINGLE.out.updated_sample_ch3 )
 
             // create updated channel
-            branched_channel_with_reads_updated = SNP_PROFILING_SINGLE.out.updated_sample_ch5
+            branched_channel_with_reads_updated = SNIPPY_SINGLE.out.updated_sample_ch4
 
         // Merge the processed samples with the samples without reads
-            final_updated_sample_ch = branched_channel_with_reads_updated.mix(sample_ch_skip)
+            final_updated_sample_ch = branched_channel_with_reads_updated.mix(skipped_samples_ch)
 
             // DEBUG:: 
                 //final_updated_sample_ch.view { "Final channel: $it" }
+
+        // TODO: change all the modules to just be input of fastp reads, then mix all the output channels into a specific tuple structure for the final output/emit
+        
 
         // Cleanup to reduce storage usage in the publish directory (all of these should be deleted, 
         // this is just ensuring they are properly gone)
@@ -117,8 +107,6 @@ workflow SINGLE_WF {
 
     emit:
         single_updated_samples_ch   = final_updated_sample_ch
-        sylph_results               = SYLPH_CLASSIFICATION.out.sylph_res 
-        //failed_samples_report       = failed_samples_report
 
 }
 
@@ -131,4 +119,7 @@ workflow SINGLE_WF {
     @changelog
         v1.0.0-2024-11-01: Initial version
         v1.0.1-2025-04-04: Added documentation and comments
+        v2.0.0-2025-11-13: Restructured workflow to merge TB-Profiler into a single step
+                        Changed the channels outputs with the removal of one module.
+                        Extended warning message for skipped samples, added path of samples db.
 */

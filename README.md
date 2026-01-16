@@ -183,3 +183,9 @@ If there is a specific parameter you would like added to the workflow, please op
 | `--filt_min_depth` | 50 | Filtering value for the minimum depth of coverage (as calculated by MTBseq) for genome to be used in MTBseq pairwise analysis | MTBseq | `COMPILE_SEQUENCING_STATS` |
 | `--filt_min_cov` | 0.95 | Filtering value for the beadth of coverage (as calculated by MTBseq) for genome to be used in MTBseq pairwise analysis | MTBseq | `COMPILE_SEQUENCING_STATS` |
 | `--filt_min_reads` | 1000000 | Filtering value for the minimum number of reads (as calculated by MTBseq) for genome to be used in MTBseq pairwise analysis | MTBseq | `COMPILE_SEQUENCING_STATS` |
+
+## Output file architecture
+
+```{sh}
+
+```

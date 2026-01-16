@@ -13,13 +13,10 @@ process MTBSEQ_SINGLE {
         the files needs to have the ${sampleID} in the name for the next steps, so I reverted back to
         just moving the files into a name structure. This is a bit of a hack, but it works for now.
             TODO: revisit this issue.
-
-        Like the previous modules, the input for this module is the paths to all the files
-        needed for a sample to proceed into the PAIRWISE_WF(), which litters the publish directory
-        these excess files and are removed at the very end. This was originally done with a IF argument
-        to only remove them if the files did not exist - this prevents nextflow complaining of they 
-        were not generated - but this created some sybtax errors, so I changed it to touching the 
-        files then removing them manually. TODO: might be to revisit this at a later date.
+    @chagelog
+        v1.0.0-2025-04-01: Initial version
+        v1.0.1-2025-04-04: Added more comments and description
+        v2.0.0-2025-06-10: Added support for different MTBSeq referencess
 */
 
     tag "$sampleID"
@@ -33,12 +30,15 @@ process MTBSEQ_SINGLE {
             else return null
         }
     
-    publishDir "${params.outDir}/db/mtbseq/samples/${sampleID}", mode: 'copy'
+    publishDir "${params.outDir}/db/samples/${sampleID}/mtbseq/", 
+        mode: 'copy',
+        overwrite: true
 
     input:
         tuple val(sampleID), 
-                path(mtbc_forward), //, stageAs: "${sampleID}_R1.fastq.gz"
-                path(mtbc_reverse), //, stageAs: "${sampleID}_R2.fastq.gz"
+                path(fastq_1), 
+                path(fastq_2),
+                val(type),
                 path(mtbseq_class), 
                 path(mtbseq_stats), 
                 path(mtbseq_pos), 
@@ -50,26 +50,23 @@ process MTBSEQ_SINGLE {
     output:
         path("Called/*")
         path("Classification/${sampleID}.Strain_Classification.tab")
-        path("Mpileup/*")
         path("Position_Tables/*")
         path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab")
-        path("Bam/*")
-        path("GATK_Bam/*")
 
         // tuple for updating the sample_ch
         tuple val(sampleID), 
-                path(mtbc_forward), 
-                path(mtbc_reverse), 
+                path(fastq_1), 
+                path(fastq_2),
+                val(type),
                 path("Classification/${sampleID}.Strain_Classification.tab"), 
                 path("Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab"), 
                 path("Position_Tables/${sampleID}.gatk_position_table.tab"), 
                 path("Called/${sampleID}.gatk_position_variants_*.tab"),  
-                path(tbdb_out), path(who_out), 
-                path(mtbseq_vcf),path("Mpileup/${sampleID}.gatk.mpileup"),              emit: updated_sample_ch4
+                path(tbdb_out), 
+                path(who_out), 
+                path(mtbseq_vcf), emit: updated_sample_ch3
 
     script:
-
-        def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
         # Run MTBseq for a single sample
@@ -83,7 +80,7 @@ process MTBSEQ_SINGLE {
                 --minfreq       ${params.mtbseq_minfreq} \\
                 --unambig       ${params.mtbseq_unambig} \\
                 --window        ${params.mtbseq_window} \\
-                ${additional_args} \\
+                ${params.mtbseq_args} \\
                 1>>.command.out \\
                 2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 
@@ -91,11 +88,6 @@ process MTBSEQ_SINGLE {
         ## this prevent clashes later on
             cat Classification/Strain_Classification.tab > Classification/${sampleID}.Strain_Classification.tab
             cat Statistics/Mapping_and_Variant_Statistics.tab > Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
-
-        # remove the published reads from the previous module:
-            rm -f  ${params.outDir}/db/tbprofiler/who-only/${sampleID}_mtbc_R1.fastq.gz       
-            rm -f  ${params.outDir}/db/tbprofiler/who-only/${sampleID}_mtbc_R2.fastq.gz
-            rm -f  ${params.outDir}/db/tbprofiler/who-only/${sampleID}/tbdb-${sampleID}.results.txt
         """
 
 }

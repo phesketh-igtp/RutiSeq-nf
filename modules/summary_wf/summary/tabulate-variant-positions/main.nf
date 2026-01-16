@@ -13,10 +13,9 @@ process TABULATE_VARIANT_SITES {
 
     conda params.r_stats_env
 
-    publishDir "${params.outDir}/results/${runID}/snps/variants-tab/", mode: 'copy'
+    publishDir "${params.outDir}/results/${params.runID}/snps/variants-tab/", mode: 'copy'
 
     input:
-    val(runID)
         tuple val(lineage), 
                 val(clusterID), 
                 path(snp_alignments),
@@ -31,7 +30,7 @@ process TABULATE_VARIANT_SITES {
     script:
 
         """
-        Rscript ${params.r_script_dir}/tabulate_variant_sites.R \\
+        Rscript ${params.scriptDir}/R/tabulate_variant_sites.R \\
             --cluster   ${clusterID} \\
             --fasta     ${snp_alignments} \\
             --positions ${genomic_possitions} \\

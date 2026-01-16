@@ -17,7 +17,7 @@ process ADAPTORS_AND_DOWNSAMPLING {
 
     tag "$sampleID"
 
-    conda params.taxonomy_env
+    conda params.readQC_env
 
     container { 
             if (workflow.containerEngine == 'singularity') return params.singularity_kaiju
@@ -28,18 +28,30 @@ process ADAPTORS_AND_DOWNSAMPLING {
 
     input:
         tuple val(sampleID), 
-            path(forward), path(reverse), path(mtbseq_class), 
-            path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
-            path(tbdb_out), path(who_out), path(mtbseq_vcf)
+            path(forward), 
+            path(reverse),
+            val(type),
+            path(mtbseq_class), 
+            path(mtbseq_stats), 
+            path(mtbseq_pos), 
+            path(mtbseq_vars), 
+            path(tbdb_out), 
+            path(who_out), 
+            path(mtbseq_vcf)
 
     output:
         // Emit ch for the updated channel with all the outputs
         tuple val(sampleID), 
-            path("fastp/${sampleID}_R1.fastq.gz",), 
-            path("fastp/${sampleID}_R2.fastq.gz",), 
-            path(mtbseq_class), path(mtbseq_stats), 
-            path(mtbseq_pos), path(mtbseq_vars), 
-            path(tbdb_out), path(who_out), path(mtbseq_vcf), emit: updated_sample_ch1
+            path("fastp/${sampleID}_R1.fastq.gz"), 
+            path("fastp/${sampleID}_R2.fastq.gz"), 
+            val(type),
+            path(mtbseq_class), 
+            path(mtbseq_stats), 
+            path(mtbseq_pos), 
+            path(mtbseq_vars), 
+            path(tbdb_out), 
+            path(who_out), 
+            path(mtbseq_vcf), emit: updated_sample_ch1
     
         //path("failed_sample_entry.txt"), emit: failed_sample_entry
 

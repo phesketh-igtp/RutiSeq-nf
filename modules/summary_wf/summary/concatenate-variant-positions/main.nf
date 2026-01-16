@@ -11,10 +11,9 @@ process CONCATENATED_VARIANT_FILES {
             - variant-positions.counts.csv: Contains the concatenated tabular variant counts.
 */
 
-    publishDir "${params.outDir}/results/${runID}/snps/", mode: 'copy'
+    publishDir "${params.outDir}/results/${params.runID}/snps/", mode: 'copy'
 
     input:
-        val(runID)
         path("tabular_vars_*.csv")
         path("tabular_var_counts_*.csv")
 

@@ -1,0 +1,12 @@
+name: readQC_env
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - bioconda::sylph=0.8.1
+  - bioconda::seqkit=2.10.0
+  - bioconda::sylph-tax=1.2.0
+  - bioconda::ska2=0.5.0
+  - bioconda::fastp
+  - bioconda::fastqc
+  - bioconda::multiqc

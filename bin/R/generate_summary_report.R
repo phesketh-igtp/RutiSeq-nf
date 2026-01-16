@@ -46,32 +46,47 @@ OUT <- args$output
 
 # Import all dataframes
 summary <- read.delim("sequencing_summary.csv",  header = TRUE,
-    sep = ",",  check.names = FALSE)
+    sep = ",",  check.names = FALSE) |> 
+    distinct()
 
 who_res <- read.delim("who_resistance_summary.csv",  header = TRUE,
-    sep = ",",  check.names = FALSE)
+    sep = ",",  check.names = FALSE) |> 
+    distinct()
 
 tbdb_res <- read.delim("tbdb_resistance_summary.csv", header = TRUE,
-    sep = ",",  check.names = FALSE)
+    sep = ",",  check.names = FALSE) |> 
+    distinct()
 
 clusters <- read.delim("processed_clusters.tsv", header = TRUE,
-    sep = "\t", check.names = FALSE)
+    sep = "\t", check.names = FALSE) |> 
+    distinct()
 
 who_corr <- read.delim("tbprofiler-DR-corrections.csv", header = TRUE,
     sep = ";", check.names = FALSE) |>
     select(Sample = sample,
         corr_DRType = DRT,
-        corr_DRTypeExt = DRT_ext)
+        corr_DRTypeExt = DRT_ext) |> 
+        distinct()
 
 #··············································································#
 #··············································································#
 
 # Create the final results summary of the dataframe
 
-who_res_min <- left_join(who_res, who_corr,
-                        by = c("sample" = "Sample"))
+who_res.min <- who_res |> 
+    select(Sample=sample, `DRtype (WHO)` = `DR type`,
+    INH, EMB, PZA, MFX, LFX, BDQ, DLM, Pa, LZD, STM, 
+    AMK, KAN, CAP, CFZ, ETO, PAC, CYR)
+tbdb_res.min <- tbdb_res |> 
+    select(Sample=sample, `DRtype (TBDB)` = `DR type`)
 
-summary.tmp <- left_join(summary, who_res_min) |> unique()
+resistance_summary <- left_join(who_res.min, tbdb_res.min, by = "Sample")
+
+summary <- summary |> 
+    mutate(OriginalID = sub("_.*", "", Sample))
+
+summary.tmp <- left_join(summary, resistance_summary, by = "Sample") |> 
+    distinct()
 
 summary_xlsx <- dictionary_rename(df = summary.tmp,
     dict_path = paste(rlibrary, "/dict/xlsx_sheet1.dict.csv",

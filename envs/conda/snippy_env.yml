@@ -1,0 +1,9 @@
+name: snp-profiling_env
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - bioconda::snippy=4.6
+  - bioconda::emboss=6.6.0
+  - bioconda::seqkit=2.10.0
+  - bioconda::core-snp-filter=0.2.0

@@ -16,7 +16,7 @@ snp_profiling_env:
 taxonkit_env:
 - oras://community.wave.seqera.io/library/taxonkit:0.19.0--e76d81040c656441
 - https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/45/45b2a6f7d0ff69e3034d19cfa2ad501228352c48f388a5bfd1ef83b8cf8679e1/data
-taxonomy_env:
+readQC_env:
 - oras://community.wave.seqera.io/library/fastp_fastq-pair_kraken2_seqkit:2acc99681389f100
 - https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/b8/b8b5382a9284e8ee8b145cb098f01d021f0224bd804bd9b3209628d371226d6e/data
 tbprofiler_env:

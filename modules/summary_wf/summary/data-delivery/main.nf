@@ -1,4 +1,4 @@
-process DATA_DELIVERY{
+process DATA_DELIVERY {
 
 /*
     @author: Poppy J Hesketh Best
@@ -11,68 +11,56 @@ process DATA_DELIVERY{
         v1.0.0-2025-04-01: Initial version
 */
 
-    tag "${runID}"
+    tag "${params.runID}"
 
     input:
-        val(runID)
-        path(handover)
+        path(sylph_results)
+
+        tuple path(html_report, stageAs: "${params.runID}_reads-controls-report.html"),
+            path(warnings, stageAs: 'warnings.out')
+        
+        path(nexus_handover)
+        
 
     script:
 
         """
-        # Controls results
-            mkdir -p ${params.outDir}/results/${runID}/controls/
-            if [[ -f "${params.outDir}/${params.outDir}/negative-controls/negative-controls.xlsx" ]]; then
-                cp ${params.outDir}/${params.outDir}/negative-controls/negative-controls.xlsx ${params.outDir}/results/${runID}/controls/
-            fi
+        # Report output:
+            cp ${params.runID}_reads-controls-report.html ${params.outDir}/results/${params.runID}/${params.runID}_reads-controls-report.html
 
         # TBProfiler results 
-            mkdir -p ${params.outDir}/results/${runID}/tbprofiler/
-            if [[ -f "${params.outDir}/db/tbprofiler/tbdb-tbprofiler.txt" ]]; then
-                cp ${params.outDir}/db/tbprofiler/tbdb-tbprofiler.txt ${params.outDir}/results/${runID}/tbprofiler/tbdb-tbprofiler.txt
+            mkdir -p ${params.outDir}/results/${params.runID}/tbprofiler/
+            if [[ -f "${params.outDir}/db/comparison/tbprofiler/tbdb-tbprofiler.txt" ]]; then
+                cp ${params.outDir}/db/comparison/tbprofiler/tbdb-tbprofiler.txt ${params.outDir}/results/${params.runID}/tbprofiler/tbdb-tbprofiler.txt
             fi
-            if [[ -f "${params.outDir}/db/tbprofiler/who-only/who-tbprofiler.txt" ]]; then
-                cp ${params.outDir}/db/tbprofiler/who-only/who-tbprofiler.txt ${params.outDir}/results/${runID}/tbprofiler/who-tbprofiler.txt
+            if [[ -f "${params.outDir}/db/comparison/tbprofiler/who-tbprofiler.txt" ]]; then
+                cp ${params.outDir}/db/comparison/tbprofiler/who-tbprofiler.txt ${params.outDir}/results/${params.runID}/tbprofiler/who-tbprofiler.txt
             fi
 
         # MTBseq results
-            mkdir -p ${params.outDir}/results/${runID}/mtbseq/
-            if [[ -f "${params.outDir}/db/mtbseq/pairwise/Mapping_and_Variant_Statistics.tab" ]]; then
-                cp ${params.outDir}/db/mtbseq/pairwise/Mapping_and_Variant_Statistics.tab ${params.outDir}/results/${runID}/mtbseq/
+            mkdir -p ${params.outDir}/results/${params.runID}/mtbseq/
+            if [[ -f "${params.outDir}/db/comparison/mtbseq/Mapping_and_Variant_Statistics.tab" ]]; then
+                cp ${params.outDir}/db/comparison/mtbseq/Mapping_and_Variant_Statistics.tab ${params.outDir}/results/${params.runID}/mtbseq/
             fi
-            if [[ -f "${params.outDir}/db/mtbseq/pairwise/Strain_Classification.tab" ]]; then
-                cp ${params.outDir}/db/mtbseq/pairwise/Strain_Classification.tab ${params.outDir}/results/${runID}/mtbseq/
+            if [[ -f "${params.outDir}/db/comparison/mtbseq/Strain_Classification.tab" ]]; then
+                cp ${params.outDir}/db/comparison/mtbseq/Strain_Classification.tab ${params.outDir}/results/${params.runID}/mtbseq/
             fi
 
         # Matrices
-            mkdir -p ${params.outDir}/results/${runID}/matrices/
-            if compgen -G "${params.outDir}/db/mtbseq/pairwise/*/Matrices/*.matrix.tsv.gz" > /dev/null; then
-                cp ${params.outDir}/db/mtbseq/pairwise/*/Matrices/*.matrix.tsv ${params.outDir}/results/${runID}/matrices/
-            fi
-
-        # Tidy up the phylogeny output
-            mkdir -p ${params.outDir}/results/${runID}/phylogeny/html-out
-            mkdir -p ${params.outDir}/results/${runID}/phylogeny/Rdata-out
-
-        # Move PDF files if they exist
-            if compgen -G "${params.outDir}/results/${runID}/phylogeny/*.html" > /dev/null; then
-                mv ${params.outDir}/results/${runID}/phylogeny/*.pdf ${params.outDir}/results/${runID}/phylogeny/html-out/
-            fi
-
-        # Move Rdata files if they exist
-            if compgen -G "${params.outDir}/results/${runID}/phylogeny/*.Rdata" > /dev/null; then
-                mv ${params.outDir}/results/${runID}/phylogeny/*.Rdata ${params.outDir}/results/${runID}/phylogeny/Rdata-out/
+            mkdir -p ${params.outDir}/results/${params.runID}/matrices/
+            if compgen -G "${params.outDir}/db/comparison/mtbseq/*/Matrices/*.matrix.tsv.gz" > /dev/null; then
+                cp ${params.outDir}/db/comparison/mtbseq/*/Matrices/*.matrix.tsv ${params.outDir}/results/${params.runID}/matrices/
             fi
 
         # Clean up: remove litter from the nexus generation
-            if compgen -G "${params.outDir}/results/${runID}/networks/*join*tab" > /dev/null; then
-                rm -rf ${params.outDir}/results/${runID}/networks/*join*tab
+            if compgen -G "${params.outDir}/results/${params.runID}/networks/*tab" > /dev/null; then
+                rm -rf ${params.outDir}/results/${params.runID}/networks/*tab
             fi
-            if [[ -f "${params.outDir}/results/${runID}/phylogeny/nexus.TT.tuple.csv" ]]; then
-                rm -f ${params.outDir}/results/${runID}/phylogeny/nexus.TT.tuple.csv
+            if [[ -f "${params.outDir}/results/${params.runID}/phylogeny/nexus.TT.tuple.csv" ]]; then
+                rm -f ${params.outDir}/results/${params.runID}/phylogeny/nexus.TT.tuple.csv
             fi
-            if [[ -d "${params.outDir}/results/${runID}/snps/cleanup-handover" ]]; then
-                rm -rf ${params.outDir}/results/${runID}/snps/cleanup-handover
+            if [[ -d "${params.outDir}/results/${params.runID}/snps/cleanup-handover" ]]; then
+                rm -rf ${params.outDir}/results/${params.runID}/snps/cleanup-handover
             fi
         """
 

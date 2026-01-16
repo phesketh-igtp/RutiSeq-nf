@@ -19,10 +19,9 @@ process PREPARE_PAIRWISE_CHANNELS {
 
     conda params.r_stats_env
 
-    publishDir "${params.outDir}/results/", mode: 'copy'
+    publishDir "${params.outDir}/db/comparison/src/", mode: 'copy'
     
     input:
-        val(runID)
         path(pairwise_analysis_list)
         val(sampleID_list)
 
@@ -33,7 +32,6 @@ process PREPARE_PAIRWISE_CHANNELS {
     script:
 
         """
-
         # Prapare the lists of sampleIDs and (sub)lineages for possible splits
 
             echo '${sampleID_list.join("\n")}' | sort | uniq > run_sample_ids.txt
@@ -45,7 +43,7 @@ process PREPARE_PAIRWISE_CHANNELS {
             echo "Pairwise analysis at sub-lineage level lineage split"
 
                 # Run the script to generate pairwise analysis tuples
-                    Rscript ${params.r_script_dir}/create_pairwise_analysis_tuple_sub.R \\
+                    Rscript ${params.scriptDir}/R/create_pairwise_analysis_tuple_sub.R \\
                         1>>.command.out \\
                         2>>.command.err || true # i think this helps (?)
 
@@ -63,7 +61,7 @@ process PREPARE_PAIRWISE_CHANNELS {
             echo "Pairwise analysis at main-lineage level lineage split"
 
                 # Run the script to generate pairwise analysis tuples
-                    Rscript ${params.r_script_dir}/create_pairwise_analysis_tuple_main.R \\
+                    Rscript ${params.scriptDir}/R/create_pairwise_analysis_tuple_main.R \\
                         1>>.command.out \\
                         2>>.command.err || true # i think this helps (?)
 
@@ -98,7 +96,8 @@ process PREPARE_PAIRWISE_CHANNELS {
 
         fi
 
-
+        grep -v "sub_lineage,sample" final.lineage_samples_tuple.csv > tmp.lineage_samples_tuple.csv
+        mv tmp.lineage_samples_tuple.csv final.lineage_samples_tuple.csv
         """
 
 }

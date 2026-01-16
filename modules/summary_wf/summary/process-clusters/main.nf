@@ -30,7 +30,7 @@ process PROCESS_CLUSTERS {
     
         """
         # Load the R script for processing clusters
-            Rscript ${params.r_script_dir}/process_clusters.R
+            Rscript ${params.scriptDir}/R/process_clusters.R
 
         # Split the cluster into singletons and processed clusters
             grep 'nX-' processed_clusters.tsv > ${runID}_singletons.tsv
