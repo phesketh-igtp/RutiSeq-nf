@@ -106,7 +106,7 @@ addWorksheet(wb, "sequencing_summary")
 writeData(wb, "sequencing_summary", summary_xlsx, rowNames=FALSE)
 
 addWorksheet(wb, "resistance_table_who")
-writeData(wb, "resistance_table_who", who_res, rowNames=FALSE)
+writeData(wb, "resistance_table_who", who_res_min, rowNames=FALSE)
 
 addWorksheet(wb, "resistance_table_tbdb")
 writeData(wb, "resistance_table_tbdb", tbdb_res, rowNames=FALSE)
