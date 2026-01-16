@@ -34,6 +34,7 @@ process TBPROFILER_COMPILE {
 
     input:
         val(sampleID_list)
+        //val(db_compliance_check)
         //path(tbprofiler_results)
 
     output:

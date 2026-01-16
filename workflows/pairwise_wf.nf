@@ -31,17 +31,23 @@ workflow PAIRWISE_WF {
         def no_col  = '\u001B[0m'
 
         // Run database compliance check
-        DB_COMPLIANCE_CHECK(sampleID_list)
+        //DB_COMPLIANCE_CHECK(sampleID_list)
         
         // Only continue with downstream processes if check passes
-        DB_COMPLIANCE_CHECK.out
-            .view { "Database integrity check result: $it" }
+        //DB_COMPLIANCE_CHECK.out
+        //    .view { "Database integrity check result: $it" }
 
         // Compile TB-Profiler results
-        TBPROFILER_COMPILE( sampleID_list )
+        TBPROFILER_COMPILE( 
+                            sampleID_list, 
+                            //DB_COMPLIANCE_CHECK.out.db_compliance_check
+                            )
 
         // Compile stats and classifications from MTBSeq
-        MTBSEQ_STATS_COMPILE( sampleID_list )
+        MTBSEQ_STATS_COMPILE(                            
+                            sampleID_list, 
+                            //DB_COMPLIANCE_CHECK.out.db_compliance_check
+                            )
 
         // Determine infection type (Mixed vs Clonal using both tbprofiler and mtbseq outputs)
         //// and filter genomes based on quality parameters (min coverage)
