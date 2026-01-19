@@ -31,7 +31,7 @@ process PLOT_TIMETREES {
         path("${lineage}.time-tree.Rdata"),      optional: true
 
     script:
-    
+
         """
         mkdir -p ancestors/
         

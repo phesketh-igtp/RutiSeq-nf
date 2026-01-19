@@ -58,7 +58,7 @@ process DB_COMPLIANCE_CHECK {
 
     # Helper function to test presence of a subdirectory
     has_dir <- function(sample, dir) {
-    any(grepl(paste0("^", sample, "/", dir, "$"), dirs))
+    any(grepl(paste0("^", sample, "/", dir, "\$"), dirs))
     }
 
     # Add columns
