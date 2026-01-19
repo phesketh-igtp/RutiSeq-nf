@@ -99,6 +99,16 @@ workflow SUMMARY_WF{
                         .splitCsv(header: false, sep: ',')
                         .map { row ->
                             def (lineage, clusterID, fasta, tab, ancestor, cluster_tab) = row
+                            
+                            // Debug: Print the row contents
+                            println "DEBUG: Processing row: ${row}"
+                            println "DEBUG: fasta=${fasta}, tab=${tab}, ancestor=${ancestor}, cluster_tab=${cluster_tab}"
+                            
+                            // Check for null values before creating file objects
+                            if (!fasta || !tab || !ancestor || !cluster_tab) {
+                                error "One or more file paths are null in row: ${row}"
+                            }
+                            
                             tuple(lineage, clusterID, file(fasta), file(tab), file(ancestor), file(cluster_tab))
                         }
 

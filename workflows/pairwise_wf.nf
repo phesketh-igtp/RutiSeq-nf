@@ -179,14 +179,14 @@ workflow PAIRWISE_WF {
             SNIPPY_PHYLOGENY( 
                             SNIPPY_CORE.out.snippy_core_phylo_alignment
                             )
-
+        /*
             // Generate dated phylogenies if metadata is provided
             if (params.metadata) {
                 SNIPPY_DATED_PHYLOGENY( 
                                         SNIPPY_PHYLOGENY.out.snippy_core_dated_phylogeny,
                                         params.metadata
                                     )
-            }
+        */
 
         } else {
             log.info "${purple}Skipping SNIPPY_CORE and SNIPPY_PHYLOGENY analysis (params.snippy_core = ${params.snippy_core})${no_col}"

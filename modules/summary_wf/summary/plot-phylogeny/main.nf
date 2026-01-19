@@ -32,6 +32,11 @@ process PLOT_MAIN_PHYLOGENY {
         path("${lineage}.contree.Rdata")
         path("${lineage}_ML-phylogeny.html")
 
+        tuple val(lineage),  
+            path("snp.aln.fasta"),
+            path("clusters.tsv")
+            path("unprocesses_clusters.tsv"), emit: timetree_ch
+
     script:
         """
         # How many genomes are clustered in this lineage
