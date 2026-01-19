@@ -61,8 +61,10 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
     
     script:
 
-        def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
-
+    def additional_args = task.ext.additional_args ?: ''
+    def sampleID_count = sampleIDs.size() // Get the count of sample IDs
+    def mtbseq_fasta_out = "Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta"
+    
         """
         # make the expected directories
             mkdir -p Position_Tables/ Called/ Amend/ Joint/
@@ -71,11 +73,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
             echo "${sampleIDs.join('\n')}" | sort | uniq > samplesID.list
             sed 's@_@\t@g' samplesID.list > ${lineage}_samples.txt
 
-        # Define the fasta output
-            sampleID_count=\$(wc -l samplesID.list | cut -f1 -d' ')
-            mtbseq_fasta_out=\$(echo -e "Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples\${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta")
-
-        if [[ ! -f "${params.outDir}/db/comparison/mtbseq/${lineage}/\${mtbseq_fasta_out}" ]]; then
+        if [[ ! -f "${params.outDir}/db/comparison/mtbseq/${lineage}/${mtbseq_fasta_out}" ]]; then
 
             ## The correct Amend/ file does not exist, so we need to run MTBseq Join and Amend steps
                 echo "Running MTBseq Join and Amend steps for lineage: ${lineage}"
@@ -161,6 +159,12 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
                     echo "Error: The Amend/ FASTA file \${mtbseq_fasta_out} is empty." >&2
                     exit 1
                 fi
-
         """
 }
+
+/*
+# Define the fasta output
+    #sampleID_count=\$(wc -l samplesID.list | cut -f1 -d' ')
+    #mtbseq_fasta_out=\$(echo -e "Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta")
+
+*/
