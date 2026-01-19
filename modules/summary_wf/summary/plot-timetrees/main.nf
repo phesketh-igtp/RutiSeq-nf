@@ -16,7 +16,7 @@ process PLOT_TIMETREES {
 
     conda params.r_phylogeny_env
 
-    publishDir "${params.outDir}/db/comparison/phylogeny/${lineage}/", mode: 'copy', overwrite: true
+    publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/", mode: 'copy', overwrite: true
 
     input:
         tuple val(lineage), 
@@ -49,7 +49,7 @@ process PLOT_TIMETREES {
         # Create the nexus tuple file
         for clusterID in `cat unique.clusters.list`; do
 
-            echo "${lineage},\${clusterID},${snp_fasta_path},${snp_tab_path},${params.outDir}/db/comparison/phylogeny/${lineage}/ancestors/\${clusterID}.ancestor.positions" \\
+            echo "${lineage},\${clusterID},${snp_fasta_path},${snp_tab_path},${params.outDir}/db/comparison/mtbseq/${lineage}/ancestors/\${clusterID}.ancestor.positions" \\
                 >> nexus.TT.tuple.csv
 
         done

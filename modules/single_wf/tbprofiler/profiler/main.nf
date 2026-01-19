@@ -1,18 +1,5 @@
 process TBPROFILER_PROFILE {
 
-/*
-@author: Poppy J Hesketh Best
-@date: 2025-04-08
-@version: 1.0
-@description: 
-    This module performs TB-Profiler using TBDB results to get MT lineage and 
-    resistance genes using the TBDB database.
-@changelog:
-    v1.0.1-2025-04-08: Fixed - correct tb-profiler db paths
-    v2.0.0-2025-11-13: Merged both TBDB and WHO profiling into a single module
-                        Added support for single-end reads
-*/
-
     tag "$sampleID"
 
     conda params.tbprofiler_env
@@ -66,39 +53,69 @@ process TBPROFILER_PROFILE {
         # Create output directories
         mkdir -p bam vcf results
 
-        # Run TB-Profiler using TBDB database
-        if [[ ! -f "${fastq_2}" ]]; then
-            echo "Single-end reads detected, running TB-Profiler TBDB database with single-end mode."
-            tb-profiler profile \\
-                -1 ${fastq_1} \\
-                -p tbdb-${sampleID} \\
-                --txt --dir . --platform nanopore \\
-                --db tbdb/tbdb ${additional_args}
-
-            tb-profiler profile \\
-                -1 ${fastq_1} \\
-                -p who-${sampleID} \\
-                --txt --dir . --platform nanopore \\
-                --db tbdb/who ${additional_args}
-        else
-            echo "Paired-end reads detected, running TB-Profiler TBDB database with paired-end mode."
-            tb-profiler profile \\
-                -1 ${fastq_1} \\
-                -2 ${fastq_2} \\
-                -p tbdb-${sampleID} \\
-                --txt --dir . --platform illumina \\
-                --db tbdb/tbdb ${additional_args}
+        # Check if TB-Profiler has already been run for this sample by looking for key output files. Handles situations when the workflow is re-run.
+        ## and prevent each single-wf steps from re-running unnecessarily.
+        if [[ -f "${params.outDir}/db/samples/${sampleID}/tbprofiler/tbdb-${sampleID}.results.txt" \\
+                && -f "${params.outDir}/db/samples/${sampleID}/tbprofiler/who-${sampleID}.results.txt" \\
+                ]]; then
             
-            tb-profiler profile \\
-                -1 ${fastq_1} \\
-                -2 ${fastq_2} \\
-                -p who-${sampleID} \\
-                --txt --dir . --platform illumina \\
-                --db tbdb/who ${additional_args}
-        fi
+            echo "TB-Profiler results already exist for sample ${sampleID}, skipping TB-Profiler profiling step."
+            cp ${params.outDir}/db/samples/${sampleID}/tbprofiler/tbdb-${sampleID}.results.txt results/
+            cp ${params.outDir}/db/samples/${sampleID}/tbprofiler/who-${sampleID}.results.txt results/
 
-        # organis results
-            mv results/ tbprofiler/
-            mv bam/ tbprofiler/
+        else
+
+            echo "Running TB-Profiler profiling for sample ${sampleID}."    
+
+            # Run TB-Profiler using TBDB database
+            if [[ ! -f "${fastq_2}" ]]; then
+                echo "Single-end reads detected, running TB-Profiler TBDB database with single-end mode."
+                tb-profiler profile \\
+                    -1 ${fastq_1} \\
+                    -p tbdb-${sampleID} \\
+                    --txt --dir . --platform nanopore \\
+                    --db tbdb/tbdb ${additional_args}
+
+                tb-profiler profile \\
+                    -1 ${fastq_1} \\
+                    -p who-${sampleID} \\
+                    --txt --dir . --platform nanopore \\
+                    --db tbdb/who ${additional_args}
+            else
+                echo "Paired-end reads detected, running TB-Profiler TBDB database with paired-end mode."
+                tb-profiler profile \\
+                    -1 ${fastq_1} \\
+                    -2 ${fastq_2} \\
+                    -p tbdb-${sampleID} \\
+                    --txt --dir . --platform illumina \\
+                    --db tbdb/tbdb ${additional_args}
+                
+                tb-profiler profile \\
+                    -1 ${fastq_1} \\
+                    -2 ${fastq_2} \\
+                    -p who-${sampleID} \\
+                    --txt --dir . --platform illumina \\
+                    --db tbdb/who ${additional_args}
+            fi
+
+            # organise results
+                mv results/ tbprofiler/
+                mv bam/ tbprofiler/
+
+        fi
         """
 }
+
+/*
+@author: Poppy J Hesketh Best
+@date: 2026-01-19
+@version: 2.1.0
+@description: 
+    This module performs TB-Profiler using TBDB results to get MT lineage and 
+    resistance genes using the TBDB database.
+@changelog:
+    v1.0.1-2025-04-08: Fixed - correct tb-profiler db paths
+    v2.0.0-2025-11-13: Merged both TBDB and WHO profiling into a single module
+                        Added support for single-end reads
+    v2.1.0-2026-01-19: Updated to check for existing results to avoid re-running
+*/
