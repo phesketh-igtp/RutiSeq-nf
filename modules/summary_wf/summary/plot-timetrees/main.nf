@@ -16,7 +16,7 @@ process PLOT_TIMETREES {
 
     conda params.r_phylogeny_env
 
-    publishDir "${params.outDir}/results/${params.runID}/phylogeny/", mode: 'copy', overwrite: true
+    publishDir "${params.outDir}/db/comparison/phylogeny/${lineage}/", mode: 'copy', overwrite: true
 
     input:
         tuple val(lineage), 
@@ -28,9 +28,11 @@ process PLOT_TIMETREES {
         path("${lineage}_TimeTree.contree.pdf"), optional: true
         path("ancestors/*"),                     optional: true
         path("nexus.TT.tuple.csv"),              optional: true, emit: timetree_tuple
-        path("${lineage}.time-tree.Rdata"),      optional: true
 
     script:
+
+    def snp_fasta_path="${params.outDir}/db/comparison/mtbseq/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta"
+    def snp_tab_path="${params.outDir}/db/comparison/mtbseq/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab"
 
         """
         mkdir -p ancestors/
@@ -46,7 +48,10 @@ process PLOT_TIMETREES {
 
         # Create the nexus tuple file
         for clusterID in `cat unique.clusters.list`; do
-            echo "${lineage},\${clusterID},${params.outDir}/db/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta,${params.outDir}/db/mtbseq/pairwise/${lineage}/Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab,${params.outDir}/results/phylogeny/ancestors/\${clusterID}.ancestor.positions" >> nexus.TT.tuple.csv
+
+            echo "${lineage},\${clusterID},${snp_fasta_path},${snp_tab_path},${params.outDir}/db/comparison/phylogeny/${lineage}/ancestors/\${clusterID}.ancestor.positions" \\
+                >> nexus.TT.tuple.csv
+
         done
 
         touch nexus.TT.tuple.csv

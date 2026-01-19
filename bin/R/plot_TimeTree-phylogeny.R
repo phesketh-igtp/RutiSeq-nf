@@ -33,10 +33,7 @@ process_cluster <- function(clusterID,df) {
     deframe()
 
   # Visualize and find the most recent common ancestor (MRCA)
-  tree_rooted <- root(tree, "MTB_anc",
-                      resolve.root = TRUE,
-                      edgelabel = TRUE)
-  p <- ggtree(tree_rooted) + geom_tiplab() + geom_nodelab()
+  p <- ggtree(tree) + geom_tiplab() + geom_nodelab()
   mrca_node <- MRCA(p, selection)
   viewClade(p, MRCA(p, selection))
   ancestor_nodeID <- p$data |> filter(node == mrca_node) |> pull(label)
@@ -82,14 +79,13 @@ clusters <- read.delim("processed_clusters.tsv", header = TRUE)
 
 ### Read trees
 tree <- read.nexus("timetree.nexus")  # Assuming the tree file is in Newick format
-tree_rooted <- root(tree, "MTB_anc", resolve.root=TRUE, edgelabel=TRUE)
 
 # Get tree tips
 tree.tips <- tree$tip.label
 
 # Filter rows based on the pattern in any of the specified columns
 filtered_clusters <- clusters |> filter(SampleID %in% tree.tips) |>
-        filter(merged_clusterID != "singleton/singleton/singleton")
+        filter(merged_clusterID != "NA/NA/NA")
 
 #··············································································#
 #··············································································#
