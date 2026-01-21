@@ -55,10 +55,12 @@ process MTBSEQ_LINEAGE_GROUP {
         //def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
         """
-        mkdir -p Groups/ Matrices
+        # Make output directories (local)
+        mkdir -p Groups/ Matrices/
         
         # Clean up the last results
-        rm -f ${params.outDir}/db/comparison/mtbseq/${lineage}/Groups/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u*_phylo_w*_d*
+        rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Groups/*
+        rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Matrices/*
 
         ## MTBseq TBgroups using the first SNP distance
             MTBseq --step TBgroups \\
