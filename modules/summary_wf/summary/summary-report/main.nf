@@ -110,7 +110,7 @@ process GENERATE_SUMMARY_REPORT {
 
         sylph_out <- read.delim("sylph_results.tsv", 
                 header = TRUE,
-                sep = ";", 
+                sep = "\t", 
                 check.names = FALSE
                 )
 
