@@ -28,7 +28,7 @@ process MTBSEQ_LINEAGE_GROUP {
     publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/", 
         mode: 'copy', 
         overwrite: true,
-        pattern: "Groups/*,Matrices/*"
+        pattern: "Groups/*,Matrix/*"
 
     input:
         tuple val(lineage), 
@@ -39,8 +39,8 @@ process MTBSEQ_LINEAGE_GROUP {
 
     output:
         //Matrix ouput
-        path("Matrices/*")
-        path("Matrices/${lineage}.d${distance}.matrix.tsv"), emit: matrix_dir
+        path("Matrix/*")
+        path("Matrix/${lineage}.d${distance}.matrix.tsv"), emit: matrix_dir
 
         // Nexus output
         tuple val(lineage), 
@@ -56,11 +56,11 @@ process MTBSEQ_LINEAGE_GROUP {
 
         """
         # Make output directories (local)
-        mkdir -p Groups/ Matrices/
+        mkdir -p Groups/ Matrix/
         
         # Clean up the last results
         rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Groups/*
-        rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Matrices/*
+        rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Matrix/*
 
         ## MTBseq TBgroups using the first SNP distance
             MTBseq --step TBgroups \\
@@ -97,13 +97,13 @@ process MTBSEQ_LINEAGE_GROUP {
             grep 'ungrouped' tmp.${lineage}_d${distance}.clusters.tsv \\
                     | sed "s@ungrouped@singleton@g" > Groups/${lineage}_d${distance}.singletons.tsv
 
-        # Move and rename the matrices
-            mv Groups/${lineage}*.matrix Matrices/${lineage}.d${distance}.matrix
+        # Move and rename the Matrix file for simplicity
+            cp Groups/${lineage}*.matrix Matrix/${lineage}.d${distance}.matrix
 
         ## Correct the format of the matrix for importing to R
 
             # cut the headers column from the matrix
-            cut -f1 Matrices/${lineage}.d${distance}.matrix > Matrices/tmp.${lineage}.matrix.ids
+            cut -f1 Matrix/${lineage}.d${distance}.matrix > Matrix/tmp.${lineage}.matrix.ids
 
             # transpose the first colum long to wide (tab seperated)
                 awk '                                         
@@ -117,12 +117,12 @@ process MTBSEQ_LINEAGE_GROUP {
                         print arr[i];
                     }
                 }
-                ' Matrices/tmp.${lineage}.matrix.ids | sed 's/^/sampleID\t/g' > Matrices/tmp.${lineage}.matrix.head
+                ' Matrix/tmp.${lineage}.matrix.ids | sed 's/^/sampleID\t/g' > Matrix/tmp.${lineage}.matrix.head
 
-                cat Matrices/tmp.${lineage}.matrix.head Matrices/${lineage}.d${distance}.matrix > Matrices/${lineage}.d${distance}.matrix.tsv
+                cat Matrix/tmp.${lineage}.matrix.head Matrix/${lineage}.d${distance}.matrix > Matrix/${lineage}.d${distance}.matrix.tsv
 
             # remove the intermediates
-                rm Matrices/tmp.${lineage}.*
+                rm Matrix/tmp.${lineage}.*
 
         cat Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta > ${lineage}_snps.fasta
         cat Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab > ${lineage}_snps.tab
