@@ -1,5 +1,4 @@
 #!/usr/bin/env nextflow
-
 nextflow.enable.dsl = 2
 params.version = '1.2.0-beta'
 
