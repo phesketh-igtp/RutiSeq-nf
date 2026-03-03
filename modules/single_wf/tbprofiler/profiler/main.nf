@@ -51,7 +51,7 @@ process TBPROFILER_PROFILE {
 
         """
         # Create output directories
-        mkdir -p bam vcf results
+        mkdir -p bam vcf results tbprofiler
 
         # Check if TB-Profiler has already been run for this sample by looking for key output files. Handles situations when the workflow is re-run.
         ## and prevent each single-wf steps from re-running unnecessarily.
@@ -99,10 +99,14 @@ process TBPROFILER_PROFILE {
             fi
 
             # organise results
-                mv results/ tbprofiler/
+                mv results/*.results.txt tbprofiler/
                 mv bam/ tbprofiler/
 
         fi
+
+        # organise results
+        mv results/*.results.txt tbprofiler/
+        mv bam/ tbprofiler/
         """
 }
 
