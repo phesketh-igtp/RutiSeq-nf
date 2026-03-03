@@ -53,13 +53,14 @@ process MTBSEQ_SINGLE {
         # Check if MTBSeq has already been run for this sample by looking for key output files. Handles situations when the workflow is re-run.
         ## and prevent each single-wf steps from re-running unnecessarily.
         if [[ -f "${params.outDir}/db/samples/${sampleID}/mtbseq/Classification/${sampleID}.Strain_Classification.tab" \\
-                && -f "${params.outDir}/db/samples/${sampleID}/mtbseq/Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab" \\
-                && -f "${params.outDir}/db/samples/${sampleID}/mtbseq/Position_Tables/${sampleID}.gatk_position_table.tab" \\
+            && -f "${params.outDir}/db/samples/${sampleID}/mtbseq/Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab" \\
+            && -f "${params.outDir}/db/samples/${sampleID}/mtbseq/Position_Tables/${sampleID}.gatk_position_table.tab" \\
                 ]]; then
 
-            echo "MTBSeq results already exist for sample ${sampleID}, skipping MTBSeq step."
+            echo "MTBSeq results already exist for sample ${sampleID}, skipping MTBSeq step..."
             mkdir -p Called Position_Tables Classification Statistics
             cp ${params.outDir}/db/samples/${sampleID}/mtbseq/Classification/${sampleID}.Strain_Classification.tab Classification/
+            cp ${params.outDir}/db/samples/${sampleID}/mtbseq/Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab Statistics/
             cp ${params.outDir}/db/samples/${sampleID}/mtbseq/Position_Tables/${sampleID}.gatk_position_table.tab Position_Tables/
             cp ${params.outDir}/db/samples/${sampleID}/mtbseq/Called/${sampleID}.gatk_position_variants_*.tab Called/
 
@@ -85,7 +86,9 @@ process MTBSEQ_SINGLE {
             cat Classification/Strain_Classification.tab > Classification/${sampleID}.Strain_Classification.tab
             cat Statistics/Mapping_and_Variant_Statistics.tab > Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
 
-        fi
+        fi \\
+        1>>.command.out \\
+        2>>.command.err || true
         """
 
 }
