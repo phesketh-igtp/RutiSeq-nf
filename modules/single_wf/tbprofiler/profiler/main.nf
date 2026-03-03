@@ -99,8 +99,9 @@ process TBPROFILER_PROFILE {
             fi
 
             # organise results
-                mv results/*.results.txt tbprofiler/
-                mv bam/ tbprofiler/
+                mkdir -p tbprofiler/ tbprofiler/bam/
+                cp results/*.results.txt tbprofiler/
+                cp bam/* tbprofiler/bam/
 
         fi
 
