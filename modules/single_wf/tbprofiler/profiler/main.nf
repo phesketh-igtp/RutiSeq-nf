@@ -51,17 +51,21 @@ process TBPROFILER_PROFILE {
 
         """
         # Create output directories
-        mkdir -p bam vcf results tbprofiler
+        mkdir -p tbprofiler/
 
-        # Check if TB-Profiler has already been run for this sample by looking for key output files. Handles situations when the workflow is re-run.
-        ## and prevent each single-wf steps from re-running unnecessarily.
+        # Check if TB-Profiler has already been run for this sample by looking for key output files. 
+        ## handles situations when the workflow is re-run and prevent each single-wf steps 
+        ## from re-running unnecessarily.
+
         if [[ -f "${params.outDir}/db/samples/${sampleID}/tbprofiler/tbdb-${sampleID}.results.txt" \\
                 && -f "${params.outDir}/db/samples/${sampleID}/tbprofiler/who-${sampleID}.results.txt" \\
                 ]]; then
             
-            echo "TB-Profiler results already exist for sample ${sampleID}, skipping TB-Profiler profiling step."
-            cp ${params.outDir}/db/samples/${sampleID}/tbprofiler/tbdb-${sampleID}.results.txt results/
-            cp ${params.outDir}/db/samples/${sampleID}/tbprofiler/who-${sampleID}.results.txt results/
+            echo -e "TB-Profiler results already exist for sample ${sampleID}, skipping TB-Profiler profiling step..."
+            echo -e ""
+            echo -e "Copying over TBDB and WHO results"
+            cp ${params.outDir}/db/samples/${sampleID}/tbprofiler/tbdb-${sampleID}.results.txt tbprofiler/
+            cp ${params.outDir}/db/samples/${sampleID}/tbprofiler/who-${sampleID}.results.txt tbprofiler/
 
         else
 
@@ -69,7 +73,8 @@ process TBPROFILER_PROFILE {
 
             # Run TB-Profiler using TBDB database
             if [[ ! -f "${fastq_2}" ]]; then
-                echo "Single-end reads detected, running TB-Profiler TBDB database with single-end mode."
+                echo "Single-end reads detected, 
+                running TB-Profiler TBDB database with single-end mode."
                 tb-profiler profile \\
                     -1 ${fastq_1} \\
                     -p tbdb-${sampleID} \\
@@ -79,36 +84,41 @@ process TBPROFILER_PROFILE {
                 tb-profiler profile \\
                     -1 ${fastq_1} \\
                     -p who-${sampleID} \\
-                    --txt --dir . --platform nanopore \\
-                    --db tbdb/who ${additional_args}
+                    --txt --platform nanopore \\
+                    --db tbdb/who \\
+                    --dir tbprofiler/ \\
+                    ${additional_args}
+
+                cp tbprofiler/results/* tbprofiler/
+                
             else
-                echo "Paired-end reads detected, running TB-Profiler TBDB database with paired-end mode."
+                echo "Paired-end reads detected,
+                running TB-Profiler TBDB database with paired-end mode."
                 tb-profiler profile \\
                     -1 ${fastq_1} \\
                     -2 ${fastq_2} \\
                     -p tbdb-${sampleID} \\
-                    --txt --dir . --platform illumina \\
-                    --db tbdb/tbdb ${additional_args}
+                    --txt --platform illumina \\
+                    --db tbdb/tbdb \\
+                    --dir tbprofiler/ \\
+                    ${additional_args}
                 
                 tb-profiler profile \\
                     -1 ${fastq_1} \\
                     -2 ${fastq_2} \\
                     -p who-${sampleID} \\
-                    --txt --dir . --platform illumina \\
-                    --db tbdb/who ${additional_args}
-            fi
+                    --txt --platform illumina \\
+                    --db tbdb/who \\
+                    --dir tbprofiler/ \\
+                    ${additional_args}
 
-            # organise results
-            #    mkdir -p tbprofiler/ tbprofiler/bam/
-            #    cp results/*.results.txt tbprofiler/
-            #    cp bam/* tbprofiler/bam/
+                cp tbprofiler/results/* tbprofiler/
+
+            fi
 
         fi
 
-        # organise results
-            mkdir -p tbprofiler/ tbprofiler/bam/
-            cp results/*.results.txt tbprofiler/
-            cp bam/* tbprofiler/bam/
+        echo "TB-Profiler complete"
         """
 }
 
@@ -124,4 +134,5 @@ process TBPROFILER_PROFILE {
     v2.0.0-2025-11-13: Merged both TBDB and WHO profiling into a single module
                         Added support for single-end reads
     v2.1.0-2026-01-19: Updated to check for existing results to avoid re-running
+    v2.1.1-2026-03-04: Corrected some file movement issues cauring errors and collapsing the module.
 */
