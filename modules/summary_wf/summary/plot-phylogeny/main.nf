@@ -56,11 +56,18 @@ process PLOT_MAIN_PHYLOGENY {
             cp ${params.scriptDir}/quarto/phylogeny-report.qmd phylogeny-report.qmd
 
             # Render the phylogeny report using Quarto
-            quarto render phylogeny-report.qmd \\
+            DENO_V8_FLAGS="--max-old-space-size=8192" \\
+                quarto render phylogeny-report.qmd \\
                 -P runID=${params.runID} \\
                 -P lineage=${lineage} \\
                 -P RData=${lineage}.contree.Rdata \\
                 --output ${lineage}_ML-phylogeny.html
+
+            #quarto render phylogeny-report.qmd \\
+            #    -P runID=${params.runID} \\
+            #    -P lineage=${lineage} \\
+            #    -P RData=${lineage}.contree.Rdata \\
+            #    --output ${lineage}_ML-phylogeny.html
         
         else
             echo "This lineage contains no clusters - plotting phylogeny without cluster heatmap"
