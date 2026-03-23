@@ -29,8 +29,8 @@ process PLOT_MAIN_PHYLOGENY {
         path(unprocessed_clusters, stageAs: "unprocesses_clusters.tsv")
 
     output:
-        path("${lineage}.contree.Rdata")
-        path("${lineage}_ML-phylogeny.html")
+        path("${lineage}.contree.Rdata", optional: true)
+        path("${lineage}_ML-phylogeny.html", optional: true)
 
         tuple val(lineage),  
             path("snp.aln.fasta"),
@@ -62,6 +62,9 @@ process PLOT_MAIN_PHYLOGENY {
                 -P lineage=${lineage} \\
                 -P RData=${lineage}.contree.Rdata \\
                 --output ${lineage}_ML-phylogeny.html
+
+            cp ${lineage}.contree.Rdata ${params.outDir}/results/${params.runID}/phylogeny/
+            echo -e "quarto render phylogeny-report.qmd -P runID=${params.runID} -P lineage=${lineage} -P RData=${lineage}.contree.Rdata --output ${lineage}_ML-phylogeny.html" > ${params.outDir}/results/${params.runID}/phylogeny/${lineage}.quarto.sh
 
             #quarto render phylogeny-report.qmd \\
             #    -P runID=${params.runID} \\
