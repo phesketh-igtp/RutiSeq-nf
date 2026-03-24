@@ -29,13 +29,13 @@ process PLOT_MAIN_PHYLOGENY {
         path(unprocessed_clusters, stageAs: "unprocesses_clusters.tsv")
 
     output:
-        path("${lineage}.contree.Rdata", optional: true)
-        path("${lineage}_ML-phylogeny.html", optional: true)
-
         tuple val(lineage),  
             path("snp.aln.fasta"),
             path("clusters.tsv")
             path("unprocesses_clusters.tsv"), emit: timetree_ch
+        
+        file("${lineage}.contree.Rdata", optional: true)
+        file("${lineage}_phylogeny.html", optional: true)
 
     script:
         """
@@ -61,10 +61,11 @@ process PLOT_MAIN_PHYLOGENY {
                 -P runID=${params.runID} \\
                 -P lineage=${lineage} \\
                 -P RData=${lineage}.contree.Rdata \\
-                --output ${lineage}_ML-phylogeny.html
+                --output ${lineage}_phylogeny.html
 
             cp ${lineage}.contree.Rdata ${params.outDir}/results/${params.runID}/phylogeny/
-            echo -e "quarto render phylogeny-report.qmd -P runID=${params.runID} -P lineage=${lineage} -P RData=${lineage}.contree.Rdata --output ${lineage}_ML-phylogeny.html" > ${params.outDir}/results/${params.runID}/phylogeny/${lineage}.quarto.sh
+            cp ${lineage}_ML-phylogeny.html ${params.outDir}/results/${params.runID}/phylogeny/ 2>/dev/null
+            echo -e "quarto render phylogeny-report.qmd -P runID=${params.runID} -P lineage=${lineage} -P RData=${lineage}.contree.Rdata --output ${lineage}_phylogeny.html" > ${params.outDir}/results/${params.runID}/phylogeny/${lineage}.quarto.sh
 
             #quarto render phylogeny-report.qmd \\
             #    -P runID=${params.runID} \\
