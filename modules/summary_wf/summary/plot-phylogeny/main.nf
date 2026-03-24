@@ -34,8 +34,8 @@ process PLOT_MAIN_PHYLOGENY {
             path("clusters.tsv")
             path("unprocesses_clusters.tsv"), emit: timetree_ch
         
-        file("${lineage}.contree.Rdata", optional: true)
-        file("${lineage}_phylogeny.html", optional: true)
+        path("${lineage}.contree.Rdata"), optional: true
+        path("${lineage}_phylogeny.html"), optional: true
 
     script:
         """
