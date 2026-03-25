@@ -57,12 +57,12 @@ process PLOT_MAIN_PHYLOGENY {
 
             # Render the phylogeny report using Quarto
             # IGTP server doesnt like this this week, I dont know what, commented out for now
-            #DENO_V8_FLAGS="--max-old-space-size=8192" \\
-            #    quarto render phylogeny-report.qmd \\
-            #    -P runID=${params.runID} \\
-            #    -P lineage=${lineage} \\
-            #    -P RData=${lineage}.contree.Rdata \\
-            #    --output ${lineage}_phylogeny.html
+            DENO_V8_FLAGS="--max-old-space-size=8192" \\
+                quarto render phylogeny-report.qmd \\
+                -P runID=${params.runID} \\
+                -P lineage=${lineage} \\
+                -P RData=${lineage}.contree.Rdata \\
+                --output ${lineage}_phylogeny.html 2>/dev/null
 
             cp ${lineage}.contree.Rdata ${params.outDir}/results/${params.runID}/phylogeny/
             cp ${lineage}_ML-phylogeny.html ${params.outDir}/results/${params.runID}/phylogeny/ 2>/dev/null
@@ -72,7 +72,7 @@ process PLOT_MAIN_PHYLOGENY {
             #    -P runID=${params.runID} \\
             #    -P lineage=${lineage} \\
             #    -P RData=${lineage}.contree.Rdata \\
-            #    --output ${lineage}_ML-phylogeny.html
+            #    --output ${lineage}_ML-phylogeny.html 2>/dev/null
         
         else
             echo "This lineage contains no clusters - plotting phylogeny without cluster heatmap"
