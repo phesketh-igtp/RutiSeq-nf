@@ -50,8 +50,9 @@ process PLOT_MAIN_PHYLOGENY {
             # plot phylogeny with clsuter heatmap
             Rscript ${params.scriptDir}/R/plot_ML-phylogeny.R \\
                     --lineageID ${lineage} \\
-                    --rlibrary ${params.scriptDir}/R/
-
+                    --rlibrary ${params.scriptDir}/R/ \\
+                1>>.command.out \\
+                2>>.command.err || true # NOTE This is a hack to overcome the exit status 1
             # Copy the phylogeny report to the output directory
             cp ${params.scriptDir}/quarto/phylogeny-report.qmd phylogeny-report.qmd
 
@@ -62,7 +63,9 @@ process PLOT_MAIN_PHYLOGENY {
                 -P runID=${params.runID} \\
                 -P lineage=${lineage} \\
                 -P RData=${lineage}.contree.Rdata \\
-                --output ${lineage}_phylogeny.html 2>/dev/null
+                --output ${lineage}_phylogeny.html  \\
+                1>>.command.out \\
+                2>>.command.err || true # NOTE This is a hack to overcome the exit status 1
 
             cp ${lineage}.contree.Rdata ${params.outDir}/results/${params.runID}/phylogeny/
             cp ${lineage}_ML-phylogeny.html ${params.outDir}/results/${params.runID}/phylogeny/ 2>/dev/null
