@@ -112,13 +112,9 @@ workflow SUMMARY_WF{
                             tuple(lineage, clusterID, file(fasta), file(tab), file(ancestor), file(cluster_tab))
                         }
 
-                GENERATE_NEXUS_W_MRCA( 
-                                        timetree_ch
-                                    )
-
+                GENERATE_NEXUS_W_MRCA(timetree_ch)
                 // Mix both annotated nexus channels
                 base_nexus_ch = GENERATE_NEXUS_W_MRCA.out.nexus_w_mrca_out
-
                 // Collect all outputs before passing to DATA_DELIVERY
                 finish_handover = base_nexus_ch.collect()
             }
