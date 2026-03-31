@@ -273,7 +273,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.96850942"
-     inkscape:cx="927.198"
+     inkscape:cx="927.71426"
      inkscape:cy="554.46027"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
@@ -295,8 +295,8 @@
      inkscape:deskcolor="#d1d1d1"><inkscape:grid
        id="grid15"
        units="mm"
-       originx="-43.022505"
-       originy="-286.3275"
+       originx="-43.022507"
+       originy="-286.32751"
        spacingx="1.0000001"
        spacingy="1"
        empcolor="#0099e5"
@@ -372,7 +372,7 @@
        d="m 219.32783,124.50595 h 5.03473 c 3.75267,0 8.16471,-0.97386 10.81824,0.0609 2.51738,0.98168 3.23759,4.33239 4.64338,4.739 l 0.14517,0.042"
        id="path1232-36-5-5-9"
        sodipodi:nodetypes="csssc" /><path
-       style="display:inline;fill:none;stroke:#000000;stroke-width:1.36364;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:2.7272799,1.36363995;stroke-dashoffset:1.36363995;stroke-opacity:1"
+       style="display:inline;fill:none;stroke:#000000;stroke-width:1.36364;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:2.72728, 1.36364;stroke-dashoffset:1.36364;stroke-opacity:1"
        d="m 228.66518,155.24015 c 3.95869,0.13138 4.24678,-0.1823 7.591,1.96339 2.62958,1.68716 2.34609,2.91059 3.08106,1.63812"
        id="path1232-36-5-5-9-1"
        sodipodi:nodetypes="csc" /><path
@@ -766,7 +766,7 @@
        d="m 85.027553,78.244309 h -5.583389 c -4.161612,0 -8.224084,2.499442 -11.166789,5.284738 -2.791705,2.642364 -5.5834,6.630463 -5.5834,10.569476 l -1e-5,5.284725"
        id="path1232-36-5-5-9-2-6-5"
        sodipodi:nodetypes="csssc" /><path
-       style="fill:none;stroke:#000000;stroke-width:1.27272725;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:2.5454545,1.27272725;stroke-dashoffset:0;stroke-opacity:1"
+       style="fill:none;stroke:#000000;stroke-width:1.27273;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:2.54545, 1.27273;stroke-dashoffset:0;stroke-opacity:1"
        d="M 239.61939,131.08923 V 172.3085"
        id="path2500-5-9-5"
        sodipodi:nodetypes="cc" /><g
