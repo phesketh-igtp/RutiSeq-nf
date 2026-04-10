@@ -58,14 +58,14 @@ process PLOT_MAIN_PHYLOGENY {
 
             # Render the phylogeny report using Quarto
             # IGTP server doesnt like this this week, I dont know what, commented out for now
-            DENO_V8_FLAGS="--max-old-space-size=8192" \\
+            #DENO_V8_FLAGS="--max-old-space-size=8192" \\
                 quarto render phylogeny-report.qmd \\
                 -P runID=${params.runID} \\
                 -P lineage=${lineage} \\
                 -P RData=${lineage}.contree.Rdata \\
                 --output ${lineage}_phylogeny.html  \\
-                1>>.command.out \\
-                2>>.command.err || true # NOTE This is a hack to overcome the exit status 1
+                #1>>.command.out \\
+                #2>>.command.err || true # NOTE This is a hack to overcome the exit status 1
 
             cp ${lineage}.contree.Rdata ${params.outDir}/results/${params.runID}/phylogeny/
             cp ${lineage}_ML-phylogeny.html ${params.outDir}/results/${params.runID}/phylogeny/ 2>/dev/null
