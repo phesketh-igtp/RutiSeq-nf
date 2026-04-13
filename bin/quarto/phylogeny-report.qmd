@@ -48,6 +48,7 @@ if (length(missing_pkgs) > 0) {
 invisible(lapply(packages, library, character.only = TRUE))
 
 set.seed(1234)
+options(warn=-1)
 ```
 
 ```{r, import_data}
