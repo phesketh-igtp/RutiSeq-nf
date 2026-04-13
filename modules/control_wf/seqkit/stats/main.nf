@@ -38,7 +38,9 @@ process READS_STATS {
     done < <(tail -n +2 samplesheet.csv)
 
     # Generate fastq stats with seqkit
-    seqkit stat -bT reads/*.fastq.gz \\
+    seqkit stat \\
+        --skip-err \\
+        -bT reads/*.fastq.gz \\
         > seqkit_stats.txt
     """
 }
