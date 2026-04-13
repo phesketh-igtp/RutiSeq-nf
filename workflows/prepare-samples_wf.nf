@@ -1,7 +1,6 @@
 //
 // Subworkflow: Prepare and validate samples from samplesheet
 //
-
 include { FETCH_SRA }       from '../modules/prepare-samples_wf/fetch_sra/main'
 include { FILE_CHECK }      from '../modules/prepare-samples_wf/init-file-checks/main'
 //include { VERSION_LOGGING } from '../modules/version-logging/main'

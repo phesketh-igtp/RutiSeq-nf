@@ -1,0 +1,8 @@
+name: general_env
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - conda-forge::seqkit
+  - conda-forge::sra-tools
+  - bioconda::mtbseq=1.1.0

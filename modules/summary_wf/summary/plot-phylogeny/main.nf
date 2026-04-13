@@ -17,9 +17,10 @@ process PLOT_MAIN_PHYLOGENY {
 
     conda params.r_phylogeny_env
 
-    publishDir "${params.outDir}/results/${params.runID}/phylogeny/",
-        mode: 'copy', 
-        overwrite: true
+    publishDir "${params.outDir}/results/${params.runID}/phylogeny/quarto/", 
+                mode: 'copy', overwrite: true, pattern: "*.{qmd,Rdata,sh}"
+    publishDir "${params.outDir}/results/${params.runID}/phylogeny/", 
+                mode: 'copy', overwrite: true, pattern: "*.html"
 
     input:
         tuple val(lineage), 
@@ -38,8 +39,10 @@ process PLOT_MAIN_PHYLOGENY {
 
     script:
         """
-        # How many genomes are clustered in this lineage
+        # Make output directory
+        mkdir -p ${params.outDir}/results/${params.runID}/phylogeny/
 
+        # How many genomes are clustered in this lineage
         clustered_genomes=\$(grep '${lineage}' ${unprocessed_clusters} | grep -v 'singleton' | wc -l)
 
         if [[ \$clustered_genomes -gt 0 ]]; then
