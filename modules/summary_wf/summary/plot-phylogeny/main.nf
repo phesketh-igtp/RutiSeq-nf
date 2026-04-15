@@ -26,16 +26,20 @@ process PLOT_MAIN_PHYLOGENY {
         tuple val(lineage), 
             path(contree, stageAs: "snp.contree"), 
             path(alignments, stageAs: "snp.aln.fasta")
+
         path(processed_clusters, stageAs: "clusters.tsv")
         path(unprocessed_clusters, stageAs: "unprocesses_clusters.tsv")
 
     output:
-        tuple val(lineage),  
-            path("snp.aln.fasta"),
-            path("clusters.tsv")
-            path("unprocesses_clusters.tsv"), emit: timetree_ch
+    // Main outputs
         path("${lineage}.contree.Rdata"), optional: true
         path("${lineage}_phylogeny.html"), optional: true
+    
+    // Timetree channel output
+        tuple val(lineage),  
+            path(alignments),
+            path(processed_clusters),
+            path("unprocesses_clusters.tsv"), emit: timetree_ch
 
     script:
         """
@@ -59,7 +63,6 @@ process PLOT_MAIN_PHYLOGENY {
             cp ${params.scriptDir}/quarto/phylogeny-report.qmd phylogeny-report.qmd
 
             # Render the phylogeny report using Quarto
-            # IGTP server doesnt like this this week, I dont know what, commented out for now
             #DENO_V8_FLAGS="--max-old-space-size=8192" \\
             #quarto render phylogeny-report.qmd \\
             #    -P runID=${params.runID} \\
