@@ -138,6 +138,32 @@ process GENERATE_SUMMARY_REPORT {
             dict_path = "${params.scriptDir}/R/dict/xlsx_sheet1.dict.csv"
             )
 
+        # Add the final touches to the sheet (PASS/FAIL flag, RutiSeq version, and AnalysisID)
+        summary_xlsx <- summary_xlsx |>
+            mutate(
+            Status = case_when(
+                `Unambiguous Total Bases (%)` < ${params.filt_min_cov} &
+                `Unambiguous Coverage median` < ${params.filt_min_depth} ~
+                    "FAILED: Percentage coverage <${params.filt_min_cov}, and coverage <${params.filt_min_depth}x",
+
+                `Unambiguous Total Bases (%)` < ${params.filt_min_cov} ~
+                    "FAILED: Percentage coverage <${params.filt_min_cov}",
+
+                `Unambiguous Coverage median` < ${params.filt_min_depth} ~
+                    "FAILED: Coverage <${params.filt_min_depth}X",
+
+                `Total Reads` < ${params.filt_min_reads} ~
+                    "FAILED: <${params.filt_min_reads} reads",
+
+                `Infection type` == "Mixed" ~
+                    "FAILED: mixed (sub-)lineage",
+
+                TRUE ~ "PASS"
+                )
+            ) |>
+            mutate(`Version Control` = "${params.version}") |>
+            mutate(`AnalysisID` = "${params.runID}")
+
         #··············································································#
         # Assemble the XLSX spreadsheet
         #··············································································#
