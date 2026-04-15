@@ -154,9 +154,9 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
                 done
 
         # Check the Amend file is it actually has any sequences in the fasta
-            sum_len=\$(seqkit stats -T \${mtbseq_fasta_out} | sed '1d' | head -1 | cut -f5)
+            sum_len=\$(seqkit stats -T ${mtbseq_fasta_out} | sed '1d' | head -1 | cut -f5)
                 if [[ \${sum_len} == 0 ]]; then
-                    echo "Error: The Amend/ FASTA file \${mtbseq_fasta_out} is empty." >&2
+                    echo "Error: The Amend/ FASTA file ${mtbseq_fasta_out} is empty." >&2
                     exit 1
                 fi
         """
