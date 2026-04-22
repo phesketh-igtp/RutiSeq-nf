@@ -1,22 +1,5 @@
 process MTBSEQ_LINEAGE_GROUP {
 
-/*
-    @author: Poppy J Hesketh Best
-    @date: 2025-04-01
-    @version: 1.0.1
-    @description:
-        This process runs the MTBseq TBgroups step on the joint and amend directories
-        for each lineage and distance. It takes the output from the
-        MTBSEQ_LINEAGE_JOINT_AMEND() process and runs the TBgroups step on the joint
-        and amend directories. It also renames the output files for simplicity.
-        It also wrangles the output matrix into a useful format for downstream analysis.
-        Occasionally, the MTBseq TBgroups step will fail and produice empty files/no-files.
-    @last_updated: 2025-04-01
-    @changelog:
-        v1.0.0-2025-04-01: Initial version + documnetadocumentation
-        v1.0.1-2025-05-19: Removed additonal_args as it was not utilised and was creating inconsistencies
-*/
-
     tag "${lineage}; t=${distance}"
 
     conda params.mtbseq_env
@@ -25,10 +8,11 @@ process MTBSEQ_LINEAGE_GROUP {
     ///        } else { 'quay.io/biocontainers/mtbseq' }
     ///}
                 
-    publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/", 
-        mode: 'copy', 
-        overwrite: true,
-        pattern: "Groups/*,Matrix/*"
+    //publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/", 
+    //    mode: 'copy', 
+    //    overwrite: true,
+    //    pattern: "Groups/*,Matrix/*"
+    storeDir "${params.outDir}/db/comparison/mtbseq/${lineage}/"
 
     input:
         tuple val(lineage), 
@@ -39,16 +23,16 @@ process MTBSEQ_LINEAGE_GROUP {
 
     output:
         //Matrix ouput
-        path("Matrix/*")
-        path("Matrix/${lineage}.d${distance}.matrix.tsv"), emit: matrix_dir
+        //path("Matrix/*")
+        path("Matrix/${params.runID}_${lineage}.d${distance}.matrix.tsv"), emit: matrix_dir
 
         // Nexus output
         tuple val(lineage), 
             val(distance), 
-            path("${lineage}_snps.fasta"),
-            path("${lineage}_snps.tab"),
-            path("Groups/${lineage}_d${distance}.clusters.tsv"), 
-            path("Groups/${lineage}_d${distance}.singletons.tsv"), emit: clusters
+            path("${params.runID}_${lineage}_snps.fasta"),
+            path("${params.runID}_${lineage}_snps.tab"),
+            path("Groups/${params.runID}_${lineage}_d${distance}.clusters.tsv"), 
+            path("Groups/${params.runID}_${lineage}_d${distance}.singletons.tsv"), emit: clusters
 
     script:
 
@@ -80,7 +64,7 @@ process MTBSEQ_LINEAGE_GROUP {
                     || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 
         # Rename the groups file for simplicity
-            cat Groups/${lineage}_*_d${distance}.groups > Groups/${lineage}_d${distance}.groups
+            cat Groups/${lineage}_d${distance}.groups > Groups/${lineage}_d${distance}.groups
 
         # Wrangle the group list into a useful format
             cat Groups/${lineage}_d${distance}.groups \\
@@ -92,10 +76,10 @@ process MTBSEQ_LINEAGE_GROUP {
                     | sed "s@group_@@g" \\
                     | sed s/\$/-${distance}-${lineage}/g \\
                     | sed 's/-lineage/-L/g' \\
-                    > Groups/${lineage}_d${distance}.clusters.tsv
+                    > Groups/${params.runID}_${lineage}_d${distance}.clusters.tsv
 
             grep 'ungrouped' tmp.${lineage}_d${distance}.clusters.tsv \\
-                    | sed "s@ungrouped@singleton@g" > Groups/${lineage}_d${distance}.singletons.tsv
+                    | sed "s@ungrouped@singleton@g" > Groups/${params.runID}_${lineage}_d${distance}.singletons.tsv
 
         # Move and rename the Matrix file for simplicity
             cp Groups/${lineage}*.matrix Matrix/${lineage}.d${distance}.matrix
@@ -119,12 +103,29 @@ process MTBSEQ_LINEAGE_GROUP {
                 }
                 ' Matrix/tmp.${lineage}.matrix.ids | sed 's/^/sampleID\t/g' > Matrix/tmp.${lineage}.matrix.head
 
-                cat Matrix/tmp.${lineage}.matrix.head Matrix/${lineage}.d${distance}.matrix > Matrix/${lineage}.d${distance}.matrix.tsv
+                cat Matrix/tmp.${lineage}.matrix.head Matrix/${lineage}.d${distance}.matrix > Matrix/${params.runID}_${lineage}.d${distance}.matrix.tsv
 
             # remove the intermediates
                 rm Matrix/tmp.${lineage}.*
 
-        cat Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta > ${lineage}_snps.fasta
-        cat Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab > ${lineage}_snps.tab
+        cat Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta > ${params.runID}_${lineage}_snps.fasta
+        cat Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab > ${params.runID}_${lineage}_snps.tab
         """
 }
+
+/*
+@author: Poppy J Hesketh Best
+@date: 2025-04-01
+@version: 1.0.1
+@description:
+    This process runs the MTBseq TBgroups step on the joint and amend directories
+        for each lineage and distance. It takes the output from the
+        MTBSEQ_LINEAGE_JOINT_AMEND() process and runs the TBgroups step on the joint
+        and amend directories. It also renames the output files for simplicity.
+        It also wrangles the output matrix into a useful format for downstream analysis.
+        Occasionally, the MTBseq TBgroups step will fail and produice empty files/no-files.
+@last_updated: 2025-04-01
+@changelog:
+    v1.0.0-2025-04-01: Initial version + documnetadocumentation
+    v1.0.1-2025-05-19: Removed additonal_args as it was not utilised and was creating inconsistencies
+*/

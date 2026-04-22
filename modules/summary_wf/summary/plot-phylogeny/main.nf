@@ -72,8 +72,12 @@ process PLOT_MAIN_PHYLOGENY {
             #    1>>.command.out \\
             #    2>>.command.err || true # NOTE This is a hack to overcome the exit status 1
 
-            cp ${lineage}.contree.Rdata ${params.outDir}/results/${params.runID}/phylogeny/
-            cp ${lineage}_ML-phylogeny.html ${params.outDir}/results/${params.runID}/phylogeny/ 2>/dev/null
+            [[ -f "${lineage}.contree.Rdata" ]] && \
+                cp "${lineage}.contree.Rdata" "${params.outDir}/results/${params.runID}/phylogeny/"
+
+            [[ -f "${lineage}_ML-phylogeny.html" ]] && \
+                cp "${lineage}_ML-phylogeny.html" "${params.outDir}/results/${params.runID}/phylogeny/"
+
             echo -e "quarto render phylogeny-report.qmd -P runID=${params.runID} -P lineage=${lineage} -P RData=${lineage}.contree.Rdata --output ${lineage}_phylogeny.html" > ${params.outDir}/results/${params.runID}/phylogeny/${lineage}.quarto.sh
 
             #quarto render phylogeny-report.qmd \\
