@@ -42,11 +42,11 @@ process PREPROCESS_CLUSTER {
         // Nexus output
         tuple val(lineage), 
             val(distance), 
-            path("${lineage}_snps.fasta"),
-            path("${lineage}_snps.tab"),
-            path("${lineage}_d${distance}.processed.clusters.tsv"), emit: nexus_ch
+            path("${params.runID}_${lineage}_snps.fasta"),
+            path("${params.runID}_${lineage}_snps.tab"),
+            path("${params.runID}_${lineage}_d${distance}.processed.clusters.tsv"), emit: nexus_ch
 
-        path("${lineage}_d${distance}.processed.clusters.tsv"), emit: pairwise_clusters_processed
+        path("${params.runID}_${lineage}_d${distance}.processed.clusters.tsv"), emit: pairwise_clusters_processed
 
     script:
 
@@ -160,7 +160,7 @@ process PREPROCESS_CLUSTER {
 
         write.table(
             clusters,
-            file = "${lineage}_d${distance}.processed.clusters.tsv",
+            file = "${params.runID}_${lineage}_d${distance}.processed.clusters.tsv",
             sep = "\\t",
             row.names = FALSE,
             col.names = FALSE,
