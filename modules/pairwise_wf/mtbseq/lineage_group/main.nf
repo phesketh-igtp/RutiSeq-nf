@@ -8,11 +8,11 @@ process MTBSEQ_LINEAGE_GROUP {
     ///        } else { 'quay.io/biocontainers/mtbseq' }
     ///}
                 
-    //publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/", 
-    //    mode: 'copy', 
-    //    overwrite: true,
-    //    pattern: "Groups/*,Matrix/*"
-    storeDir "${params.outDir}/db/comparison/mtbseq/${lineage}/"
+    publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/", 
+        mode: 'copy', 
+        overwrite: true,
+        pattern: "Groups/*,Matrix/*"
+    //storeDir "${params.outDir}/db/comparison/mtbseq/${lineage}/"
 
     input:
         tuple val(lineage), 
