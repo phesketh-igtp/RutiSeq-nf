@@ -145,8 +145,8 @@ workflow PAIRWISE_WF {
                 mtbseq_group_ch = MTBSEQ_LINEAGE_JOINT_AMEND.out.mtbseq_group_tuple_csv
                                 .splitCsv(header: false, sep: ',')
                                 .map { row ->
-                                    def (lineage, distance, joint_path, amend_path, samples_path) = row
-                                    tuple(lineage, distance, joint_path, amend_path, samples_path)
+                                    def (lineage, distance, joint_path, amend_path, samples_path, sampleID_count) = row
+                                    tuple(lineage, distance, joint_path, amend_path, samples_path, sampleID_count)
                                 }
                     // DEBUG: View the channel
                     //mtbseq_group_ch.view()

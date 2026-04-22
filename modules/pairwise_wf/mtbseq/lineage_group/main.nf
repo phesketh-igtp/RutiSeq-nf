@@ -19,11 +19,13 @@ process MTBSEQ_LINEAGE_GROUP {
                 val(distance), 
                 path(joint_dir), 
                 path(amend_dir),
-                path(sample_txt)
+                path(sample_txt),
+                val(sampleID_count)
 
     output:
         //Matrix ouput
-        //path("Matrix/*")
+        path("Groups/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}_d${distance}.groups")
+        path("Groups/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.matrix")
         path("Matrix/${params.runID}_${lineage}.d${distance}.matrix.tsv"), emit: matrix_dir
 
         // Nexus output
@@ -37,6 +39,9 @@ process MTBSEQ_LINEAGE_GROUP {
     script:
 
         //def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
+        //Groups/[PROJECT]_joint_[mincovf]_[mincovr]_[minfreq]_[minphred20]_samples_amended_[unambig]_phylo_[window].matrix
+        def groups_tab = "Groups/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}_d${distance}.groups"
+        def groups_mat = "Groups/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.matrix"
 
         """
         # Make output directories (local)
@@ -46,7 +51,15 @@ process MTBSEQ_LINEAGE_GROUP {
         rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Groups/*
         rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Matrix/*
 
-        ## MTBseq TBgroups using the first SNP distance
+        
+        if [[ -f ${params.outDir}/db/comparison/mtbseq/${lineage}/${groups_tab} && \
+            -f ${params.outDir}/db/comparison/mtbseq/${lineage}/${groups_mat} ]]; then
+
+            cp ${params.outDir}/db/comparison/mtbseq/${lineage}/${groups_tab} Groups/
+            cp ${params.outDir}/db/comparison/mtbseq/${lineage}/${groups_mat} Groups/
+
+        else
+            ## MTBseq TBgroups using the first SNP distance
             MTBseq --step TBgroups \\
                 --thread        ${task.cpus} \\
                 --project       ${lineage} \\
@@ -62,12 +75,10 @@ process MTBSEQ_LINEAGE_GROUP {
                     1>>.command.out \\
                     2>>.command.err \\
                     || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
-
-        # Rename the groups file for simplicity
-            cat Groups/${lineage}_d${distance}.groups > Groups/${lineage}_d${distance}.groups
+        fi
 
         # Wrangle the group list into a useful format
-            cat Groups/${lineage}_d${distance}.groups \\
+            cat ${groups_tab} \\
                     | sed '0,/### Output as lists:/d' \\
                     | sed "s@^@${lineage}\tdist_${distance}\t@g" \\
                         > tmp.${lineage}_d${distance}.clusters.tsv

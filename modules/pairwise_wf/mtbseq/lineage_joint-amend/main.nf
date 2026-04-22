@@ -31,7 +31,8 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
         overwrite: true
 
     input:
-        tuple val(lineage), val(sampleIDs)
+        tuple val(lineage), 
+        val(sampleIDs)
 
     output:
         path("${lineage}_samples.txt")
@@ -149,7 +150,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
                 echo '${params.mtbseq_snp_distance.join('\n')}' > snp_distances
 
                 for distance in \$(cat snp_distances); do
-                    echo "${lineage},\${distance},${params.outDir}/db/comparison/mtbseq/${lineage}/Joint,${params.outDir}/db/comparison/mtbseq/${lineage}/Amend,${params.outDir}/db/comparison/mtbseq/${lineage}/${lineage}_samples.txt" >> mtbseq-group.tuple.csv
+                    echo "${lineage},\${distance},${params.outDir}/db/comparison/mtbseq/${lineage}/Joint,${params.outDir}/db/comparison/mtbseq/${lineage}/Amend,${params.outDir}/db/comparison/mtbseq/${lineage}/${lineage}_samples.txt,${sampleID_count}" >> mtbseq-group.tuple.csv
                 done
 
         # Check the Amend file is it actually has any sequences in the fasta
