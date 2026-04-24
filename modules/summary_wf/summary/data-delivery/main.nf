@@ -48,8 +48,8 @@ process DATA_DELIVERY {
 
         # Matrices
             mkdir -p ${params.outDir}/results/${params.runID}/matrices/
-            if compgen -G "${params.outDir}/db/comparison/mtbseq/*/Matrices/*.matrix.tsv.gz" > /dev/null; then
-                cp ${params.outDir}/db/comparison/mtbseq/*/Matrices/*.matrix.tsv ${params.outDir}/results/${params.runID}/matrices/
+            if compgen -G "${params.outDir}/db/comparison/mtbseq/*/Groups/*.matrix" > /dev/null; then
+                cp ${params.outDir}/db/comparison/mtbseq/*/Matrices/*.matrix ${params.outDir}/results/${params.runID}/matrices/
             fi
 
         # Clean up: remove litter from the nexus generation
