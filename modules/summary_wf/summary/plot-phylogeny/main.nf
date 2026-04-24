@@ -80,11 +80,11 @@ process PLOT_MAIN_PHYLOGENY {
 
             echo -e "quarto render phylogeny-report.qmd -P runID=${params.runID} -P lineage=${lineage} -P RData=${lineage}.contree.Rdata --output ${lineage}_phylogeny.html" > ${params.outDir}/results/${params.runID}/phylogeny/${lineage}.quarto.sh
 
-            #quarto render phylogeny-report.qmd \\
-            #    -P runID=${params.runID} \\
-            #    -P lineage=${lineage} \\
-            #    -P RData=${lineage}.contree.Rdata \\
-            #    --output ${lineage}_ML-phylogeny.html 2>/dev/null
+            quarto render phylogeny-report.qmd \\
+                -P runID=${params.runID} \\
+                -P lineage=${lineage} \\
+                -P RData=${lineage}.contree.Rdata \\
+                --output ${lineage}_ML-phylogeny.html 2>/dev/null
 
         else
             echo "This lineage contains no clusters - plotting phylogeny without cluster heatmap"

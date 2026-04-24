@@ -2,6 +2,7 @@
 nextflow.enable.dsl = 2
 params.version = '1.2.0-beta'
 
+include { VERSION_CONTROL }    from './workflows/version_control.nf'
 include { PREPARE_SAMPLES_WF } from './workflows/prepare-samples_wf.nf'
 include { DATABASE_ACCESS_WF } from './workflows/database.access_wf.nf'
 include { CONTROL_WF }         from './workflows/control_wf.nf'
@@ -95,23 +96,28 @@ workflow {
 
         /*
         ······································································································
+            Version Control Recording (VERSION_CONTROL):
+                - Produces YAML files for every environment
+        ······································································································
+        */
+            VERSION_CONTROL(
+                            params.runID
+                            )
+        /*
+        ······································································································
             CREATION OF CHANNELS
                 The section creates the samples_ch and the controls_ch from the samplesheet. First the 
                 sample sheet is imported and split by the 'type' column into sample or control, and these
                 two sets of samples are directed into separate workflows.
         ······································································································
         */
-
-        // Call the subworkflow
             PREPARE_SAMPLES_WF(
                 params.samplesheet,
                 )
-            
             // DEBUG the outputs
             //PREPARE_SAMPLES.out.samples.view { "Sample output: ${it}" }
             //PREPARE_SAMPLES.out.controls.view { "Control output: ${it}" }
             //PREPARE_SAMPLES_WF.out.all_samples.view { "All samples output: ${it}" }
-
         /*
         ······································································································
             DATABASE_ACCESS (DATABASE_ACCESS_WF):
@@ -132,13 +138,10 @@ workflow {
                     Mycobacterium species specified
         ······································································································
         */
-
             CONTROL_WF( 
                     params.samplesheet,
                     DATABASE_ACCESS_WF.out.sylph_db
                     )
-
-
         /*
         ······································································································
             SINGLE SAMPLE ANALYSIS (SINGLE_WF):
@@ -149,7 +152,6 @@ workflow {
                 - Creates correctly formatted VCF files using MTBseq mpileup files
         ······································································································
         */
-
             SINGLE_WF( 
                     PREPARE_SAMPLES_WF.out.all_samples,
                     DATABASE_ACCESS_WF.out.tbprofiler_db
@@ -157,12 +159,9 @@ workflow {
                     
                 // DEBUG: Demonstrate the content of the channel
                 ///     SINGLE_WF.out.single_updated_samples_ch.view { sample -> "Sample: $sampleID" }
-
             // prepare the channel for the pairwise analysis
             pairwise_samples_ch = SINGLE_WF.out.single_updated_samples_ch
-
             // pairwise_samples_ch.subscribe { println "Debug - pairwise_samples_ch: $it" }
-
         /*
         ······································································································
             PAIRWISE SAMPLE ANALYSIS (PAIRWISE_WF):
@@ -173,7 +172,6 @@ workflow {
                 - Produces molecular clock, with ML trees (with reference and ancestral reconstruction)
         ······································································································
         */
-
             // Structure of the channel : pairwise_samples_ch
             /// [0] sampleID        [1] forward         [2] reverse     [3] mtbseq_class    [4] mtbseq_stats
             /// [5] mtbseq_pos      [6] mtbseq_vars     [7] tbdb_out    [8] who_out         [9] snippy_vcf
@@ -181,11 +179,9 @@ workflow {
                 sampleID_dump       =   pairwise_samples_ch.map { it -> it[0] ?: null }
                 sampleID_list       =   sampleID_dump.collect()
                 //  sampleID_list.view()
-
             PAIRWISE_WF( 
                         sampleID_list
                         )
-
         /*
         ······································································································
             SUMMARY WORKFLOW (SUMMARY_WF):
@@ -194,7 +190,6 @@ workflow {
                 - Generate MJN files for visualisation in PopArt
         ······································································································
         */
-
             SUMMARY_WF(
                         PAIRWISE_WF.out.processed_clusters,
                         PAIRWISE_WF.out.unprocessed_clusters,
@@ -208,8 +203,6 @@ workflow {
                         CONTROL_WF.out.read_qc_report
                         
                     )
-
-
     /* 
     // Report workflow parameters
     */
