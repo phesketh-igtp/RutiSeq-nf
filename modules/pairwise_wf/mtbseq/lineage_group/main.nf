@@ -10,8 +10,7 @@ process MTBSEQ_LINEAGE_GROUP {
                 
     publishDir "${params.outDir}/db/comparison/mtbseq/${lineage}/", 
         mode: 'copy', 
-        overwrite: true,
-        pattern: "Groups/*,Matrix/*"
+        overwrite: true
     //storeDir "${params.outDir}/db/comparison/mtbseq/${lineage}/"
 
     input:
