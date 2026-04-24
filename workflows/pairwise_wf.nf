@@ -68,6 +68,10 @@ workflow PAIRWISE_WF {
                 .splitCsv(header: false)
                 .map { row -> tuple(row[0], row[1]) }
                 .groupTuple()
+                .map { lineage, sampleIDs -> 
+                    tuple(lineage, sampleIDs, sampleIDs.size())
+                }
+                // add to this the number of samples****
 
             skipped_lineages_ch = PREPARE_PAIRWISE_CHANNELS.out.skipped_lineages_tuple
                 .splitCsv(header: false)
