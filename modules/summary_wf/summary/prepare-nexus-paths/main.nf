@@ -42,7 +42,7 @@ process PREPARE_NEXUS_PATHS{
 
     def snp_fasta_path="${params.outDir}/db/comparison/mtbseq/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta"
     def snp_tab_path="${params.outDir}/db/comparison/mtbseq/${lineage}/Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab"
-    def clusters_tab_path="${params.outDir}/db/comparison/mtbseq/${lineage}/Groups/${lineage}_d${distance}.processed.clusters.tsv"
+    def clusters_tab_path="${params.outDir}/db/comparison/mtbseq/${lineage}/Groups/${params.runID}_${lineage}_d${distance}.processed.clusters.tsv"
 
     """
     lin=\$(echo "${lineage}" | sed 's/lineage/L/g')
