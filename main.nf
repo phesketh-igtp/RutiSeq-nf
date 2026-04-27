@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
-params.version = '1.3.0-beta'
+params.version = 'v1.0.0-beta'
 
 include { VERSION_CONTROL }    from './workflows/version_control.nf'
 include { PREPARE_SAMPLES_WF } from './workflows/prepare-samples_wf.nf'
