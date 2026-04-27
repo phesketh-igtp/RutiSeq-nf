@@ -51,12 +51,12 @@ workflow CONTROL_WF {
 }
 
 /*
-    @author: Poppy J Hesketh Best
-    @date: 2025-11-13
-    @version: 1.0.0
-    @description: 
-        This is the controls inspection wf, to check the sylph classification results for controls,
-            and compare them to the sample results. Ensure that the controls behave as expected.
-    @changelog
-        v1.0.0-2025-11-13: Initial version
+@author: Poppy J Hesketh Best
+@date: 2025-11-13
+@version: 1.0.0
+@description: 
+    This is the controls inspection wf, to check the sylph classification results for controls,
+        and compare them to the sample results. Ensure that the controls behave as expected.
+@changelog
+    v1.0.0-2025-11-13: Initial version
 */

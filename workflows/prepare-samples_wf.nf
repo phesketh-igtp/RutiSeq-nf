@@ -144,17 +144,17 @@ workflow PREPARE_SAMPLES_WF {
 }
 
 /*
-    @author: Poppy J Hesketh Best
-    @date: 2025-11-12
-    @version: 1.0.3
-    @description: 
-        This workflow prepares and validates samples from a samplesheet. It fetches SRA/ENA samples if needed,
-        checks for required columns and non-empty file paths, and verifies if samples have been previously analyzed.
-        For complete samples (with existing analysis results), FASTQs remain as empty placeholders.
-    @changelog
-        v1.0.0-2025-11-12: Initial version
-        v1.0.1-2025-11-14: Cleaned up redundancy, FETCH_SRA called once, complete samples keep empty FASTQs
-        v1.0.2-2025-11-14: Added 'samples' and 'controls' to emit block
-        v1.0.3-2025-11-14: Fixed CSV parsing to handle 11-12 element rows and 'null' strings
-        v1.0.4-2026-01-05: Improved error handling with samplesheet
+@author: Poppy J Hesketh Best
+@date: 2025-11-12
+@version: 1.0.3
+@description: 
+    This workflow prepares and validates samples from a samplesheet. It fetches SRA/ENA samples if needed,
+    checks for required columns and non-empty file paths, and verifies if samples have been previously analyzed.
+    For complete samples (with existing analysis results), FASTQs remain as empty placeholders.
+@changelog
+    v1.0.0-2025-11-12: Initial version
+    v1.0.1-2025-11-14: Cleaned up redundancy, FETCH_SRA called once, complete samples keep empty FASTQs
+    v1.0.2-2025-11-14: Added 'samples' and 'controls' to emit block
+    v1.0.3-2025-11-14: Fixed CSV parsing to handle 11-12 element rows and 'null' strings
+    v1.0.4-2026-01-05: Improved error handling with samplesheet
 */

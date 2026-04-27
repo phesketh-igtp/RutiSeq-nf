@@ -42,7 +42,7 @@ set.seed(1234)
 #| eval: false
 #| echo: false
 #| warning: false
-#setwd("/Users/poppybest/Documents/Work/Github/RutiSeq-nf/bin/quarto/")
+#setwd("/home/phesketh/Downloads/72571305e877e6bbf65d8dcad72c3b")
 #setwd("/home/phesketh/Documents/GitHub/TBSEQ.cat-nf/bin/quarto")
 ```
 
@@ -51,7 +51,7 @@ set.seed(1234)
 #| echo: false
 #| warning: false
 # sampe metadata
-metat <- read.csv("samplesheet.csv", 
+metat <- read.csv("samplesheet.csv",
                   header = TRUE)
 metat$forward_base <- basename(metat$forward_path)
 metat$reverse_base <- basename(metat$reverse_path)
@@ -63,12 +63,10 @@ sylph_df <- read.delim("sylph_sequence_abundance.tsv",
                         check.names = FALSE)
 
 colnames(sylph_df) <- sub("_R[12]\\.fastq\\.gz$", "", colnames(sylph_df))
-
 sylph_cov <- read.delim("sylph_coverage.tsv",
                         header = TRUE, 
                         check.names = FALSE)
 colnames(sylph_cov) <- sub("_R[12]\\.fastq\\.gz$", "", colnames(sylph_cov))
-
 sylph_real_abund <- read.delim("sylph_relative_abundance.tsv", 
                         header = TRUE, 
                         check.names = FALSE)
@@ -91,7 +89,7 @@ metat2 <- metat |>
   select(sampleID, dataType=type, file, direction)
 
 read_stats <- left_join(read_stats, metat2, by = "file")
-colnames(read_stats)
+#colnames(read_stats)
 ```
 
 ```{r, interactive_read_bp_fun}
@@ -149,7 +147,9 @@ Reads were taxonomically classified using Sylph with the GDR220 database.
 #| echo: true
 #| warning: false
 index <- metat |> 
-  select(identity=sampleID, type) |> 
+  select(sampleID=sampleID, 
+          type,
+          identity = forward_path) |> 
   distinct()
 
 # Make ggplot compatible dataframe
@@ -158,7 +158,9 @@ sylph_long <- sylph_df |>
     cols = -clade_name,
     names_to = "identity",
     values_to = "perc"
-  ) |>
+  )
+#sylph_long$identity <- basename(sylph_long$identity)
+sylph_long <- sylph_long |>
   filter(perc != 0) |>
   separate_wider_delim(
     clade_name,
@@ -170,11 +172,15 @@ sylph_long <- sylph_df |>
     too_few = "align_start"    # or "drop" if you don’t need debug info
     ) |>
   select(!Genome) |>
-  filter(!if_any(c(Phylum, Class, Order, Family, Genus, Species), is.na))
+  filter(!if_any(c(Phylum, Class, Order, Family, Genus, Species), 
+          is.na)) 
 
 # Add the index information (type: sample/ENA/SRA or control)
-sylph_long <- left_join(sylph_long, index)
+sylph_long <- left_join(sylph_long, 
+                        index)
 sylph_long$perc <- as.numeric(sylph_long$perc)
+#colnames(sylph_long)
+#head(sylph_long$type)
 ```
 
 ```{r, func_interactive_tax_bp}
@@ -189,10 +195,10 @@ interactive_tax_bp <- function(df = sylph_long,
 
   plot_df <- df |>
     filter(type %in% type_filter) |>
-    select(tax = !!tax_sym, identity, perc) |>
+    select(tax = !!tax_sym, sampleID, perc) |>
     mutate(tax = ifelse(is.na(tax), "Unclassified", tax)) |> 
     distinct() |>
-    group_by(tax, identity) |>
+    group_by(tax, sampleID) |>
     slice_max(perc, n = 1, with_ties = FALSE) |>
     ungroup()
 
@@ -228,7 +234,7 @@ interactive_tax_bp <- function(df = sylph_long,
     }
   }
 
-  p <- ggplot(plot_df, aes(x = identity, y = perc, fill = tax)) +
+  p <- ggplot(plot_df, aes(x = sampleID, y = perc, fill = tax)) +
     geom_col() +
     theme_bw() +
     labs(
@@ -398,8 +404,8 @@ pcoa_df <- data.frame(
   PC1 = pcoa_res[,1],
   PC2 = pcoa_res[,2]
 )
-
-pcoa_df <- left_join(pcoa_df, index, by = c("Sample" = "identity"))
+pcoa_df
+pcoa_df <- left_join(pcoa_df, index, by = c("Sample" = "sampleID"))
 
 # Plot
 p <- ggplot(pcoa_df, 
@@ -430,10 +436,10 @@ Controls are highlighted if they contain reads representing more than 1% of any 
 #| warning: false
 # Get the identities of mixed samples
 mixed_species_summary <- sylph_long %>%
-  select(identity, Species, perc, type) %>%
+  select(sampleID, Species, perc, type) %>%
   filter(!is.na(Species), perc > 1, perc < 95) %>%  # filter mixed species
   distinct() %>%
-  group_by(identity, type) %>%
+  group_by(sampleID, type) %>%
   summarise(
     `Mixed Species (>1%, <95%)` = paste0(Species, " (", perc, "%)", collapse = ", "),
     .groups = "drop"

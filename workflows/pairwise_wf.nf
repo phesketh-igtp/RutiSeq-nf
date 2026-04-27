@@ -233,14 +233,14 @@ workflow PAIRWISE_WF {
 }
 
 /*
-    @author: Poppy J Hesketh Best
-    @date: 2026-01-19
-    @version: 1.2.0
-    @description: 
-        This is the pairwise genome workflow for the RutiSeq-nf pipeline.
-    @changelog
-        v1.0.0-2024-11-01: Initial version
-        v1.0.1-2025-04-04: Added documentation and comments
-        v1.1.0-2026-01-05: Added SNIPPY_DATED_PHYLOGENY module for dated phylogenies from snippy core alignments
-        v1.2.0-2026-01-19: Cleaner handling of dated phylogeny emission based on metadata presence
+@author: Poppy J Hesketh Best
+@date: 2026-01-19
+@version: 1.2.0
+@description: 
+    This is the pairwise genome workflow for the RutiSeq-nf pipeline.
+@changelog
+    v1.0.0-2024-11-01: Initial version
+    v1.0.1-2025-04-04: Added documentation and comments
+    v1.1.0-2026-01-05: Added SNIPPY_DATED_PHYLOGENY module for dated phylogenies from snippy core alignments
+    v1.2.0-2026-01-19: Cleaner handling of dated phylogeny emission based on metadata presence
 */

@@ -136,16 +136,16 @@ process SNIPPY_CORE {
 }
 
 /*
-    @author: Poppy J Hesketh Best
-    @date: 2025-11-01
-    @version: 1.0.1
-    @function:
-        This process performs the core SNP analysis for multiple samples
+@author: Poppy J Hesketh Best
+@date: 2025-11-01
+@version: 1.0.1
+@function:
+    This process performs the core SNP analysis for multiple samples
         using the Snippy-core tool from the Snippy pipeline.
-    @details:
-    @references: 
-        https://bitsandbugs.org/2019/11/06/two-easy-ways-to-run-iq-tree-with-the-correct-number-of-constant-sites/
-    @changelog
-        v1.0.0-2025-11-01: Initial version
-        v1.0.1-2025-11-27: Updated to output variant and invariant site alignments for phylogeny
+@details:
+@references: 
+    https://bitsandbugs.org/2019/11/06/two-easy-ways-to-run-iq-tree-with-the-correct-number-of-constant-sites/
+@changelog
+    v1.0.0-2025-11-01: Initial version
+    v1.0.1-2025-11-27: Updated to output variant and invariant site alignments for phylogeny
 */

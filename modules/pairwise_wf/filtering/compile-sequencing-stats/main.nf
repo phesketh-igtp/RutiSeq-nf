@@ -1,19 +1,5 @@
 process COMPILE_SEQUENCING_STATS {
 
-/*
-    @author: Poppy J Hesketh Best
-    @date: 2025-04-01
-    @version: 1.0
-    @description:
-        In this module the sequencing statistics for the db are
-        calculated with Rscripts. The output is a summary of the
-        sequencing statistics, the tbdb and who resistance  summaries
-        and a list of the genomes which pass the minimum quality
-        requirements for the pairwise analysis. This is then used to create a 
-        filtered list of genomes for the pairwise analysis, which is converated into
-        a tuple/channel for downstream processing.
-*/
-
     conda params.r_stats_env
 
     publishDir "${params.outDir}/db/comparison/summary/", 
@@ -331,3 +317,20 @@ process COMPILE_SEQUENCING_STATS {
         )
     """
 }
+
+
+/*
+@author: Poppy J Hesketh Best
+@date: 2025-04-01
+@version: 1.0.0
+@description:
+    In this module the sequencing statistics for the db are
+    calculated with Rscripts. The output is a summary of the
+    sequencing statistics, the tbdb and who resistance  summaries
+    and a list of the genomes which pass the minimum quality
+    requirements for the pairwise analysis. This is then used to create a 
+    filtered list of genomes for the pairwise analysis, which is converated into
+    a tuple/channel for downstream processing.
+@changelog:
+    v1.0.0_2024-04-01: Inital version of module
+*/

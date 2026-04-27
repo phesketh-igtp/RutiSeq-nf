@@ -111,15 +111,15 @@ workflow SINGLE_WF {
 }
 
 /*
-    @author: Poppy J Hesketh Best
-    @date: 2025-04-04
-    @version: 1.0.1
-    @description: 
-        This is the single genome workflow for the RutiSeq-nf pipeline.
-    @changelog
-        v1.0.0-2024-11-01: Initial version
-        v1.0.1-2025-04-04: Added documentation and comments
-        v2.0.0-2025-11-13: Restructured workflow to merge TB-Profiler into a single step
-                        Changed the channels outputs with the removal of one module.
-                        Extended warning message for skipped samples, added path of samples db.
+@author: Poppy J Hesketh Best
+@date: 2025-04-04
+@version: 1.0.1
+@description: 
+    This is the single genome workflow for the RutiSeq-nf pipeline.
+@changelog
+    v1.0.0-2024-11-01: Initial version
+    v1.0.1-2025-04-04: Added documentation and comments
+    v2.0.0-2025-11-13: Restructured workflow to merge TB-Profiler into a single step
+                    Changed the channels outputs with the removal of one module.
+                    Extended warning message for skipped samples, added path of samples db.
 */
