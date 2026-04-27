@@ -33,14 +33,6 @@ During this sub-workflow all the outputs from sub-wf 1 and 2 are compile by thei
 
 Additional outputs include PDFs of SNP phylogeny (ML tree generated with IQ-Tree) colored by cluster identity, and NEX files ready for upload into [PopArt](https://popart.maths.otago.ac.nz/) for visualisation.
 
-> **Sub-wf 4: Cluster SNP barcoding [**WIP**]**
->
-> This is an experimental aspect of the workflow that aims to begin characterizing individual SNPs that are designated uniquely to a particular 5 SNP pairwise distance cluster (`--distance 5` in MTBseq). The plan with this sub-wf is to quickly identifying which genomic cluster a particular genome may belong to prior to SNP clustering with the goal of reducing computational resources and speeding up the analysis. All genomes as part of the sub-wf 1 will have their SNP profiles compared to the cluster barcode SNPs and pre allocated a preliminary cluster for clustering in sub-wf 2.
->
-> In this workflow, all genomes SNP profiles merged into a single VCF (grouped by lineage), and the SNP profiles of genomes belonging to the same cluster are compared to all other genomes within the same lineage, to calculate the Fts value (fixation index) for each SNP within the cluster population. SNPs that fulfill the following criteria are classified as a cluster specific SNP: - Fts = 1 - Minimum of 20 reads in both strands (20X cov) - Minimum quality of 20 - Not annotated as: *PE/PPE/PGRS*; *maturase*; *phage*; or *13E12 repeat family protein* - Not located in insertion sequences - Not within InDels or in high density regions (\> 3 SNPs in 10 bp)
->
-> The script will generate a `BED` file for each unique SNP and its cluster designation and the genomes will re-assessed by this barcoding method. A report will be generated on the quality of the predictions, wether the cluster asignment was no better than random chance, or if there is consistency compared to the MTBSeq cluster assignment (*K-means*).
-
 ### Requirements
 
 The following software needs to be available on your path.
