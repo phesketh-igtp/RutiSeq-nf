@@ -24,7 +24,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
         path("Joint/*")   
 
     // snp_phylogeny_ch
-        tuple val(lineage), 
+        tuple val(lineage),
             path("Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta"),
             path("Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo.tab"),   
             emit: snp_phylogeny_ch
@@ -39,6 +39,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
         def OUTDIR = "${params.outDir}/db/comparison/mtbseq/${lineage}"
         def MTBSEQ_FASTA_OUT = "Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta"
         def MTBSEQ_TAB_OUT = "Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo.tab"
+        def snp_distances = params.mtbseq_snp_distance.join('\n')
 
         """
         # make the expected directories
@@ -121,11 +122,11 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
         fi
 
         ### create lineage csv for creating new channels
-                echo '${params.mtbseq_snp_distance.join('\n')}' > snp_distances
+            echo '${snp_distances}' > snp_distances
 
-                for distance in \$(cat snp_distances); do
-                    echo "${lineage},\${distance},${params.outDir}/db/comparison/mtbseq/${lineage}/Joint,${params.outDir}/db/comparison/mtbseq/${lineage}/Amend,${params.outDir}/db/comparison/mtbseq/${lineage}/${lineage}_samples.txt,${sampleID_count}" >> mtbseq-group.tuple.csv
-                done
+            for distance in \$(cat snp_distances); do
+                echo "${lineage},\${distance},${params.outDir}/db/comparison/mtbseq/${lineage}/Joint,${params.outDir}/db/comparison/mtbseq/${lineage}/Amend,${params.outDir}/db/comparison/mtbseq/${lineage}/${lineage}_samples.txt,${sampleID_count}" >> mtbseq-group.tuple.csv
+            done
 
         # Check the Amend file is it actually has any sequences in the fasta
             sum_len=\$(seqkit stats -T ${MTBSEQ_FASTA_OUT} | sed '1d' | head -1 | cut -f5)
@@ -139,7 +140,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
 /*
 @author: Poppy J Hesketh Best
 @date: 2025-04-01
-@version: 1.0
+@version: v2.0.1
 @description:
     This process runs the MTBseq Join and Amend steps for a given lineage.
     It takes the lineage and sample IDs as input and produces the output files
@@ -149,7 +150,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
     v1.0.0-2025-04-01: Initial version
     v1.1.0-2025-04-09: Changed - Removed the zipping of the files (caused issues)
     v2.0.0-2026-04-24: Added full parameters to outputs names to ensure accuracy. Included the count of sampleIDs in the channel.
-
+    v2.0.1-2026-04-27: Moved snp distances to the definition line before the shell script
 
 TODO: Would be better to compare the sampleIDs from the fasta files and 
             if they are differente, then remove and repeat the analysis, or if they are the same

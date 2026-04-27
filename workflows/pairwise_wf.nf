@@ -1,17 +1,16 @@
-include { DB_COMPLIANCE_CHECK }        from '../modules/pairwise_wf/housekeeping/db_compliance_check/main.nf'
-
+// ASSEMBLE RESULTS
 include { TBPROFILER_COMPILE }         from '../modules/pairwise_wf/tbprofiler/compile/main.nf'
 include { MTBSEQ_STATS_COMPILE }       from '../modules/pairwise_wf/mtbseq/stats-compile/main.nf'
 include { COMPILE_SEQUENCING_STATS }   from '../modules/pairwise_wf/filtering/compile-sequencing-stats/main.nf'
-
+//SNIPPY
 include { SNIPPY_CORE }                from '../modules/pairwise_wf/pairwise/snippy-core/main.nf'
 include { SNIPPY_PHYLOGENY }           from '../modules/pairwise_wf/pairwise/snippy-phylogeny/main.nf'
 include { SNIPPY_DATED_PHYLOGENY }     from '../modules/summary_wf/summary/generate-snippy-timetrees/main.nf'
-
-include { PREPARE_PAIRWISE_CHANNELS }  from '../modules/pairwise_wf/filtering/prepare_pairwise_channels/main.nf'
+// MTBSeq
+include { ASSESS_SAMPLES }             from '../modules/pairwise_wf/filtering/assess_samples/main.nf'
 include { MTBSEQ_LINEAGE_JOINT_AMEND } from '../modules/pairwise_wf/mtbseq/lineage_joint-amend/main.nf'
 include { MTBSEQ_LINEAGE_GROUP }       from '../modules/pairwise_wf/mtbseq/lineage_group/main.nf'
-
+// REMAINING
 include { PREPROCESS_CLUSTER }         from '../modules/pairwise_wf/pairwise/preprocess_clusters/main.nf'
 include { SNP_PHYLOGENY }              from '../modules/pairwise_wf/phylogeny/concatenated_snp_phylogeny/main.nf'
 include { CONCATENATE_CLUSTERS }       from '../modules/pairwise_wf/pairwise/concatenate-cluster-file/main.nf'
@@ -42,13 +41,11 @@ workflow PAIRWISE_WF {
                             sampleID_list, 
                             //DB_COMPLIANCE_CHECK.out.db_compliance_check
                             )
-
         // Compile stats and classifications from MTBSeq
         MTBSEQ_STATS_COMPILE(                            
                             sampleID_list, 
                             //DB_COMPLIANCE_CHECK.out.db_compliance_check
                             )
-
         // Determine infection type (Mixed vs Clonal using both tbprofiler and mtbseq outputs)
         //// and filter genomes based on quality parameters (min coverage)
         COMPILE_SEQUENCING_STATS(
@@ -56,61 +53,61 @@ workflow PAIRWISE_WF {
                                 MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_strains,
                                 MTBSEQ_STATS_COMPILE.out.mtbseq_compiled_map_stats,
                                 )
-
-        PREPARE_PAIRWISE_CHANNELS(
-                                COMPILE_SEQUENCING_STATS.out.pairwise_analysis_list,
-                                sampleID_list
-                                )
-
+        // Assess samples and prepare PW tuples
+        ASSESS_SAMPLES(
+                        COMPILE_SEQUENCING_STATS.out.pairwise_analysis_list,
+                        sampleID_list
+                        )
         // Create tuple and data channel from lineage_samples_paths.csv
-        /// the channel needs to be grouped by the lineage
-            lineage_samples_ch = PREPARE_PAIRWISE_CHANNELS.out.lineage_sample_tuple
-                .splitCsv(header: false)
-                .map { row -> tuple(row[0], row[1]) }
-                .groupTuple()
-                .map { lineage, sampleIDs -> 
-                    tuple(lineage, sampleIDs, sampleIDs.size())
-                }
-                // add to this the number of samples****
+        // Create tuple and data channel from lineage_samples_paths.csv
+        lineage_samples_ch = ASSESS_SAMPLES.out.lineage_sample_tuple
+            .splitCsv(header: false)
+            .map { row -> tuple(row[0], row[1]) }
+            .groupTuple()
+            .map { lineage, sampleIDs -> 
+                tuple(lineage, sampleIDs, sampleIDs.size())
+            }
 
-            skipped_lineages_ch = PREPARE_PAIRWISE_CHANNELS.out.skipped_lineages_tuple
-                .splitCsv(header: false)
-                .map { row -> tuple(row[0], row[1]) }
-                .groupTuple()
+        skipped_lineages_ch = ASSESS_SAMPLES.out.skipped_lineages_tuple
+            .splitCsv(header: false)
+            .map { row -> tuple(row[0], row[1]) }
+            .groupTuple()
 
-            /*
-            // Report the lineages and counts for clustering
-            */
-            // Count samples per lineage and total counts
-            lineage_counts_ch = lineage_samples_ch
-                .map { lineage, samples -> samples.size() }
-                .reduce(0) { acc, count -> acc + count }
-            skipped_lineage_counts_ch = skipped_lineages_ch
-                .map { lineage, samples -> samples.size() }
-                .reduce(0) { acc, count -> acc + count }
-            // Count number of lineages
-            lineage_groups_count = lineage_samples_ch
-                .map { lineage, samples -> 1 }
-                .reduce(0) { acc, count -> acc + count }
+        // Count samples per lineage and total counts
+        // FIX: Change to handle 3-element tuple
+        lineage_counts_ch = lineage_samples_ch
+            .map { lineage, samples, count -> count }  // ← Use count directly
+            .reduce(0) { acc, count -> acc + count }
 
-            skipped_lineage_groups_count = skipped_lineages_ch
-                .map { lineage, samples -> 1 }
-                .reduce(0) { acc, count -> acc + count }
+        skipped_lineage_counts_ch = skipped_lineages_ch
+            .map { lineage, samples -> samples.size() }
+            .reduce(0) { acc, count -> acc + count }
 
-            // Create summary strings for lineages
-            lineage_summary_ch = lineage_samples_ch
-                .map { lineage, samples -> 
-                    "  ${cyan}Lineage: ${lineage} (n = ${samples.size()})${no_col}"
-                }
-                .collect()
-                .map { list -> list.join('\n') }
+        // Count number of lineages
+        // FIX: Change to handle 3-element tuple
+        lineage_groups_count = lineage_samples_ch
+            .map { lineage, samples, count -> 1 }  // ← Add count parameter
+            .reduce(0) { acc, val -> acc + val }
 
-            skipped_lineage_summary_ch = skipped_lineages_ch
-                .map { lineage, samples -> 
-                    "  ${purple}Skipped Lineage: ${lineage} (n = ${samples.size()})${no_col}"
-                }
-                .collect()
-                .map { list -> list.join('\n') }
+        skipped_lineage_groups_count = skipped_lineages_ch
+            .map { lineage, samples -> 1 }
+            .reduce(0) { acc, val -> acc + val }
+
+        // Create summary strings for lineages
+        // FIX: Change to handle 3-element tuple
+        lineage_summary_ch = lineage_samples_ch
+            .map { lineage, samples, count -> 
+                "  ${cyan}${lineage} (n = ${count})${no_col}"  // ← Use count parameter
+            }
+            .collect()
+            .map { list -> list.join('\n') }
+
+        skipped_lineage_summary_ch = skipped_lineages_ch
+            .map { lineage, samples -> 
+                "  ${purple}${lineage} (n = ${samples.size()})${no_col}"
+            }
+            .collect()
+            .map { list -> list.join('\n') }
 
             // Combine and log lineage summary
             lineage_counts_ch
@@ -126,14 +123,14 @@ workflow PAIRWISE_WF {
                     log.info "${purple}only lineages present in the current analysis is performed.${no_col}"
                     log.info "${green}--pairwise_split ${red}${params.pairwise_split}${no_col}"
                     log.info "${green}runID: ${red}${params.runID}${green}"
-                    log.info "${green}  Active Lineages: ${red}${active_lineages}${green} (${red}${total_genomes}${green} genomes)"
-                    log.info "${green}  Skipped: ${red}${skipped_lineages}${green} lineages (${red}${skipped_genomes}${green} genomes)${no_col}"
+                    log.info "${green}  Processing : ${red}${active_lineages}${green} (${red}${total_genomes}${green} genomes)"
+                    log.info "${green}  Ignored : ${red}${skipped_lineages}${green} lineages (${red}${skipped_genomes}${green} genomes)${no_col}"
                     log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
                     log.info "${green}Active lineages for clustering:${no_col}"
                     log.info "${lineage_details}"
                         if (skipped_genomes > 0) {
                             log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
-                            log.info "${green}Skipped lineages:${no_col}"
+                            log.info "${green}Ignored lineages:${no_col}"
                             log.info "${skipped_details}"
                         }
                     log.info "${green}-----------------------------------------------------------------------------------------${no_col}"

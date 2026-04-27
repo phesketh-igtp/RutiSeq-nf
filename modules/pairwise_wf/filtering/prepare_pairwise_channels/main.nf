@@ -1,22 +1,5 @@
 process PREPARE_PAIRWISE_CHANNELS {
 
-/*
-    @author: Poppy J Hesketh Best
-    @date: 2025-04-01
-    @version: 2.0.0
-    @description:
-        In this module creates the pairwise analysis tuples from the lineage_samples_paths.csv
-        and the lineage_pairwise_sub and lineage_pairwise_main lists.
-        The output is a tuple of the form (lineage, sampleID) for each sampleID in the analysis.
-        There are three options for the pairwise analysis (specified by the params.pairwise_split):
-            - sub: pairwise analysis at sub-lineage level
-            - main: pairwise analysis at main-lineage level
-            - none: pairwise analysis of all samples without lineage split
-    @changelog:
-        v2.0.0-2025-04-01: Updated to use the new lineage_pairwise_sub and lineage_pairwise_main lists
-        v1.0.1-2024-11-01: Added error handling for invalid pairwise level
-*/
-
     conda params.r_stats_env
 
     publishDir "${params.outDir}/db/comparison/src/", mode: 'copy'
@@ -101,3 +84,19 @@ process PREPARE_PAIRWISE_CHANNELS {
         """
 
 }
+
+/*
+@author: Poppy J Hesketh Best
+@date: 2025-04-01
+@version: 2.0.0@description:
+    In this module creates the pairwise analysis tuples from the lineage_samples_paths.csv
+    and the lineage_pairwise_sub and lineage_pairwise_main lists.
+    The output is a tuple of the form (lineage, sampleID) for each sampleID in the analysis.
+    There are three options for the pairwise analysis (specified by the params.pairwise_split):
+        - sub: pairwise analysis at sub-lineage level
+        - main: pairwise analysis at main-lineage level
+    - none: pairwise analysis of all samples without lineage split
+@changelog:
+    v2.0.0-2025-04-01: Updated to use the new lineage_pairwise_sub and lineage_pairwise_main lists
+    v1.0.1-2024-11-01: Added error handling for invalid pairwise level
+*/
