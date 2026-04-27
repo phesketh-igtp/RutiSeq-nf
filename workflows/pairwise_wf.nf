@@ -135,10 +135,8 @@ workflow PAIRWISE_WF {
                         }
                     log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
                         }
-
             // DEBUG: View the grouped channel
             //lineage_samples_ch.view()
-
         // Run the pairwise analysis by lineages
             MTBSEQ_LINEAGE_JOINT_AMEND( lineage_samples_ch )
 
@@ -151,14 +149,10 @@ workflow PAIRWISE_WF {
                                 }
                     // DEBUG: View the channel
                     //mtbseq_group_ch.view()
-
             MTBSEQ_LINEAGE_GROUP( mtbseq_group_ch )
-
         // Collect all cluster and matrix outputs
             PREPROCESS_CLUSTER( MTBSEQ_LINEAGE_GROUP.out.clusters )
-
             processed_clusters_collected = PREPROCESS_CLUSTER.out.pairwise_clusters_processed.collect()
-
             CONCATENATE_CLUSTERS(
                                 processed_clusters_collected, 
                                 COMPILE_SEQUENCING_STATS.out.analysis_summary
@@ -201,7 +195,6 @@ workflow PAIRWISE_WF {
                             MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch, 
                             params.metadata
                             )
-
         } else {
             log.info "${cyan}No metadata provided. TimeTrees and ancestral sequences will not be inferred.${no_col}"
         }
@@ -226,7 +219,6 @@ workflow PAIRWISE_WF {
         nexus_creation_ch      = PREPROCESS_CLUSTER.out.nexus_ch
         // Only if metadata is provided, emit dated phylogeny channel
         dated_phylogeny_ch     = params.metadata ? DATED_PHYLOGENY.out.timetrees_out : Channel.empty()
-
 }
 
 /*

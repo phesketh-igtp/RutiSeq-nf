@@ -32,7 +32,6 @@ workflow SUMMARY_WF{
     def no_col  = '\u001B[0m'
 
         // Process clusters
-
         // Generate summary XLSX and CSV files for final results    
             GENERATE_SUMMARY_REPORT(
                                     processed_clusters,
@@ -42,19 +41,16 @@ workflow SUMMARY_WF{
                                     sylph_results,
                                     reads_taxonomy_qc_report_out
                                     )
-
         // Plot main ML phylogeny
             PLOT_MAIN_PHYLOGENY(
                                 phylogeny_plotting_ch,
                                 processed_clusters,
                                 unprocessed_clusters 
                                 )
-
         // Generate base NEXUS files for each cluster
             PREPARE_NEXUS_PATHS( 
                                 nexus_creation_ch
                                 )
-
                 nexus_ch = PREPARE_NEXUS_PATHS.out.nexus_tuple
                                 .splitCsv(header: false, sep: ',')
                                 .map { row ->
@@ -63,26 +59,20 @@ workflow SUMMARY_WF{
                                     }
 
                 // DEBUG: view the channel //nexus_ch.view()
-
         // Your current code
             GENERATE_NEXUS( nexus_ch )
-
         // Collect all outputs before passing to DATA_DELIVERY
             collected_handover_out = GENERATE_NEXUS.out.handover_out.collect()
-
         // Conditionally mix with annotated nexus - if metadata provided
         if (params.metadata) {
             // Check if metadata file exists
             def metadata_file = file(params.metadata)
-            
             if (!metadata_file.exists() || metadata_file.isEmpty()) {
                 log.warn "${red}Metadata file not found/empty: ${params.metadata}. Skipping time tree generation.${no_col}"
                 
                 // Fallback to base nexus
                 finish_handover = collected_handover_out
-                
             } else {
-
                 log.info "${cyan}Metadata provided. Generating time trees and ancestral sequences.${no_col}"
                 
 /*              GENERATE_ANNOTATED_NEXUS( 
@@ -90,28 +80,27 @@ workflow SUMMARY_WF{
                                         params.metadata
                                         )
 */
+
                 PLOT_TIMETREES(
                             dated_phylogeny_ch,
                             processed_clusters
                             )
-                
-                timetree_ch = PLOT_TIMETREES.out.timetree_tuple
-                        .splitCsv(header: false, sep: ',')
-                        .map { row ->
-                            def (lineage, clusterID, fasta, tab, ancestor, cluster_tab) = row
-                            
-                            // Debug: Print the row contents
-                            println "DEBUG: Processing row: ${row}"
-                            println "DEBUG: fasta=${fasta}, tab=${tab}, ancestor=${ancestor}, cluster_tab=${cluster_tab}"
-                            
-                            // Check for null values before creating file objects
-                            if (!fasta || !tab || !ancestor || !cluster_tab) {
-                                error "One or more file paths are null in row: ${row}"
+                    timetree_ch = PLOT_TIMETREES.out.timetree_tuple
+                            .splitCsv(header: false, sep: ',')
+                            .map { row ->
+                                def (lineage, clusterID, fasta, tab, ancestor, cluster_tab) = row
+                                
+                                // Debug: Print the row contents
+                                println "DEBUG: Processing row: ${row}"
+                                println "DEBUG: fasta=${fasta}, tab=${tab}, ancestor=${ancestor}, cluster_tab=${cluster_tab}"
+                                
+                                // Check for null values before creating file objects
+                                if (!fasta || !tab || !ancestor || !cluster_tab) {
+                                    error "One or more file paths are null in row: ${row}"
+                                }
+                                
+                                tuple(lineage, clusterID, file(fasta), file(tab), file(ancestor), file(cluster_tab))
                             }
-                            
-                            tuple(lineage, clusterID, file(fasta), file(tab), file(ancestor), file(cluster_tab))
-                        }
-
                 GENERATE_NEXUS_W_MRCA(timetree_ch)
                 // Mix both annotated nexus channels
                 base_nexus_ch = GENERATE_NEXUS_W_MRCA.out.nexus_w_mrca_out
@@ -128,15 +117,12 @@ workflow SUMMARY_WF{
 
         // Cleanup unwanted files
             //POST_SUMMARY_CLEANUP( CONCATENATED_VARIANT_FILES.out.cleanup_handover )
-
             DATA_DELIVERY(
                         sylph_results,
                         reads_taxonomy_qc_report_out,
                         finish_handover
                         )
-
             //GENERATE_REPORT()
-
 }
 
 /*
