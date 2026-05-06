@@ -295,8 +295,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.485"
-     inkscape:cx="242.26804"
-     inkscape:cy="352.57732"
+     inkscape:cx="241.23711"
+     inkscape:cy="354.63918"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
@@ -486,17 +486,7 @@
          id="tspan61423"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.13131px;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';fill:#22ae63;fill-opacity:1;stroke-width:0.264583"
          x="259.05688"
-         y="71.871193">RutiSeq-nf</tspan></text><text
-       xml:space="preserve"
-       style="font-size:4.23333px;line-height:1.25;font-family:Commissioner;-inkscape-font-specification:Commissioner;letter-spacing:0px;stroke-width:0.264583"
-       x="307.79755"
-       y="71.996559"
-       id="text61425-2"><tspan
-         sodipodi:role="line"
-         id="tspan61423-0"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';stroke-width:0.264583"
-         x="307.79755"
-         y="71.996559">v2.0.0</tspan></text><path
+         y="71.871193">RutiSeq-nf</tspan></text><path
        style="fill:none;stroke:#7eb2dd;stroke-width:2.40545;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 101.82942,118.16951 h 8.40344 c 5.30744,0 7.13543,-5.02156 11.52748,-6.27718 2.02406,-0.57865 10.34056,-0.62272 11.12807,-0.62587 l 5.63244,-0.0226"
        id="path1232-7-2-4"
@@ -517,7 +507,7 @@
        id="image2264"
        x="187.63118"
        y="86.334267" /><path
-       style="fill:none;stroke:#24b064;stroke-width:2.23999997;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:none;stroke:#24b064;stroke-width:2.24;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 101.07262,125.10759 h 58.53555"
        id="path2500-5-2-3-0-3-5-9-72"
        sodipodi:nodetypes="cc" /><circle
@@ -2186,7 +2176,7 @@
        d="m 183.41544,155.28413 -12.93487,0.007"
        id="path2500-5-2-3-0-3-5-5-1-3-5-2-1-8-9"
        sodipodi:nodetypes="cc" /><path
-       style="display:inline;fill:none;stroke:#8b4d92;stroke-width:2.23999997;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="display:inline;fill:none;stroke:#8b4d92;stroke-width:2.24;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 144.71265,143.17729 h 20.17848"
        id="path2500-5-2-3-0-3-5-9-72-4-5"
        sodipodi:nodetypes="cc" /><path
@@ -2414,7 +2404,7 @@
      inkscape:groupmode="layer"
      id="layer4"
      inkscape:label="logos"
-     style="display:inline"
+     style="display:none"
      transform="translate(-35.720515,-1.5120431)"
      sodipodi:insensitive="true"><image
        width="132.57292"
