@@ -1,0 +1,29 @@
+Bootstrap: docker
+From: mambaorg/micromamba:1.5.8
+
+%files
+    r-phylogeny_env.yml ../conda/r-phylogeny_env.yml
+
+%post
+    # Micromamba setup
+    export MAMBA_ROOT_PREFIX=/opt/conda
+    export PATH=/opt/conda/bin:$PATH
+
+    # Create env
+    micromamba create -y -n app -f /tmp/r-phylogeny_env.yml
+
+    # Activate env
+    eval "$(micromamba shell hook -s bash)"
+    micromamba activate app
+
+    # Extra pip installs (post YAML) if there are any
+
+    # Clean to reduce size
+    micromamba clean -a -y
+
+%environment
+    export MAMBA_ROOT_PREFIX=/opt/conda
+    export PATH=/opt/conda/envs/app/bin:$PATH
+
+%runscript
+    exec "$@"
