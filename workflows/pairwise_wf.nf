@@ -3,6 +3,7 @@ include { TBPROFILER_COMPILE }         from '../modules/pairwise_wf/tbprofiler/c
 include { MTBSEQ_STATS_COMPILE }       from '../modules/pairwise_wf/mtbseq/stats-compile/main.nf'
 include { COMPILE_SEQUENCING_STATS }   from '../modules/pairwise_wf/filtering/compile-sequencing-stats/main.nf'
 //SNIPPY
+include { SNIPPY_LINEAGE_CORE }        from '../modules/pairwise_wf/pairwise/snippy-lineage-core/main.nf'
 include { SNIPPY_CORE }                from '../modules/pairwise_wf/pairwise/snippy-core/main.nf'
 include { SNIPPY_PHYLOGENY }           from '../modules/pairwise_wf/pairwise/snippy-phylogeny/main.nf'
 include { SNIPPY_DATED_PHYLOGENY }     from '../modules/summary_wf/summary/generate-snippy-timetrees/main.nf'
@@ -139,6 +140,7 @@ workflow PAIRWISE_WF {
             //lineage_samples_ch.view()
         // Run the pairwise analysis by lineages
             MTBSEQ_LINEAGE_JOINT_AMEND( lineage_samples_ch )
+            SNIPPY_LINEAGE_CORE( lineage_samples_ch )
 
                 // row[0] lineage, distance, join_dir, amend_dir, samples_txt
                 mtbseq_group_ch = MTBSEQ_LINEAGE_JOINT_AMEND.out.mtbseq_group_tuple_csv
