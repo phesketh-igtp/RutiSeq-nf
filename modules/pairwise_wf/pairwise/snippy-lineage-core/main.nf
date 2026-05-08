@@ -77,24 +77,37 @@ process SNIPPY_LINEAGE_CORE {
     snippy_directories=\$(echo snippyDir_*)
 
     # The main alignments/core
-        snippy-core \\
-            --prefix core \\
-            --ref ${params.snippy_reference} \\
-            \$snippy_directories
-
-        seqkit seq -w 0 core.full.aln > tmp.core.full.aln
-        mv tmp.core.full.aln core.full.aln
-
-    # The main masked alignments/core
         snippy-core \
             --prefix ${lineage}-core \\
             --ref ${params.snippy_reference} \\
             \$snippy_directories
 
+        seqkit seq \\
+            --line-width 0 \\
+            --threads ${task.cpus} \\
+            ${lineage}-core.full.aln \\
+            > tmp.core.full.aln
+        mv tmp.core.full.aln ${lineage}-core.full.al
+
+    # The main masked alignments/core
+        snippy-core \
+            --prefix ${lineage}-core-m \\
+            --ref ${params.snippy_reference} \\
+            --mask ${params.snippy_masking}
+            \$snippy_directories
+
+        seqkit seq \\
+            --line-width 0 \\
+            --threads ${task.cpus} \\
+            ${lineage}-core-m.full.aln \\
+            > tmp.${lineage}-core-m
+        mv tmp.${lineage}-core-m ${lineage}-core-m.full.aln
+
     # Get snp distances
     snp-dists \\
-        -j 16 -k \\
-        ${lineage}-core.aln > ${lineage}-core.mat.tsv
+        -k -j ${task.cpus} \\
+        ${lineage}-core.aln \\
+        > ${lineage}-core.mat.tsv
 
     # Clean up
         # Remove the prefix
