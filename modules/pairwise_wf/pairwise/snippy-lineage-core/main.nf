@@ -1,5 +1,7 @@
 process SNIPPY_LINEAGE_CORE {
 
+    tag "${lineage}"
+
     conda params.snippy_env
     
     publishDir "${params.outDir}/db/comparison/snippy/${lineage}/", 
