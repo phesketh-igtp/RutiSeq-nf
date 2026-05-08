@@ -10,8 +10,7 @@ process PHYLOGENY_ENV {
         }
     }
 
-    storeDir "${params.outdir}/version_control"
-    storeDir "${params.outDir}/results/${runID}/version_control/"
+    storeDir "${params.outDir}/results/${params.runID}/version_control/"
 
     input:
         val runID

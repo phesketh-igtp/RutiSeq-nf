@@ -21,6 +21,8 @@ process SNIPPY_LINEAGE_CORE {
         path("${lineage}-core.txt")
         path("${lineage}-core.vcf")
         path("${lineage}-core.mat.tsv")
+        path("${lineage}-core.no-ref.aln")
+        path("${lineage}-core.no-ref.mat.tsv")
         // masked oututs
         path("${lineage}-masked.aln")
         path("${lineage}-masked.tab")
@@ -28,8 +30,10 @@ process SNIPPY_LINEAGE_CORE {
         path("${lineage}-masked.txt")
         path("${lineage}-masked.vcf")
         path("${lineage}-masked.mat.tsv")
+        path("${lineage}-masked.no-ref.aln")
+        path("${lineage}-masked.no-ref.mat.tsv")
         // Reference
-        path("${lineage}.ref.fa")
+        path("${lineage}-core.ref.fa")
 
     script:
 
@@ -84,19 +88,22 @@ process SNIPPY_LINEAGE_CORE {
 
     # Create path of directories for snippy core
     snippy_directories=\$(echo snippyDir_*)
-
     # The main alignments/core
         snippy-core \\
             --prefix ${lineage}-core \\
             --ref ${params.snippy_reference} \\
             \$snippy_directories
 
-        seqkit seq \\
-            --line-width 0 \\
+        seqkit grep \\
+            --invert-match \\
+            --pattern "Reference" \\
             --threads ${task.cpus} \\
             ${lineage}-core.full.aln \\
-            > tmp.core.full.aln
-        mv tmp.core.full.aln ${lineage}-core.full.aln
+            > ${lineage}-core.no-ref
+
+        snp-sites \\
+            -o ${lineage}-core.no-ref.aln \\
+            ${lineage}-core.no-ref
 
     # The main masked alignments/core
         snippy-core \\
@@ -105,28 +112,28 @@ process SNIPPY_LINEAGE_CORE {
             --mask ${params.snippy_masking} \\
             \$snippy_directories
 
-        seqkit seq \\
-            --line-width 0 \\
+        seqkit grep \\
+            --invert-match \\
+            --pattern "Reference" \\
             --threads ${task.cpus} \\
             ${lineage}-masked.full.aln \\
-            > tmp.${lineage}-core.m
-        mv tmp.${lineage}-core.m ${lineage}-masked.full.aln
+            > ${lineage}-masked.no-ref
+
+        snp-sites \\
+            -o ${lineage}-masked.no-ref.aln \\
+            ${lineage}-masked.no-ref
 
     # Get snp distances
-    snp-dists \\
-        -k -j ${task.cpus} \\
-        ${lineage}-core.aln \\
-        > ${lineage}-core.mat.tsv
-    
-    snp-dists \\
-        -k -j ${task.cpus} \\
-        ${lineage}-masked.aln \\
-        > ${lineage}-masked.mat.tsv
+    for alignment in *.aln; do
+        snp-dists \\
+            -k -j ${task.cpus} \\
+            \${alignment} \\
+            > \$(basename \${alignment} .aln).mat.tsv
+    done
 
     # Clean up
         # Remove the prefix
-        sed -i 's@snippyDir_@@g' ${lineage}-core*
-        mv ${lineage}-core.ref.fa > ${lineage}.ref.fa
+        sed -i 's@snippyDir_@@g' ${lineage}-*
     """
 }
 
