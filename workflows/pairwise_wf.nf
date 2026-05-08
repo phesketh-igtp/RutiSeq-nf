@@ -18,7 +18,7 @@ include { CONCATENATE_CLUSTERS }       from '../modules/pairwise_wf/pairwise/con
 include { DATED_PHYLOGENY }            from '../modules/summary_wf/summary/generate-timetrees/main.nf'
 
 workflow PAIRWISE_WF {
-    
+
     take:
         sampleID_list
 
