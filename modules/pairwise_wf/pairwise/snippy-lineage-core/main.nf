@@ -133,7 +133,8 @@ process SNIPPY_LINEAGE_CORE {
 
     # Clean up
         # Remove the prefix
-        sed -i 's@snippyDir_@@g' ${lineage}-*
+        sed -i 's@snippyDir_@@g' ${lineage}-core*
+        sed -i 's@snippyDir_@@g' ${lineage}-masked*
     """
 }
 
