@@ -1,6 +1,6 @@
 process MTBSEQ_LINEAGE_JOINT_AMEND {
 
-    tag "${params.runID}: ${lineage} "
+    tag "${lineage} "
 
     conda params.mtbseq_env
 

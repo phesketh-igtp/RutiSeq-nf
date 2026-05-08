@@ -22,6 +22,14 @@ process SNIPPY_LINEAGE_CORE {
         path("${lineage}-core.vcf")
         path("${lineage}-core.mat.tsv")
 
+        path("${lineage}-core.masked.aln")
+        path("${lineage}-core.masked.tab")
+        path("${lineage}-core.masked.full.aln")
+        path("${lineage}-core.masked.ref.fa")
+        path("${lineage}-core.masked.txt")
+        path("${lineage}-core.masked.vcf")
+        path("${lineage}-core.masked.mat.tsv")
+
     script:
 
     """
@@ -77,7 +85,7 @@ process SNIPPY_LINEAGE_CORE {
     snippy_directories=\$(echo snippyDir_*)
 
     # The main alignments/core
-        snippy-core \
+        snippy-core \\
             --prefix ${lineage}-core \\
             --ref ${params.snippy_reference} \\
             \$snippy_directories
@@ -90,24 +98,29 @@ process SNIPPY_LINEAGE_CORE {
         mv tmp.core.full.aln ${lineage}-core.full.al
 
     # The main masked alignments/core
-        snippy-core \
-            --prefix ${lineage}-core-m \\
+        snippy-core \\
+            --prefix ${lineage}-core.m \\
             --ref ${params.snippy_reference} \\
-            --mask ${params.snippy_masking}
+            --mask ${params.snippy_masking} \\
             \$snippy_directories
 
         seqkit seq \\
             --line-width 0 \\
             --threads ${task.cpus} \\
-            ${lineage}-core-m.full.aln \\
-            > tmp.${lineage}-core-m
-        mv tmp.${lineage}-core-m ${lineage}-core-m.full.aln
+            ${lineage}-core.masked.full.aln \\
+            > tmp.${lineage}-core.m
+        mv tmp.${lineage}-core.m ${lineage}-core.masked.full.aln
 
     # Get snp distances
     snp-dists \\
         -k -j ${task.cpus} \\
         ${lineage}-core.aln \\
         > ${lineage}-core.mat.tsv
+    
+    snp-dists \\
+        -k -j ${task.cpus} \\
+        ${lineage}-core.masked.aln \\
+        > ${lineage}-core.masked.mat.tsv
 
     # Clean up
         # Remove the prefix
@@ -117,7 +130,7 @@ process SNIPPY_LINEAGE_CORE {
 
 /*
 @author: Poppy J Hesketh Best
-@date: 2025-11-01
+@date: 2026-05-06
 @version: 1.0.1
 @function:
     This process performs the core SNP analysis for multiple samples
@@ -127,4 +140,5 @@ process SNIPPY_LINEAGE_CORE {
     https://bitsandbugs.org/2019/11/06/two-easy-ways-to-run-iq-tree-with-the-correct-number-of-constant-sites/
 @changelog
     v1.0.0-2026-05-06: Initial version
+    v1.0.1-2026-05-08: Added masking with the ${param.snippy_masking}
 */
