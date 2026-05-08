@@ -30,13 +30,6 @@ workflow PAIRWISE_WF {
         def cyan    = '\u001B[36m'
         def no_col  = '\u001B[0m'
 
-        // Run database compliance check
-        //DB_COMPLIANCE_CHECK(sampleID_list)
-        
-        // Only continue with downstream processes if check passes
-        //DB_COMPLIANCE_CHECK.out
-        //    .view { "Database integrity check result: $it" }
-
         // Compile TB-Profiler results
         TBPROFILER_COMPILE( 
                             sampleID_list, 

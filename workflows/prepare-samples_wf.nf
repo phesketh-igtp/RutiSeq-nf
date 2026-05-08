@@ -16,13 +16,6 @@ workflow PREPARE_SAMPLES_WF {
     def reset  = '\u001B[0m'
     def cyan   = '\u001B[36m'
 
-
-    /*
-        Log version information
-    */
-    
-    //VERSION_LOGGING(params.runID)
-
     /* 
         Prepare sample channels
     */
