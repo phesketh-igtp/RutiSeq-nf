@@ -1,15 +1,5 @@
 process MULTIQC {
 
-/*
-    @author: Poppy J hesketh Best
-    @date: 2025-11-17
-    @version: v1.0.0
-    @description:
-        Rund fastQC then multiQC on the reads. Saves only the multiQC HTML
-    @changelog:
-        v1.0.0-2025-11-17: Functioning module created.
-*/
-
     conda params.readQC_env
 
     storeDir "${params.outDir}/db/qc/${params.runID}/"
@@ -39,3 +29,14 @@ process MULTIQC {
     multiqc fastqc/* --outdir multiQC-out/
     """
 }
+
+
+/*
+@author: Poppy J hesketh Best
+@date: 2025-11-17
+@version: v1.0.0
+@description:
+    Runs fastQC then multiQC on the reads. Saves only the multiQC HTML
+@changelog:
+    v1.0.0-2025-11-17: Functioning module created.
+*/

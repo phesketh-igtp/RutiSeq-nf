@@ -1,19 +1,5 @@
 process SKA_PROFILING {
 
-/*
-    @author: Poppy J hesketh Best
-    @date: 2025-11-17
-    @version: v1.2.0
-    @description:
-        Created an input file from the samplesheet that is used by ska2
-            to generate the ska profiles, before creating a 
-            distance matrix of those profiles.
-    @changelog:
-        v1.0.0-2025-11-17: Functioning module created.
-        v1.1.0-2025-11-26: Modified to add params for ska2 profiling (--verbose).
-        v1.2.0-2025-12-19: Modified to handle when the samlesheet has an empty line
-*/
-
     conda params.readQC_env
 
     publishDir "${params.outDir}/db/qc/${params.runID}/", 
@@ -53,3 +39,18 @@ process SKA_PROFILING {
             --min-freq ${params.ska_min_freq}
     """
 }
+
+
+/*
+@author: Poppy J hesketh Best
+@date: 2025-11-17
+@version: v1.2.0
+@description:
+    Created an input file from the samplesheet that is used by ska2
+        to generate the ska profiles, before creating a 
+        distance matrix of those profiles.
+@changelog:
+    v1.0.0-2025-11-17: Functioning module created.
+    v1.1.0-2025-11-26: Modified to add params for ska2 profiling (--verbose).
+    v1.2.0-2025-12-19: Modified to handle when the samlesheet has an empty line
+*/

@@ -1,16 +1,5 @@
 process READS_STATS {
 
-/*
-    @author: Poppy J hesketh Best
-    @date: 2025-11-17
-    @version: v1.1.0
-    @description:
-        Produces read statistics of the input fasta files with seqkit.
-    @changelog:
-        v1.0.0-2025-11-17: Functioning module created.
-        v1.1.0-2025-12-19: Modified to handle when the samlesheet has an empty line
-*/
-
     conda params.readQC_env
 
     publishDir "${params.outDir}/db/qc/${params.runID}/", 
@@ -44,3 +33,14 @@ process READS_STATS {
         > seqkit_stats.txt
     """
 }
+
+/*
+@author: Poppy J hesketh Best
+@date: 2025-11-17
+@version: v1.1.0
+@description:
+    Produces read statistics of the input fasta files with seqkit.
+@changelog:
+    v1.0.0-2025-11-17: Functioning module created.
+    v1.1.0-2025-12-19: Modified to handle when the samlesheet has an empty line
+*/

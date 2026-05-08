@@ -1,15 +1,5 @@
 process READ_TAXONOMY_QC_REPORT {
 
-/*
-    @author: Poppy J hesketh Best
-    @date: 2025-11-17
-    @version: v1.0.0
-    @description:
-        Produces read statistics report from the outputs of Sylph, SKA2, seqkit.
-    @changelog:
-        v1.0.0-2025-11-17: Functioning module created.
-*/
-
     conda params.r_stats_env
 
     publishDir "${params.outDir}/db/qc/${params.runID}/", 
@@ -44,3 +34,14 @@ process READ_TAXONOMY_QC_REPORT {
     """
 
 }
+
+
+/*
+@author: Poppy J hesketh Best
+@date: 2025-11-17
+@version: v1.0.0
+@description:
+    Produces read statistics report from the outputs of Sylph, SKA2, seqkit.
+@changelog:
+    v1.0.0-2025-11-17: Functioning module created.
+*/
