@@ -14,21 +14,22 @@ process SNIPPY_LINEAGE_CORE {
             val(sampleID_count)
 
     output:
+        // unmasked outputs
         path("${lineage}-core.aln")
         path("${lineage}-core.tab")
         path("${lineage}-core.full.aln")
-        path("${lineage}-core.ref.fa")
         path("${lineage}-core.txt")
         path("${lineage}-core.vcf")
         path("${lineage}-core.mat.tsv")
-
-        path("${lineage}-core.masked.aln")
-        path("${lineage}-core.masked.tab")
-        path("${lineage}-core.masked.full.aln")
-        path("${lineage}-core.masked.ref.fa")
-        path("${lineage}-core.masked.txt")
-        path("${lineage}-core.masked.vcf")
-        path("${lineage}-core.masked.mat.tsv")
+        // masked oututs
+        path("${lineage}-masked.aln")
+        path("${lineage}-masked.tab")
+        path("${lineage}-masked.full.aln")
+        path("${lineage}-masked.txt")
+        path("${lineage}-masked.vcf")
+        path("${lineage}-masked.mat.tsv")
+        // Reference
+        path("${lineage}.ref.fa")
 
     script:
 
@@ -95,11 +96,11 @@ process SNIPPY_LINEAGE_CORE {
             --threads ${task.cpus} \\
             ${lineage}-core.full.aln \\
             > tmp.core.full.aln
-        mv tmp.core.full.aln ${lineage}-core.full.al
+        mv tmp.core.full.aln ${lineage}-core.full.aln
 
     # The main masked alignments/core
         snippy-core \\
-            --prefix ${lineage}-core.m \\
+            --prefix ${lineage}-masked \\
             --ref ${params.snippy_reference} \\
             --mask ${params.snippy_masking} \\
             \$snippy_directories
@@ -107,9 +108,9 @@ process SNIPPY_LINEAGE_CORE {
         seqkit seq \\
             --line-width 0 \\
             --threads ${task.cpus} \\
-            ${lineage}-core.masked.full.aln \\
+            ${lineage}-masked.full.aln \\
             > tmp.${lineage}-core.m
-        mv tmp.${lineage}-core.m ${lineage}-core.masked.full.aln
+        mv tmp.${lineage}-core.m ${lineage}-masked.full.aln
 
     # Get snp distances
     snp-dists \\
@@ -119,12 +120,13 @@ process SNIPPY_LINEAGE_CORE {
     
     snp-dists \\
         -k -j ${task.cpus} \\
-        ${lineage}-core.masked.aln \\
-        > ${lineage}-core.masked.mat.tsv
+        ${lineage}-masked.aln \\
+        > ${lineage}-masked.mat.tsv
 
     # Clean up
         # Remove the prefix
         sed -i 's@snippyDir_@@g' ${lineage}-core*
+        mv ${lineage}-core.ref.fa > ${lineage}.ref.fa
     """
 }
 
