@@ -107,7 +107,6 @@ process CONCATENATE_CLUSTERS {
                                     pattern = "_d.*\\\\.processed\\\\.clusters\\\\.tsv\$", 
                                     recursive = TRUE, 
                                     full.names = TRUE)
-        
         singleton_files <- list.files(path = file.path(base_dir), 
                                     pattern = "_d.*\\\\.singletons\\\\.tsv\$", 
                                     recursive = TRUE, 
@@ -119,13 +118,6 @@ process CONCATENATE_CLUSTERS {
         # Combine all files into a single vector
         all_files <- c(cluster_files, singleton_files)
         cat("Total files to process:", length(all_files), "\\n")
-
-        if (length(all_files) == 0) {
-            cat("ERROR: No cluster or singleton files found\\n")
-            cat("Files in base directory:\\n")
-            print(list.files(base_dir, recursive = TRUE))
-            #quit(status = 1)
-        }
 
         cat("Files to process:\\n")
         print(all_files)
@@ -141,12 +133,19 @@ process CONCATENATE_CLUSTERS {
             f <- all_files[i]
             cat("Reading file", i, "of", length(all_files), ":", basename(f), "\\n")
             tryCatch({
-                df <- read.table(f, sep = "\\t", header = FALSE, stringsAsFactors = FALSE)
+
+                df <- read.table(f, 
+                        sep = "\\t",
+                        header = FALSE,
+                        stringsAsFactors = FALSE
+                        )
                 cat("  - Rows:", nrow(df), "Cols:", ncol(df), "\\n")
                 df_list[[i]] <- df
+
             }, error = function(e) {
+
                 cat("ERROR reading file", f, ":", e\$message, "\\n")
-                #quit(status = 1)
+
             })
         }
 
@@ -187,28 +186,41 @@ process CONCATENATE_CLUSTERS {
 
         # Process the sampleIDs
         cat("Reading sequencing summary...\\n")
-        tryCatch({
-            sample_id_df <- read.delim("sequencing_summary.csv", header = TRUE, sep = ",") |>
-                select(Sample) |>
-                mutate(genomes = Sample) |>
-                separate_wider_delim(genomes, delim = "_",
-                            names = c("id", "library"),
-                            too_few = "align_end",
-                            too_many = "drop") |>
-                distinct() |>
-                select(SampleID = Sample, genomes = id)
-            cat("Sample ID dataframe: Rows:", nrow(sample_id_df), "\\n")
-        }, error = function(e) {
-            cat("ERROR processing sequencing summary:", e\$message, "\\n")
-            #quit(status = 1)
-        })
+        sample_id_df <- read.delim(
+                "sequencing_summary.csv", 
+                header = TRUE, 
+                sep = ","
+                ) |>
+            select(Sample) |>
+            mutate(genomes = Sample) |>
+            separate_wider_delim(
+                genomes, delim = "_",
+                names = c("id", "library"),
+                too_few = "align_end",
+                too_many = "drop") |>
+            distinct() |>
+            select(
+                SampleID = Sample, 
+                genomes = id)
+
+        cat("Sample ID dataframe: Rows:", nrow(sample_id_df), "\\n")
 
         # Merge and pivot the data
         cat("Merging with sample IDs...\\n")
-        raw_clust <- left_join(raw_clust, sample_id_df) |>
+        raw_clust <- left_join(
+                raw_clust, 
+                sample_id_df
+            ) |>
             distinct() |>
-            select(SampleID, lineage, dSNP, int_clusterID) |>
-            pivot_wider(names_from = dSNP, values_from = int_clusterID)
+            select(SampleID, 
+                lineage, 
+                dSNP, 
+                int_clusterID
+            ) |>
+            pivot_wider(
+                names_from = dSNP, 
+                values_from = int_clusterID
+            )
 
         cat("Data after pivot: Rows:", nrow(raw_clust), "Cols:", ncol(raw_clust), "\\n")
 
@@ -220,12 +232,25 @@ process CONCATENATE_CLUSTERS {
 
         # Reorder the full data frame
         raw_clust <- raw_clust |>
-            select(SampleID, lineage, all_of(t_cols_sorted))
+            select(SampleID, 
+                lineage,
+                all_of(t_cols_sorted)
+                )
 
         # Create the merged clusterID
         raw_clust <- raw_clust |>
-            unite("merged_clusterID", all_of(t_cols_sorted), sep = "/", remove = FALSE) |>
-            select(SampleID, lineage, all_of(t_cols_sorted), merged_clusterID)
+            unite(
+                "merged_clusterID",
+                all_of(t_cols_sorted),
+                sep = "/",
+                remove = FALSE
+                ) |>
+            select(
+                SampleID,
+                lineage,
+                all_of(t_cols_sorted),
+                merged_clusterID
+            )
 
         cat("Final processed data: Rows:", nrow(raw_clust), "Cols:", ncol(raw_clust), "\\n")
 
@@ -233,29 +258,22 @@ process CONCATENATE_CLUSTERS {
         # Export the dataframe
         #--------------------------------------------------------------------------#
         cat("\\n=== WRITING OUTPUT ===\\n")
+        write.table(
+            raw_clust,
+            "processed_clusters.tsv",
+            sep = "\\t",
+            row.names = FALSE,
+            quote = FALSE
+            )
 
-        tryCatch({
-            write.table(raw_clust, "processed_clusters.tsv",
-                        sep = "\\t", 
-                        row.names = FALSE, 
-                        quote = FALSE)
-            cat("Successfully wrote processed_clusters.tsv\\n")
-        }, error = function(e) {
-            cat("ERROR writing processed_clusters.tsv:", e\$message, "\\n")
-            #quit(status = 1)
-        })
-
-        tryCatch({
-            write.table(merged_df, file = "unprocessed_clusters.tsv", 
-                        sep = "\\t", 
-                        row.names = FALSE, 
-                        col.names = FALSE, 
-                        quote = FALSE)
-            cat("Successfully wrote unprocessed_clusters.tsv\\n")
-        }, error = function(e) {
-            cat("ERROR writing unprocessed_clusters.tsv:", e\$message, "\\n")
-            #quit(status = 1)
-        })
+        write.table(
+            merged_df,
+            file = "unprocessed_clusters.tsv",
+            sep = "\\t",
+            row.names = FALSE,
+            col.names = FALSE,
+            quote = FALSE
+            )
         """
 }
 
