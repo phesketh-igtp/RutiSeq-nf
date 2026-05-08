@@ -2,7 +2,7 @@ process CONCATENATE_CLUSTERS {
 
     conda params.r_stats_env
 
-    publishDir "${params.outDir}/db/results/main/", 
+    publishDir "${params.outDir}/results/src/", 
         mode: 'copy',
         overwrite: true
 
