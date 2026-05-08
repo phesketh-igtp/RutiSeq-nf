@@ -1,19 +1,5 @@
 process FILE_CHECK {
 
-/*
-    @author: Poppy J Hesketh Best
-    @date: 2025-04-01
-    @version: 1.1.0
-    @description: 
-        This process checks for the existence of specific files related to MTBseq and TBProfiler results.
-        It generates a CSV file with the sample ID and paths to the forward and reverse reads, as well 
-        as the paths to the MTBseq and TBProfiler results if they exist.
-    @changelog:
-        2025-04-01: Addition of comments
-        2025-11-12: Restructuring DB format to be sample-first, and results nested by samples
-        2025-11-14: Improved error handling, better shell logic, fixed array syntax
-*/
-
     tag "$sampleID"
 
     maxForks 200  // Changed from 'array' (not a valid directive) to 'maxForks'
@@ -64,3 +50,17 @@ process FILE_CHECK {
         fi
         """
 }
+
+/*
+@author: Poppy J Hesketh Best
+@date: 2025-04-01
+@version: 1.1.0
+@description: 
+    This process checks for the existence of specific files related to MTBseq and TBProfiler results.
+    It generates a CSV file with the sample ID and paths to the forward and reverse reads, as well 
+    as the paths to the MTBseq and TBProfiler results if they exist.
+@changelog:
+    2025-04-01: Addition of comments
+    2025-11-12: Restructuring DB format to be sample-first, and results nested by samples
+    2025-11-14: Improved error handling, better shell logic, fixed array syntax
+*/

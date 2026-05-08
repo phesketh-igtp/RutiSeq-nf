@@ -1,15 +1,5 @@
 process GENERATE_NEXUS_W_MRCA {
 
-/*
-    @author: Poppy J Hesketh Best
-    @date: 2025-04-01
-    @version: 1.0
-    @description:
-        This process generates a nexus file with the MRCA of the cluster and the H37Rv reference genome.
-        It also generates a tab file with the genomic positions of the variants.
-        The process takes the output of the SNP profiling process and the pairwise clusters file.
-*/
-
     conda params.snippy_env 
 
     tag "cluster: ${clusterID}"
@@ -57,3 +47,13 @@ process GENERATE_NEXUS_W_MRCA {
         """
 
 }
+
+/*
+@author: Poppy J Hesketh Best
+@date: 2025-04-01
+@version: 1.0
+@description:
+    This process generates a nexus file with the MRCA of the cluster and the H37Rv reference genome.
+    It also generates a tab file with the genomic positions of the variants.
+    The process takes the output of the SNP profiling process and the pairwise clusters file.
+*/

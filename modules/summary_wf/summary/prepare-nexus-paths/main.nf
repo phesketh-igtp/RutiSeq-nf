@@ -1,22 +1,5 @@
 process PREPARE_NEXUS_PATHS{
 
-/*
-    @author: Poppy J Hesketh Best
-    @date: 2025-04-01
-    @version: 1.0.2
-    @description:
-        This process prepares the paths for the NEXUS files for each cluster.
-        It generates a CSV file with the paths to the NEXUS files and the
-        corresponding tab files. The CSV file is used as input for the
-        GENERATE_NEXUS process.
-        The tuple has the following format:
-        ["lineage", "clusterID", "fasta_path", "tab_path"]
-    @changelog:
-        v1.0.0-2025-04-01: Initial version
-        v1.0.1-2025-04-04: Added filtering to remove clusters with less than 3 genomes
-        v1.0.2-2025-12-01: Updated the paths for the new system.
-*/
-
     conda params.snippy_env 
 
     tag "${lineage}; t=${distance}"
@@ -84,3 +67,20 @@ process PREPARE_NEXUS_PATHS{
     """
 
 }
+
+/*
+@author: Poppy J Hesketh Best
+@date: 2025-04-01
+@version: 1.0.2
+@description:
+    This process prepares the paths for the NEXUS files for each cluster.
+    It generates a CSV file with the paths to the NEXUS files and the
+    corresponding tab files. The CSV file is used as input for the
+    GENERATE_NEXUS process.
+    The tuple has the following format:
+    ["lineage", "clusterID", "fasta_path", "tab_path"]
+@changelog:
+    v1.0.0-2025-04-01: Initial version
+    v1.0.1-2025-04-04: Added filtering to remove clusters with less than 3 genomes
+    v1.0.2-2025-12-01: Updated the paths for the new system.
+*/

@@ -158,20 +158,20 @@ process GENERATE_NEXUS {
 }
 
 /*
-    @author: Poppy J Hesketh Best
-    @date: 2025-04-01
-    @version: 1.0.1
-    @description:
-        This process generates a NEXUS file for each cluster of genomes
-        using the SNPs from the reference genome and the MTB_anc
-        (Valencian ancestor, Iñaki Comas 2013) as a reference. The resulting 
-        NEXUS file is intended to be use with PopArt for visualising median-joining
-        networks.
-    @changelog
-        v1.0-2025-04-01: Initial version
-        v1.0.1-2025-04-04: Moved the function out of a BASH script and into the Nextflow script block
-                        Added argument for the publishDir to only publish relevant files, as this
-                            was causing clashes with other processes in the workflow
-                        Imporved handling for cluster with no SNPs detected (usually as they are identical)
+@author: Poppy J Hesketh Best
+@date: 2025-04-01
+@version: 1.0.1
+@description:
+    This process generates a NEXUS file for each cluster of genomes
+    using the SNPs from the reference genome and the MTB_anc
+    (Valencian ancestor, Iñaki Comas 2013) as a reference. The resulting 
+    NEXUS file is intended to be use with PopArt for visualising median-joining
+    networks.
+@changelog
+    v1.0-2025-04-01: Initial version
+    v1.0.1-2025-04-04: Moved the function out of a BASH script and into the Nextflow script block
+                    Added argument for the publishDir to only publish relevant files, as this
+                        was causing clashes with other processes in the workflow
+                    Imporved handling for cluster with no SNPs detected (usually as they are identical)
         v1.0.2-2026-01-05: Added checks to ensure the number of genomes extracted matches expectations.
 */

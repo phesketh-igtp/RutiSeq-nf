@@ -1,18 +1,5 @@
 process PLOT_MAIN_PHYLOGENY {
 
-/*
-    @author: Poppy J Hesketh Best
-    @date: 2025-04-01
-    @version: 1.0
-    @description:
-        Plot the main phylogeny for the analysis, using the ML tree and cluster heatmap if clusters are present.
-        If no clusters are present, plot the ML tree without the cluster heatmap.
-    @changelog:
-        2025-04-01: Initial version.
-        2025-10-01: Remove static tree PDF and replaced with quarto report generation.
-        2025-10-28: Corrected the Quarto report, that was not producing the MonoPhyl output. 
-*/
-
     tag "${lineage}"
 
     conda params.r_phylogeny_env
@@ -91,3 +78,16 @@ process PLOT_MAIN_PHYLOGENY {
         fi
         """
 }
+
+/*
+@author: Poppy J Hesketh Best
+@date: 2025-04-01
+@version: 1.0
+@description:
+    Plot the main phylogeny for the analysis, using the ML tree and cluster heatmap if clusters are present.
+    If no clusters are present, plot the ML tree without the cluster heatmap.
+@changelog:
+    2025-04-01: Initial version.
+    2025-10-01: Remove static tree PDF and replaced with quarto report generation.
+    2025-10-28: Corrected the Quarto report, that was not producing the MonoPhyl output. 
+*/

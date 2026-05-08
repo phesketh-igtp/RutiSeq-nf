@@ -94,21 +94,21 @@ process MTBSEQ_SINGLE {
 }
 
 /*
-    @author: Poppy J Hesketh Best
-    @date: 2026-01-19
-    @version: 2.1.0
-    @description: 
-        In this module MTBSeq is run for a single genome up to the strain classifications step,
-        and will then stop as there are no other genomes to compare with. To start with the forward/reverse
-        reads from the MTBC fitlered have a different naming convention (${sampleID}_mtbc_R1.fastq.gz), so 
-        the first step is return the naming convention back to the expected name for the MTBeq outputs - 
-        I tried stageAs: as some point to circumvent this issue, but it caused other problems since
-        the files needs to have the ${sampleID} in the name for the next steps, so I reverted back to
-        just moving the files into a name structure. This is a bit of a hack, but it works for now.
-            TODO: revisit this issue.
-    @chagelog
-        v1.0.0-2025-04-01: Initial version
-        v1.0.1-2025-04-04: Added more comments and description
-        v2.0.0-2025-06-10: Added support for different MTBSeq referencess
-        v2.1.0-2026-01-19: Updated to check for existing results to avoid re-running
+@author: Poppy J Hesketh Best
+@date: 2026-01-19
+@version: 2.1.0
+@description: 
+    In this module MTBSeq is run for a single genome up to the strain classifications step,
+    and will then stop as there are no other genomes to compare with. To start with the forward/reverse
+    reads from the MTBC fitlered have a different naming convention (${sampleID}_mtbc_R1.fastq.gz), so 
+    the first step is return the naming convention back to the expected name for the MTBeq outputs - 
+    I tried stageAs: as some point to circumvent this issue, but it caused other problems since
+    the files needs to have the ${sampleID} in the name for the next steps, so I reverted back to
+    just moving the files into a name structure. This is a bit of a hack, but it works for now.
+        TODO: revisit this issue.
+@chagelog
+    v1.0.0-2025-04-01: Initial version
+    v1.0.1-2025-04-04: Added more comments and description
+    v2.0.0-2025-06-10: Added support for different MTBSeq referencess
+    v2.1.0-2026-01-19: Updated to check for existing results to avoid re-running
 */

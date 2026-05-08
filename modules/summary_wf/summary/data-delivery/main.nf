@@ -1,16 +1,5 @@
 process DATA_DELIVERY {
 
-/*
-    @author: Poppy J Hesketh Best
-    @date: 2025-04-01
-    @version: 1.0.0
-    @description:
-        This process prepares the data delivery for the final results. It moves the relevant files to the appropriate directories and cleans up any unnecessary files.
-        It is called after the summary report generation and before the final data delivery.
-    @changelog
-        v1.0.0-2025-04-01: Initial version
-*/
-
     tag "${params.runID}"
 
     input:
@@ -65,3 +54,14 @@ process DATA_DELIVERY {
         """
 
 }
+
+/*
+@author: Poppy J Hesketh Best
+@date: 2025-04-01
+@version: 1.0.0
+@description:
+    This process prepares the data delivery for the final results. It moves the relevant files to the appropriate directories and cleans up any unnecessary files.
+    It is called after the summary report generation and before the final data delivery.
+@changelog
+    v1.0.0-2025-04-01: Initial version
+*/

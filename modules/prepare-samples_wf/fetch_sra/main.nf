@@ -1,16 +1,5 @@
 process FETCH_SRA {
 
-/*
-    @author: Poppy J Hesketh Best
-    @date: 2025-11-13
-    @version: v1.0.0
-    @description:
-        The download of SRA reads using fastq-dump, and creation of a empty
-        fastq_2  if the data is SE reads, to satisfy the output format.
-    @changelog:
-        2025-11-13.v1.0.0: Initial Version
-*/
-
     tag "$accession"
     
     // conda directive is ignored when using containers
@@ -46,3 +35,15 @@ process FETCH_SRA {
     fi
     """
 }
+
+
+/*
+@author: Poppy J Hesketh Best
+@date: 2025-11-13
+@version: v1.0.0
+@description:
+    The download of SRA reads using fastq-dump, and creation of a empty
+    fastq_2  if the data is SE reads, to satisfy the output format.
+@changelog:
+    2025-11-13.v1.0.0: Initial Version
+*/

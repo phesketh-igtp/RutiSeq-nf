@@ -1,15 +1,5 @@
 process GENERATE_SUMMARY_REPORT {
 
-/*
-    @author: Poppy J Hesketh Best
-    @date: 2025-04-01
-    @version: 1.0
-    @description:
-        Generates a summary report of the analysis results, including
-        a summary of the clusters, phylogeny, and variant sites.
-        The report is generated in XLSX format and includes tables.
-*/
-
     conda params.r_stats_env
 
     publishDir "${params.outDir}/results/${params.runID}/", 
@@ -211,3 +201,13 @@ process GENERATE_SUMMARY_REPORT {
             )
         """
 }
+
+/*
+@author: Poppy J Hesketh Best
+@date: 2025-04-01
+@version: 1.0.1
+@description:
+    Generates a summary report of the analysis results, including
+    a summary of the clusters, phylogeny, and variant sites.
+    The report is generated in XLSX format and includes tables.
+*/
