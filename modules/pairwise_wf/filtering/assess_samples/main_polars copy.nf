@@ -1,6 +1,6 @@
 process ASSESS_SAMPLES {
 
-    conda params.stats_env
+    conda params.r_stats_env
 
     storeDir "${params.outDir}/db/comparison/src/${params.runID}/"
 
@@ -17,7 +17,6 @@ process ASSESS_SAMPLES {
         def main_lineages = params.lineage_pairwise_main.join('\\n')
 
 """
-#!/usr/bin/env pythons
 import polars as pl
 
 # ------------------------------------------------------------------
@@ -164,7 +163,7 @@ filtered_meta_skip.write_csv(
 /*
 @author: Poppy J Hesketh Best
 @date: 2025-04-01
-@version: 3.0.0
+@version: 4.0.0
 @description:
     In this module creates the pairwise analysis tuples from the lineage_samples_paths.csv
     and the lineage_pairwise_sub and lineage_pairwise_main lists.
@@ -175,6 +174,7 @@ filtered_meta_skip.write_csv(
         - none: pairwise analysis of all samples without lineage split
     Now implemented entirely in R for better data handling and consistency.
 @changelog:
+    v4.0.1-2026-05-12: Convert from R to Polars (python)
     v3.0.0-2026-04-13: Complete rewrite in R, eliminating bash script components
     v2.0.0-2025-04-01: Updated to use the new lineage_pairwise_sub and lineage_pairwise_main lists
     v1.0.1-2024-11-01: Added error handling for invalid pairwise level

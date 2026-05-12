@@ -37,7 +37,7 @@ process SYLPH_CLASSIFICATION {
             -d sylph/ \\
             -t ${task.cpus}
 
-    done < <(sed '1d' ${samplesheet})
+    done < <(sed '1d' ${samplesheet} | grep -v 'forward_path')
 
     # Profile the sketches with Sylph
     echo -e "Profile the sketches with Sylph"
@@ -49,14 +49,14 @@ process SYLPH_CLASSIFICATION {
             --min-count-correct 3 \\
             --min-number-kmers 50 \\
             -t ${task.cpus} \\
-            -d sylph.tsv
+            -o sylph.tsv
 
     # Get taxonomy for the profiles
     echo -e "Get taxonomy for the profiles"
         sylph-tax taxprof sylph.tsv \\
             -t ${sylph_tax}/* \\
-            -d sylph_tax/tax_
-            
+            -o sylph_tax/tax_
+
     # remove any empty files
     echo -e "Remove any empty files"
             find sylph_tax/ -type f -name 'tax_*.sylphmpa' -empty -delete

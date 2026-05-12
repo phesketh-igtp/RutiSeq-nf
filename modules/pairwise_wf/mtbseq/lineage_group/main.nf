@@ -45,12 +45,7 @@ process MTBSEQ_LINEAGE_GROUP {
         """
         # Make output directories (local)
         mkdir -p Groups/ Matrix/
-        
-        # Clean up the last results
-        rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Groups/*
-        rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Matrix/*
 
-        
         if [[ -f ${params.outDir}/db/comparison/mtbseq/${lineage}/${groups_tab} && \
             -f ${params.outDir}/db/comparison/mtbseq/${lineage}/${groups_mat} ]]; then
 
@@ -58,6 +53,11 @@ process MTBSEQ_LINEAGE_GROUP {
             cp ${params.outDir}/db/comparison/mtbseq/${lineage}/${groups_mat} Groups/
 
         else
+
+            # Clean up the last results
+            rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Groups/*
+            rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Matrix/*
+
             ## MTBseq TBgroups using the first SNP distance
             MTBseq --step TBgroups \\
                 --thread        ${task.cpus} \\
@@ -77,46 +77,46 @@ process MTBSEQ_LINEAGE_GROUP {
         fi
 
         # Wrangle the group list into a useful format
-            cat ${groups_tab} \\
-                    | sed '0,/### Output as lists:/d' \\
-                    | sed "s@^@${lineage}\tdist_${distance}\t@g" \\
-                        > tmp.${lineage}_d${distance}.clusters.tsv
+        cat ${groups_tab} \\
+                | sed '0,/### Output as lists:/d' \\
+                | sed "s@^@${lineage}\tdist_${distance}\t@g" \\
+                    > tmp.${lineage}_d${distance}.clusters.tsv
 
-            grep 'group_' tmp.${lineage}_d${distance}.clusters.tsv \\
-                    | sed "s@group_@@g" \\
-                    | sed s/\$/-${distance}-${lineage}/g \\
-                    | sed 's/-lineage/-L/g' \\
-                    > Groups/${params.runID}_${lineage}_d${distance}.clusters.tsv
+        grep 'group_' tmp.${lineage}_d${distance}.clusters.tsv \\
+                | sed "s@group_@@g" \\
+                | sed s/\$/-${distance}-${lineage}/g \\
+                | sed 's/-lineage/-L/g' \\
+                > Groups/${params.runID}_${lineage}_d${distance}.clusters.tsv
 
-            grep 'ungrouped' tmp.${lineage}_d${distance}.clusters.tsv \\
-                    | sed "s@ungrouped@singleton@g" > Groups/${params.runID}_${lineage}_d${distance}.singletons.tsv
+        grep 'ungrouped' tmp.${lineage}_d${distance}.clusters.tsv \\
+                | sed "s@ungrouped@singleton@g" > Groups/${params.runID}_${lineage}_d${distance}.singletons.tsv
 
         # Move and rename the Matrix file for simplicity
-            cp Groups/${lineage}*.matrix Matrix/${lineage}.d${distance}.matrix
+        cp Groups/${lineage}*.matrix Matrix/${lineage}.d${distance}.matrix
 
         ## Correct the format of the matrix for importing to R
 
-            # cut the headers column from the matrix
-            cut -f1 Matrix/${lineage}.d${distance}.matrix > Matrix/tmp.${lineage}.matrix.ids
+        # cut the headers column from the matrix
+        cut -f1 Matrix/${lineage}.d${distance}.matrix > Matrix/tmp.${lineage}.matrix.ids
 
-            # transpose the first colum long to wide (tab seperated)
-                awk '                                         
-                {
-                    for (i = 1; i <= NF; i++) {
-                        arr[i] = (arr[i] ? arr[i] "\t" : "") \$i;
-                    }
+        # transpose the first colum long to wide (tab seperated)
+            awk '                                         
+            {
+                for (i = 1; i <= NF; i++) {
+                    arr[i] = (arr[i] ? arr[i] "\t" : "") \$i;
                 }
-                END {
-                    for (i = 1; i in arr; i++) {
-                        print arr[i];
-                    }
+            }
+            END {
+                for (i = 1; i in arr; i++) {
+                    print arr[i];
                 }
-                ' Matrix/tmp.${lineage}.matrix.ids | sed 's/^/sampleID\t/g' > Matrix/tmp.${lineage}.matrix.head
+            }
+            ' Matrix/tmp.${lineage}.matrix.ids | sed 's/^/sampleID\t/g' > Matrix/tmp.${lineage}.matrix.head
 
-                cat Matrix/tmp.${lineage}.matrix.head Matrix/${lineage}.d${distance}.matrix > Matrix/${params.runID}_${lineage}.d${distance}.matrix.tsv
+        cat Matrix/tmp.${lineage}.matrix.head Matrix/${lineage}.d${distance}.matrix > Matrix/${params.runID}_${lineage}.d${distance}.matrix.tsv
 
-            # remove the intermediates
-                rm Matrix/tmp.${lineage}.*
+        # remove the intermediates
+        rm Matrix/tmp.${lineage}.*
 
         cat Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta > ${params.runID}_${lineage}_snps.fasta
         cat Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab > ${params.runID}_${lineage}_snps.tab
