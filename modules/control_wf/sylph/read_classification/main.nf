@@ -28,16 +28,19 @@ process SYLPH_CLASSIFICATION {
         # skip rows with missing FASTQs
         [[ -z \$forward || -z \$reverse ]] && continue
 
+        echo -e "Sylph individual: \${sampleID}"
+
         sylph sketch \\
-            --out-name-db \$sampleID \\
-            -1 \$forward \\
-            -2 \$reverse \\
+            --out-name-db \${sampleID} \\
+            -1 \${forward} \\
+            -2 \${reverse} \\
             -d sylph/ \\
             -t ${task.cpus}
 
     done < <(sed '1d' ${samplesheet})
 
     # Profile the sketches with Sylph
+    echo -e "Profile the sketches with Sylph"
         sylph profile \\
             ${sylph_db} \\
             sylph/* \\
@@ -49,23 +52,24 @@ process SYLPH_CLASSIFICATION {
             -d sylph.tsv
 
     # Get taxonomy for the profiles
+    echo -e "Get taxonomy for the profiles"
         sylph-tax taxprof sylph.tsv \\
             -t ${sylph_tax}/* \\
             -d sylph_tax/tax_
             
     # remove any empty files
+    echo -e "Remove any empty files"
             find sylph_tax/ -type f -name 'tax_*.sylphmpa' -empty -delete
 
+    echo -e "Merge the profiles"
         sylph-tax merge \\
             sylph_tax/tax_*.sylphmpa \\
             --column sequence_abundance \\
             -o ${params.runID}.sylph_sequence_abundance.tsv
-
         sylph-tax merge \\
             sylph_tax/tax_*.sylphmpa \\
             --column relative_abundance \\
             -o ${params.runID}.sylph_relative_abundance.tsv
-        
         sylph-tax merge \\
             sylph_tax/tax_*.sylphmpa \\
             --column relative_abundance \\
