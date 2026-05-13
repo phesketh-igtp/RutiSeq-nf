@@ -63,7 +63,7 @@ process PREPARE_NEXUS_PATHS{
                 cat nexus.tuple.csv | grep -v ",nX-" > tmp.nexus.tuple.csv
                 mv tmp.nexus.tuple.csv nexus.tuple.csv
 
-        fizz
+        fi
     """
 
 }

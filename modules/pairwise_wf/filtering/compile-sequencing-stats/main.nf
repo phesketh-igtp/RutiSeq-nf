@@ -201,15 +201,15 @@ process COMPILE_SEQUENCING_STATS {
     #··············································································#
 
     # Import dataframes
-    mtbseq_stats    <- read.delim("Mapping_and_Variant_Statistics.tab", header = TRUE)
-    mtbseq_class    <- read.delim("Strain_Classification.tab", header = TRUE)
+    mtbseq_stats    <- read.delim("Mapping_and_Variant_Statistics.tab", header = TRUE, check.names = FALSE)
+    mtbseq_class    <- read.delim("Strain_Classification.tab", header = TRUE, check.names = FALSE)
     tbprofiler_tbdb <- read.delim("tbdb-tbprofiler.txt", header = TRUE)
     tbprofiler_who  <- read.delim("who-tbprofiler.txt", header = TRUE)
     lineage_frac    <- read.delim("tbprofiler.lineages.fractions.txt", sep = ";", header = TRUE) |> 
                                     select(SampleID, Lineage_frac, Mixed_90perc)
 
     # Merge the dataframes
-    merge1 <- left_join(mtbseq_statistics.df, mtbseq_classification.df)
+    merge1 <- left_join(mtbseq_stats, mtbseq_class)
     merge2 <- left_join(merge1, tbprofiler_tbdb, by = c("FullID" = "sample"))
     merge3 <- left_join(merge2, lineage_frac, by = c("FullID" = "SampleID"))
     full.df <- merge3 # rename the dataframe

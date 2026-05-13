@@ -28,12 +28,12 @@ process COMPILE_SEQUENCING_STATS {
     """
     #!/usr/bin/env python
     import polars as pl
-    
+
     # ------------------------------------------------------------------
     # Params
     # ------------------------------------------------------------------
     runID = "${params.runID}"
-    
+
     # ------------------------------------------------------------------
     # Helper: dictionary rename//renaming maps
     # ------------------------------------------------------------------
@@ -50,10 +50,19 @@ process COMPILE_SEQUENCING_STATS {
         "SNPs": "nSNPs",
         "drtype": "Drug resistance type",
         "infection_type": "Infection type",
-        "Lineage_frac": "Lineages (fractions)",
-        "Mixed_90perc": "Lineages (mixed fractions > 90)"
+        "lineages_frac": "Lineages (fractions)",
+        "status": "Status"
     }
-    
+
+    # Define the fucntion for breaking down the lineages
+    def lineage_level(expr: pl.Expr, n: int) -> pl.Expr:
+        parts = expr.cast(pl.Utf8).str.strip_chars().str.split(".")
+        return (
+            pl.when(parts.list.len() >= n)
+            .then(parts.list.slice(0, n).list.join("."))
+            .otherwise(None)
+        )
+
     # ------------------------------------------------------------------
     # Load data
     # ------------------------------------------------------------------
@@ -65,127 +74,167 @@ process COMPILE_SEQUENCING_STATS {
         .select([
             pl.col("sample").alias("SampleID"),
             "main_lineage",
-            "sub_lineage"
-        ])
+                    "sub_lineage"
+                ])
         .with_columns(
             pl.when(
                 pl.col("main_lineage").str.contains(";") |
                 pl.col("sub_lineage").str.contains(";")
             )
-            .then(pl.lit("mixed"))
-            .otherwise(pl.lit("clonal"))
-            .alias("infection_type")
+        .then(pl.lit("mixed"))
+        .otherwise(pl.lit("clonal"))
+        .alias("infection_type")
         )
     )
-    
+
+    # ------------------------------------------------------------------
+    # Create the lineage fractions column
+    # ------------------------------------------------------------------
+
     lineage_frac = (
         pl.read_csv("lineages.fractions.txt", separator="\t")
         .filter(pl.col("Fraction") != "Fraction")
         .with_columns(pl.col("Fraction").cast(pl.Float64))
         .with_columns((pl.col("Fraction") * 100).alias("Perc"))
     )
-    
-    # ------------------------------------------------------------------
-    # Function to process lineage fractions (replaces duplicate code)
-    # ------------------------------------------------------------------
-    def process_fraction(df):
-        if df.height == 0:
-            return df
-    
-        return (
-            df.join(lineage_frac, on="SampleID", how="left", coalesce=True)
-            .with_columns([
-                (pl.col("Lineage") + " (" + pl.col("Perc").round(2).cast(pl.Utf8) + "%)")
-                .str.replace("lineage", "L")
-                .alias("Lineage_p")
-            ])
-            .group_by("SampleID")
-            .agg([
-                pl.concat_str(pl.col("Lineage_p").unique(), separator="; ").alias("Lineage_frac"),
-                pl.when(pl.col("Perc") >= 90)
-                  .then(pl.col("Lineage_p"))
-                  .otherwise(None)
-                  .drop_nulls()
-                  .first()
-                  .alias("Mixed_90perc")
-            ])
+
+    lineage_frac_collapsed = (
+        lineage_frac
+        .with_columns(
+            pl.col("Lineage").str.replace(r"^lineage", "L").alias("Lineage")
+            # If you want to be extra safe about case:
+            # pl.col("Lineage").str.replace(r"(?i)^lineage", "L").alias("Lineage")
         )
-    
-    # ------------------------------------------------------------------
-    # Split datasets
-    # ------------------------------------------------------------------
-    mixed   = tbprof.filter(pl.col("infection_type") == "mixed")
-    clonal  = tbprof.filter(pl.col("infection_type") == "clonal")
-    
-    mixed_frac  = process_fraction(mixed)
-    clonal_frac = process_fraction(clonal).with_columns(
-        pl.lit(None).alias("Mixed_90perc")
-    )
-    
-    tbdb_lin_fract_final = (
-        clonal_frac
-        .join(
-            tbprof.select(["SampleID", "infection_type"]),
-            on="SampleID",
-            how="left"
+        .sort(["SampleID", "Fraction", "Lineage"], descending=[False, True, False])
+        .group_by("SampleID")
+        .agg(
+            pl.concat_str(
+                [
+                    pl.col("Lineage"),
+                    pl.lit(" ("),
+                    pl.col("Fraction").round(3).cast(pl.Utf8),
+                    pl.lit(")")
+                ],
+                separator=""
+            ).str.join(", ").alias("lineages_frac")
         )
     )
-    
+
+    # Join the final tbprofiler file
+    tbprof_final = tbprof.join(
+        lineage_frac_collapsed,
+        on="SampleID"
+    )
+
     # ------------------------------------------------------------------
     # Write lineage fraction output
     # ------------------------------------------------------------------
-    tbdb_lin_fract_final.write_csv(
+    tbprof_final.write_csv(
         "tbprofiler.lineages.fractions.txt",
         separator=";"
     )
-    
+
     # ------------------------------------------------------------------
     # Sequencing summary section
     # ------------------------------------------------------------------
     mtbseq_stats = pl.read_csv(
         "Mapping_and_Variant_Statistics.tab", 
         separator="\t", 
-        has_header=TRUE)
+        has_header=True)
     mtbseq_class = pl.read_csv(
         "Strain_Classification.tab",
         separator="\t",
-        has_header=TRUE)
+        has_header=True)
     tbprof_tbdb = pl.read_csv(
         "tbdb-tbprofiler.txt",
         separator="\t")
     tbprof_who  = pl.read_csv(
         "who-tbprofiler.txt",
         separator="\t")
-    
-    lineage_frac_short = tbdb_lin_fract_final.select([
-        "SampleID", "Lineage_frac", "Mixed_90perc"
-    ])
-    
+
     # Merge all
     full_df = (
         mtbseq_stats
         .join(mtbseq_class, on="FullID", how="left")
         .join(tbprof_tbdb, left_on="FullID", right_on="sample", how="left")
-        .join(lineage_frac_short, left_on="FullID", right_on="SampleID", how="left")
+        .join(tbprof_final, left_on="FullID", right_on="SampleID", how="left")
     )
-    
-    # Add infection type
-    full_df = full_df.with_columns(
-        pl.when(
-            pl.col("main_lineage").str.contains(";") |
-            pl.col("sub_lineage").str.contains(";")
+
+    # ------------------------------------------------------------------
+    # Sequencing outcome
+    # ------------------------------------------------------------------
+
+    full_df_with_status = (
+        full_df
+        .with_columns(
+            # Build a list of failed checks (nulls are removed later)
+            pl.concat_list([
+                pl.when(pl.col("infection_type") == "clonal")
+                .then(None)
+                .otherwise(pl.lit("mixed infection")),
+
+                pl.when(pl.col("Total Reads") >= 1_000_000)
+                .then(None)
+                .otherwise(pl.lit("Total Reads < 1,000,000")),
+
+                pl.when(pl.col("Unambiguous Total Bases (%)") >= 0.95)
+                .then(None)
+                .otherwise(pl.lit("Unambiguous Total Bases (%) < 0.95")),
+
+                pl.when(pl.col("Unambiguous Coverage median") >= 50)
+                .then(None)
+                .otherwise(pl.lit("Unambiguous Coverage median < 50")),
+            ])
+            .list.drop_nulls()
+            .alias("fail_reasons")
         )
-        .then(pl.lit("Mixed"))
-        .otherwise(pl.lit("Clonal"))
-        .alias("infection_type")
+        .with_columns(
+            # Convert fail_reasons -> status string
+            pl.when(pl.col("fail_reasons").list.len() == 0)
+            .then(pl.lit("PASS"))
+            .otherwise(
+                pl.concat_str(
+                    [
+                        pl.lit("FAIL :"),
+                        pl.col("fail_reasons").list.join(", "),
+                        pl.lit(")")
+                    ],
+                    separator=""
+                )
+            )
+            .alias("status")
+        )
+        # If you don't want to keep fail_reasons, drop it:
+        .drop("fail_reasons")
+        # then select what you want in the final output:
+        .select([
+            pl.col("FullID"),
+            pl.col("main_lineage"),
+            pl.col("sub_lineage"),
+            pl.col("Total Reads"),
+            pl.col("infection_type"),
+            pl.col("Unambiguous Total Bases (%)"),
+            pl.col("Unambiguous Coverage median"),
+            pl.col("status")
+        ])
     )
-    
+
+    ##full_df_with_status.filter(pl.col("status") == "FAIL")
+
+    # one final merge with the outputs
+    # Merge all
+    full_df = full_df.join(
+        full_df_with_status.select(["FullID", "status"]),  # keep only what you need
+        on="FullID",
+        how="left"
+    )
+
     # ------------------------------------------------------------------
     # Outputs
     # ------------------------------------------------------------------
-    
+
     # filter the final df for the summary page
-    sequencing_summary_df = (
+    full_df = (
         full_df
         .rename(rename_map_final)
         .select(list(rename_map_final.values()))
@@ -194,50 +243,86 @@ process COMPILE_SEQUENCING_STATS {
     sequencing_summary_df.write_csv(f"{runID}.sequencing_summary.csv")
     tbprof_tbdb.write_csv("tbdb_resistance_summary.csv")
     tbprof_who.write_csv("who_resistance_summary.csv")
-    
+
     # ------------------------------------------------------------------
     # Pairwise analysis (genome that pass minimum quality)
     # ------------------------------------------------------------------
-    
-    # Read the samplesheet
-    samplelist = (
-        pl.read_csv("${params.outDir}/sample-sheets/${params.runID}.csv")
-        .select("sampleID")
-        .to_series()
-        .to_list()
-    )
-    
-    minQual_genomes = (
-        full_df
-        # 1. keep only clonal samples
-        .filter(pl.col("infection_type") == "Clonal")
-        # 2. apply quality filters
-        .filter(
-            (pl.col("Total Reads") >= 1000000) &
-            (pl.col("Unambiguous Total Bases (%)") >= 0.95) &
-            (pl.col("Unambiguous Coverage median") >= 50)
+        
+    # Read the samplesheet to identify the new samples
+    new_sample_list = (
+        pl.read_csv(f"{params.outDir}/sample-sheets/{params.runID}.csv")
+        .select(
+            pl.col("sampleID")
+            .cast(pl.Utf8)
+            .str.strip_chars()
+            .alias("sampleID")
         )
-        # 3. select required columns
-        .select([
-            pl.col("FullID").alias("sample"), # or FullID depending on your naming
-            pl.col("main_lineage"),
-            pl.col("sub_lineage")
+        .filter(
+            pl.col("sampleID").is_not_null() &
+            (pl.col("sampleID") != "") &
+            (pl.col("sampleID").str.to_lowercase() != "sampleid")
+        )
+        .unique().to_series().to_list()
+    )
+
+    # Filter to keep only samples in the list
+    passed_new = (
+        full_df
+        .filter(
+            (pl.col("Status") == "PASS") &
+            (pl.col("Sample").is_in(new_sample_list))
+        )
+        .sort("Main lineage")
+        .unique()
+    )
+    # Break down the lineages levels 
+    lineage_lvs = (
+        passed_new
+        .with_columns([
+            lineage_level(pl.col("Sub-lineage"), 1).alias("Main_lineage_lv1"),
+            lineage_level(pl.col("Sub-lineage"), 2).alias("Sub_lineage_lv2"),
+            lineage_level(pl.col("Sub-lineage"), 3).alias("Sub_lineage_lv3"),
+            lineage_level(pl.col("Sub-lineage"), 4).alias("Sub_lineage_lv4"),
         ])
     )
-    
+    # Identify the lineages they belongue to
+    lv1 = lineage_lvs.get_column("Main_lineage_lv1").drop_nulls().unique().to_list()
+    lv2 = lineage_lvs.get_column("Sub_lineage_lv2").drop_nulls().unique().to_list()
+    lv3 = lineage_lvs.get_column("Sub_lineage_lv3").drop_nulls().unique().to_list()
+    lv4 = lineage_lvs.get_column("Sub_lineage_lv4").drop_nulls().unique().to_list()
+
+    # Collect all the pass genomes that have the correct (sub-)lineages
+    pairwise_analysis_genomes = (
+        full_df
+        .filter(
+            (pl.col("Status") == "PASS") &
+            (
+                pl.col("Main lineage").is_in(lv1) |
+                pl.col("Sub-lineage").is_in(lv2) |
+                pl.col("Sub-lineage").is_in(lv3) |
+                pl.col("Sub-lineage").is_in(lv4)
+            )
+        )
+        .select(["Sample", "Main lineage", "Sub-lineage"])
+        .rename({
+            "Sample": "sample",
+            "Main lineage": "main_lineage",
+            "Sub-lineage": "sub_lineage",
+        })
+    )
+
     # Export the minimum quality genomes
-    minQual_genomes.write_csv(
+    pairwise_analysis_genomes.write_csv(
         "pairwise_analysis.list.csv",
         include_header=False
     )
     """
 }
 
-
 /*
 @author: Poppy J Hesketh Best
-@date: 2025-04-01
-@version: 1.0.0
+@date: 2026-05-13
+@version: 2.0.0
 @description:
     In this module the sequencing statistics for the db are
     calculated with Rscripts. The output is a summary of the
@@ -248,4 +333,5 @@ process COMPILE_SEQUENCING_STATS {
     a tuple/channel for downstream processing.
 @changelog:
     v1.0.0_2024-04-01: Inital version of module
+    v2.0.0_2026-05-13: Migrated R code to Python (polars)
 */

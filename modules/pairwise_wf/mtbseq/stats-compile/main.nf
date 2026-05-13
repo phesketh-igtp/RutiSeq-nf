@@ -104,13 +104,13 @@ process MTBSEQ_STATS_COMPILE {
     stats_df.write_csv(
         "Mapping_and_Variant_Statistics.tab",
         separator="\t",
-        include_header=TRUE
+        include_header=True
     )
 
     class_df.write_csv(
         "Strain_Classification.tab",
         separator="\t",
-        include_header=TRUE
+        include_header=True
     )
     """
 }

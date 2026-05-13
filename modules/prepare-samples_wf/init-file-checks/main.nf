@@ -2,7 +2,7 @@ process FILE_CHECK {
 
     tag "$sampleID"
 
-    maxForks 200  // Changed from 'array' (not a valid directive) to 'maxForks'
+    maxForks 20  // Changed from 'array' (not a valid directive) to 'maxForks'
 
     input:
         tuple val(sampleID), 
