@@ -1,7 +1,6 @@
 process COMPILE_SEQUENCING_STATS {
 
-    conda params.stats_env
-    //conda "conda-forge::polars-lts-cpu=0.20.31 conda-forge::python=3.11"
+    conda params.r_stats_env
 
     publishDir "${params.outDir}/db/comparison/summary/", 
         mode: 'copy',
@@ -25,250 +24,299 @@ process COMPILE_SEQUENCING_STATS {
         path("pairwise_analysis.list.csv"),  emit: pairwise_analysis_list
 
     script:
+
     """
-    #!/usr/bin/env python
-    import polars as pl
-    
-    # ------------------------------------------------------------------
+    #!/usr/bin/env Rscript
+
+    # Set a default CRAN repo to avoid mirror prompts
+    options(repos = c(CRAN = "https://cloud.r-project.org"))
+
+    # load libraries
+    packages <- c("tidyverse", "dplyr", "tidyr")
+
+    # Identify missing packages
+    missing_pkgs <- packages[!packages %in% installed.packages()[, "Package"]]
+
+    # Install missing packages
+    if (length(missing_pkgs) > 0) {
+        install.packages(missing_pkgs, dependencies = TRUE)
+    }
+
+    # Load all packages
+    invisible(lapply(packages, library, character.only = TRUE))
+
+    set.seed(1234)
+
+    #··············································································#
     # Params
-    # ------------------------------------------------------------------
-    runID = "${params.runID}"
+    #··············································································#
+
+    dictionary  <- "${params.scriptDir}/R/dict/mtbseq_classification.dict.csv"
+    runID       <- "${params.runID}"
     
-    # ------------------------------------------------------------------
-    # Helper: dictionary rename//renaming maps
-    # ------------------------------------------------------------------
-    mtbseq_stats_rename_map = {
-        "column_1": "Date",
-        "column_2": "SampleID",
-        "column_3": "LibraryID",
-        "column_4": "FullID",
-        "column_5": "Total Reads",
-        "column_6": "Mapped Reads",
-        "column_7": "Mapped Reads (%)",
-        "column_8": "Genome Size",
-        "column_9": "Genome GC",
-        "column_10": "Any Total Bases",
-        "column_11": "Any Total Bases (%)",
-        "column_12": "Any GC-Content",
-        "column_13": "Any Coverage mean",
-        "column_14": "Any Coverage median",
-        "column_15": "Unambiguous Total Bases",
-        "column_16": "Unambiguous Total Bases (%)",
-        "column_17": "Unambiguous GC-Content",
-        "column_18": "Unambiguous Coverage mean",
-        "column_19": "Unambiguous Coverage median",
-        "column_20": "SNPs",
-        "column_21": "Deletions",
-        "column_22": "Insertions",
-        "column_23": "Uncovered",
-        "column_24": "Substitutions (Including Stop Codons)"
+    #··············································································#
+    # Functions
+    #··············································································#
+    
+    dictionary_rename <- function(df, dict_path) { 
+        # import dictionary
+            dict <- read.csv(dict_path)
+        # create vector name
+            dict_names <- dict |> 
+                select(new.name,old.name) |>
+                deframe()
+        # Create vector for cols to keep (using 'new.name' since the cols will be renamed)
+            cols.to.keep <- dict |> 
+                    filter(final == "Y") |>
+                        select(new.name) |>
+                            deframe()
+        # Rename cols
+            df <- df |> 
+                rename(all_of(dict_names)) |> # Rename cols using dict_names
+                    select(all_of(cols.to.keep)) # Keep only cols.to.keep
     }
-    
-    mtbseq_class_rename_map = {
-        "column_1": "Date",
-        "column_2": "SampleID",
-        "column_3": "LibraryID",
-        "column_4": "FullID",
-        "column_5": "Homolka species",
-        "column_6": "Homolka lineage",
-        "column_7": "Homolka group",
-        "column_8": "Quality",
-        "column_9": "Coll lineage (branch)",
-        "column_10": "Coll lineage_name (branch)",
-        "column_11": "Coll quality (branch)",
-        "column_12": "Coll lineage (easy)",
-        "column_13": "Coll lineage_name (easy)",
-        "column_14": "Coll quality (easy)",
-        "column_15": "Beijing lineage (easy)",
-        "column_16": "Beijing quality (easy)"
+
+    #··············································································#
+    # Create Lineage fractions file
+    #··············································································#
+
+    # Read the input files
+    tbprof <- read.delim("tbdb-tbprofiler.txt", header = TRUE) |>
+        mutate(across(everything(), ~ str_trim(as.character(.)))) |>
+        select(SampleID=sample,main_lineage,sub_lineage) |> # designate 'clonal' or 'mixed
+        mutate(infection_type = ifelse(grepl(';', main_lineage) | grepl(';', sub_lineage), 'mixed', 'clonal'))
+
+    tbprof.infec <- tbprof |> select(SampleID,infection_type)
+
+    lineage.frac <- read.delim("lineages.fractions.txt", header = TRUE) |>
+        filter(Fraction != 'Fraction')
+
+    # Split 'clonal' and 'clonal'
+    # clonal: add fraction of lineage designation
+    mixed <- tbprof |> filter(infection_type == 'mixed')
+        if (nrow(mixed) == 0) { 
+            # Check if 'mixed' is empty
+            mixed.frac.5 <- mixed
+
+            } else { # Proceed with processing if 'mixed' is not empty
+
+            mixed.frac <- left_join(mixed, lineage.frac) |>
+                select(SampleID, main_lineage, sub_lineage, infection_type, Lineage, Fraction)
+            mixed.frac <- mixed.frac |> mutate(across(Fraction, as.numeric))
+            mixed.frac <- mixed.frac |> mutate(Perc = 100 * Fraction)
+
+            mixed.frac.1 <- mixed.frac |>
+                mutate(Lineage_p = paste0(Lineage, " (", Perc, "%)")) |>
+                mutate(Lineage_p = gsub("lineage", "L", Lineage_p))
+
+            mixed.frac.2 <- mixed.frac.1 |>
+                select(SampleID, sub_lineage, Lineage_p) |>
+                mutate(sub_lineage = gsub("lineage", "L", sub_lineage)) |>
+                mutate(Lineage = Lineage_p) |>
+                separate_wider_delim(cols = Lineage, " ", names = c("Lineage", NA))
+
+            mixed.frac.2.keep <- mixed.frac.2 |>
+                select(SampleID, sub_lineage) |>
+                distinct(SampleID, sub_lineage, .keep_all = TRUE) |>
+                separate_rows(sub_lineage, sep = ";") |>
+                select(SampleID, Lineage = sub_lineage)
+
+            mixed.frac.3 <- left_join(mixed.frac.2.keep, mixed.frac.2) |>
+                                group_by(SampleID) |>
+                                mutate(Lineage_pL = paste(unique(Lineage_p), collapse = "; ")) |>
+                                slice(1) |>  # Keeps only the first row per SampleID after mutating
+                                ungroup() |>
+                                select(SampleID, Lineage_frac = Lineage_pL)
+
+            mixed.frac.4 <- mixed.frac.1 |> 
+                                group_by(SampleID) |>  # Group by SampleID
+                                arrange(desc(Perc), .by_group = TRUE) |>   # Sort by Perc in descending order within each group
+                                slice(1) |> # Retain only the first row of each group
+                                filter(Perc >= 90) |> # Filter rows where Perc >= 90
+                                mutate(Mixed_90perc = paste0(Lineage, " (", Perc, "%)")) |>  # Create new column
+                                ungroup() # Ungroup after manipulation (optional but recommended)
+
+            mixed.frac.5 <- left_join(mixed.frac.3, mixed.frac.4) |>
+                            select(SampleID, Lineage_frac, Mixed_90perc)
     }
-    
-    rename_map_final = {
-        "FullID": "Sample",
-        "LibraryID": "Library",
-        "main_lineage": "Main lineage",
-        "sub_lineage": "Sub-lineage",
-        "Total Reads": "Total Reads",
-        "Unambiguous Total Bases": "Unambiguous Total Bases",
-        "Unambiguous Total Bases (%)": "Unambiguous Total Bases (%)",
-        "Unambiguous GC-Content": "Unambiguous GC Content",
-        "Unambiguous Coverage median": "Unambiguous Coverage median",
-        "SNPs": "nSNPs",
-        "drtype": "Drug resistance type",
-        "infection_type": "Infection type",
-        "Lineage_frac": "Lineages (fractions)",
-        "Mixed_90perc": "Lineages (mixed fractions > 90)"
+
+    # Clonal: add fraction of lineage designation
+    clonal <- tbprof |> filter(infection_type == "clonal")
+
+    if (nrow(clonal) == 0) { # Check if 'clonal' is empty
+            clonal.frac.3 <- clonal
+        } else { 
+        # Proceed with processing if 'clonal' is not empty
+        clonal.frac <- left_join(clonal, lineage.frac) |>
+            select(SampleID, main_lineage, sub_lineage, 
+                    infection_type, Lineage, Fraction)
+        clonal.frac <- clonal.frac |> mutate(across(Fraction, as.numeric))
+        clonal.frac <- clonal.frac |> mutate(Perc = 100 * Fraction)
+
+        clonal.frac.1 <- clonal.frac |>
+                                    mutate(Lineage_p = paste0(Lineage, " (", Perc, "%)")) |>
+                                    mutate(Lineage_p = gsub("lineage", "L", Lineage_p))
+
+        clonal.frac.2 <- clonal.frac.1 |>
+                                    select(SampleID, sub_lineage, Lineage_p) |>
+                                    mutate(sub_lineage = gsub("lineage", "L", sub_lineage)) |>
+                                    mutate(Lineage = Lineage_p) |>
+                                    separate_wider_delim(cols = Lineage, " ", names = c("Lineage", NA))
+
+        clonal.frac.2.keep <- clonal.frac.2 |>
+            select(SampleID, sub_lineage) |>
+            distinct(SampleID, sub_lineage, .keep_all = TRUE) |>
+            separate_rows(sub_lineage, sep = ";") |>
+            select(SampleID, Lineage = sub_lineage)
+
+        clonal.frac.3 <- left_join(clonal.frac.2.keep, clonal.frac.2) |>
+            group_by(SampleID) |>
+            mutate(Lineage_pL = paste(unique(Lineage_p), collapse = "; ")) |>
+            slice(1) |>  # Keeps only the first row per SampleID after mutating
+            ungroup() |>
+            select(SampleID, Lineage_frac = Lineage_pL) |>
+            distinct() |>
+            mutate(Mixed_90perc = NA)
     }
-    
-    # ------------------------------------------------------------------
-    # Load data
-    # ------------------------------------------------------------------
-    tbprof = (
-        pl.read_csv("tbdb-tbprofiler.txt", separator="\t")
-        .with_columns(pl.all().cast(pl.Utf8).str.strip_chars())
-        .select([
-            pl.col("sample").alias("SampleID"),
-            "main_lineage",
-            "sub_lineage"
-        ])
-        .with_columns(
-            pl.when(
-                pl.col("main_lineage").str.contains(";") |
-                pl.col("sub_lineage").str.contains(";")
-            )
-            .then(pl.lit("mixed"))
-            .otherwise(pl.lit("clonal"))
-            .alias("infection_type")
+
+    # Combine clonal and clonal results
+    tbdb_lin_fract <- rbind(clonal.frac.3, 
+        mixed.frac.5) |>
+        arrange(desc(SampleID))
+
+    tbdb_lin_fract_final <- left_join(tbdb_lin_fract, tbprof.infec) |>
+        select(SampleID,infection_type,
+        Lineage_frac,Mixed_90perc)
+
+    # Output the result
+    write.table(tbdb_lin_fract_final, 
+        file = "tbprofiler.lineages.fractions.txt",
+        sep = ";", 
+        row.names = FALSE, 
+        col.names = TRUE, 
+        quote = FALSE)
+
+    #··············································································#
+    # Sequencing Summary
+    #··············································································#
+
+    # Import dataframes
+    mtbseq_stats    <- read.delim("Mapping_and_Variant_Statistics.tab", header = FALSE)
+    mtbseq_class    <- read.delim("Strain_Classification.tab", header = FALSE)
+    tbprofiler_tbdb <- read.delim("tbdb-tbprofiler.txt", header = TRUE)
+    tbprofiler_who  <- read.delim("who-tbprofiler.txt", header = TRUE)
+    lineage_frac    <- read.delim("tbprofiler.lineages.fractions.txt", sep = ";", header = TRUE) |> 
+                                    select(SampleID, Lineage_frac, Mixed_90perc)
+
+    # Add appropriate headers to dataframes using dictionaries
+    mtbseq_statistics.df     <- dictionary_rename(
+        df = mtbseq_stats,
+        dict_path = "${params.scriptDir}/R/dict/mtbseq_statistics.dict.csv")
+
+    mtbseq_classification.df <- dictionary_rename(
+        df = mtbseq_class,
+        dict_path = "${params.scriptDir}/R/dict/mtbseq_classification.dict.csv")
+
+    merge1 <- left_join(mtbseq_statistics.df, mtbseq_classification.df)
+    merge2 <- left_join(merge1, tbprofiler_tbdb, by = c("FullID" = "sample"))
+    merge3 <- left_join(merge2, lineage_frac, by = c("FullID" = "SampleID"))
+    full.df <- merge3 # rename the dataframe
+
+    # Filter out the genomes using a minimum coverage 
+    full.df.final <- full.df |>
+        mutate(infection_type = if_else(
+            grepl(";", main_lineage) | grepl(";", sub_lineage),
+                "Mixed","Clonal")
         )
-    )
-    
-    lineage_frac = (
-        pl.read_csv("lineages.fractions.txt", separator="\t")
-        .filter(pl.col("Fraction") != "Fraction")
-        .with_columns(pl.col("Fraction").cast(pl.Float64))
-        .with_columns((pl.col("Fraction") * 100).alias("Perc"))
-    )
-    
-    # ------------------------------------------------------------------
-    # Function to process lineage fractions (replaces duplicate code)
-    # ------------------------------------------------------------------
-    def process_fraction(df):
-        if df.height == 0:
-            return df
-    
-        return (
-            df.join(lineage_frac, on="SampleID", how="left", coalesce=True)
-            .with_columns([
-                (pl.col("Lineage") + " (" + pl.col("Perc").round(2).cast(pl.Utf8) + "%)")
-                .str.replace("lineage", "L")
-                .alias("Lineage_p")
-            ])
-            .group_by("SampleID")
-            .agg([
-                pl.concat_str(pl.col("Lineage_p").unique(), separator="; ").alias("Lineage_frac"),
-                pl.when(pl.col("Perc") >= 90)
-                  .then(pl.col("Lineage_p"))
-                  .otherwise(None)
-                  .drop_nulls()
-                  .first()
-                  .alias("Mixed_90perc")
-            ])
+
+    # Creating the outputs for later assembly into final results
+    sequencing_summary.df <- dictionary_rename(
+        df = full.df.final,
+        dict_path = "${params.scriptDir}/R/dict/sequencing-summary.dict.csv")
+
+    resistance_profiles_TBDB.df <- dictionary_rename(
+        df = tbprofiler_tbdb,
+        dict_path = "${params.scriptDir}/R/dict/resistance_profiles_TBDB.csv")
+
+    resistance_profiles_WHO.df <- dictionary_rename(
+        df = tbprofiler_who,
+        dict_path = "${params.scriptDir}/R/dict/resistance_profiles_WHO.csv")
+
+    # Create the list of genomes for pairwise analysis
+    pairwise_analysis.df <- full.df.final |>
+            select(SampleID=FullID,
+                    main_lineage,
+                    sub_lineage) |>
+            filter(main_lineage != "NA" & !str_detect(main_lineage, ";") & !str_detect(sub_lineage, ";"))
+
+    # export all the ouputs (broken!)
+    write.csv(sequencing_summary.df, 
+        "sequencing_summary.csv",
+        quote = TRUE, 
+        row.names = FALSE
         )
-    
-    # ------------------------------------------------------------------
-    # Split datasets
-    # ------------------------------------------------------------------
-    mixed   = tbprof.filter(pl.col("infection_type") == "mixed")
-    clonal  = tbprof.filter(pl.col("infection_type") == "clonal")
-    
-    mixed_frac  = process_fraction(mixed)
-    clonal_frac = process_fraction(clonal).with_columns(
-        pl.lit(None).alias("Mixed_90perc")
-    )
-    
-    tbdb_lin_fract_final = (
-        clonal_frac
-        .join(
-            tbprof.select(["SampleID", "infection_type"]),
-            on="SampleID",
-            how="left"
+
+    write.csv(sequencing_summary.df,
+        "${params.runID}.sequencing_summary.csv",
+        quote = TRUE, 
+        row.names = FALSE
         )
-    )
-    
-    # ------------------------------------------------------------------
-    # Write lineage fraction output
-    # ------------------------------------------------------------------
-    tbdb_lin_fract_final.write_csv(
-        "tbprofiler.lineages.fractions.txt",
-        separator=";"
-    )
-    
-    # ------------------------------------------------------------------
-    # Sequencing summary section
-    # ------------------------------------------------------------------
-    mtbseq_stats = pl.read_csv("Mapping_and_Variant_Statistics.tab", separator="\t", has_header=False)
-    mtbseq_class = pl.read_csv("Strain_Classification.tab", separator="\t", has_header=False)
-    
-    tbprof_tbdb = pl.read_csv("tbdb-tbprofiler.txt", separator="\t")
-    tbprof_who  = pl.read_csv("who-tbprofiler.txt", separator="\t")
-    
-    lineage_frac_short = tbdb_lin_fract_final.select([
-        "SampleID", "Lineage_frac", "Mixed_90perc"
-    ])
-    
-    # Rename using renaming maps
-    mtbseq_stats = mtbseq_stats.rename(mtbseq_stats_rename_map)
-    mtbseq_class = mtbseq_class.rename(mtbseq_class_rename_map)
-    
-    # Merge all
-    full_df = (
-        mtbseq_stats
-        .join(mtbseq_class, on="FullID", how="left")
-        .join(tbprof_tbdb, left_on="FullID", right_on="sample", how="left")
-        .join(lineage_frac_short, left_on="FullID", right_on="SampleID", how="left")
-    )
-    
-    # Add infection type
-    full_df = full_df.with_columns(
-        pl.when(
-            pl.col("main_lineage").str.contains(";") |
-            pl.col("sub_lineage").str.contains(";")
+
+    write.csv(resistance_profiles_TBDB.df,
+        "tbdb_resistance_summary.csv",
+        quote = TRUE, 
+        row.names = FALSE
         )
-        .then(pl.lit("Mixed"))
-        .otherwise(pl.lit("Clonal"))
-        .alias("infection_type")
-    )
-    
-    # ------------------------------------------------------------------
-    # Outputs
-    # ------------------------------------------------------------------
-    
-    # filter the final df for the summary page
-    sequencing_summary_df = (
-        full_df
-        .rename(rename_map_final)
-        .select(list(rename_map_final.values()))
-    )
-    sequencing_summary_df.write_csv("sequencing_summary.csv")
-    sequencing_summary_df.write_csv(f"{runID}.sequencing_summary.csv")
-    tbprof_tbdb.write_csv("tbdb_resistance_summary.csv")
-    tbprof_who.write_csv("who_resistance_summary.csv")
-    
-    # ------------------------------------------------------------------
-    # Pairwise analysis (genome that pass minimum quality)
-    # ------------------------------------------------------------------
-    
-    # Read the samplesheet
-    samplelist = (
-        pl.read_csv("${params.outDir}/sample-sheets/${params.runID}.csv")
-        .select("sampleID")
-        .to_series()
-        .to_list()
-    )
-    
-    minQual_genomes = (
-        full_df
-        # 1. keep only clonal samples
-        .filter(pl.col("infection_type") == "Clonal")
-        # 2. apply quality filters
-        .filter(
-            (pl.col("Total Reads") >= 1000000) &
-            (pl.col("Unambiguous Total Bases (%)") >= 0.95) &
-            (pl.col("Unambiguous Coverage median") >= 50)
+
+    write.csv(resistance_profiles_WHO.df,
+        "who_resistance_summary.csv",
+        quote = TRUE, 
+        row.names = FALSE
         )
-        # 3. select required columns
-        .select([
-            pl.col("FullID").alias("sample"), # or FullID depending on your naming
-            pl.col("main_lineage"),
-            pl.col("sub_lineage")
-        ])
-    )
-    
-    # Export the minimum quality genomes
-    minQual_genomes.write_csv(
+
+    write.csv2(pairwise_analysis.df,
         "pairwise_analysis.list.csv",
-        include_header=False
-    )
+        quote = TRUE, 
+        row.names = FALSE
+        )
+
+    #··············································································#
+    # Create split tuple
+    #··············································································#
+
+    # Import the samplesheet
+    samplelist <- read.csv("${params.samplesheet}", 
+            header = TRUE) |> 
+        select(sampleID) |>
+        deframe()
+
+    # Use the MTBseq mapping statistics for identifying good genomes
+    minQual_genomes_list <- read.delim("Mapping_and_Variant_Statistics.tab", header = FALSE) |>
+        distinct() |> 
+        filter(V5 >= ${params.filt_min_reads} & 
+                V16 >= ${params.filt_min_cov} & 
+                V19 >= ${params.filt_min_depth}) |>
+        select(V4) |> 
+        distinct() |> deframe()
+
+    # get list of clonal genomes
+    clonal_genomes_list <- tbdb_lin_fract_final |> 
+        filter(infection_type == "clonal") |>
+        select(SampleID) |> deframe()
+    
+    # Get a list of the genomes with their lineages
+    minQual_genomes <- tbprofiler_tbdb |>
+        filter(sample %in% minQual_genomes_list) |>
+        select(sample, main_lineage, sub_lineage) |>
+        filter(sample %in% clonal_genomes_list)
+    
+    # Export the pairwise analysis list
+    write.csv(minQual_genomes, 
+        "pairwise_analysis.list.csv", 
+        quote = FALSE, 
+        row.names = FALSE,
+        col.names = FALSE
+        )
     """
 }
 
