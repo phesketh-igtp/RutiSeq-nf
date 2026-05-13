@@ -283,12 +283,15 @@ process COMPILE_SEQUENCING_STATS {
         deframe()
 
     # Use the MTBseq mapping statistics for identifying good genomes
-    minQual_genomes_list <- read.delim("Mapping_and_Variant_Statistics.tab", header = FALSE) |>
+    minQual_genomes_list <- read.delim(
+            "Mapping_and_Variant_Statistics.tab",
+            header = TRUE,
+            check.names = FALSE) |>
         distinct() |> 
-        filter(V5 >= ${params.filt_min_reads} & 
-                V16 >= ${params.filt_min_cov} & 
-                V19 >= ${params.filt_min_depth}) |>
-        select(V4) |> 
+        filter(`Total Reads` >= ${params.filt_min_reads} & 
+                `Unambiguous Total Bases (%)` >= ${params.filt_min_cov} & 
+                `Unambiguous Coverage median` >= ${params.filt_min_depth}) |>
+        select(FullID) |> 
         distinct() |> deframe()
 
     # get list of clonal genomes
