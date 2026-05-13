@@ -76,6 +76,8 @@ process CONCATENATE_CLUSTERS {
     df4 = df3.with_columns(
         pl.col("dSNP").str.replace("dist_", "t=")
     )
+    
+    df4 = df4.with_columns(pl.all().str.strip_chars())
 
     # ------------------------------------------------------------------
     # Create sample index to match MTBseq output name (removed libraryID) with the SampleID
@@ -103,6 +105,7 @@ process CONCATENATE_CLUSTERS {
     ##database_sample_index.select("Sample").unique().count()
     ##df.select("Sample").unique().count()
     ##df_merged.select("Sample").unique().count()
+    ##df_merged.filter(pl.col("lineage").is_null())
 
     # Pivot wider
     wide = df_merged.pivot(

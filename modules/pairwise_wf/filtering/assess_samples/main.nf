@@ -1,6 +1,6 @@
 process ASSESS_SAMPLES {
 
-    conda params.stats_env
+    conda params.r_stats_env
 
     publishDir "${params.outDir}/db/comparison/src/${params.runID}/"
 
@@ -16,149 +16,210 @@ process ASSESS_SAMPLES {
         def sub_lineages = params.lineage_pairwise_sub.join('\\n')
         def main_lineages = params.lineage_pairwise_main.join('\\n')
 
-"""
-#!/usr/bin/env python
-import polars as pl
+    """
+    #!/usr/bin/env Rscript --vanilla
 
-# ------------------------------------------------------------------
-# Parameters (Nextflow injects these), t
-# ------------------------------------------------------------------
-pairwise_split = "${params.pairwise_split}"
-sampleID_string = "${sampleID_list}"
-pairwise_analysis_file = "${pairwise_analysis_list}"
+    # Load libraries
+    packages <- c("dplyr", "stringr", "readr")
 
-# ------------------------------------------------------------------
-# Prepare inputs
-# ------------------------------------------------------------------
-sample_ids = sorted(set(s.strip() for s in sampleID_string.split(",")))
+    # Identify missing packages
+    missing_pkgs <- packages[!packages %in% installed.packages()[, "Package"]]
 
-#lineage string split across lines
-sub_lineages_list = sorted(set(
-    s.strip() for s in "${sub_lineages}".strip().splitlines() if s.strip()
-))
-main_lineages_list = sorted(set(
-    s.strip() for s in "${main_lineages}".strip().splitlines() if s.strip()
-))
+    # Install missing packages
+    if (length(missing_pkgs) > 0) {
+        install.packages(missing_pkgs, dependencies = TRUE)
+    }
 
-# Convert to DataFrames
-run_ids_df = pl.DataFrame({"SampleID": sample_ids})
-main_lineages_df = pl.DataFrame({"selected_main_lineage": main_lineages_list})
-sub_lineages_df = pl.DataFrame({"selected_sub_lineage": sub_lineages_list})
+    # Load all packages
+    invisible(lapply(packages, library, character.only = TRUE))
 
-# ------------------------------------------------------------------
-# Read metadata
-# ------------------------------------------------------------------
-meta = (
-    pl.read_csv(pairwise_analysis_file)
-    .unique()
-    .rename({
-        "column_1": "SampleID",
-        "column_2": "main_lineage",
-        "column_3": "sub_lineage"
-    })
-    .filter(pl.col("main_lineage").is_not_null())
-    .filter(~pl.col("main_lineage").str.contains(";"))
-    .filter(~pl.col("SampleID").str.contains("CN-"))
-)
+    set.seed(1234)
+    options(warn=-1)
 
-# ------------------------------------------------------------------
-# Analysis type logic
-# ------------------------------------------------------------------
-if pairwise_split == "sub":
+    ########################################################################################################
+    # SETUP AND PARAMETER HANDLING
+    ########################################################################################################
 
-    # Build regex for sub_lineage matching
-    sub_patterns = "^(" + "|".join(sub_lineages_list) + r")\b"
+    # Get parameters from Nextflow
+    pairwise_split <- "${params.pairwise_split}"
+    sampleID_string <- "${sampleID_list}"
+    pairwise_analysis_file <- "${pairwise_analysis_list}"
 
-    filtered_meta = (
-        meta
-        .with_columns(
-            pl.when(pl.col("sub_lineage").str.contains(sub_patterns))
-            .then(
-                pl.col("sub_lineage")
-                .str.extract(sub_patterns)
-            )
-            .otherwise(None)
-            .alias("matched_sub")
-        )
-        .with_columns(
-            pl.when(pl.col("matched_sub").is_not_null())
-            .then(pl.col("matched_sub"))
-            .when(pl.col("main_lineage").is_in(main_lineages_list))
-            .then(pl.col("main_lineage"))
-            .otherwise(pl.col("sub_lineage"))
-            .alias("lineage")
-        )
-        .select(["lineage", "SampleID"])
-    )
+    cat("=== ASSESS_SAMPLES R Script ===\\n")
+    cat("Pairwise split parameter:", pairwise_split, "\\n")
+    cat("Input file:", pairwise_analysis_file, "\\n")
 
-elif pairwise_split == "main":
+    ########################################################################################################
+    # PREPARE INPUT FILES
+    ########################################################################################################
 
-    filtered_meta = meta.select([
-        pl.col("main_lineage").alias("lineage"),
-        "SampleID"
-    ])
+    # Create sample IDs file from comma-separated string
+    sample_ids <- unlist(strsplit(sampleID_string, ","))
+    sample_ids <- sort(unique(trimws(sample_ids)))
+    writeLines(sample_ids, "run_sample_ids.txt")
 
-elif pairwise_split == "none":
+    # Create lineage lists
+    sub_lineages_list <- unlist(strsplit("${sub_lineages}", "\\n"))
+    sub_lineages_list <- sort(unique(trimws(sub_lineages_list)))
+    writeLines(sub_lineages_list, "selected_sub-lineage_split.list")
 
-    filtered_meta = meta.select([
-        pl.lit("All").alias("lineage"),
-        "SampleID"
-    ])
+    main_lineages_list <- unlist(strsplit("${main_lineages}", "\\n"))
+    main_lineages_list <- sort(unique(trimws(main_lineages_list)))
+    writeLines(main_lineages_list, "selected_main-lineage_split.list")
 
-else:
-    raise ValueError(
-        f"Invalid pairwise level: {pairwise_split}"
-    )
+    cat("Number of sample IDs:", length(sample_ids), "\\n")
+    cat("Number of sub-lineages:", length(sub_lineages_list), "\\n")
+    cat("Number of main lineages:", length(main_lineages_list), "\\n")
 
-# ------------------------------------------------------------------
-# Filter small lineages (<5 samples)
-# ------------------------------------------------------------------
-counts = (
-    filtered_meta
-    .group_by("lineage")
-    .count()
-)
+    ########################################################################################################
+    # IMPORT AND PREPARE DATA
+    ########################################################################################################
 
-skipped = counts.filter(pl.col("count") < 5)
+    # Import dataframes
+    main_lineages_df <- data.frame(selected_main_lineage = main_lineages_list)
+    sub_lineages_df <- data.frame(selected_sub_lineage = sub_lineages_list)
+    run_ids_df <- data.frame(SampleID = sample_ids)
 
-passed = (
-    filtered_meta
-    .filter(pl.col("SampleID").is_in(sample_ids))
-    .filter(~pl.col("lineage").is_in(skipped["lineage"]))
-    .select("lineage")
-    .unique()
-)
+    # Read the pairwise analysis file
+    meta <- readr::read_delim(pairwise_analysis_file,
+                            col_names = TRUE, 
+                            show_col_types = FALSE) |>
+        distinct()
+    colnames(meta) <- c("SampleID", "main_lineage", "sub_lineage")
 
-# ------------------------------------------------------------------
-# Split forward vs skipped
-# ------------------------------------------------------------------
-filtered_meta_forward = (
-    filtered_meta
-    .filter(pl.col("lineage").is_in(passed["lineage"]))
-    .filter(~pl.col("SampleID").is_in(["sample", "SampleID"]))
-    .filter(~pl.col("lineage").is_in(["main_lineage", "lineage"]))
-)
+    cat("Original meta data rows:", nrow(meta), "\\n")
 
-filtered_meta_skip = (
-    filtered_meta
-    .filter(~pl.col("lineage").is_in(passed["lineage"]))
-    .filter(~pl.col("SampleID").is_in(["sample", "SampleID"]))
-    .filter(pl.col("lineage") != "sub_lineage")
-)
+    # Filter out any sample that contains 'CN-' and clean data
+    meta <- meta |>
+        filter(!is.na(main_lineage) & !str_detect(main_lineage, ";")) |>
+        filter(!str_detect(SampleID, "CN-"))
 
-# ------------------------------------------------------------------
-# Write outputs (no headers)
-# ------------------------------------------------------------------
-filtered_meta_forward.write_csv(
-    "final.lineage_samples_tuple.csv",
-    include_header=False
-)
+    cat("Filtered meta data rows:", nrow(meta), "\\n")
 
-filtered_meta_skip.write_csv(
-    "final.skipped-lineages_tuple.csv",
-    include_header=False
-)
-"""
+    ########################################################################################################
+    # ANALYSIS TYPE SPECIFIC PROCESSING
+    ########################################################################################################
+
+    if (pairwise_split == "sub") {
+
+        cat("Processing sub-lineage analysis\\n")
+
+        # Filter out the lineages at sub_lineage level
+        filtered_meta <- meta |>
+            mutate(
+                # Check if sub_lineage belongs to any selected_sub_lineage
+                matched_sub = sapply(sub_lineage, function(sub) {
+                    if (is.na(sub) || sub == "") return(NA)
+                    match <- sub_lineages_df\$selected_sub_lineage[
+                        str_detect(sub, paste0("^", sub_lineages_df\$selected_sub_lineage, "\\\\b"))
+                    ]
+                    if (length(match) > 0) match[1] else NA
+                }),
+                # Determine final lineage
+                final_lineage = case_when(
+                    !is.na(matched_sub) ~ matched_sub,  # If sub_lineage matches, use it
+                    main_lineage %in% main_lineages_df\$selected_main_lineage ~ main_lineage,  # Otherwise, use main_lineage if valid
+                    TRUE ~ sub_lineage  # Default to sub_lineage if no match
+                )
+            ) |>
+            select(final_lineage, SampleID) |>
+            rename(lineage = final_lineage)
+
+    } else if (pairwise_split == "main") {
+
+        cat("Processing main lineage analysis\\n")
+
+        # Select only the main lineages
+        filtered_meta <- meta |>
+            select(lineage = main_lineage, SampleID)
+
+    } else if (pairwise_split == "none") {
+
+        cat("Processing all samples without lineage split\\n")
+
+        # For 'none' type, assign all samples to a single group
+        filtered_meta <- meta |>
+            mutate(lineage = "All") |>
+            select(lineage, SampleID)
+
+    } else {
+
+        stop("Invalid pairwise level specified: ", pairwise_split, 
+            ". Choose 'sub', 'main', or 'none', then re-run the workflow with the correct parameter and '-resume'")
+
+    }
+
+    ########################################################################################################
+    # COMMON PROCESSING AND FILTERING
+    ########################################################################################################
+
+    cat("Processed filtered_meta rows:", nrow(filtered_meta), "\\n")
+
+    # Find lineages with too few samples (< 5)
+    skipped_lineages_to_few <- filtered_meta |>
+        group_by(lineage) |>
+        count() |>
+        filter(n < 5)
+
+    cat("Lineages with fewer than 5 samples (will be skipped):\\n")
+    if (nrow(skipped_lineages_to_few) > 0) {
+        print(skipped_lineages_to_few)
+    } else {
+        cat("None\\n")
+    }
+
+    # Get unique lineages from run_ids that pass the minimum sample threshold
+    filtered_lineages_pass <- filtered_meta |>
+        filter(SampleID %in% run_ids_df\$SampleID) |>
+        filter(!lineage %in% skipped_lineages_to_few\$lineage) |>
+        count(lineage) |>
+        select(lineage) |>
+        distinct()
+
+    cat("Lineages that will be processed:\\n")
+    if (nrow(filtered_lineages_pass) > 0) {
+        print(filtered_lineages_pass)
+    } else {
+        cat("None\\n")
+    }
+
+    # Partition filtered_meta based on filtered_lineages_pass
+    filtered_meta_forward <- filtered_meta |>
+        filter(lineage %in% filtered_lineages_pass\$lineage)  |>
+        filter(SampleID != "sample") |>
+        filter(SampleID != "SampleID") |>
+        filter(lineage != "main_lineage")  |>
+        filter(lineage != "lineage")
+
+    filtered_meta_skip <- filtered_meta |>
+        filter(!lineage %in% filtered_lineages_pass\$lineage) |>
+        filter(SampleID != "sample") |>
+        filter(SampleID != "SampleID") |>
+        filter(lineage != "sub_lineage")
+
+    cat("Samples to be processed:", nrow(filtered_meta_forward), "\\n")
+    cat("Samples to be skipped:", nrow(filtered_meta_skip), "\\n")
+
+    ########################################################################################################
+    # OUTPUT FILES
+    ########################################################################################################
+
+    # Export the csv files WITHOUT headers using write.table instead of write.csv
+    write.table(filtered_meta_forward, "final.lineage_samples_tuple.csv",
+                sep = ",",
+                quote = FALSE,
+                row.names = FALSE,
+                col.names = FALSE)
+
+    write.table(filtered_meta_skip, "final.skipped-lineages_tuple.csv",
+                sep = ",",
+                quote = FALSE,
+                row.names = FALSE,
+                col.names = FALSE)
+
+    cat("Analysis completed successfully!\\n")
+    cat("================================\\n")
+    """
 }
 
 /*

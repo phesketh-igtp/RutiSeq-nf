@@ -1,8 +1,8 @@
 process ASSESS_SAMPLES {
 
-    conda params.r_stats_env
+    conda params.stats_env
 
-    storeDir "${params.outDir}/db/comparison/src/${params.runID}/"
+    publishDir "${params.outDir}/db/comparison/src/${params.runID}/"
 
     input:
         path(pairwise_analysis_list)
@@ -17,10 +17,11 @@ process ASSESS_SAMPLES {
         def main_lineages = params.lineage_pairwise_main.join('\\n')
 
 """
+#!/usr/bin/env python
 import polars as pl
 
 # ------------------------------------------------------------------
-# Parameters (Nextflow injects these)
+# Parameters (Nextflow injects these), t
 # ------------------------------------------------------------------
 pairwise_split = "${params.pairwise_split}"
 sampleID_string = "${sampleID_list}"
@@ -31,12 +32,12 @@ pairwise_analysis_file = "${pairwise_analysis_list}"
 # ------------------------------------------------------------------
 sample_ids = sorted(set(s.strip() for s in sampleID_string.split(",")))
 
+#lineage string split across lines
 sub_lineages_list = sorted(set(
-    s.strip() for s in "${sub_lineages}".split("\n") if s.strip()
+    s.strip() for s in "${sub_lineages}".strip().splitlines() if s.strip()
 ))
-
 main_lineages_list = sorted(set(
-    s.strip() for s in "${main_lineages}".split("\n") if s.strip()
+    s.strip() for s in "${main_lineages}".strip().splitlines() if s.strip()
 ))
 
 # Convert to DataFrames
@@ -59,6 +60,30 @@ meta = (
     .filter(~pl.col("main_lineage").str.contains(";"))
     .filter(~pl.col("SampleID").str.contains("CN-"))
 )
+
+# ------------------------------------------------------------------
+# Break lineages down to the levels
+# ------------------------------------------------------------------
+# Define the fucntion for breaking down the lineages
+def lineage_level(expr: pl.Expr, n: int) -> pl.Expr:
+    parts = expr.cast(pl.Utf8).str.strip_chars().str.split(".")
+    return (
+        pl.when(parts.list.len() >= n)
+        .then(parts.list.slice(0, n).list.join("."))
+        .otherwise(None)
+    )
+
+lineage_lvs = (
+    meta
+    .with_columns([
+        lineage_level(pl.col("sub_lineage"), 2).alias("sub_lineage_lv2"),
+        lineage_level(pl.col("sub_lineage"), 3).alias("sub_lineage_lv3"),
+        lineage_level(pl.col("sub_lineage"), 4).alias("sub_lineage_lv4"),
+    ])
+)
+
+# Identify the lineages they belongue to
+
 
 # ------------------------------------------------------------------
 # Analysis type logic
@@ -163,7 +188,7 @@ filtered_meta_skip.write_csv(
 /*
 @author: Poppy J Hesketh Best
 @date: 2025-04-01
-@version: 4.0.0
+@version: 3.0.0
 @description:
     In this module creates the pairwise analysis tuples from the lineage_samples_paths.csv
     and the lineage_pairwise_sub and lineage_pairwise_main lists.
@@ -174,7 +199,6 @@ filtered_meta_skip.write_csv(
         - none: pairwise analysis of all samples without lineage split
     Now implemented entirely in R for better data handling and consistency.
 @changelog:
-    v4.0.1-2026-05-12: Convert from R to Polars (python)
     v3.0.0-2026-04-13: Complete rewrite in R, eliminating bash script components
     v2.0.0-2025-04-01: Updated to use the new lineage_pairwise_sub and lineage_pairwise_main lists
     v1.0.1-2024-11-01: Added error handling for invalid pairwise level
