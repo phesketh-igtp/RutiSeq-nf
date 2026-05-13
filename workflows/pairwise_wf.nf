@@ -33,12 +33,10 @@ workflow PAIRWISE_WF {
         // Compile TB-Profiler results
         TBPROFILER_COMPILE( 
                             sampleID_list, 
-                            //DB_COMPLIANCE_CHECK.out.db_compliance_check
                             )
         // Compile stats and classifications from MTBSeq
         MTBSEQ_STATS_COMPILE(                            
                             sampleID_list, 
-                            //DB_COMPLIANCE_CHECK.out.db_compliance_check
                             )
         // Determine infection type (Mixed vs Clonal using both tbprofiler and mtbseq outputs)
         //// and filter genomes based on quality parameters (min coverage)

@@ -201,22 +201,14 @@ process COMPILE_SEQUENCING_STATS {
     #··············································································#
 
     # Import dataframes
-    mtbseq_stats    <- read.delim("Mapping_and_Variant_Statistics.tab", header = FALSE)
-    mtbseq_class    <- read.delim("Strain_Classification.tab", header = FALSE)
+    mtbseq_stats    <- read.delim("Mapping_and_Variant_Statistics.tab", header = TRUE)
+    mtbseq_class    <- read.delim("Strain_Classification.tab", header = TRUE)
     tbprofiler_tbdb <- read.delim("tbdb-tbprofiler.txt", header = TRUE)
     tbprofiler_who  <- read.delim("who-tbprofiler.txt", header = TRUE)
     lineage_frac    <- read.delim("tbprofiler.lineages.fractions.txt", sep = ";", header = TRUE) |> 
                                     select(SampleID, Lineage_frac, Mixed_90perc)
 
-    # Add appropriate headers to dataframes using dictionaries
-    mtbseq_statistics.df     <- dictionary_rename(
-        df = mtbseq_stats,
-        dict_path = "${params.scriptDir}/R/dict/mtbseq_statistics.dict.csv")
-
-    mtbseq_classification.df <- dictionary_rename(
-        df = mtbseq_class,
-        dict_path = "${params.scriptDir}/R/dict/mtbseq_classification.dict.csv")
-
+    # Merge the dataframes
     merge1 <- left_join(mtbseq_statistics.df, mtbseq_classification.df)
     merge2 <- left_join(merge1, tbprofiler_tbdb, by = c("FullID" = "sample"))
     merge3 <- left_join(merge2, lineage_frac, by = c("FullID" = "SampleID"))
@@ -320,11 +312,10 @@ process COMPILE_SEQUENCING_STATS {
     """
 }
 
-
 /*
 @author: Poppy J Hesketh Best
 @date: 2025-04-01
-@version: 1.0.0
+@version: 1.0.1
 @description:
     In this module the sequencing statistics for the db are
     calculated with Rscripts. The output is a summary of the
@@ -335,4 +326,5 @@ process COMPILE_SEQUENCING_STATS {
     a tuple/channel for downstream processing.
 @changelog:
     v1.0.0_2024-04-01: Inital version of module
+    v1.0.1-2026-05-13: Removed renaming the MTBSeq concatenated files as they now include headers
 */

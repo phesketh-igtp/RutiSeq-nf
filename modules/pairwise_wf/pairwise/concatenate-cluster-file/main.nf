@@ -16,129 +16,130 @@ process CONCATENATE_CLUSTERS {
 
     script:
 
-"""
-import polars as pl
-from pathlib import Path
+    """
+    #!/usr/bin/env python
+    import polars as pl
+    from pathlib import Path
 
-base_dir = Path("${params.outDir}/db/comparison/mtbseq/")
+    base_dir = Path("${params.outDir}/db/comparison/mtbseq/")
 
-# ------------------------------------------------------------------
-# Find files
-# ------------------------------------------------------------------
-cluster_files = list(base_dir.rglob("*_d*.processed.clusters.tsv"))
-singleton_files = list(base_dir.rglob("*_d*.singletons.tsv"))
-all_files = cluster_files + singleton_files
+    # ------------------------------------------------------------------
+    # Find files
+    # ------------------------------------------------------------------
+    cluster_files = list(base_dir.rglob("*_d*.processed.clusters.tsv"))
+    singleton_files = list(base_dir.rglob("*_d*.singletons.tsv"))
+    all_files = cluster_files + singleton_files
 
-# ------------------------------------------------------------------
-# Read + combine
-# ------------------------------------------------------------------
-df = pl.concat([
-    pl.read_csv(f, separator="\t", has_header=False)
-    for f in all_files
-])
-
-# Remove duplicates early
-df = df.unique()
-
-# ------------------------------------------------------------------
-# Process cluster ID column (V4)
-# ------------------------------------------------------------------
-df = (
-    df
-    .with_columns(
-        pl.col("column_4")
-        .str.split_exact("-", 2)
-        .struct.rename_fields(["num", "dist", "lin"])
-        .alias("parts")
-    )
-    .unnest("parts")
-    .with_columns([
-        pl.col("num").str.zfill(3),
-        pl.col("dist").str.zfill(2)
+    # ------------------------------------------------------------------
+    # Read + combine
+    # ------------------------------------------------------------------
+    df = pl.concat([
+        pl.read_csv(f, separator="\t", has_header=False)
+        for f in all_files
     ])
-    .with_columns(
-        (pl.col("num") + "-" + pl.col("dist") + "-" + pl.col("lin"))
-        .alias("column_4")
+
+    # Remove duplicates early
+    df = df.unique()
+
+    # ------------------------------------------------------------------
+    # Process cluster ID column (V4)
+    # ------------------------------------------------------------------
+    df = (
+        df
+        .with_columns(
+            pl.col("column_4")
+            .str.split_exact("-", 2)
+            .struct.rename_fields(["num", "dist", "lin"])
+            .alias("parts")
+        )
+        .unnest("parts")
+        .with_columns([
+            pl.col("num").str.zfill(3),
+            pl.col("dist").str.zfill(2)
+        ])
+        .with_columns(
+            (pl.col("num") + "-" + pl.col("dist") + "-" + pl.col("lin"))
+            .alias("column_4")
+        )
+        .select(["column_1", "column_2", "column_3", "column_4"])
     )
-    .select(["column_1", "column_2", "column_3", "column_4"])
-)
 
-# Rename columns
-df = df.rename({
-    "column_1": "lineage",
-    "column_2": "dSNP",
-    "column_3": "genomes",
-    "column_4": "int_clusterID"
-})
+    # Rename columns
+    df = df.rename({
+        "column_1": "lineage",
+        "column_2": "dSNP",
+        "column_3": "genomes",
+        "column_4": "int_clusterID"
+    })
 
-# Replace dist_ → t=
-df = df.with_columns(
-    pl.col("dSNP").str.replace("dist_", "t=")
-)
-
-# ------------------------------------------------------------------
-# Read sequencing summary
-# ------------------------------------------------------------------
-sample_df = (
-    pl.read_csv("sequencing_summary.csv")
-    .select("Sample")
-    .with_columns(pl.col("Sample").alias("genomes"))
-    .with_columns(
-        pl.col("genomes")
-        .str.split_exact("_", 1)
-        .struct.rename_fields(["id", "library"])
-        .alias("parts")
+    # Replace dist_ → t=
+    df = df.with_columns(
+        pl.col("dSNP").str.replace("dist_", "t=")
     )
-    .unnest("parts")
-    .select([
-        pl.col("Sample").alias("SampleID"),
-        pl.col("id").alias("genomes")
-    ])
-    .unique()
-)
 
-# ------------------------------------------------------------------
-# Join + pivot
-# ------------------------------------------------------------------
-df = (
-    df.join(sample_df, on="genomes", how="left")
-    .select(["SampleID", "lineage", "dSNP", "int_clusterID"])
-    .unique()
-)
+    # ------------------------------------------------------------------
+    # Read sequencing summary
+    # ------------------------------------------------------------------
+    sample_df = (
+        pl.read_csv("sequencing_summary.csv")
+        .select("Sample")
+        .with_columns(pl.col("Sample").alias("genomes"))
+        .with_columns(
+            pl.col("genomes")
+            .str.split_exact("_", 1)
+            .struct.rename_fields(["id", "library"])
+            .alias("parts")
+        )
+        .unnest("parts")
+        .select([
+            pl.col("Sample").alias("SampleID"),
+            pl.col("id").alias("genomes")
+        ])
+        .unique()
+    )
 
-wide = df.pivot(
-    index=["SampleID", "lineage"],
-    columns="dSNP",
-    values="int_clusterID"
-)
+    # ------------------------------------------------------------------
+    # Join + pivot
+    # ------------------------------------------------------------------
+    df = (
+        df.join(sample_df, on="genomes", how="left")
+        .select(["SampleID", "lineage", "dSNP", "int_clusterID"])
+        .unique()
+    )
 
-# ------------------------------------------------------------------
-# Sort t= columns numerically
-# ------------------------------------------------------------------
-t_cols = [c for c in wide.columns if c.startswith("t=")]
-t_cols_sorted = sorted(t_cols, key=lambda x: int(x.replace("t=", "")))
+    wide = df.pivot(
+        index=["SampleID", "lineage"],
+        columns="dSNP",
+        values="int_clusterID"
+    )
 
-wide = wide.select(["SampleID", "lineage"] + t_cols_sorted)
+    # ------------------------------------------------------------------
+    # Sort t= columns numerically
+    # ------------------------------------------------------------------
+    t_cols = [c for c in wide.columns if c.startswith("t=")]
+    t_cols_sorted = sorted(t_cols, key=lambda x: int(x.replace("t=", "")))
 
-# ------------------------------------------------------------------
-# Create merged cluster ID
-# ------------------------------------------------------------------
-wide = wide.with_columns(
-    pl.concat_str(t_cols_sorted, separator="/")
-    .alias("merged_clusterID")
-)
+    wide = wide.select(["SampleID", "lineage"] + t_cols_sorted)
 
-# ------------------------------------------------------------------
-# Write outputs
-# ------------------------------------------------------------------
-wide.write_csv("processed_clusters.tsv", separator="\t")
+    # ------------------------------------------------------------------
+    # Create merged cluster ID
+    # ------------------------------------------------------------------
+    wide = wide.with_columns(
+        pl.concat_str(t_cols_sorted, separator="/")
+        .alias("merged_clusterID")
+    )
 
-df.write_csv(
-    "unprocessed_clusters.tsv",
-    separator="\t",
-    include_header=False
-)
-"""
+    # ------------------------------------------------------------------
+    # Write outputs
+    # ------------------------------------------------------------------
+    wide.write_csv("processed_clusters.tsv", separator="\t")
+
+    df.write_csv(
+        "unprocessed_clusters.tsv",
+        separator="\t",
+        include_header=False
+    )
+    """
 }
 
 /*

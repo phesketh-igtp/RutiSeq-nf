@@ -23,8 +23,7 @@ process SKA_PROFILING {
             > input.txt
 
     # Run SKA profiling
-        ska build \\
-            -o seqs -f input.txt \\
+        ska build -o seqs -f input.txt \\
             -k ${params.ska_kmer} \\
             --min-count ${params.ska_min_count} \\
             --proportion-reads ${params.ska_proportion_reads} \\
@@ -33,10 +32,10 @@ process SKA_PROFILING {
             --threads ${task.cpus} \\
             --verbose \\
 
+    # Run SKA Distance calculations
         ska distance ${params.ska_distance_args} \\
             -o ska_distances.txt \\
-            seqs.skf \\
-            --min-freq ${params.ska_min_freq}
+            seqs.skf --min-freq ${params.ska_min_freq}
     """
 }
 

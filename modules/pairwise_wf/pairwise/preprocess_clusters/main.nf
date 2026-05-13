@@ -51,6 +51,7 @@ df = pl.read_csv(
 # ------------------------------------------------------------------
 # Process clusters
 # ------------------------------------------------------------------
+
 df = (
     df
     .unique()
@@ -98,7 +99,7 @@ df.write_csv(
     Occasionally, the MTBseq TBgroups step will fail and produice empty files/no-files.
 @last_updated: 2025-04-01
 @changelog:
-        v1.0.0-2025-04-01: Initial version + documnetadocumentation
-        v1.0.1-2025-05-19: Removed additonal_args as it was not utilised and was creating inconsistencies
-        v2.0.0-2026-05-12: Converted from R to Python (polars)        
+    v1.0.0-2025-04-01: Initial version + documnetadocumentation
+    v1.0.1-2025-05-19: Removed additonal_args as it was not utilised and was creating inconsistencies
+    v2.0.0-2026-05-12: Converted from R to Python (polars)        
 */

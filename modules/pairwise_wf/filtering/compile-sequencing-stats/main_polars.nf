@@ -37,52 +37,6 @@ process COMPILE_SEQUENCING_STATS {
     # ------------------------------------------------------------------
     # Helper: dictionary rename//renaming maps
     # ------------------------------------------------------------------
-    mtbseq_stats_rename_map = {
-        "column_1": "Date",
-        "column_2": "SampleID",
-        "column_3": "LibraryID",
-        "column_4": "FullID",
-        "column_5": "Total Reads",
-        "column_6": "Mapped Reads",
-        "column_7": "Mapped Reads (%)",
-        "column_8": "Genome Size",
-        "column_9": "Genome GC",
-        "column_10": "Any Total Bases",
-        "column_11": "Any Total Bases (%)",
-        "column_12": "Any GC-Content",
-        "column_13": "Any Coverage mean",
-        "column_14": "Any Coverage median",
-        "column_15": "Unambiguous Total Bases",
-        "column_16": "Unambiguous Total Bases (%)",
-        "column_17": "Unambiguous GC-Content",
-        "column_18": "Unambiguous Coverage mean",
-        "column_19": "Unambiguous Coverage median",
-        "column_20": "SNPs",
-        "column_21": "Deletions",
-        "column_22": "Insertions",
-        "column_23": "Uncovered",
-        "column_24": "Substitutions (Including Stop Codons)"
-    }
-    
-    mtbseq_class_rename_map = {
-        "column_1": "Date",
-        "column_2": "SampleID",
-        "column_3": "LibraryID",
-        "column_4": "FullID",
-        "column_5": "Homolka species",
-        "column_6": "Homolka lineage",
-        "column_7": "Homolka group",
-        "column_8": "Quality",
-        "column_9": "Coll lineage (branch)",
-        "column_10": "Coll lineage_name (branch)",
-        "column_11": "Coll quality (branch)",
-        "column_12": "Coll lineage (easy)",
-        "column_13": "Coll lineage_name (easy)",
-        "column_14": "Coll quality (easy)",
-        "column_15": "Beijing lineage (easy)",
-        "column_16": "Beijing quality (easy)"
-    }
-    
     rename_map_final = {
         "FullID": "Sample",
         "LibraryID": "Library",
@@ -104,7 +58,9 @@ process COMPILE_SEQUENCING_STATS {
     # Load data
     # ------------------------------------------------------------------
     tbprof = (
-        pl.read_csv("tbdb-tbprofiler.txt", separator="\t")
+        pl.read_csv(
+            "tbdb-tbprofiler.txt",
+            separator="\t")
         .with_columns(pl.all().cast(pl.Utf8).str.strip_chars())
         .select([
             pl.col("sample").alias("SampleID"),
@@ -186,19 +142,24 @@ process COMPILE_SEQUENCING_STATS {
     # ------------------------------------------------------------------
     # Sequencing summary section
     # ------------------------------------------------------------------
-    mtbseq_stats = pl.read_csv("Mapping_and_Variant_Statistics.tab", separator="\t", has_header=False)
-    mtbseq_class = pl.read_csv("Strain_Classification.tab", separator="\t", has_header=False)
-    
-    tbprof_tbdb = pl.read_csv("tbdb-tbprofiler.txt", separator="\t")
-    tbprof_who  = pl.read_csv("who-tbprofiler.txt", separator="\t")
+    mtbseq_stats = pl.read_csv(
+        "Mapping_and_Variant_Statistics.tab", 
+        separator="\t", 
+        has_header=TRUE)
+    mtbseq_class = pl.read_csv(
+        "Strain_Classification.tab",
+        separator="\t",
+        has_header=TRUE)
+    tbprof_tbdb = pl.read_csv(
+        "tbdb-tbprofiler.txt",
+        separator="\t")
+    tbprof_who  = pl.read_csv(
+        "who-tbprofiler.txt",
+        separator="\t")
     
     lineage_frac_short = tbdb_lin_fract_final.select([
         "SampleID", "Lineage_frac", "Mixed_90perc"
     ])
-    
-    # Rename using renaming maps
-    mtbseq_stats = mtbseq_stats.rename(mtbseq_stats_rename_map)
-    mtbseq_class = mtbseq_class.rename(mtbseq_class_rename_map)
     
     # Merge all
     full_df = (
