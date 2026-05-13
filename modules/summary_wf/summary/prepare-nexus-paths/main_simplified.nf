@@ -1,4 +1,4 @@
-process PREPARE_NEXUS_PATHS{
+process GENERATE_NEXUS_PATHS{
 
     conda params.snippy_env 
 
@@ -46,7 +46,6 @@ process PREPARE_NEXUS_PATHS{
     ###############################################################
     # Part 2: Parse over the samplesheet and generate nexus files
     ###############################################################
-
     # Create output directories
     mkdir -p nexus/ fasta/ positions/
 
@@ -165,7 +164,6 @@ process PREPARE_NEXUS_PATHS{
 
     done
     """
-
 }
 
 /*

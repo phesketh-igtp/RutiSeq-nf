@@ -16,26 +16,30 @@ process SKA_PROFILING {
     
     """
     # Make the sample sheet for ska2
-        sed 's@,@\t@g' samplesheet.csv \
-            | cut -f2,3,4 \
-            | tail -n +2 \
-            | sed '/^[[:space:]]*\$/d' \
-            > input.txt
+        sed 's@,@\t@g' samplesheet.csv \\
+            | cut -f2,3,4 \\
+            | tail -n +2 \\
+            | sed '/^[[:space:]]*\$/d' \\
+            | grep -v 'sampleID' \\
+            > ska-input.txt
 
     # Run SKA profiling
-        ska build -o seqs -f input.txt \\
+        ska build \\
+            -o ska-seqs \\
+            -f ska-input.txt \\
             -k ${params.ska_kmer} \\
             --min-count ${params.ska_min_count} \\
             --proportion-reads ${params.ska_proportion_reads} \\
             --qual-filter ${params.ska_qual_filter} \\
             --min-qual ${params.ska_min_qual} \\
             --threads ${task.cpus} \\
-            --verbose \\
+            --verbose
 
     # Run SKA Distance calculations
         ska distance ${params.ska_distance_args} \\
             -o ska_distances.txt \\
-            seqs.skf --min-freq ${params.ska_min_freq}
+            --min-freq ${params.ska_min_freq} \\
+            ska-seqs.skf
     """
 }
 

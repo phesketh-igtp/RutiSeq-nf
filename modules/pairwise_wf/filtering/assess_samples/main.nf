@@ -2,7 +2,7 @@ process ASSESS_SAMPLES {
 
     conda params.stats_env
 
-    storeDir "${params.outDir}/db/comparison/src/${params.runID}/"
+    publishDir "${params.outDir}/db/comparison/src/${params.runID}/"
 
     input:
         path(pairwise_analysis_list)
@@ -17,11 +17,11 @@ process ASSESS_SAMPLES {
         def main_lineages = params.lineage_pairwise_main.join('\\n')
 
 """
-#!/usr/bin/env pythons
+#!/usr/bin/env python
 import polars as pl
 
 # ------------------------------------------------------------------
-# Parameters (Nextflow injects these)
+# Parameters (Nextflow injects these), t
 # ------------------------------------------------------------------
 pairwise_split = "${params.pairwise_split}"
 sampleID_string = "${sampleID_list}"
@@ -32,12 +32,12 @@ pairwise_analysis_file = "${pairwise_analysis_list}"
 # ------------------------------------------------------------------
 sample_ids = sorted(set(s.strip() for s in sampleID_string.split(",")))
 
+#lineage string split across lines
 sub_lineages_list = sorted(set(
-    s.strip() for s in "${sub_lineages}".split("\n") if s.strip()
+    s.strip() for s in "${sub_lineages}".strip().splitlines() if s.strip()
 ))
-
 main_lineages_list = sorted(set(
-    s.strip() for s in "${main_lineages}".split("\n") if s.strip()
+    s.strip() for s in "${main_lineages}".strip().splitlines() if s.strip()
 ))
 
 # Convert to DataFrames

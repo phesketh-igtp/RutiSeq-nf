@@ -26,26 +26,26 @@ process CONCATENATE_CLUSTERS {
     # ------------------------------------------------------------------
     # Find files
     # ------------------------------------------------------------------
-    cluster_files = list(base_dir.rglob("*_d*.processed.clusters.tsv"))
-    singleton_files = list(base_dir.rglob("*_d*.singletons.tsv"))
+    cluster_files = list(base_dir.rglob("${params.runID}*_d*.processed.clusters.tsv"))
+    singleton_files = list(base_dir.rglob("${params.runID}*_d*.singletons.tsv"))
     all_files = cluster_files + singleton_files
 
     # ------------------------------------------------------------------
     # Read + combine
     # ------------------------------------------------------------------
-    df = pl.concat([
+    df0 = pl.concat([
         pl.read_csv(f, separator="\t", has_header=False)
         for f in all_files
     ])
 
     # Remove duplicates early
-    df = df.unique()
+    df1 = df0.unique()
 
     # ------------------------------------------------------------------
     # Process cluster ID column (V4)
     # ------------------------------------------------------------------
-    df = (
-        df
+    df2 = (
+        df1
         .with_columns(
             pl.col("column_4")
             .str.split_exact("-", 2)
@@ -65,7 +65,7 @@ process CONCATENATE_CLUSTERS {
     )
 
     # Rename columns
-    df = df.rename({
+    df3 = df2.rename({
         "column_1": "lineage",
         "column_2": "dSNP",
         "column_3": "genomes",
@@ -73,42 +73,40 @@ process CONCATENATE_CLUSTERS {
     })
 
     # Replace dist_ → t=
-    df = df.with_columns(
+    df4 = df3.with_columns(
         pl.col("dSNP").str.replace("dist_", "t=")
     )
 
     # ------------------------------------------------------------------
-    # Read sequencing summary
+    # Create sample index to match MTBseq output name (removed libraryID) with the SampleID
     # ------------------------------------------------------------------
-    sample_df = (
-        pl.read_csv("sequencing_summary.csv")
+    # read sequencing summary
+    database_sample_index = (
+        pl.read_csv("sequencing_summary.csv", has_header=True)
         .select("Sample")
-        .with_columns(pl.col("Sample").alias("genomes"))
+        .unique()
         .with_columns(
-            pl.col("genomes")
+            pl.col("Sample")
             .str.split_exact("_", 1)
-            .struct.rename_fields(["id", "library"])
+            .struct.rename_fields(["genomes", "library"])
             .alias("parts")
         )
         .unnest("parts")
-        .select([
-            pl.col("Sample").alias("SampleID"),
-            pl.col("id").alias("genomes")
-        ])
-        .unique()
-    )
+        )
 
     # ------------------------------------------------------------------
     # Join + pivot
     # ------------------------------------------------------------------
-    df = (
-        df.join(sample_df, on="genomes", how="left")
-        .select(["SampleID", "lineage", "dSNP", "int_clusterID"])
-        .unique()
-    )
+    # Join the index with the df
+    df_merged = database_sample_index.join(df4, on="genomes", how="left")
 
-    wide = df.pivot(
-        index=["SampleID", "lineage"],
+    ##database_sample_index.select("Sample").unique().count()
+    ##df.select("Sample").unique().count()
+    ##df_merged.select("Sample").unique().count()
+
+    # Pivot wider
+    wide = df_merged.pivot(
+        index=["SampleID", "lineage", "genomes", "library"],
         columns="dSNP",
         values="int_clusterID"
     )
