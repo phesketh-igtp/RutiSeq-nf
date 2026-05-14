@@ -1,15 +1,14 @@
 //include { PROCESS_CLUSTERS           }   from '../modules/summary_wf/summary/process-clusters/main.nf'
-include { GENERATE_SUMMARY_REPORT    }   from '../modules/summary_wf/summary/summary-report/main.nf'
-include { PLOT_MAIN_PHYLOGENY        }   from '../modules/summary_wf/summary/plot-phylogeny/main.nf'
-include { PREPARE_NEXUS_PATHS        }   from '../modules/summary_wf/summary/prepare-nexus-paths/main.nf'
-include { GENERATE_NEXUS             }   from '../modules/summary_wf/summary/generate-nexus/main.nf'
-include { POST_SUMMARY_CLEANUP       }   from '../modules/summary_wf/summary/post-summary-cleanup-handover/main.nf'
-include { DATED_PHYLOGENY         }   from '../modules/summary_wf/summary/generate-timetrees/main.nf'
-include { PLOT_TIMETREES             }   from '../modules/summary_wf/summary/plot-timetrees/main.nf'
+include { GENERATE_SUMMARY_REPORT    }   from '../modules/summary_wf/summary-report/main.nf'
+include { PLOT_MAIN_PHYLOGENY        }   from '../modules/summary_wf/plot-phylogeny/main.nf'
+include { PREPARE_NEXUS_PATHS        }   from '../modules/summary_wf/prepare-nexus-paths/main.nf'
+include { GENERATE_NEXUS             }   from '../modules/summary_wf/generate-nexus/main.nf'
+include { POST_SUMMARY_CLEANUP       }   from '../modules/summary_wf/post-summary-cleanup-handover/main.nf'
+include { DATED_PHYLOGENY         }   from '../modules/summary_wf/generate-timetrees/main.nf'
+include { PLOT_TIMETREES             }   from '../modules/summary_wf/plot-timetrees/main.nf'
 //include { GENERATE_ANNOTATED_NEXUS   }   from '../modules/summary_wf/summary/generate-nexus-with-metadata/main.nf'
-include { GENERATE_NEXUS_W_MRCA      }   from '../modules/summary_wf/summary/generate-nexus-with-ancestor/main.nf'
-include { DATA_DELIVERY              }   from '../modules/summary_wf/summary/data-delivery/main.nf'
-//include { GENERATE_REPORT            }   from '../modules/summary_wf/summary/generate-report/main.nf'
+include { GENERATE_NEXUS_W_MRCA      }   from '../modules/summary_wf/generate-nexus-with-ancestor/main.nf'
+include { DATA_DELIVERY              }   from '../modules/summary_wf/data-delivery/main.nf'
 
 workflow SUMMARY_WF{
 
@@ -122,7 +121,6 @@ workflow SUMMARY_WF{
                         reads_taxonomy_qc_report_out,
                         finish_handover
                         )
-            //GENERATE_REPORT()
 }
 
 /*
