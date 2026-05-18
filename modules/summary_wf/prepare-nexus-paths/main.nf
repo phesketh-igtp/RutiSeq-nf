@@ -165,7 +165,9 @@ process NEXUS_GEN{
 
     done
 
-    echo "stub" > handover.out
+    # Create a stub so that the files can be collected and used 
+    ## as an aritifial hold for the final section (this might be unecessary)
+    echo "${lineage} (t=${distance}) stub" > ${lineage}_${distance}.handover.out
     """
 }
 
@@ -186,5 +188,7 @@ process NEXUS_GEN{
     v1.0.2-2025-12-01: Updated the paths for the new system.
     v2.0.0-2026-05-13: Merged two modules to have a single module that parses over all the 
                         clusterIDs and genertes nexus files
+    v2.0.1-2026-05-18: Added a handover to prevent the final module from running until this
+                        module can completed.
 
 */
