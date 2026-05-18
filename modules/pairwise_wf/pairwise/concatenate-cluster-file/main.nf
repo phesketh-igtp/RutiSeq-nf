@@ -107,7 +107,7 @@ process CONCATENATE_CLUSTERS {
 
     # Pivot wider
     wide = df_merged.pivot(
-        index=["Sample", "lineage", "genomes", "library"]
+        index=["Sample", "lineage", "genomes", "library"],
         columns="dSNP",
         values="int_clusterID"
     )
