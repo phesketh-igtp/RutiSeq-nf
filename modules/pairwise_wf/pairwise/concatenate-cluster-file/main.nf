@@ -18,6 +18,7 @@ process CONCATENATE_CLUSTERS {
 
     """
     #!/usr/bin/env python
+
     import polars as pl
     from pathlib import Path
 
@@ -26,6 +27,7 @@ process CONCATENATE_CLUSTERS {
     # ------------------------------------------------------------------
     # Find files
     # ------------------------------------------------------------------
+
     cluster_files = list(base_dir.rglob("${params.runID}*_d*.processed.clusters.tsv"))
     singleton_files = list(base_dir.rglob("${params.runID}*_d*.singletons.tsv"))
     all_files = cluster_files + singleton_files
@@ -44,6 +46,7 @@ process CONCATENATE_CLUSTERS {
     # ------------------------------------------------------------------
     # Process cluster ID column (V4)
     # ------------------------------------------------------------------
+
     df2 = (
         df1
         .with_columns(
@@ -76,11 +79,11 @@ process CONCATENATE_CLUSTERS {
     df4 = df3.with_columns(
         pl.col("dSNP").str.replace("dist_", "t=")
     )
-    
     df4 = df4.with_columns(pl.all().str.strip_chars())
 
     # ------------------------------------------------------------------
-    # Create sample index to match MTBseq output name (removed libraryID) with the SampleID
+    # Create sample index to match MTBseq output name 
+    ## (removed libraryID) with the SampleID
     # ------------------------------------------------------------------
     # read sequencing summary
     database_sample_index = (

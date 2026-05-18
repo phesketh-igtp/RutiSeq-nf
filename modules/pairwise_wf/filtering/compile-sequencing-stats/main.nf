@@ -50,14 +50,11 @@ process COMPILE_SEQUENCING_STATS {
     #··············································································#
     # Params
     #··············································································#
-
     dictionary  <- "${params.scriptDir}/R/dict/mtbseq_classification.dict.csv"
     runID       <- "${params.runID}"
-    
     #··············································································#
     # Functions
     #··············································································#
-    
     dictionary_rename <- function(df, dict_path) { 
         # import dictionary
             dict <- read.csv(dict_path)
@@ -75,11 +72,9 @@ process COMPILE_SEQUENCING_STATS {
                 rename(all_of(dict_names)) |> # Rename cols using dict_names
                     select(all_of(cols.to.keep)) # Keep only cols.to.keep
     }
-
     #··············································································#
     # Create Lineage fractions file
     #··············································································#
-
     # Read the input files
     tbprof <- read.delim("tbdb-tbprofiler.txt", header = TRUE) |>
         mutate(across(everything(), ~ str_trim(as.character(.)))) |>
@@ -113,7 +108,10 @@ process COMPILE_SEQUENCING_STATS {
                 select(SampleID, sub_lineage, Lineage_p) |>
                 mutate(sub_lineage = gsub("lineage", "L", sub_lineage)) |>
                 mutate(Lineage = Lineage_p) |>
-                separate_wider_delim(cols = Lineage, " ", names = c("Lineage", NA))
+                separate_wider_delim(
+                    cols = Lineage, " ", 
+                    names = c("Lineage", NA)
+                    )
 
             mixed.frac.2.keep <- mixed.frac.2 |>
                 select(SampleID, sub_lineage) |>
@@ -138,7 +136,7 @@ process COMPILE_SEQUENCING_STATS {
 
             mixed.frac.5 <- left_join(mixed.frac.3, mixed.frac.4) |>
                             select(SampleID, Lineage_frac, Mixed_90perc)
-    }
+        }
 
     # Clonal: add fraction of lineage designation
     clonal <- tbprof |> filter(infection_type == "clonal")
@@ -201,12 +199,18 @@ process COMPILE_SEQUENCING_STATS {
     #··············································································#
 
     # Import dataframes
-    mtbseq_stats    <- read.delim("Mapping_and_Variant_Statistics.tab", header = TRUE, check.names = FALSE)
-    mtbseq_class    <- read.delim("Strain_Classification.tab", header = TRUE, check.names = FALSE)
+    mtbseq_stats    <- read.delim("Mapping_and_Variant_Statistics.tab", 
+                                header = TRUE, 
+                                check.names = FALSE)
+    mtbseq_class    <- read.delim("Strain_Classification.tab", 
+                                header = TRUE,
+                                check.names = FALSE)
     tbprofiler_tbdb <- read.delim("tbdb-tbprofiler.txt", header = TRUE)
     tbprofiler_who  <- read.delim("who-tbprofiler.txt", header = TRUE)
-    lineage_frac    <- read.delim("tbprofiler.lineages.fractions.txt", sep = ";", header = TRUE) |> 
-                                    select(SampleID, Lineage_frac, Mixed_90perc)
+    lineage_frac    <- read.delim("tbprofiler.lineages.fractions.txt", 
+            sep = ";",
+            header = TRUE) |> 
+        select(SampleID, Lineage_frac, Mixed_90perc)
 
     # Merge the dataframes
     merge1 <- left_join(mtbseq_stats, mtbseq_class)
@@ -237,9 +241,10 @@ process COMPILE_SEQUENCING_STATS {
     # Create the list of genomes for pairwise analysis
     pairwise_analysis.df <- full.df.final |>
             select(SampleID=FullID,
-                    main_lineage,
-                    sub_lineage) |>
-            filter(main_lineage != "NA" & !str_detect(main_lineage, ";") & !str_detect(sub_lineage, ";"))
+                main_lineage,
+                sub_lineage) |>
+            filter(
+                main_lineage != "NA" & !str_detect(main_lineage, ";") & !str_detect(sub_lineage, ";"))
 
     # export all the ouputs (broken!)
     write.csv(sequencing_summary.df, 
@@ -321,12 +326,12 @@ process COMPILE_SEQUENCING_STATS {
 @version: 1.0.1
 @description:
     In this module the sequencing statistics for the db are
-    calculated with Rscripts. The output is a summary of the
-    sequencing statistics, the tbdb and who resistance  summaries
-    and a list of the genomes which pass the minimum quality
-    requirements for the pairwise analysis. This is then used to create a 
-    filtered list of genomes for the pairwise analysis, which is converated into
-    a tuple/channel for downstream processing.
+        calculated with Rscripts. The output is a summary of the
+        sequencing statistics, the tbdb and who resistance  summaries
+        and a list of the genomes which pass the minimum quality
+        requirements for the pairwise analysis. This is then used to create a 
+        filtered list of genomes for the pairwise analysis, which is converated into
+        a tuple/channel for downstream processing.
 @changelog:
     v1.0.0_2024-04-01: Inital version of module
     v1.0.1-2026-05-13: Removed renaming the MTBSeq concatenated files as they now include headers
