@@ -18,9 +18,13 @@ process NEXUS_GEN{
             path(clusters_tab)
 
     output:
-        //path("nexus.tuple.csv"), emit: nexus_tuple
-        //path(clusters_tab),      emit: clusters_tab
-        path("handover.out"),    emit: handover_out
+    // Main outputs
+        path("fasta/")
+        path("nexus/")
+        path("positions")
+
+    // Handover outputs
+        path("${lineage}_${distance}.handover.out"), emit: handover_out
 
     script:
 
