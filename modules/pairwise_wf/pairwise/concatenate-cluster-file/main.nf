@@ -103,16 +103,11 @@ process CONCATENATE_CLUSTERS {
     # Join + pivot
     # ------------------------------------------------------------------
     # Join the index with the df
-    df_merged = database_sample_index.join(df4, on="genomes", how="left")
-
-    ##database_sample_index.select("Sample").unique().count()
-    ##df.select("Sample").unique().count()
-    ##df_merged.select("Sample").unique().count()
-    ##df_merged.filter(pl.col("lineage").is_null())
+    df_merged = database_sample_index.join(df4, on="genomes", how="left", coalesce=True)
 
     # Pivot wider
     wide = df_merged.pivot(
-        index=["SampleID", "lineage", "genomes", "library"],
+        index=["Sample", "lineage", "genomes", "library"]
         columns="dSNP",
         values="int_clusterID"
     )
