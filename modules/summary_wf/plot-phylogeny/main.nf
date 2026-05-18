@@ -17,8 +17,8 @@ process PLOT_MAIN_PHYLOGENY {
 
     output:
     // Main outputs
-        path("${lineage}.contree.Rdata"), optional: true
-        path("${lineage}_phylogeny.html"), optional: true
+        path("${lineage}.contree.Rdata")
+        path("${lineage}_phylogeny.html")
     
     // Timetree channel output
         tuple val(lineage),  
