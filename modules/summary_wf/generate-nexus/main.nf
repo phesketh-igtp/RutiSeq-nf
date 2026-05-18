@@ -2,7 +2,7 @@ process GENERATE_NEXUS {
 
     conda params.snippy_env 
 
-    tag "cluster: ${clusterID}"
+    tag "cluster: ${lineage}"
 
     publishDir "${params.outDir}/results/${params.runID}/networks/", 
         mode: 'copy', 

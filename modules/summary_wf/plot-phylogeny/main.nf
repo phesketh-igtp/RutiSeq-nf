@@ -37,39 +37,15 @@ process PLOT_MAIN_PHYLOGENY {
         if [[ \$clustered_genomes -gt 0 ]]; then
 
             echo "This lineage contains clusters - plotting phylogeny with cluster heatmap"
-
-            # plot phylogeny with clsuter heatmap
-            Rscript ${params.scriptDir}/R/plot_ML-phylogeny.R \\
-                    --lineageID ${lineage} \\
-                    --rlibrary ${params.scriptDir}/R/ \\
-                1>>.command.out \\
-                2>>.command.err || true # NOTE This is a hack to overcome the exit status 1
-            # Copy the phylogeny report to the output directory
-            cp ${params.scriptDir}/quarto/phylogeny-report.qmd phylogeny-report.qmd
-
-            # Render the phylogeny report using Quarto
-            #DENO_V8_FLAGS="--max-old-space-size=8192" \\
-            #quarto render phylogeny-report.qmd \\
-            #    -P runID=${params.runID} \\
-            #    -P lineage=${lineage} \\
-            #    -P RData=${lineage}.contree.Rdata \\
-            #    --output ${lineage}_phylogeny.html  \\
-            #    1>>.command.out \\
-            #    2>>.command.err || true # NOTE This is a hack to overcome the exit status 1
-
-            [[ -f "${lineage}.contree.Rdata" ]] && \
-                cp "${lineage}.contree.Rdata" "${params.outDir}/results/${params.runID}/phylogeny/"
-
-            [[ -f "${lineage}_ML-phylogeny.html" ]] && \
-                cp "${lineage}_ML-phylogeny.html" "${params.outDir}/results/${params.runID}/phylogeny/"
-
-            echo -e "quarto render phylogeny-report.qmd -P runID=${params.runID} -P lineage=${lineage} -P RData=${lineage}.contree.Rdata --output ${lineage}_phylogeny.html" > ${params.outDir}/results/${params.runID}/phylogeny/${lineage}.quarto.sh
-
-            #quarto render phylogeny-report.qmd \\
-            #    -P runID=${params.runID} \\
-            #    -P lineage=${lineage} \\
-            #    -P RData=${lineage}.contree.Rdata \\
-            #    --output ${lineage}_ML-phylogeny.html 2>/dev/null
+            # Copy quarto script
+            cp ${params.scriptDir}/quarto/phylogeny-report.qmd \\
+                phylogeny-report.qmd
+            
+            # Render script
+            quarto render phylogeny-report.qmd \\
+                -P runID=${params.runID} \\
+                -P lineage=${lineage} \\
+                --output ${lineage}_ML-phylogeny.html #2>/dev/null
 
         else
             echo "This lineage contains no clusters - plotting phylogeny without cluster heatmap"

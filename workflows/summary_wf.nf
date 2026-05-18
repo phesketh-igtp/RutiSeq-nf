@@ -1,8 +1,8 @@
 //include { PROCESS_CLUSTERS           }   from '../modules/summary_wf/summary/process-clusters/main.nf'
 include { GENERATE_SUMMARY_REPORT    }   from '../modules/summary_wf/summary-report/main.nf'
 include { PLOT_MAIN_PHYLOGENY        }   from '../modules/summary_wf/plot-phylogeny/main.nf'
-include { PREPARE_NEXUS_PATHS        }   from '../modules/summary_wf/prepare-nexus-paths/main.nf'
-include { GENERATE_NEXUS             }   from '../modules/summary_wf/generate-nexus/main.nf'
+include { NEXUS_GEN        }   from '../modules/summary_wf/prepare-nexus-paths/main.nf'
+//include { GENERATE_NEXUS             }   from '../modules/summary_wf/generate-nexus/main.nf'
 include { POST_SUMMARY_CLEANUP       }   from '../modules/summary_wf/post-summary-cleanup-handover/main.nf'
 include { DATED_PHYLOGENY         }   from '../modules/summary_wf/generate-timetrees/main.nf'
 include { PLOT_TIMETREES             }   from '../modules/summary_wf/plot-timetrees/main.nf'
@@ -47,6 +47,8 @@ workflow SUMMARY_WF{
                                 unprocessed_clusters 
                                 )
         // Generate base NEXUS files for each cluster
+        NEXUS_GEN( nexus_creation_ch )
+        /*
             PREPARE_NEXUS_PATHS( 
                                 nexus_creation_ch
                                 )
@@ -60,8 +62,11 @@ workflow SUMMARY_WF{
                 // DEBUG: view the channel //nexus_ch.view()
         // Your current code
             GENERATE_NEXUS( nexus_ch )
+        */
+
         // Collect all outputs before passing to DATA_DELIVERY
-            collected_handover_out = GENERATE_NEXUS.out.handover_out.collect()
+            //collected_handover_out = GENERATE_NEXUS.out.handover_out.collect()
+            collected_handover_out = NEXUS_GEN.out.handover_out.collect()
         // Conditionally mix with annotated nexus - if metadata provided
         if (params.metadata) {
             // Check if metadata file exists

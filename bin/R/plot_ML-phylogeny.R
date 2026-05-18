@@ -79,15 +79,15 @@ filtered_clusters <- clusters |> filter(lineage == lineageID)
 tree.tips <- tree$tip.label
 
 # Get the custer information only for tips in the tree
-tree.clusters <- clusters %>% filter(SampleID %in% tree.tips) |> distinct()
+tree.clusters <- clusters %>% filter(Sample %in% tree.tips) |> distinct()
 
 # For some reason ggtree wont read the first collumn and so you need to use
 ## the second column to call the tip names
 tree.clusters <- tree.clusters |>
-  mutate(Tip_lable = SampleID)
+  mutate(Tip_lable = Sample)
 
 # Create the additional rows as a data frame
-additional_rows <- data.frame(SampleID = c("H37Rv", "MTB_anc"),
+additional_rows <- data.frame(Sample = c("H37Rv", "MTB_anc"),
   Tip_lable = c("H37Rv", "MTB_anc")
   )
 # Find missing columns in additional_rows compared to tree.clusters
@@ -107,7 +107,7 @@ tree.clusters <- rbind(tree.clusters, additional_rows_full) |>
 # Create a matrix of the clusters
 tree.clusters.df <- tree.clusters |>
   select(!lineage) |>
-  tibble::column_to_rownames(var = "SampleID")  # Set SampleID as row names
+  tibble::column_to_rownames(var = "Sample")  # Set Sample as row names
 
 # Replace unclustered values with NA so that there is no legend for those values and improves
 # readability of the trees
