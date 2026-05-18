@@ -41,6 +41,8 @@ process MTBSEQ_LINEAGE_GROUP {
         //Groups/[PROJECT]_joint_[mincovf]_[mincovr]_[minfreq]_[minphred20]_samples_amended_[unambig]_phylo_[window].matrix
         def groups_tab = "Groups/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}_d${distance}.groups"
         def groups_mat = "Groups/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.matrix"
+        def amend_fasta = "Amend/_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta"
+        def amend_tab = "Amend/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab"
 
         """
         # Make output directories (local)
@@ -118,8 +120,8 @@ process MTBSEQ_LINEAGE_GROUP {
         # remove the intermediates
         rm Matrix/tmp.${lineage}.*
 
-        cat Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.fasta > ${params.runID}_${lineage}_snps.fasta
-        cat Amend/${lineage}_joint_cf*_cr*_fr*_ph*_samples*_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.tab > ${params.runID}_${lineage}_snps.tab
+        cat ${amend_fasta} > ${params.runID}_${lineage}_snps.fasta
+        cat ${amend_tab} > ${params.runID}_${lineage}_snps.tab
         """
 }
 
