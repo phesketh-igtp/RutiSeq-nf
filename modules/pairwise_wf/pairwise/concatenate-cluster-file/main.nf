@@ -118,7 +118,7 @@ process CONCATENATE_CLUSTERS {
     t_cols = [c for c in wide.columns if c.startswith("t=")]
     t_cols_sorted = sorted(t_cols, key=lambda x: int(x.replace("t=", "")))
 
-    wide = wide.select(["SampleID", "lineage"] + t_cols_sorted)
+    wide = wide.select(["Sample", "lineage"] + t_cols_sorted)
 
     # ------------------------------------------------------------------
     # Create merged cluster ID
@@ -133,7 +133,7 @@ process CONCATENATE_CLUSTERS {
     # ------------------------------------------------------------------
     wide.write_csv("processed_clusters.tsv", separator="\t")
 
-    df.write_csv(
+    df4.write_csv(
         "unprocessed_clusters.tsv",
         separator="\t",
         include_header=False
