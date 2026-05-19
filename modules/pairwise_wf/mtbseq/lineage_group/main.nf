@@ -51,8 +51,8 @@ process MTBSEQ_LINEAGE_GROUP {
         if [[ -f ${params.outDir}/db/comparison/mtbseq/${lineage}/${groups_tab} && \
             -f ${params.outDir}/db/comparison/mtbseq/${lineage}/${groups_mat} ]]; then
 
-            cp ${params.outDir}/db/comparison/mtbseq/${lineage}/${groups_tab} Groups/
-            cp ${params.outDir}/db/comparison/mtbseq/${lineage}/${groups_mat} Groups/
+            ln -s ${params.outDir}/db/comparison/mtbseq/${lineage}/${groups_tab} Groups/
+            ln -s ${params.outDir}/db/comparison/mtbseq/${lineage}/${groups_mat} Groups/
 
         else
 
@@ -92,33 +92,6 @@ process MTBSEQ_LINEAGE_GROUP {
 
         grep 'ungrouped' tmp.${lineage}_d${distance}.clusters.tsv \\
                 | sed "s@ungrouped@singleton@g" > Groups/${params.runID}_${lineage}_d${distance}.singletons.tsv
-
-        # Move and rename the Matrix file for simplicity
-        cp Groups/${lineage}*.matrix Matrix/${lineage}.d${distance}.matrix
-
-        ## Correct the format of the matrix for importing to R
-
-        # cut the headers column from the matrix
-        cut -f1 Matrix/${lineage}.d${distance}.matrix > Matrix/tmp.${lineage}.matrix.ids
-
-        # transpose the first colum long to wide (tab seperated)
-            awk '                                         
-            {
-                for (i = 1; i <= NF; i++) {
-                    arr[i] = (arr[i] ? arr[i] "\t" : "") \$i;
-                }
-            }
-            END {
-                for (i = 1; i in arr; i++) {
-                    print arr[i];
-                }
-            }
-            ' Matrix/tmp.${lineage}.matrix.ids | sed 's/^/sampleID\t/g' > Matrix/tmp.${lineage}.matrix.head
-
-        cat Matrix/tmp.${lineage}.matrix.head Matrix/${lineage}.d${distance}.matrix > Matrix/${params.runID}_${lineage}.d${distance}.matrix.tsv
-
-        # remove the intermediates
-        rm Matrix/tmp.${lineage}.*
 
         cat ${amend_fasta} > ${params.runID}_${lineage}_snps.fasta
         cat ${amend_tab} > ${params.runID}_${lineage}_snps.tab
