@@ -2,7 +2,7 @@ process SNIPPY_CORE {
 
     conda params.snippy_env
     
-    publishDir "${params.outDir}/db/comparison/snippy/", 
+    publishDir "${params.outDir}/db/comparison/snippy/core/", 
         mode: 'copy',
         overwrite: true
 
@@ -111,7 +111,7 @@ process SNIPPY_CORE {
         mv tmp.core.masked.full.aln core.masked.full.aln
 
     ## Masked
-        snp-dists -j 16 core.masked.full.aln > core.masked.distance.mat
+        snp-dists -j ${task.cpus} core.masked.full.aln > core.masked.distance.mat
         coresnpfilter -e -c 1.0 core.masked.full.aln > core.masked.full.filt100.variants.aln
         coresnpfilter -e -c 1.0 core.masked.full.aln --table core.masked.full.filt100.variants.tab
         coresnpfilter -e -c 0.95 core.masked.full.aln > core.masked.full.filt95.variants.aln
@@ -119,12 +119,20 @@ process SNIPPY_CORE {
         coresnpfilter -C core.masked.full.aln > core.masked.full.invariants.aln
 
     ## Unmasked
-        snp-dists -j 16 core.unmasked.full.aln > core.unmasked.distance.mat
-        coresnpfilter -e -c 1.0 core.unmasked.full.aln > core.unmasked.full.filt100.variants.aln
-        coresnpfilter -e -c 1.0 core.unmasked.full.aln --table core.unmasked.full.filt100.variants.tab
-        coresnpfilter -e -c 0.95 core.unmasked.full.aln > core.unmasked.full.filt95.variants.aln
-        coresnpfilter -e -c 1.0 core.unmasked.full.aln --table core.unmasked.full.filt100.variants.tab
-        coresnpfilter -C core.unmasked.full.aln > core.unmasked.full.invariants.aln
+        snp-dists -j ${task.cpus} core.full.aln > core.distance.mat
+        coresnpfilter -e -c 1.0 core.full.aln > core.full.filt100.variants.aln
+        coresnpfilter -e -c 1.0 core.full.aln --table core.full.filt100.variants.tab
+        coresnpfilter -e -c 0.95 core.full.aln > core.full.filt95.variants.aln
+        coresnpfilter -e -c 1.0 core.full.aln --table core.full.filt100.variants.tab
+        coresnpfilter -C core.full.aln > core.full.invariants.aln
+
+    ## Gubbins
+        run_gubbins.py \\
+            --threads ${task.cpus} \\
+            --prefix gubbins \\
+            --min-window-size 12 \
+            --extensive-search \\
+            core.full.aln
 
     # Clean up
         # Remove the prefix

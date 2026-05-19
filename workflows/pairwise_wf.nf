@@ -6,7 +6,6 @@ include { COMPILE_SEQUENCING_STATS }   from '../modules/pairwise_wf/filtering/co
 include { SNIPPY_LINEAGE_CORE }        from '../modules/pairwise_wf/pairwise/snippy-lineage-core/main.nf'
 include { SNIPPY_CORE }                from '../modules/pairwise_wf/pairwise/snippy-core/main.nf'
 include { SNIPPY_PHYLOGENY }           from '../modules/pairwise_wf/pairwise/snippy-phylogeny/main.nf'
-include { SNIPPY_DATED_PHYLOGENY }     from '../modules/summary_wf/summary/generate-snippy-timetrees/main.nf'
 // MTBSeq
 include { ASSESS_SAMPLES }             from '../modules/pairwise_wf/filtering/assess_samples/main.nf'
 include { MTBSEQ_LINEAGE_JOINT_AMEND } from '../modules/pairwise_wf/mtbseq/lineage_joint-amend/main.nf'

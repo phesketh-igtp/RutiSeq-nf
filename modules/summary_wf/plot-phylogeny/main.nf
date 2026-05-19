@@ -18,7 +18,7 @@ process PLOT_MAIN_PHYLOGENY {
     output:
     // Main outputs
         path("${lineage}.contree.Rdata")
-        path("${lineage}_phylogeny.html")
+        path("${lineage}_ML-phylogeny.html")
     
     // Timetree channel output
         tuple val(lineage),  
@@ -46,6 +46,7 @@ process PLOT_MAIN_PHYLOGENY {
                 -P runID=${params.runID} \\
                 -P lineage=${lineage} \\
                 --output ${lineage}_ML-phylogeny.html #2>/dev/null
+            cp ${lineage}_ML-phylogeny.html ${params.outDir}/results/${params.runID}/phylogeny/
 
         else
             echo "This lineage contains no clusters - plotting phylogeny without cluster heatmap"

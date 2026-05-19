@@ -123,6 +123,14 @@ process SNIPPY_LINEAGE_CORE {
             -o ${lineage}-masked.no-ref.aln \\
             ${lineage}-masked.no-ref
 
+    # Run gubbins on main alignment
+    run_gubbins.py \\
+        --threads ${task.cpus} \\
+        --prefix ${lineage}-gubbins \\
+        --min-window-size 12 \
+        --extensive-search \\
+        ${lineage}-core.full.aln
+
     # Get snp distances
     for alignment in *.aln; do
         snp-dists \\
