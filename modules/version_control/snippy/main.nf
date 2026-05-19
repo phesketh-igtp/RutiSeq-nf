@@ -20,6 +20,7 @@ process SNIPPY_ENV {
     script:
 
     """
-    conda export > snippy_env_${runID}.yml
+    > snippy_env_${runID}.yml
+    conda export >> snippy_env_${runID}.yml
     """
 }

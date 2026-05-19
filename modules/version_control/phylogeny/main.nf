@@ -21,6 +21,7 @@ process PHYLOGENY_ENV {
     script:
 
     """
-    conda export > phylogeny_env_${runID}.yml
+    > phylogeny_env_${runID}.yml
+    conda export >> phylogeny_env_${runID}.yml
     """
 }

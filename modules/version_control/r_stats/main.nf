@@ -21,6 +21,7 @@ process R_STATS_ENV {
     script:
 
     """
-    conda export > r-stats_env_${runID}.yml
+    r-stats_env_${runID}.yml
+    conda export >> r-stats_env_${runID}.yml
     """
 }
