@@ -9,15 +9,16 @@ include { SNIPPY_PHYLOGENY }           from '../modules/pairwise_wf/pairwise/sni
 include { SNIPPY_DATED_PHYLOGENY }     from '../modules/summary_wf/summary/generate-snippy-timetrees/main.nf'
 // MTBSeq
 include { ASSESS_SAMPLES }             from '../modules/pairwise_wf/filtering/assess_samples/main.nf'
-include { MTBSEQ_LINEAGE_JOINT }       from '../modules/pairwise_wf/mtbseq/lineage_joint/main.nf'
-include { MTBSEQ_LINEAGE_AMEND }       from '../modules/pairwise_wf/mtbseq/lineage_amend/main.nf'
 include { MTBSEQ_LINEAGE_JOINT_AMEND } from '../modules/pairwise_wf/mtbseq/lineage_joint-amend/main.nf'
 include { MTBSEQ_LINEAGE_GROUP }       from '../modules/pairwise_wf/mtbseq/lineage_group/main.nf'
-// REMAINING
-include { PREPROCESS_CLUSTER }         from '../modules/pairwise_wf/pairwise/preprocess_clusters/main.nf'
+// Work in progress to re-write the inneficient MTBseq Join module in python
+    //include { MTBSEQ_LINEAGE_JOINT }       from '../modules/pairwise_wf/mtbseq/lineage_joint/main.nf'
+    //include { MTBSEQ_LINEAGE_AMEND }       from '../modules/pairwise_wf/mtbseq/lineage_amend/main.nf'
+// Phylogeny
 include { SNP_PHYLOGENY }              from '../modules/pairwise_wf/phylogeny/concatenated_snp_phylogeny/main.nf'
+// Process Cluster
+include { PREPROCESS_CLUSTER }         from '../modules/pairwise_wf/pairwise/preprocess_clusters/main.nf'
 include { CONCATENATE_CLUSTERS }       from '../modules/pairwise_wf/pairwise/concatenate-cluster-file/main.nf'
-include { DATED_PHYLOGENY }            from '../modules/summary_wf/summary/generate-timetrees/main.nf'
 
 workflow PAIRWISE_WF {
 
@@ -182,18 +183,6 @@ workflow PAIRWISE_WF {
             log.info "${purple}Skipping SNIPPY_CORE and SNIPPY_PHYLOGENY analysis (params.snippy_core = ${params.snippy_core})${no_col}"
         }
 
-        // Time tree generation and ancestral sequence reconstruction
-        if (params.metadata) {
-
-            // Create timetrees
-            DATED_PHYLOGENY( 
-                            MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch, 
-                            params.metadata
-                            )
-        } else {
-            log.info "${cyan}No metadata provided. TimeTrees and ancestral sequences will not be inferred.${no_col}"
-        }
-
 /*
         // Create a channel to emit for the nexus generation
             nexus_creation_ch = MTBSEQ_LINEAGE_JOINT_AMEND.out.mtbseq_group_tuple_csv
@@ -212,14 +201,12 @@ workflow PAIRWISE_WF {
         tbdb_resistance        = COMPILE_SEQUENCING_STATS.out.tbdb_resistance
         phylogeny_plotting_ch  = SNP_PHYLOGENY.out.main_phylogeny_out
         nexus_creation_ch      = PREPROCESS_CLUSTER.out.nexus_ch
-        // Only if metadata is provided, emit dated phylogeny channel
-        dated_phylogeny_ch     = params.metadata ? DATED_PHYLOGENY.out.timetrees_out : Channel.empty()
 }
 
 /*
 @author: Poppy J Hesketh Best
 @date: 2026-01-19
-@version: 1.2.0
+@version: 1.3.0
 @description: 
     This is the pairwise genome workflow for the RutiSeq-nf pipeline.
 @changelog
@@ -227,4 +214,5 @@ workflow PAIRWISE_WF {
     v1.0.1-2025-04-04: Added documentation and comments
     v1.1.0-2026-01-05: Added SNIPPY_DATED_PHYLOGENY module for dated phylogenies from snippy core alignments
     v1.2.0-2026-01-19: Cleaner handling of dated phylogeny emission based on metadata presence
+    v1.3.0-2026-05-19: Timetree generations to simplify the entire workflow (was overcomplicating the wf)
 */

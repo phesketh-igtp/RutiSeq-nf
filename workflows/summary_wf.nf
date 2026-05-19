@@ -15,7 +15,6 @@ workflow SUMMARY_WF{
         tbdb_resistance
         phylogeny_plotting_ch
         nexus_creation_ch
-        dated_phylogeny_ch
         sylph_results
         reads_taxonomy_qc_report_out
 
@@ -70,5 +69,5 @@ workflow SUMMARY_WF{
     v2.2.0-2026-05-19: Merged nexus generation modules into a single one to reduce 
                         number of small processes launched. 
                         Remove TimeTree Compoenents due to complications and desire to
-                            make the workflow much smaller and simpler.
+                            make the workflow much smaller and simpler for maintanance.
 */
