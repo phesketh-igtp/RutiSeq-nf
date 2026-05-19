@@ -108,8 +108,7 @@ process MTBSEQ_LINEAGE_AMEND {
     v1.0.0-2025-04-01: Initial version
     v1.1.0-2025-04-09: Changed - Removed the zipping of the files (caused issues)
     v2.0.0-2026-04-24: Added full parameters to outputs names to ensure accuracy. Included the count of sampleIDs in the channel.
-    v2.0.1-2026-04-27: Moved snp distances to the definition line before the shell script
-
+    v2.0.1-2026-04-27: Moved snp distances to the definition line before the shell scripts
 TODO: Would be better to compare the sampleIDs from the fasta files and 
             if they are differente, then remove and repeat the analysis, or if they are the same
             continue
