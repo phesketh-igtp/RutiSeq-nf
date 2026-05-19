@@ -19,9 +19,9 @@ process NEXUS_GEN{
 
     output:
     // Main outputs
-        path("fasta/")
-        path("nexus/")
-        path("positions")
+        path("fasta/*")
+        path("nexus/*")
+        path("positions/*")
 
     // Handover outputs
         path("${lineage}_${distance}.handover.out"), emit: handover_out

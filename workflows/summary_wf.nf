@@ -48,21 +48,6 @@ workflow SUMMARY_WF{
                                 )
         // Generate base NEXUS files for each cluster
         NEXUS_GEN( nexus_creation_ch )
-        /*
-            PREPARE_NEXUS_PATHS( 
-                                nexus_creation_ch
-                                )
-                nexus_ch = PREPARE_NEXUS_PATHS.out.nexus_tuple
-                                .splitCsv(header: false, sep: ',')
-                                .map { row ->
-                                    def (lineage, clusterID, fasta, tab, clusters_tab) = row
-                                    tuple(lineage, clusterID, file(fasta), file(tab), file(clusters_tab))
-                                    }
-
-                // DEBUG: view the channel //nexus_ch.view()
-        // Your current code
-            GENERATE_NEXUS( nexus_ch )
-        */
 
         // Collect all outputs before passing to DATA_DELIVERY
             //collected_handover_out = GENERATE_NEXUS.out.handover_out.collect()
@@ -139,4 +124,6 @@ workflow SUMMARY_WF{
     v1.0.1-2025-04-04: Added documentation and comments
     v2.0.0-2025-11-15: Remove creation of variant sites tables from summary workflow
     v2.1.0-2026-01-05: Added conditional handling for metadata input
+    v2.2.0-2026-05-19: Merged nexus generation modules into a single one to reduce 
+                        number of small processes launched.
 */

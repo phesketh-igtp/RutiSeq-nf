@@ -9,6 +9,8 @@ include { SNIPPY_PHYLOGENY }           from '../modules/pairwise_wf/pairwise/sni
 include { SNIPPY_DATED_PHYLOGENY }     from '../modules/summary_wf/summary/generate-snippy-timetrees/main.nf'
 // MTBSeq
 include { ASSESS_SAMPLES }             from '../modules/pairwise_wf/filtering/assess_samples/main.nf'
+include { MTBSEQ_LINEAGE_JOINT }       from '../modules/pairwise_wf/mtbseq/lineage_joint/main.nf'
+include { MTBSEQ_LINEAGE_AMEND }       from '../modules/pairwise_wf/mtbseq/lineage_amend/main.nf'
 include { MTBSEQ_LINEAGE_JOINT_AMEND } from '../modules/pairwise_wf/mtbseq/lineage_joint-amend/main.nf'
 include { MTBSEQ_LINEAGE_GROUP }       from '../modules/pairwise_wf/mtbseq/lineage_group/main.nf'
 // REMAINING
