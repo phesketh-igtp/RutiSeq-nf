@@ -4,7 +4,7 @@ process NEXUS_GEN{
 
     tag "${lineage}; t=${distance}"
 
-    publishDir "${params.outDir}/results/networks/", 
+    publishDir "${params.outDir}/results/${params.runID}/networks/", 
         mode: 'copy', 
         overwrite: true
 
@@ -52,6 +52,7 @@ process NEXUS_GEN{
     # Part 2: Parse over the samplesheet and generate nexus files
     ###############################################################
     # Create output directories
+    mkdir -p ${params.outDir}/results/${params.runID}/networks/
     mkdir -p nexus/ fasta/ positions/
 
     for clusterID in \$(cat final_clusters.list); do
