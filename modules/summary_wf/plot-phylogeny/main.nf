@@ -5,7 +5,8 @@ process PLOT_MAIN_PHYLOGENY {
     conda params.r_phylogeny_env
 
     publishDir "${params.outDir}/results/${params.runID}/phylogeny/", 
-                mode: 'copy', overwrite: true
+                mode: 'copy',
+                overwrite: true
 
     input:
         tuple val(lineage), 
@@ -17,7 +18,7 @@ process PLOT_MAIN_PHYLOGENY {
 
     output:
     // Main outputs
-        path("${lineage}.contree.Rdata")
+        path("${lineage}.ML-phylogeny.Rdata")
         path("${lineage}_ML-phylogeny.html")
     
     // Timetree channel output

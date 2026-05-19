@@ -28,8 +28,8 @@ process CONCATENATE_CLUSTERS {
     # Find files
     # ------------------------------------------------------------------
 
-    cluster_files = list(base_dir.rglob("${params.runID}*_d*.processed.clusters.tsv"))
-    singleton_files = list(base_dir.rglob("${params.runID}*_d*.singletons.tsv"))
+    cluster_files = list(base_dir.rglob("*_d*.processed.clusters.tsv"))
+    singleton_files = list(base_dir.rglob("*_d*.singletons.tsv"))
     all_files = cluster_files + singleton_files
 
     # ------------------------------------------------------------------

@@ -35,55 +35,55 @@ process PREPROCESS_CLUSTER {
 
         //def additional_args = task.ext.additional_args ?: '' // defined in the nextflow.config file
 
-"""
-#!/usr/bin/env python
-import polars as pl
+    """
+    #!/usr/bin/env python
+    import polars as pl
 
-# ------------------------------------------------------------------
-# Read input
-# ------------------------------------------------------------------
-df = pl.read_csv(
-    "clusters_input.tsv",
-    separator="\t",
-    has_header=False
-)
-
-# ------------------------------------------------------------------
-# Process clusters
-# ------------------------------------------------------------------
-
-df = (
-    df
-    .unique()
-    .with_columns(
-        pl.col("column_4")
-        .str.split_exact("-", 2)
-        .struct.rename_fields(["num", "dist", "lin"])
-        .alias("parts")
+    # ------------------------------------------------------------------
+    # Read input
+    # ------------------------------------------------------------------
+    df = pl.read_csv(
+        "clusters_input.tsv",
+        separator="\t",
+        has_header=False
     )
-    .unnest("parts")
-    .with_columns([
-        pl.col("num").str.zfill(3),
-        pl.col("dist").str.zfill(2)
-    ])
-    .with_columns(
-        (pl.col("num") + "-" +
-         pl.col("dist") + "-" +
-         pl.col("lin"))
-        .alias("column_4")
-    )
-    .select(["column_1", "column_2", "column_3", "column_4"])
-)
 
-# ------------------------------------------------------------------
-# Write output
-# ------------------------------------------------------------------
-df.write_csv(
-    "${params.runID}_${lineage}_d${distance}.processed.clusters.tsv",
-    separator="\t",
-    include_header=False
-)
-"""
+    # ------------------------------------------------------------------
+    # Process clusters
+    # ------------------------------------------------------------------
+
+    df = (
+        df
+        .unique()
+        .with_columns(
+            pl.col("column_4")
+            .str.split_exact("-", 2)
+            .struct.rename_fields(["num", "dist", "lin"])
+            .alias("parts")
+        )
+        .unnest("parts")
+        .with_columns([
+            pl.col("num").str.zfill(3),
+            pl.col("dist").str.zfill(2)
+        ])
+        .with_columns(
+            (pl.col("num") + "-" +
+            pl.col("dist") + "-" +
+            pl.col("lin"))
+            .alias("column_4")
+        )
+        .select(["column_1", "column_2", "column_3", "column_4"])
+    )
+
+    # ------------------------------------------------------------------
+    # Write output
+    # ------------------------------------------------------------------
+    df.write_csv(
+        "${params.runID}_${lineage}_d${distance}.processed.clusters.tsv",
+        separator="\t",
+        include_header=False
+    )
+    """
 }
 
 /*
