@@ -1,37 +1,42 @@
 process FETCH_SRA {
 
-    tag "$accession"
+    tag "$sampleID"
     
     // conda directive is ignored when using containers
     conda 'bioconda::sra-tools=3.0.10'
     
     input:
-        tuple val(accession), 
+        tuple val(sampleID), 
             path(forward), path(reverse), 
             val(type), path(mtbseq_class),
             path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
             path(tbdb_out), path(who_out), path(mtbseq_vcf)
     
     output:
-    tuple val(accession), 
-        path("${accession}_1.fastq.gz"), 
-        path("${accession}_2.fastq.gz"),
-        val(type),  path(mtbseq_class),
-        path(mtbseq_stats), path(mtbseq_pos), path(mtbseq_vars), 
-        path(tbdb_out), path(who_out), path(mtbseq_vcf), emit: fetch_fastq_tuple
+    tuple val(sampleID), 
+        path("${sampleID}_R1.fastq.gz"), 
+        path("${sampleID}_R2.fastq.gz", optional: true),
+        val("sample"), 
+        path(mtbseq_class),
+        path(mtbseq_stats),
+        path(mtbseq_pos),
+        path(mtbseq_vars), 
+        path(tbdb_out),
+        path(who_out),
+        path(mtbseq_vcf), emit: fetched_sra_tuple
         
     script:
     """
     # Download FASTQ files
-    fastq-dump --split-files --gzip --outdir . ${accession}
+    fastq-dump --split-files --gzip --outdir . ${forward}
     
     # Handle single-end vs paired-end data
-    if [[ -f "${accession}_2.fastq.gz" ]]; then
-        echo "Paired-end data detected for ${accession}"
+    if [[ -f "${forward}_2.fastq.gz" ]]; then
+        echo "Paired-end data detected for ${forward}"
+        mv ${forward}_1.fastq.gz ${forward}_R1.fastq.gz
+        mv ${sampleID}_2.fastq.gz ${sampleID}_R2.fastq.gz
     else
-        echo "Single-end data detected for ${accession}, creating empty R2"
-        # Create empty file for consistency
-        echo -n | gzip > ${accession}_2.fastq.gz
+        echo "Single-end data detected for ${forward}"
     fi
     """
 }
