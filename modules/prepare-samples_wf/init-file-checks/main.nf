@@ -32,12 +32,12 @@ process FILE_CHECK {
         set -euo pipefail
 
         # Check if ALL result files exist
-        if [[ -f "${mtbseq_class}" ]] && \
-            [[ -f "${mtbseq_stats}" ]] && \
-            [[ -f "${mtbseq_pos}" ]] && \
-            [[ -f "${mtbseq_vars}" ]] && \
-            [[ -f "${tbdb_out}" ]] && \
-            [[ -f "${who_out}" ]] && \
+        if [[ -f "${mtbseq_class}" ]] && \\
+            [[ -f "${mtbseq_stats}" ]] && \\
+            [[ -f "${mtbseq_pos}" ]] && \\
+            [[ -f "${mtbseq_vars}" ]] && \\
+            [[ -f "${tbdb_out}" ]] && \\
+            [[ -f "${who_out}" ]] && \\
             [[ -f "${snippy_vcf}" ]]; then
             
             # Sample is complete - use result files, set FASTQs to null
