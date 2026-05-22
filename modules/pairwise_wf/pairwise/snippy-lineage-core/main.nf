@@ -20,9 +20,13 @@ process SNIPPY_LINEAGE_CORE {
         path("${lineage}-core.full.aln")
         path("${lineage}-core.txt")
         path("${lineage}-core.vcf")
-        path("${lineage}-core.mat.tsv")
-        path("${lineage}-core.nr.full.aln")
-        path("${lineage}-core.nr.mat.tsv")
+        path("${lineage}-core.mat")
+    // Reference free outputs
+        path("${lineage}-core.nr.aln")
+        path("${lineage}-core.nr.mat")
+    // Masked outputs
+        path("${lineage}-core.nr.masked.aln")
+        path("${lineage}-core.nr.masked.mat")
     // Reference
         path("${lineage}-core.ref.fa")
     // Phylogeny output
@@ -88,6 +92,16 @@ process SNIPPY_LINEAGE_CORE {
         --ref ${params.snippy_reference} \\
         \$snippy_directories
 
+    ###############################################################
+    # Clean up naming conention and remove the prefix
+    sed -i 's@snippyDir_@@g' ${lineage}-core*
+
+    snp-dists -j ${task.cpus} \\
+        ${lineage}-core.aln \\
+        > ${lineage}-core.mat
+
+    ###############################################################
+    # Remove the reference genome and rerun snp-sites
     seqkit grep \\
         --invert-match \\
         --pattern "Reference" \\
@@ -96,16 +110,27 @@ process SNIPPY_LINEAGE_CORE {
         > ${lineage}-core.nr.full.aln
 
     snp-sites \\
-        -o ${lineage}-core.nr.full.aln \\
-        ${lineage}-core.nr.aln
-    
+        -o ${lineage}-core.nr.aln \\
+        ${lineage}-core.nr.full.aln
+
     snp-dists -j ${task.cpus} \\
         ${lineage}-core.nr.aln \\
         > ${lineage}-core.nr.mat
 
-    # Clean up
-        # Remove the prefix
-        sed -i 's@snippyDir_@@g' ${lineage}-core*
+    ###############################################################
+    # Masked the position and rerun snp-sites
+    bedtools maskfasta \
+        -fi ${lineage}-core.nr.full.aln \
+        -bed ${params.snippy_mask} \
+        -fo ${lineage}-core.nr.full.masked.aln
+
+    snp-sites \\
+        -o ${lineage}-core.nr.masked.aln \\
+        ${lineage}-core.nr.full.masked.aln
+    
+    snp-dists -j ${task.cpus} \\
+        ${lineage}-core.nr.masked.aln \\
+        > ${lineage}-core.nr.masked.mat
     """
 }
 

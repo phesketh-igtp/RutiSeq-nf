@@ -136,6 +136,7 @@ workflow PAIRWISE_WF {
         // Run the pairwise analysis by lineages
             MTBSEQ_LINEAGE_JOINT_AMEND( lineage_samples_ch )
             SNIPPY_LINEAGE_CORE( lineage_samples_ch )
+            SNIPPY_LINEAGE_CORE_PHYLOGENY( SNIPPY_LINEAGE_CORE.out.snippy_lin_phylo_ch )
 
                 // row[0] lineage, distance, join_dir, amend_dir, samples_txt
                 mtbseq_group_ch = MTBSEQ_LINEAGE_JOINT_AMEND.out.mtbseq_group_tuple_csv
@@ -157,7 +158,7 @@ workflow PAIRWISE_WF {
 
         // Assemble all the variable region phylogenies
             SNP_PHYLOGENY( MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch )
-            SNIPPY_LINEAGE_CORE_PHYLOGENY( SNP_PHYLOGENY.out.snippy_lin_phylo_ch )
+
 
         // SNIPPY_CORE and SNIPPY_PHYLOGENY
         if ( params.snippy_core ) { // Only run if enabled in params (--snippy_core 'true')
