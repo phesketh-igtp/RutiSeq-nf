@@ -25,7 +25,6 @@ process MTBSEQ_LINEAGE_GROUP {
         //Matrix ouput
         path("Groups/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}_d${distance}.groups")
         path("Groups/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples${sampleID_count}_amended_u${params.mtbseq_unambig}_phylo_w${params.mtbseq_window}.matrix")
-        path("Matrix/${params.runID}_${lineage}.d${distance}.matrix.tsv"), emit: matrix_dir
 
         // Nexus output
         tuple val(lineage), 

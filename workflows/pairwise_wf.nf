@@ -193,13 +193,13 @@ workflow PAIRWISE_WF {
 */
 
     emit:
-        processed_clusters     = CONCATENATE_CLUSTERS.out.pairwise_clusters_processed
-        unprocessed_clusters   = CONCATENATE_CLUSTERS.out.pairwise_clusters_unprocessed
-        analysis_summary       = COMPILE_SEQUENCING_STATS.out.analysis_summary
-        who_resistance         = COMPILE_SEQUENCING_STATS.out.who_resistance
-        tbdb_resistance        = COMPILE_SEQUENCING_STATS.out.tbdb_resistance
-        phylogeny_plotting_ch  = SNP_PHYLOGENY.out.main_phylogeny_out
-        nexus_creation_ch      = PREPROCESS_CLUSTER.out.nexus_ch
+        processed_clusters    = CONCATENATE_CLUSTERS.out.pairwise_clusters_processed
+        unprocessed_clusters  = CONCATENATE_CLUSTERS.out.pairwise_clusters_unprocessed
+        analysis_summary      = COMPILE_SEQUENCING_STATS.out.analysis_summary
+        who_resistance        = COMPILE_SEQUENCING_STATS.out.who_resistance
+        tbdb_resistance       = COMPILE_SEQUENCING_STATS.out.tbdb_resistance
+        phylogeny_plotting_ch = SNP_PHYLOGENY.out.main_phylogeny_out
+        nexus_creation_ch     = PREPROCESS_CLUSTER.out.nexus_ch
 }
 
 /*
