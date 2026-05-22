@@ -14,7 +14,7 @@ process SNIPPY_LINEAGE_CORE {
             val(sampleID_count)
 
     output:
-        // unmasked outputs
+    // Snippy
         path("${lineage}-core.aln")
         path("${lineage}-core.tab")
         path("${lineage}-core.full.aln")
@@ -23,20 +23,22 @@ process SNIPPY_LINEAGE_CORE {
         path("${lineage}-core.mat.tsv")
         path("${lineage}-core.no-ref.aln")
         path("${lineage}-core.no-ref.mat.tsv")
-        // masked oututs
-        path("${lineage}-masked.aln")
-        path("${lineage}-masked.tab")
-        path("${lineage}-masked.full.aln")
-        path("${lineage}-masked.txt")
-        path("${lineage}-masked.vcf")
-        path("${lineage}-masked.mat.tsv")
-        path("${lineage}-masked.no-ref.aln")
-        path("${lineage}-masked.no-ref.mat.tsv")
-        // Reference
+    // Gubbins outputs
+        path("${lineage}-core.no-ref.masked.gubbins.aln")
+        path("${lineage}-core.no-ref.masked.gubbins.branch_base_reconstruction.embl")
+        path("${lineage}-core.no-ref.masked.gubbins.filtered_polymorphic_sites.fasta")
+        path("${lineage}-core.no-ref.masked.gubbins.filtered_polymorphic_sites.phylip")
+        path("${lineage}-core.no-ref.masked.gubbins.final_tree.tre")
+        path("${lineage}-core.no-ref.masked.gubbins.log")
+        path("${lineage}-core.no-ref.masked.gubbins.node_labelled.final_tree.tre")
+        path("${lineage}-core.no-ref.masked.gubbins.per_branch_statistics.csv")
+        path("${lineage}-core.no-ref.masked.gubbins.recombination_predictions.embl")
+        path("${lineage}-core.no-ref.masked.gubbins.recombination_predictions.gff")
+        path("${lineage}-core.no-ref.masked.gubbins.summary_of_snp_distribution.vcf")
+    // Reference
         path("${lineage}-core.ref.fa")
 
     script:
-
     """
     # create the list of the sampleIDs within that lineage
             echo "${sampleIDs.join('\n')}" | sort | uniq > samples.list
@@ -88,61 +90,39 @@ process SNIPPY_LINEAGE_CORE {
 
     # Create path of directories for snippy core
     snippy_directories=\$(echo snippyDir_*)
+
     # The main alignments/core
-        snippy-core \\
-            --prefix ${lineage}-core \\
-            --ref ${params.snippy_reference} \\
-            \$snippy_directories
+    snippy-core \\
+        --prefix ${lineage}-core \\
+        --ref ${params.snippy_reference} \\
+        \$snippy_directories
 
-        seqkit grep \\
-            --invert-match \\
-            --pattern "Reference" \\
-            --threads ${task.cpus} \\
-            ${lineage}-core.full.aln \\
-            > ${lineage}-core.no-ref
+    seqkit grep \\
+        --invert-match \\
+        --pattern "Reference" \\
+        --threads ${task.cpus} \\
+        ${lineage}-core.full.aln \\
+        > ${lineage}-core.no-ref
 
-        snp-sites \\
-            -o ${lineage}-core.no-ref.aln \\
-            ${lineage}-core.no-ref
+    snp-sites \\
+        -o ${lineage}-core.no-ref.aln \\
+        ${lineage}-core.no-ref
 
-    # The main masked alignments/core
-        snippy-core \\
-            --prefix ${lineage}-masked \\
-            --ref ${params.snippy_reference} \\
-            --mask ${params.snippy_masking} \\
-            \$snippy_directories
+    bedtools maskfasta \
+        -fi ${lineage}-core.no-ref \\
+        -bed ${params.snippy_masking} \\
+        -fo ${lineage}-core.no-ref.masked.aln
 
-        seqkit grep \\
-            --invert-match \\
-            --pattern "Reference" \\
-            --threads ${task.cpus} \\
-            ${lineage}-masked.full.aln \\
-            > ${lineage}-masked.no-ref
-
-        snp-sites \\
-            -o ${lineage}-masked.no-ref.aln \\
-            ${lineage}-masked.no-ref
-
-    # Run gubbins on main alignment
-    #run_gubbins.py \\
-    #    --threads ${task.cpus} \\
-    #    --prefix ${lineage}-gubbins \\
-    #    --min-window-size 12 \
-    #    --extensive-search \\
-    #    ${lineage}-core.full.aln
-
-    # Get snp distances
-    for alignment in *.aln; do
-        snp-dists \\
-            -k -j ${task.cpus} \\
-            \${alignment} \\
-            > \$(basename \${alignment} .aln).mat.tsv
-    done
+    # Gubbins
+    run_gubbins.py ${lineage}-core.no-ref.masked.aln \\
+        --prefix ${lineage}-core.no-ref.masked.gubbins \\
+        --min-window-size ${params.mtbseq_window} \\
+        --threads ${task.cpus} \\
+        --extensive-search
 
     # Clean up
         # Remove the prefix
         sed -i 's@snippyDir_@@g' ${lineage}-core*
-        sed -i 's@snippyDir_@@g' ${lineage}-masked*
     """
 }
 
