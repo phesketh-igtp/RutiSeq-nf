@@ -1,5 +1,7 @@
 process SNIPPY_LINEAGE_CORE_PHYLOGENY {
 
+    tag "${lineage}"
+
     conda params.phylogeny_env
 
     publishDir "${params.outDir}/db/comparison/snippy/${lineage}/", 
@@ -8,6 +10,7 @@ process SNIPPY_LINEAGE_CORE_PHYLOGENY {
 
     input:
         tuple val(lineage),
+            path(full_fasta),
             path(core_aln)
 
     output:
@@ -16,17 +19,14 @@ process SNIPPY_LINEAGE_CORE_PHYLOGENY {
     script:
 
     """
-    # Extract variant sites for phylogeny
-        snp-sites -C ${core_aln} > ${lineage}.invariants
-
     # Perform phylogeny
-        iqtree \\
-            -s ${core_aln}  \\
-            -fconst ${lineage}.invariants \\
-            -m ${params.iqtree_model} \\
-            -ntmax ${task.cpus} -T AUTO \\
-            -B ${params.iqtree_bootstraps} \\
-            --prefix ${lineage}.core_ml
+    iqtree \\
+        -s ${core_aln}  \\
+        -fconst "\$(snp-sites -C ${full_fasta})" \\
+        -m ${params.iqtree_model} \\
+        -ntmax ${task.cpus} -T AUTO \\
+        -B ${params.iqtree_bootstraps} \\
+        --prefix ${lineage}.core_ml
     """
 }
 

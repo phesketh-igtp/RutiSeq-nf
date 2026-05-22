@@ -25,18 +25,11 @@ process SNIPPY_LINEAGE_CORE_GUBBINS {
         path("${lineage}-core.nr.masked.gubbins.recombination_predictions.embl")
         path("${lineage}-core.nr.masked.gubbins.recombination_predictions.gff")
         path("${lineage}-core.nr.masked.gubbins.summary_of_snp_distribution.vcf")
-    // Reference
-        path("${lineage}-core.ref.fa")
 
     script:
     """
-    bedtools maskfasta \
-        -fi ${fasta} \\
-        -bed ${params.snippy_masking} \\
-        -fo ${lineage}-core.nr.masked.aln
-
     # Gubbins
-    run_gubbins.py ${lineage}-core.nr.masked.aln \\
+    run_gubbins.py ${fasta} \\
         --prefix ${lineage}-core.nr.masked.gubbins \\
         --min-window-size ${params.mtbseq_window} \\
         --threads ${task.cpus} \\
@@ -46,15 +39,11 @@ process SNIPPY_LINEAGE_CORE_GUBBINS {
 
 /*
 @author: Poppy J Hesketh Best
-@date: 2026-05-06
-@version: 1.0.1
+@date: 2026-05-22
+@version: 1.0.0
 @function:
-    This process performs the core SNP analysis for multiple samples
-        using the Snippy-core tool from the Snippy pipeline.
+    Run gubbins with reference free alignment from snippy-core
 @details:
-@references: 
-    https://bitsandbugs.org/2019/11/06/two-easy-ways-to-run-iq-tree-with-the-correct-number-of-constant-sites/
 @changelog
-    v1.0.0-2026-05-06: Initial version
-    v1.0.1-2026-05-08: Added masking with the ${param.snippy_masking}
+    v1.0.0-2026-05-22: Initial version
 */

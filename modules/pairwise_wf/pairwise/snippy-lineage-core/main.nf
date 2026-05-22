@@ -31,7 +31,11 @@ process SNIPPY_LINEAGE_CORE {
         path("${lineage}-core.ref.fa")
     // Phylogeny output
         tuple val(lineage),
-            path("${lineage}-core.aln"), emit: snippy_lin_phylo_ch
+            path("${lineage}-core.nr.full.masked.aln"), 
+            path("${lineage}-core.nr.masked.aln"), emit: snippy_lin_phylo_ch
+    // Gubbins input
+        tuple val(lineage),
+            path("${lineage}-core.nr.full.masked.aln"), emit: gubbins_ch
 
     script:
     """

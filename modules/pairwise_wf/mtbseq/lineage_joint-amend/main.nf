@@ -50,9 +50,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
             sed 's@_@\t@g' samplesID.list > ${lineage}_samples.txt
 
         # Get list of sample names from the old version:
-            grep '>' ${OUTDIR}/${MTBSEQ_FASTA_OUT} \
-                | sed 's@>@@g' \
-                >  ${lineage}_samples.old.txt
+            grep '>' ${OUTDIR}/${MTBSEQ_FASTA_OUT} | sed 's@>@@g' > ${lineage}_samples.old.txt
 
         # Check the sampleIDs all match to decide to run or skip TBjoin/TBamend
         if cmp -s "samplesID.list" "${lineage}_samples.old.txt"; then
