@@ -21,20 +21,20 @@ process SNIPPY_LINEAGE_CORE {
         path("${lineage}-core.txt")
         path("${lineage}-core.vcf")
         path("${lineage}-core.mat.tsv")
-        path("${lineage}-core.no-ref.aln")
-        path("${lineage}-core.no-ref.mat.tsv")
+        path("${lineage}-core.nr.aln")
+        path("${lineage}-core.nr.mat.tsv")
     // Gubbins outputs
-        path("${lineage}-core.no-ref.masked.gubbins.aln")
-        path("${lineage}-core.no-ref.masked.gubbins.branch_base_reconstruction.embl")
-        path("${lineage}-core.no-ref.masked.gubbins.filtered_polymorphic_sites.fasta")
-        path("${lineage}-core.no-ref.masked.gubbins.filtered_polymorphic_sites.phylip")
-        path("${lineage}-core.no-ref.masked.gubbins.final_tree.tre")
-        path("${lineage}-core.no-ref.masked.gubbins.log")
-        path("${lineage}-core.no-ref.masked.gubbins.node_labelled.final_tree.tre")
-        path("${lineage}-core.no-ref.masked.gubbins.per_branch_statistics.csv")
-        path("${lineage}-core.no-ref.masked.gubbins.recombination_predictions.embl")
-        path("${lineage}-core.no-ref.masked.gubbins.recombination_predictions.gff")
-        path("${lineage}-core.no-ref.masked.gubbins.summary_of_snp_distribution.vcf")
+        path("${lineage}-core.nr.masked.gubbins.aln")
+        path("${lineage}-core.nr.masked.gubbins.branch_base_reconstruction.embl")
+        path("${lineage}-core.nr.masked.gubbins.filtered_polymorphic_sites.fasta")
+        path("${lineage}-core.nr.masked.gubbins.filtered_polymorphic_sites.phylip")
+        path("${lineage}-core.nr.masked.gubbins.final_tree.tre")
+        path("${lineage}-core.nr.masked.gubbins.log")
+        path("${lineage}-core.nr.masked.gubbins.node_labelled.final_tree.tre")
+        path("${lineage}-core.nr.masked.gubbins.per_branch_statistics.csv")
+        path("${lineage}-core.nr.masked.gubbins.recombination_predictions.embl")
+        path("${lineage}-core.nr.masked.gubbins.recombination_predictions.gff")
+        path("${lineage}-core.nr.masked.gubbins.summary_of_snp_distribution.vcf")
     // Reference
         path("${lineage}-core.ref.fa")
 
@@ -102,20 +102,20 @@ process SNIPPY_LINEAGE_CORE {
         --pattern "Reference" \\
         --threads ${task.cpus} \\
         ${lineage}-core.full.aln \\
-        > ${lineage}-core.no-ref
+        > ${lineage}-core.nr.full.aln
 
     snp-sites \\
-        -o ${lineage}-core.no-ref.aln \\
-        ${lineage}-core.no-ref
+        -o ${lineage}-core.nr.aln \\
+        ${lineage}-core.nr.aln
 
     bedtools maskfasta \
-        -fi ${lineage}-core.no-ref \\
+        -fi ${lineage}-core.nr.full.aln \\
         -bed ${params.snippy_masking} \\
-        -fo ${lineage}-core.no-ref.masked.aln
+        -fo ${lineage}-core.nr.masked.aln
 
     # Gubbins
-    run_gubbins.py ${lineage}-core.no-ref.masked.aln \\
-        --prefix ${lineage}-core.no-ref.masked.gubbins \\
+    run_gubbins.py ${lineage}-core.nr.masked.aln \\
+        --prefix ${lineage}-core.nr.masked.gubbins \\
         --min-window-size ${params.mtbseq_window} \\
         --threads ${task.cpus} \\
         --extensive-search

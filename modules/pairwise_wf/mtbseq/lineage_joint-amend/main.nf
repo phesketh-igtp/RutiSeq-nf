@@ -49,14 +49,28 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
             echo "${sampleIDs.join('\n')}" | sort | uniq > samplesID.list
             sed 's@_@\t@g' samplesID.list > ${lineage}_samples.txt
 
-        if [[ ! -f "${OUTDIR}/${MTBSEQ_FASTA_OUT}" && ! -f "${OUTDIR}/${MTBSEQ_TAB_OUT}" ]]; then
+        # Get list of sample names from the old version:
+            grep '>' ${OUTDIR}/${MTBSEQ_FASTA_OUT} \
+                | sed 's@>@@g' \
+                >  ${lineage}_samples.old.txt
 
-            ## The correct Amend/ file does not exist, so we need to run MTBseq Join and Amend steps
-                echo "Running MTBseq Join and Amend steps for lineage: ${lineage}"
-                
+        # Check the sampleIDs all match to decide to run or skip TBjoin/TBamend
+        if cmp -s "samplesID.list" "${lineage}_samples.old.txt"; then
+
+            echo "Skipping MTBseq Join and Amend steps for lineage: ${lineage}. Linking .
+                    ${params.outDir}/db/comparison/mtbseq/${lineage}/Joint/ and 
+                    ${params.outDir}/db/comparison/mtbseq/${lineage}/Amend/"
+
+            # Should be:
+            ln -s ${params.outDir}/db/comparison/mtbseq/${lineage}/Joint/* Joint/
+            ln -s ${params.outDir}/db/comparison/mtbseq/${lineage}/Amend/* Amend/
+
+        else
+
+            echo "Running MTBseq Join and Amend steps for lineage: ${lineage}"
+
             # Remove any previously generated files to generate new ones
                 rm -rf ${OUTDIR}/Joint/* \\
-                        ${OUTDIR}/Amend/* \\
                         ${OUTDIR}/Amend/* \\
                         ${OUTDIR}/Groups/*
 
@@ -108,39 +122,27 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
                         --window        ${params.mtbseq_window} \\
                             1>>.command.out \\
                             2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq       
-
-        else
-
-            echo "Skipping MTBseq Join and Amend steps for lineage: ${lineage}. Delete the existing files to re-run.
-                    ${params.outDir}/db/comparison/mtbseq/${lineage}/Joint/ and 
-                    ${params.outDir}/db/comparison/mtbseq/${lineage}/Amend/"
-
-            # Should be:
-            cp ${params.outDir}/db/comparison/mtbseq/${lineage}/Joint/* Joint/
-            cp ${params.outDir}/db/comparison/mtbseq/${lineage}/Amend/* Amend/
-        
         fi
 
         ### create lineage csv for creating new channels
-            echo '${snp_distances}' > snp_distances
-
-            for distance in \$(cat snp_distances); do
-                echo "${lineage},\${distance},${params.outDir}/db/comparison/mtbseq/${lineage}/Joint,${params.outDir}/db/comparison/mtbseq/${lineage}/Amend,${params.outDir}/db/comparison/mtbseq/${lineage}/${lineage}_samples.txt,${sampleID_count}" >> mtbseq-group.tuple.csv
-            done
+        echo '${snp_distances}' > snp_distances
+        for distance in \$(cat snp_distances); do
+            echo "${lineage},\${distance},${params.outDir}/db/comparison/mtbseq/${lineage}/Joint,${params.outDir}/db/comparison/mtbseq/${lineage}/Amend,${params.outDir}/db/comparison/mtbseq/${lineage}/${lineage}_samples.txt,${sampleID_count}" >> mtbseq-group.tuple.csv
+        done
 
         # Check the Amend file is it actually has any sequences in the fasta
-            sum_len=\$(seqkit stats -T ${MTBSEQ_FASTA_OUT} | sed '1d' | head -1 | cut -f5)
-                if [[ \${sum_len} == 0 ]]; then
-                    echo "Error: The Amend/ FASTA file ${MTBSEQ_FASTA_OUT} is empty." >&2
-                    exit 1
-                fi
+        sum_len=\$(seqkit stats -T ${MTBSEQ_FASTA_OUT} | sed '1d' | head -1 | cut -f5)
+        if [[ \${sum_len} == 0 ]]; then
+            echo "Error: The Amend/ FASTA file ${MTBSEQ_FASTA_OUT} is empty." >&2
+            exit 1
+        fi
         """
 }
 
 /*
 @author: Poppy J Hesketh Best
 @date: 2025-04-01
-@version: v2.0.1
+@version: v2.1.0
 @description:
     This process runs the MTBseq Join and Amend steps for a given lineage.
     It takes the lineage and sample IDs as input and produces the output files
@@ -151,8 +153,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
     v1.1.0-2025-04-09: Changed - Removed the zipping of the files (caused issues)
     v2.0.0-2026-04-24: Added full parameters to outputs names to ensure accuracy. Included the count of sampleIDs in the channel.
     v2.0.1-2026-04-27: Moved snp distances to the definition line before the shell script
-
-TODO: Would be better to compare the sampleIDs from the fasta files and 
-            if they are differente, then remove and repeat the analysis, or if they are the same
-            continue
+    v2.1.0-2026-05-22: Changed to IF statement to be a comparison of the DEFLINES from the old and new files
+                        This bypasses cases when the number of sample remains the same but different samples are in the 
+                        collection (remove + replace 1)
 */
