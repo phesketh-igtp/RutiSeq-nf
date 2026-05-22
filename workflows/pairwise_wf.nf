@@ -136,8 +136,8 @@ workflow PAIRWISE_WF {
         // Run the pairwise analysis by lineages
             MTBSEQ_LINEAGE_JOINT_AMEND( lineage_samples_ch )
             SNIPPY_LINEAGE_CORE( lineage_samples_ch )
-            SNIPPY_LINEAGE_CORE_PHYLOGENY( SNIPPY_LINEAGE_CORE.out.snippy_lin_phylo_ch )
-            SNIPPY_LINEAGE_CORE_GUBBINS( SNIPPY_LINEAGE_CORE.out.gubbins_ch )
+            //SNIPPY_LINEAGE_CORE_PHYLOGENY( SNIPPY_LINEAGE_CORE.out.snippy_lin_phylo_ch )
+            //SNIPPY_LINEAGE_CORE_GUBBINS( SNIPPY_LINEAGE_CORE.out.gubbins_ch )
 
                 // row[0] lineage, distance, join_dir, amend_dir, samples_txt
                 mtbseq_group_ch = MTBSEQ_LINEAGE_JOINT_AMEND.out.mtbseq_group_tuple_csv
