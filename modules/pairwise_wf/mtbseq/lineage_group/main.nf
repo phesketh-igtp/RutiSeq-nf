@@ -57,7 +57,6 @@ process MTBSEQ_LINEAGE_GROUP {
 
             # Clean up the last results
             rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Groups/*
-            rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Matrix/*
 
             ## MTBseq TBgroups using the first SNP distance
             MTBseq --step TBgroups \\
@@ -112,4 +111,5 @@ process MTBSEQ_LINEAGE_GROUP {
 @changelog:
     v1.0.0-2025-04-01: Initial version + documnetadocumentation
     v1.0.1-2025-05-19: Removed additonal_args as it was not utilised and was creating inconsistencies
+    v1.0.2-2026-05-19: Removed the matrix output.
 */
