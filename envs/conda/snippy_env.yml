@@ -7,4 +7,3 @@ dependencies:
   - bioconda::emboss=6.6.0
   - bioconda::seqkit=2.10.0
   - bioconda::core-snp-filter=0.2.0
-  - bioconda::gubbins=3.4.3

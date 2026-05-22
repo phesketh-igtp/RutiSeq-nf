@@ -3,9 +3,11 @@ include { TBPROFILER_COMPILE }         from '../modules/pairwise_wf/tbprofiler/c
 include { MTBSEQ_STATS_COMPILE }       from '../modules/pairwise_wf/mtbseq/stats-compile/main.nf'
 include { COMPILE_SEQUENCING_STATS }   from '../modules/pairwise_wf/filtering/compile-sequencing-stats/main.nf'
 //SNIPPY
-include { SNIPPY_LINEAGE_CORE }        from '../modules/pairwise_wf/pairwise/snippy-lineage-core/main.nf'
-include { SNIPPY_CORE }                from '../modules/pairwise_wf/pairwise/snippy-core/main.nf'
-include { SNIPPY_PHYLOGENY }           from '../modules/pairwise_wf/pairwise/snippy-phylogeny/main.nf'
+include { SNIPPY_LINEAGE_CORE }           from '../modules/pairwise_wf/pairwise/snippy-lineage-core/main.nf'
+include { SNIPPY_LINEAGE_CORE_GUBBINS }   from '../modules/pairwise_wf/pairwise/snippy-lineage-core-gubbins/main.nf'
+include { SNIPPY_LINEAGE_CORE_PHYLOGENY } from '../modules/pairwise_wf/pairwise/snippy-lineage-core-phylogeny/main.nf'
+include { SNIPPY_CORE }                   from '../modules/pairwise_wf/pairwise/snippy-core/main.nf'
+include { SNIPPY_PHYLOGENY }              from '../modules/pairwise_wf/pairwise/snippy-phylogeny/main.nf'
 // MTBSeq
 include { ASSESS_SAMPLES }             from '../modules/pairwise_wf/filtering/assess_samples/main.nf'
 include { MTBSEQ_LINEAGE_JOINT_AMEND } from '../modules/pairwise_wf/mtbseq/lineage_joint-amend/main.nf'
@@ -155,6 +157,7 @@ workflow PAIRWISE_WF {
 
         // Assemble all the variable region phylogenies
             SNP_PHYLOGENY( MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch )
+            SNIPPY_LINEAGE_CORE_PHYLOGENY( SNP_PHYLOGENY.out.snippy_lin_phylo_ch )
 
         // SNIPPY_CORE and SNIPPY_PHYLOGENY
         if ( params.snippy_core ) { // Only run if enabled in params (--snippy_core 'true')
