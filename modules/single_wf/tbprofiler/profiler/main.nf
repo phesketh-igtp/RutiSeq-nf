@@ -27,7 +27,6 @@ process TBPROFILER_PROFILE {
             path(tbdb_out), 
             path(who_out), 
             path(snippy_vcf)
-
         path(tbprofiler_db)
 
     output:
@@ -78,7 +77,9 @@ process TBPROFILER_PROFILE {
                 tb-profiler profile \\
                     -1 ${fastq_1} \\
                     -p tbdb-${sampleID} \\
-                    --txt --dir . --platform nanopore \\
+                    --txt --platform nanopore \\
+                    --dir tbprofiler/ \\
+                    --call_whole_genome \\
                     --db tbdb/tbdb ${additional_args}
 
                 tb-profiler profile \\
@@ -87,6 +88,7 @@ process TBPROFILER_PROFILE {
                     --txt --platform nanopore \\
                     --db tbdb/who \\
                     --dir tbprofiler/ \\
+                    --call_whole_genome \\
                     ${additional_args}
 
                 cp tbprofiler/results/* tbprofiler/
@@ -101,6 +103,7 @@ process TBPROFILER_PROFILE {
                     --txt --platform illumina \\
                     --db tbdb/tbdb \\
                     --dir tbprofiler/ \\
+                    --call_whole_genome \\
                     ${additional_args}
                 
                 tb-profiler profile \\
@@ -110,6 +113,7 @@ process TBPROFILER_PROFILE {
                     --txt --platform illumina \\
                     --db tbdb/who \\
                     --dir tbprofiler/ \\
+                    --call_whole_genome \\
                     ${additional_args}
 
                 cp tbprofiler/results/* tbprofiler/
