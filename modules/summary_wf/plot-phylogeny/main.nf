@@ -33,7 +33,7 @@ process PLOT_MAIN_PHYLOGENY {
         mkdir -p ${params.outDir}/results/${params.runID}/phylogeny/
 
         # How many genomes are clustered in this lineage
-        clustered_genomes=\$(grep '${lineage}' ${unprocessed_clusters} | cut -f4 | sort -u | grep -v '^$' | wc -l)
+        clustered_genomes=\$(grep '${lineage}' ${unprocessed_clusters} | cut -f4 | sort -u | grep -v '^\$' | wc -l)
 
         if [[ \$clustered_genomes -gt 0 ]]; then
 

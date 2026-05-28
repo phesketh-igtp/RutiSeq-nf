@@ -100,7 +100,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
                         --mincovf       ${params.mtbseq_mincovf} \\
                         --mincovr       ${params.mtbseq_mincovr} \\
                         --minphred20    ${params.mtbseq_minphred20} \\
-                        --minfreq       ${params.mtbseq_minfreq} \\
+                        --minfreq       ${params.mtbsfeq_minfreq} \\
                         --unambig       ${params.mtbseq_unambig} \\
                         --window        ${params.mtbseq_window} \\
                             1>>.command.out \\
