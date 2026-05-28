@@ -22,20 +22,20 @@ process SNIPPY_LINEAGE_CORE {
         path("${lineage}-core.vcf")
         path("${lineage}-core.mat")
     // Reference free outputs
-        path("${lineage}-core.nr.aln")
+        path("${lineage}-core.nr.vars")
         path("${lineage}-core.nr.mat")
     // Masked outputs
-        path("${lineage}-core.nr.masked.aln")
-        path("${lineage}-core.nr.masked.mat")
+        path("${lineage}.nr.masked.vars")
+        path("${lineage}.nr.masked.mat")
     // Reference
         path("${lineage}-core.ref.fa")
     // Phylogeny output
         tuple val(lineage),
-            path("${lineage}-core.nr.full.masked.aln"), 
-            path("${lineage}-core.nr.masked.aln"), emit: snippy_lin_phylo_ch
+            path("${lineage}.nr.full.masked.aln"), 
+            path("${lineage}.nr.masked.vars"), emit: snippy_lin_phylo_ch
     // Gubbins input
         tuple val(lineage),
-            path("${lineage}-core.nr.full.masked.aln"), emit: gubbins_ch
+            path("${lineage}.nr.full.masked.aln"), emit: gubbins_ch
 
     script:
     """
@@ -113,27 +113,34 @@ process SNIPPY_LINEAGE_CORE {
         ${lineage}-core.full.aln \\
         > ${lineage}-core.nr.full.aln
 
-    snp-sites \\
-        -o ${lineage}-core.nr.aln \\
+    snp-sites -c \\
+        -o ${lineage}-core.nr.vars \\
         ${lineage}-core.nr.full.aln
 
     snp-dists -j ${task.cpus} \\
-        ${lineage}-core.nr.aln \\
+        ${lineage}-core.nr.vars \\
         > ${lineage}-core.nr.mat
 
     ###############################################################
     # Masked the position and rerun snp-sites
     bedtools maskfasta \
-        -fi ${lineage}-core.nr.full.aln \
+        -fi ${lineage}-core.full.aln \
         -bed ${params.snippy_mask} \
-        -fo ${lineage}-core.nr.full.masked.aln
+        -fo ${lineage}-core.full.masked.aln
+    
+    seqkit grep \\
+        --invert-match \\
+        --pattern "Reference" \\
+        --threads ${task.cpus} \\
+        ${lineage}-core.full.masked.aln \\
+        > ${lineage}.nr.full.masked.aln
 
-    snp-sites \\
-        -o ${lineage}-core.nr.masked.aln \\
-        ${lineage}-core.nr.full.masked.aln
+    snp-sites -c \\
+        -o ${lineage}.nr.masked.vars \\
+        ${lineage}.nr.masked.aln
     
     snp-dists -j ${task.cpus} \\
-        ${lineage}-core.nr.masked.aln \\
+        ${lineage}.nr.masked.vars \\
         > ${lineage}-core.nr.masked.mat
     """
 }
