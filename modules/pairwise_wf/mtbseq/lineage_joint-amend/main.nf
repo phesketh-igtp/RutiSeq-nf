@@ -107,7 +107,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
                             2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 
             ## Check that there are AT MINIMUM 4 MILLION positions in the Joint table
-            if [[ $(cut -f1 "$MTBSEQ_TAB_OUT" | tail -1) -lt 4000000 ]]; then
+            if [[ \$(cut -f1 "$MTBSEQ_TAB_OUT" | tail -1) -lt 4000000 ]]; then
                 echo -e "$MTBSEQ_TAB_OUT is likely truncated. Revisit individual samples"
                 exit 1
             fi
@@ -131,7 +131,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
         ### create lineage csv for creating new channels
         echo '${snp_distances}' > snp_distances
         for distance in \$(cat snp_distances); do
-            echo "${lineage},\${distance},${params.outDir}/db/comparison/mtbseq/${lineage}/Joint,${params.outDir}/db/comparison/mtbseq/${lineage}/Amend,${params.outDir}/db/comparison/mtbseq/${lineage}/${lineage}_samples.txt,${sampleID_count}" >> mtbseq-group.tuple.csv
+            echo "${lineage},\${distance},${OUTDIR}/Joint,${OUTDIR}/Amend,${OUTDIR}/${lineage}_samples.txt,${sampleID_count}" >> mtbseq-group.tuple.csv
         done
 
         # Check the Amend file is it actually has any sequences in the fasta
