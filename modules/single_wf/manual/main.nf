@@ -1,4 +1,4 @@
-process SINGLE_GENOME {
+process VARIANT_CALLING {
 
 
     tag "$sampleID"
