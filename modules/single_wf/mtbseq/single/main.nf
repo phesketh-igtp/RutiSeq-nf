@@ -59,10 +59,10 @@ process MTBSEQ_SINGLE {
 
             echo "MTBSeq results already exist for sample ${sampleID}, skipping MTBSeq step..."
             mkdir -p Called Position_Tables Classification Statistics
-            cp ${params.outDir}/db/samples/${sampleID}/mtbseq/Classification/${sampleID}.Strain_Classification.tab Classification/
-            cp ${params.outDir}/db/samples/${sampleID}/mtbseq/Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab Statistics/
-            cp ${params.outDir}/db/samples/${sampleID}/mtbseq/Position_Tables/${sampleID}.gatk_position_table.tab Position_Tables/
-            cp ${params.outDir}/db/samples/${sampleID}/mtbseq/Called/${sampleID}.gatk_position_variants_*.tab Called/
+            ln -s ${params.outDir}/db/samples/${sampleID}/mtbseq/Classification/${sampleID}.Strain_Classification.tab Classification/
+            ln -s  ${params.outDir}/db/samples/${sampleID}/mtbseq/Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab Statistics/
+            ln -s  ${params.outDir}/db/samples/${sampleID}/mtbseq/Position_Tables/${sampleID}.gatk_position_table.tab Position_Tables/
+            ln -s  ${params.outDir}/db/samples/${sampleID}/mtbseq/Called/${sampleID}.gatk_position_variants_*.tab Called/
 
         else
 

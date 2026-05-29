@@ -63,8 +63,8 @@ process TBPROFILER_PROFILE {
             echo -e "TB-Profiler results already exist for sample ${sampleID}, skipping TB-Profiler profiling step..."
             echo -e ""
             echo -e "Copying over TBDB and WHO results"
-            cp ${params.outDir}/db/samples/${sampleID}/tbprofiler/tbdb-${sampleID}.results.txt tbprofiler/
-            cp ${params.outDir}/db/samples/${sampleID}/tbprofiler/who-${sampleID}.results.txt tbprofiler/
+            ln -s ${params.outDir}/db/samples/${sampleID}/tbprofiler/tbdb-${sampleID}.results.txt tbprofiler/
+            ln -s ${params.outDir}/db/samples/${sampleID}/tbprofiler/who-${sampleID}.results.txt tbprofiler/
 
         else
 

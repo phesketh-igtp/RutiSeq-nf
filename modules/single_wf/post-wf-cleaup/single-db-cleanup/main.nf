@@ -18,9 +18,12 @@ process POST_SINGLE_DB_CLEANUP {
             rm -f ${params.outDir}/db/sample/${sampleID}/mtbseq/tbdb-${sampleID}.results.txt
             rm -f ${params.outDir}/db/sample/${sampleID}/mtbseq/who-${sampleID}.results.txt
 
-            rm -f ${params.outDir}/db/sample/${sampleID}/snippy/${sampleID}*.fastq.gz
-            rm -f ${params.outDir}/db/sample/${sampleID}/snippy/tbdb-*.txt
-            rm -f ${params.outDir}/db/sample/${sampleID}/snippy/who-*.txt
+            rm -f ${params.outDir}/db/sample/${sampleID}/snippy/${sampleID}*fastq.gz
+            rm -f ${params.outDir}/db/sample/${sampleID}/snippy/${sampleID}*gatk_position*
+            rm -f ${params.outDir}/db/sample/${sampleID}/snippy/${sampleID}.Mapping_and_Variant_Statistics.tab
+            rm -f ${params.outDir}/db/sample/${sampleID}/snippy/${sampleID}.Strain_Classification.tab
+            rm -f ${params.outDir}/db/sample/${sampleID}/snippy/tbdb-*
+            rm -f ${params.outDir}/db/sample/${sampleID}/snippy/who-*
         """
 
 }

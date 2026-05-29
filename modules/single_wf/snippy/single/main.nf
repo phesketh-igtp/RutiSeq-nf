@@ -44,6 +44,7 @@ process SNIPPY_SINGLE {
         path("${sampleID}.aligned.fa")
         path("${sampleID}.consensus.fa.gz")
         path("${sampleID}.vcf")
+        path("${sampleID}.*")
 
     when:
     task.ext.when == null || task.ext.when
@@ -60,9 +61,9 @@ process SNIPPY_SINGLE {
     ]]; then
 
         echo "Snippy results already exist for sample ${sampleID}, skipping Snippy step."
-        cp ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.aligned.fa .
-        cp ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.consensus.fa.gz .
-        cp ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.vcf .
+        ln -s ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.aligned.fa .
+        ln -s ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.consensus.fa.gz .
+        ln -s ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.vcf .
 
     else
         
@@ -126,21 +127,8 @@ process SNIPPY_SINGLE {
         mv snps.consensus.fa ${sampleID}.consensus.fa
 
         # Compress consensus file
-        gzip --best ${sampleID}.consensus.fa
+        gzip --best ${sampleID}.consensus.fa.gz
     fi
-    """
-
-    stub:
-    """
-    touch ${sampleID}.aligned.fa
-    touch ${sampleID}.consensus.fa
-    gzip ${sampleID}.consensus.fa
-    touch ${sampleID}.vcf
-    
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        snippy: \$(snippy --version 2>&1 | grep -o 'snippy [0-9.]*' | cut -d' ' -f2)
-    END_VERSIONS
     """
 }
 
