@@ -20,7 +20,7 @@ process TBPROFILER_ENV {
     script:
 
     """
-    > tbprofiler_env_${runID}.yml
+    echo "" > tbprofiler_env_${runID}.yml
     conda export >> tbprofiler_env_${runID}.yml
     """
 }

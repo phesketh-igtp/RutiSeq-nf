@@ -21,7 +21,7 @@ process READQC_EV {
     script:
 
     """
-    > readQC_env_${runID}.yml
+    echo "" > readQC_env_${runID}.yml
     conda export >> readQC_env_${runID}.yml
     """
 }

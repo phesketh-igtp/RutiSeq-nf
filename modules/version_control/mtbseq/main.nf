@@ -21,7 +21,7 @@ process MTBSEQ_ENV {
     script:
 
     """
-    > mtbseq_env_${runID}.yml
+    echo "" > mtbseq_env_${runID}.yml
     conda export >> mtbseq_env_${runID}.yml
     """
 }
