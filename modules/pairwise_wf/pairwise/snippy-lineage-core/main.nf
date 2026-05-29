@@ -137,11 +137,11 @@ process SNIPPY_LINEAGE_CORE {
 
     snp-sites -c \\
         -o ${lineage}.nr.masked.vars \\
-        ${lineage}.nr.masked.aln
+        ${lineage}.nr.full.masked.aln
     
     snp-dists -j ${task.cpus} \\
         ${lineage}.nr.masked.vars \\
-        > ${lineage}-core.nr.masked.mat
+        > ${lineage}.nr.masked.mat
     """
 }
 
