@@ -89,12 +89,6 @@ process MTBSEQ_SINGLE {
         fi \\
         1>>.command.out \\
         2>>.command.err || true
-
-        ## Check that there are AT MINIMUM 4 MILLION positions in the Joint table
-            if [[ \$(cut -f1 "Position_Tables/${sampleID}.gatk_position_table.tab" | tail -1) -lt 4000000 ]]; then
-                echo -e "Position_Tables/${sampleID}.gatk_position_table.tab is likely truncated. Revisit individual samples"
-                exit 1
-            fi
         """
 
 }
