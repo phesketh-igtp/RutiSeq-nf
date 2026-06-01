@@ -1,7 +1,8 @@
 include { ADAPTORS_AND_DOWNSAMPLING }       from '../modules/single_wf/fastp/adaptor_and_downsampling/main.nf'
 include { TBPROFILER_PROFILE }              from '../modules/single_wf/tbprofiler/profiler/main.nf'
-include { MTBSEQ_SINGLE }                   from '../modules/single_wf/mtbseq/single/main.nf'
-include { SNIPPY_SINGLE }                   from '../modules/single_wf/snippy/single/main.nf'
+include { MTBSEQ_SINGLE }                   from '../modules/single_wf/mtbseq/main.nf'
+include { SNIPPY_SINGLE }                   from '../modules/single_wf/snippy/main.nf'
+include { VARSCAN_SINGLE }                  from '../modules/single_wf/varscan/main.nf'
 include { POST_SINGLE_DB_CLEANUP }          from '../modules/single_wf/post-wf-cleaup/single-db-cleanup/main.nf'
 
 workflow SINGLE_WF {
@@ -85,6 +86,7 @@ workflow SINGLE_WF {
 
         // Run SNP_PROFILING_SINGLE using the mpileup output
             SNIPPY_SINGLE( MTBSEQ_SINGLE.out.updated_sample_ch3 )
+            //VARSCAN_SINGLE( SNIPPY_SINGLE.out.snippy_bam )
 
             // create updated channel
             branched_channel_with_reads_updated = SNIPPY_SINGLE.out.updated_sample_ch4

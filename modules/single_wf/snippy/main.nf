@@ -40,11 +40,16 @@ process SNIPPY_SINGLE {
             path(tbdb_out),
             path(who_out), 
             path("${sampleID}.vcf"), emit: updated_sample_ch4
-
         path("${sampleID}.aligned.fa")
         path("${sampleID}.consensus.fa.gz")
         path("${sampleID}.vcf")
         path("${sampleID}.*")
+
+        // VarScan2 variant calling
+        tuple val(sampleID), 
+            path(fastq_1), 
+            path(fastq_2),  
+            path("${sampleID}.bam"), emit: snippy_bam
 
     when:
     task.ext.when == null || task.ext.when
@@ -77,7 +82,6 @@ process SNIPPY_SINGLE {
                     
                     echo "Using paired-end mode for ${sampleID}"
                     snippy \\
-                        --prefix ${sampleID} \\
                         --outdir . \\
                         --force \\
                         --R1 ${fastq_1} \\
@@ -90,10 +94,10 @@ process SNIPPY_SINGLE {
                         --basequal ${params.snippy_basequal} \\
                         --cpus ${task.cpus} \\
                         ${additional_args}
+
                 else
                     echo "R2 file exists but appears empty, using single-end mode for ${sampleID}"
                     snippy \\
-                        --prefix ${sampleID} \\
                         --outdir . \\
                         --force \\
                         --se ${fastq_1} \\
@@ -105,12 +109,12 @@ process SNIPPY_SINGLE {
                         --basequal ${params.snippy_basequal} \\
                         --cpus ${task.cpus} \\
                         ${additional_args}
+
                 fi
             else
                 
                 echo "Using single-end mode for ${sampleID}"
                 snippy \\
-                    --prefix ${sampleID} \\
                     --outdir . \\
                     --force \\
                     --se ${fastq_1} \\
@@ -122,10 +126,12 @@ process SNIPPY_SINGLE {
                     --basequal ${params.snippy_basequal} \\
                     --cpus ${task.cpus} \\
                     ${additional_args}
+
             fi
 
         # Compress consensus file
-        gzip --best ${sampleID}.consensus.fa.gz
+        for f in snps.*; do mv \$f \$(echo \$f | sed "s@snps@${sampleID}@g"); done
+        gzip --best ${sampleID}.consensus.fa
     fi
     """
 }
