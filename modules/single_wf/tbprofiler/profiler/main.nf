@@ -79,7 +79,7 @@ process TBPROFILER_PROFILE {
                     -p tbdb-${sampleID} \\
                     --txt --platform nanopore \\
                     --dir tbprofiler/ \\
-                    --call_whole_genome \\
+                    --thread ${task.cpus} \\
                     --db tbdb/tbdb ${additional_args}
 
                 tb-profiler profile \\
@@ -88,8 +88,7 @@ process TBPROFILER_PROFILE {
                     --txt --platform nanopore \\
                     --db tbdb/who \\
                     --dir tbprofiler/ \\
-                    --call_whole_genome \\
-                    ${additional_args}
+                    --thread ${task.cpus} ${additional_args}
 
                 cp tbprofiler/results/* tbprofiler/
                 
@@ -103,8 +102,7 @@ process TBPROFILER_PROFILE {
                     --txt --platform illumina \\
                     --db tbdb/tbdb \\
                     --dir tbprofiler/ \\
-                    --call_whole_genome \\
-                    ${additional_args}
+                    --thread ${task.cpus} ${additional_args}
                 
                 tb-profiler profile \\
                     -1 ${fastq_1} \\
@@ -113,8 +111,7 @@ process TBPROFILER_PROFILE {
                     --txt --platform illumina \\
                     --db tbdb/who \\
                     --dir tbprofiler/ \\
-                    --call_whole_genome \\
-                    ${additional_args}
+                    --thread ${task.cpus} ${additional_args}
 
                 cp tbprofiler/results/* tbprofiler/
 

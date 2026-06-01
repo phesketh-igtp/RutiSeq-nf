@@ -86,8 +86,6 @@ process MTBSEQ_SINGLE {
             cat Classification/Strain_Classification.tab > Classification/${sampleID}.Strain_Classification.tab
             cat Statistics/Mapping_and_Variant_Statistics.tab > Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab
 
-        
-
         fi \\
         1>>.command.out \\
         2>>.command.err || true
