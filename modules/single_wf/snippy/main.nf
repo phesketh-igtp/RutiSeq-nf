@@ -63,12 +63,14 @@ process SNIPPY_SINGLE {
     if [[ -f "${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.aligned.fa" \\
         && -f "${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.consensus.fa.gz" \\
         && -f "${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.vcf" \\
+        && -f ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.bam \\
     ]]; then
 
         echo "Snippy results already exist for sample ${sampleID}, skipping Snippy step."
         ln -s ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.aligned.fa .
         ln -s ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.consensus.fa.gz .
         ln -s ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.vcf .
+        ln -s ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.bam .
 
     else
         
