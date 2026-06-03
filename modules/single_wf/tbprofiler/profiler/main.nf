@@ -87,6 +87,7 @@ process TBPROFILER_PROFILE {
                     --txt --platform nanopore \\
                     --dir tbprofiler/ \\
                     --db "tbdb" \\
+                    --threads ${params.cpus} \\
                     ${additional_args}
 
                 tb-profiler profile \\
@@ -96,6 +97,7 @@ process TBPROFILER_PROFILE {
                     --txt --platform nanopore \\
                     --dir tbprofiler/ \\
                     --db "who_v2+" \\
+                    --threads ${params.cpus} \\
                     ${additional_args}
 
                 # collate the results into a single file
@@ -123,6 +125,7 @@ process TBPROFILER_PROFILE {
                     --txt --platform illumina \\
                     --dir tbprofiler/ \\
                     --db "tbdb" \\
+                    --threads ${params.cpus} \\
                     ${additional_args}
                 
                 tb-profiler profile \\
@@ -133,6 +136,7 @@ process TBPROFILER_PROFILE {
                     --txt --platform illumina \\
                     --dir tbprofiler/ \\
                     --db "who_v2+" \\
+                    --threads ${params.cpus} \\
                     ${additional_args}
 
                 # collate the results into a single file
