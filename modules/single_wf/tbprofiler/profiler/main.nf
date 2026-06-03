@@ -86,15 +86,17 @@ process TBPROFILER_PROFILE {
                     --txt --platform nanopore \\
                     --dir tbprofiler/ \\
                     --thread ${task.cpus} \\
+                    --ram "\$(echo ${task.memory} | sed 's@.GB@@')" \\
                     --db tbdb/tbdb ${additional_args}
 
                 tb-profiler profile \\
                     -1 ${fastq_1} \\
                     -p who-${sampleID} \\
                     --txt --platform nanopore \\
-                    --db tbdb/who_v2+ \\
                     --dir tbprofiler/ \\
-                    --thread ${task.cpus} ${additional_args}
+                    --thread ${task.cpus} \\
+                    --ram "\$(echo ${task.memory} | sed 's@.GB@@')" \\
+                    --db tbdb/who_v2+ ${additional_args}
 
                 # collate the results into a single file
                 mv tbprofiler/results .
@@ -115,18 +117,20 @@ process TBPROFILER_PROFILE {
                     -2 ${fastq_2} \\
                     -p tbdb-${sampleID} \\
                     --txt --platform illumina \\
-                    --db tbdb/tbdb \\
                     --dir tbprofiler/ \\
-                    --thread ${task.cpus} ${additional_args}
+                    --thread ${task.cpus} \\
+                    --ram "\$(echo ${task.memory} | sed 's@.GB@@')" \\
+                    --db tbdb/tbdb ${additional_args}
                 
                 tb-profiler profile \\
                     -1 ${fastq_1} \\
                     -2 ${fastq_2} \\
                     -p who-${sampleID} \\
                     --txt --platform illumina \\
-                    --db tbdb/who_v2+ \\
                     --dir tbprofiler/ \\
-                    --thread ${task.cpus} ${additional_args}
+                    --thread ${task.cpus} \\
+                    --ram "\$(echo ${task.memory} | sed 's@.GB@@')" \\
+                    --db tbdb/who_v2+ ${additional_args}
 
                 # collate the results into a single file
                 mv tbprofiler/results .
