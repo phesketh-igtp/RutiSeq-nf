@@ -11,7 +11,7 @@ process TBPROFILER_PROFILE {
             else return null
         }
         
-    publishDir "${params.outDir}/db/samples/${sampleID}/", 
+    publishDir "${params.outDir}/db/samples/${sampleID}/tbprofiler", 
         mode: 'copy',
         overwrite: true
 
@@ -51,6 +51,10 @@ process TBPROFILER_PROFILE {
         """
         # Create output directories
         mkdir -p tbprofiler/
+        version=\$(tb-profiler --version | sed 's@version @v.@g')
+        tbdb_v=\$(tb-profiler list_db | grep 'tbdb' | cut -f2)
+        who_v=\$(tb-profiler list_db | grep 'who' | cut -f2)
+        version_string=\$(echo "\${version} (TBDB:\${tbdb_v} WHO:\${who_v})")
 
         # Check if TB-Profiler has already been run for this sample by looking for key output files. 
         ## handles situations when the workflow is re-run and prevent each single-wf steps 
@@ -58,6 +62,7 @@ process TBPROFILER_PROFILE {
 
         if [[ -f "${params.outDir}/db/samples/${sampleID}/tbprofiler/tbdb-${sampleID}.results.txt" \\
                 && -f "${params.outDir}/db/samples/${sampleID}/tbprofiler/who-${sampleID}.results.txt" \\
+                && -f "${params.outDir}/db/samples/${sampleID}/tbprofiler/tbprofiler.txt" 
                 ]]; then
             
             echo -e "TB-Profiler results already exist for sample ${sampleID}, skipping TB-Profiler profiling step..."
@@ -65,6 +70,7 @@ process TBPROFILER_PROFILE {
             echo -e "Copying over TBDB and WHO results"
             ln -s ${params.outDir}/db/samples/${sampleID}/tbprofiler/tbdb-${sampleID}.results.txt tbprofiler/
             ln -s ${params.outDir}/db/samples/${sampleID}/tbprofiler/who-${sampleID}.results.txt tbprofiler/
+            ln -s ${params.outDir}/db/samples/${sampleID}/tbprofiler/tbprofiler.txt  tbprofiler/
 
         else
 
@@ -90,8 +96,17 @@ process TBPROFILER_PROFILE {
                     --dir tbprofiler/ \\
                     --thread ${task.cpus} ${additional_args}
 
-                cp tbprofiler/results/* tbprofiler/
-                
+                # collate the results into a single file
+                mv tbprofiler/results .
+                tb-profiler collate --format csv
+
+                # append versions 
+                sed -i '1s/^/versions,/' tbprofiler.csv
+                sed -i "2,\$s/^/\${version_string},/" tbprofiler.csv
+
+                cp results/* tbprofiler/
+                cp tbprofiler.txt tbprofiler/
+
             else
                 echo "Paired-end reads detected,
                 running TB-Profiler TBDB database with paired-end mode."
@@ -113,7 +128,16 @@ process TBPROFILER_PROFILE {
                     --dir tbprofiler/ \\
                     --thread ${task.cpus} ${additional_args}
 
-                cp tbprofiler/results/* tbprofiler/
+                # collate the results into a single file
+                mv tbprofiler/results .
+                tb-profiler collate --format csv
+
+                # append versions 
+                sed -i '1s/^/versions,/' tbprofiler.csv
+                sed -i "2,\$s/^/\${version_string},/" tbprofiler.csv
+
+                cp results/* tbprofiler/
+                cp tbprofiler.txt tbprofiler/
 
             fi
 
@@ -125,8 +149,8 @@ process TBPROFILER_PROFILE {
 
 /*
 @author: Poppy J Hesketh Best
-@date: 2026-01-19
-@version: 2.1.0
+@date: 2026-06-03
+@version: 2.2.0
 @description: 
     This module performs TB-Profiler using TBDB results to get MT lineage and 
     resistance genes using the TBDB database.
@@ -136,4 +160,7 @@ process TBPROFILER_PROFILE {
                         Added support for single-end reads
     v2.1.0-2026-01-19: Updated to check for existing results to avoid re-running
     v2.1.1-2026-03-04: Corrected some file movement issues cauring errors and collapsing the module.
+    v2.2.0-2026-06-03: Moved collate into this module to avoid using TB-Profiler in downstream 
+                    (pairwise) summarisation, due to incompatibility between software 
+                    and database versions.
 */
