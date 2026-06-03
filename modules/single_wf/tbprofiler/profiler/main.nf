@@ -55,6 +55,7 @@ process TBPROFILER_PROFILE {
         tbdb_v=\$(tb-profiler list_db | grep 'tbdb' | cut -f2)
         who_v=\$(tb-profiler list_db | grep 'who_v2+' | cut -f2)
         version_string=\$(echo "\${version} (TBDB:\${tbdb_v} WHO:\${who_v})")
+        safe_version=\$(printf '%s\n' "\$version_string" | sed 's/[&|]/\\&/g')
 
         # Check if TB-Profiler has already been run for this sample by looking for key output files. 
         ## handles situations when the workflow is re-run and prevent each single-wf steps 
@@ -104,12 +105,9 @@ process TBPROFILER_PROFILE {
                 mv tbprofiler/results .
                 tb-profiler collate --format csv
 
-                # Add header column
-                sed -i '1s/^/versions,/' tbprofiler.csv
-
                 # Add version value to all rows
-                sed -i "2,\$s|^|\${version_string},|" tbprofiler.csv
-
+                sed -i '1s/^/versions,/' tbprofiler.csv
+                sed -i "2,\$s|^|\${safe_version},|" tbprofiler.csv
 
                 cp results/* tbprofiler/
                 cp tbprofiler.txt tbprofiler/
@@ -143,11 +141,9 @@ process TBPROFILER_PROFILE {
                 mv tbprofiler/results .
                 tb-profiler collate --format csv
 
-                # Add header column
-                sed -i '1s/^/versions,/' tbprofiler.csv
-
                 # Add version value to all rows
-                sed -i "2,\$s|^|\${version_string},|" tbprofiler.csv
+                sed -i '1s/^/versions,/' tbprofiler.csv
+                sed -i "2,\$s|^|\${safe_version},|" tbprofiler.csv
 
                 cp results/* tbprofiler/
                 cp tbprofiler.txt tbprofiler/
