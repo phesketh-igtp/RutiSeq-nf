@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
-params.version = 'v1.0.0-beta'
+params.version = 'v1.1.0-beta'
 
 include { VERSION_CONTROL }    from './workflows/version_control.nf'
 include { PREPARE_SAMPLES_WF } from './workflows/prepare-samples_wf.nf'
@@ -289,7 +289,7 @@ workflow {
 /*
 @author: Poppy J Hesketh Best
 @date: 2025-04-04
-@version: 1.2.0-beta
+@version: 1.3.0-beta
 @description: 
     This is the main workflow for the RutiSeq-nf pipeline. It is designed to be run with Nextflow and 
     takes a samplesheet as input. The workflow performs the following steps:
@@ -298,8 +298,8 @@ workflow {
         - Perform single sample analysis
         - Perform pairwise sample analysis
         - Produce summary tables and visualisations
-        - Perform barcoding analysis (optional-WIP)
-@changelog
-    - 2024-11-01: Initial version
-    - 2026-04-27: Added a version control module.
+@changelog:
+    - 2024-11-01-v1.0.0-beta: Initial version
+    - 2026-04-27-v1.0.1-beta: Added a version control module.
+    - 2026-05-03-v1.1.0-beta: Changes to how TBprofiler outputs are handled.
 */

@@ -1,7 +1,6 @@
 // ASSEMBLE RESULTS
 include { TBPROFILER_COMPILE }         from '../modules/pairwise_wf/tbprofiler/compile/main.nf'
 include { MTBSEQ_STATS_COMPILE }       from '../modules/pairwise_wf/mtbseq/stats-compile/main.nf'
-include { COMPILE_SINGLE_RESULTS }       from '../modules/pairwise_wf/mtbseq/stats-compile/main.nf'
 include { COMPILE_SEQUENCING_STATS }   from '../modules/pairwise_wf/filtering/compile-sequencing-stats/main.nf'
 //SNIPPY
 include { SNIPPY_LINEAGE_CORE }           from '../modules/pairwise_wf/pairwise/snippy-lineage-core/main.nf'

@@ -24,36 +24,146 @@ process TBPROFILER_COMPILE {
         path("who-tbprofiler.txt"),     
         path("lineages.fractions.txt"), emit: tbdb_out
 
+        path("tbdb-tbprofiler.txt")
+        path("who-tbprofiler.txt")
+        path("tbprofiler.txt")
+        path("lineages.fractions.txt")
+        
     script:
-        """
-        mkdir -p results/
+    """
+    #!/usr/bin/env python
+    import polars as pl
+    from pathlib import Path
 
-        # create the symbolic links to the result directories
-            ln -s ${params.outDir}/db/samples/*/tbprofiler/tbdb-* results/
-            tb-profiler collate
-            sed 's/tbdb-//g' tbprofiler.txt > tbdb-tbprofiler.txt
+    # ------------------------------------------------------------------
+    # Collect files
+    # ------------------------------------------------------------------
+    tbprofiler_files = list(Path("${params.outDir}/db/samples").rglob("*/tbprofiler/tbprofiler.csv"))
+    lineage_files = list(Path("${params.outDir}/db/samples").rglob("*/tbprofiler/results/tbdb-*.results.txt"))
 
-        # Get the fractions of all the lineages
-            for file in results/tbdb-*.txt; do
-                id=\$(basename \$file .results.txt)
-                sed -e '/Resistance report/,\$d' \\
-                    -e '1,/Lineage report/d' \\
-                    -e 's@-@@g' \\
-                    -e '/^\$/d' \\
-                    -e "s@^@\${id}\t@" \\
-                    \$file | sort >> lineages.fractions.txt
-            done
+    # ------------------------------------------------------------------
+    # Function to process files
+    # ------------------------------------------------------------------
 
-        # Add header to lineages.fractions.txt
-            sed -i '1iSampleID\\tLineage\\tFraction\\tFamily\\tRd' lineages.fractions.txt
-            sed -i 's/tbdb-//g' lineages.fractions.txt
+    # Concatenate the python files
+    def concat_clean(files, skip_header=False):
+        dfs = [
+            pl.read_csv(
+                f,
+                separator=",",
+                has_header=True,  # use headers now
+                skip_rows=0       # no need if has_header=True
+            ).with_columns(
+                pl.all().cast(pl.Utf8).str.replace_all("'", "")
+            )
+            for f in files
+        ]
 
-        # WHO database one:
-            rm results/*
-            ln -s ${params.outDir}/db/samples/*/tbprofiler/who-* results/
-            tb-profiler collate
-            sed 's/who-//g' tbprofiler.txt > who-tbprofiler.txt
-        """
+        return pl.concat(dfs, how="diagonal")
+
+    # ------------------------------------------------------------------
+    # Collate TBProfiler summaries
+    # ------------------------------------------------------------------
+
+    # collate
+    tbprofiler_df = concat_clean(tbprofiler_files)
+
+    # Split into TBDB and WHO results
+    tbprofiler_df = tbprofiler_df.with_columns([
+        # Create database column based on prefix
+        pl.when(pl.col("sample").str.starts_with("tbdb-"))
+        .then(pl.lit("TBDB"))
+        .when(pl.col("sample").str.starts_with("who-"))
+        .then(pl.lit("WHO"))
+        .otherwise(None)
+        .alias("database"),
+
+        # Remove prefixes from sample names
+        pl.col("sample")
+        .str.replace("^tbdb-|^who-", "")
+        .alias("sample")
+    ])
+
+    # Split into two factions based on database
+    tbprofiler_tbdb = tbprofiler_df.filter(pl.col("database") == "TBDB")
+    tbprofiler_who  = tbprofiler_df.filter(pl.col("database") == "WHO")
+
+    # ------------------------------------------------------------------
+    # Collect all the lineage information
+    # ------------------------------------------------------------------
+
+    dfs = []
+
+    for f in lineage_files:
+        # Extract ID (mimics basename without suffix)
+        sample_id = f.stem.replace(".results", "")
+
+        # Read as single-column raw text
+        df = pl.read_csv(f,
+            separator="\n",
+            has_header=False,
+            new_columns=["line"])
+
+        # Apply equivalent of sed filters
+        df = df.with_columns(
+            pl.col("line").str.replace_all("-", "").alias("line")
+        ).filter(
+            # remove everything before "Lineage report"
+            pl.col("line").cum_count().over(
+                (pl.col("line") == "Lineage report").cum_sum()
+            ) > 0
+        ).filter(
+            # remove everything from "Resistance report" onward
+            (pl.col("line") != "Resistance report")
+            .cum_min()
+        ).filter(
+            pl.col("line").str.strip_chars() != ""
+        )
+
+        # Add sample ID column (prepend like sed)
+        df = df.with_columns(
+            pl.lit(sample_id).alias("sample")
+        ).select(
+            ["sample", "line"]
+        )
+
+        dfs.append(df)
+
+    # Concatenate all
+    lineages_df = pl.concat(dfs)
+
+    # Optional: sort like bash
+    lineages_df = lineages_df.sort(["sample", "line"])
+
+    # ------------------------------------------------------------------
+    # Write output
+    # ------------------------------------------------------------------
+    tbprofiler_df.write_csv(
+        "tbprofiler.txt",
+        separator="\t",
+        include_header=True
+    )
+
+    # Output the split files (TBDB and WHO)
+    tbprofiler_tbdb.write_csv(
+        "tbdb-tbprofiler.txt",
+        separator="\t",
+        include_header=True
+    )
+
+    tbprofiler_who.write_csv(
+        "who-tbprofiler.txt",
+        separator="\t",
+        include_header=True
+    )
+
+    # Output the lineage files
+    lineages_df.write_csv(
+        "lineages.fractions.txt",
+        separator="\t",
+        include_header=True
+    )
+    """
 }
 
 /*

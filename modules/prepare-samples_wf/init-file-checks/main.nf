@@ -23,8 +23,8 @@ process FILE_CHECK {
         def mtbseq_stats = "${params.outDir}/db/samples/${sampleID}/mtbseq/Statistics/${sampleID}.Mapping_and_Variant_Statistics.tab"
         def mtbseq_pos   = "${params.outDir}/db/samples/${sampleID}/mtbseq/Position_Tables/${sampleID}.gatk_position_table.tab"
         def mtbseq_vars  = "${params.outDir}/db/samples/${sampleID}/mtbseq/Called/${sampleID}.gatk_position_variants_cf4_cr4_fr75_ph4_outmode000.tab"
-        def tbdb_out     = "${params.outDir}/db/samples/${sampleID}/tbprofiler/tbdb-${sampleID}.results.txt"
-        def who_out      = "${params.outDir}/db/samples/${sampleID}/tbprofiler/who-${sampleID}.results.txt"
+        def tbdb_out     = "${params.outDir}/db/samples/${sampleID}/tbprofiler/results/tbdb-${sampleID}.results.txt"
+        def who_out      = "${params.outDir}/db/samples/${sampleID}/tbprofiler/results/who-${sampleID}.results.txt"
         def snippy_vcf   = "${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.vcf"
 
         """
@@ -53,8 +53,8 @@ process FILE_CHECK {
 
 /*
 @author: Poppy J Hesketh Best
-@date: 2025-04-01
-@version: 1.1.0
+@date: 2026-06-03
+@version: 1.1.1
 @description: 
     This process checks for the existence of specific files related to MTBseq and TBProfiler results.
     It generates a CSV file with the sample ID and paths to the forward and reverse reads, as well 
@@ -63,4 +63,5 @@ process FILE_CHECK {
     2025-04-01: Addition of comments
     2025-11-12: Restructuring DB format to be sample-first, and results nested by samples
     2025-11-14: Improved error handling, better shell logic, fixed array syntax
+    2026-06-03: Update to reflect changes to TBProfiler output data structure
 */
