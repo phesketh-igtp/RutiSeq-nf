@@ -53,7 +53,7 @@ process TBPROFILER_PROFILE {
         mkdir -p tbprofiler/
         version=\$(tb-profiler --version | sed 's@version @v.@g')
         tbdb_v=\$(tb-profiler list_db | grep 'tbdb' | cut -f2)
-        who_v=\$(tb-profiler list_db | grep 'who' | cut -f2)
+        who_v=\$(tb-profiler list_db | grep 'who_v2+' | cut -f2)
         version_string=\$(echo "\${version} (TBDB:\${tbdb_v} WHO:\${who_v})")
 
         # Check if TB-Profiler has already been run for this sample by looking for key output files. 
@@ -92,7 +92,7 @@ process TBPROFILER_PROFILE {
                     -1 ${fastq_1} \\
                     -p who-${sampleID} \\
                     --txt --platform nanopore \\
-                    --db tbdb/who \\
+                    --db tbdb/who_v2+ \\
                     --dir tbprofiler/ \\
                     --thread ${task.cpus} ${additional_args}
 
@@ -124,7 +124,7 @@ process TBPROFILER_PROFILE {
                     -2 ${fastq_2} \\
                     -p who-${sampleID} \\
                     --txt --platform illumina \\
-                    --db tbdb/who \\
+                    --db tbdb/who_v2+ \\
                     --dir tbprofiler/ \\
                     --thread ${task.cpus} ${additional_args}
 
