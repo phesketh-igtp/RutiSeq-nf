@@ -85,8 +85,6 @@ process TBPROFILER_PROFILE {
                     -p tbdb-${sampleID} \\
                     --txt --platform nanopore \\
                     --dir tbprofiler/ \\
-                    --thread ${task.cpus} \\
-                    --ram "\$(echo ${task.memory} | sed 's@.GB@@')" \\
                     --db tbdb/tbdb ${additional_args}
 
                 tb-profiler profile \\
@@ -94,8 +92,6 @@ process TBPROFILER_PROFILE {
                     -p who-${sampleID} \\
                     --txt --platform nanopore \\
                     --dir tbprofiler/ \\
-                    --thread ${task.cpus} \\
-                    --ram "\$(echo ${task.memory} | sed 's@.GB@@')" \\
                     --db tbdb/who_v2+ ${additional_args}
 
                 # collate the results into a single file
@@ -118,8 +114,6 @@ process TBPROFILER_PROFILE {
                     -p tbdb-${sampleID} \\
                     --txt --platform illumina \\
                     --dir tbprofiler/ \\
-                    --thread ${task.cpus} \\
-                    --ram "\$(echo ${task.memory} | sed 's@.GB@@')" \\
                     --db tbdb/tbdb ${additional_args}
                 
                 tb-profiler profile \\
@@ -128,8 +122,6 @@ process TBPROFILER_PROFILE {
                     -p who-${sampleID} \\
                     --txt --platform illumina \\
                     --dir tbprofiler/ \\
-                    --thread ${task.cpus} \\
-                    --ram "\$(echo ${task.memory} | sed 's@.GB@@')" \\
                     --db tbdb/who_v2+ ${additional_args}
 
                 # collate the results into a single file
