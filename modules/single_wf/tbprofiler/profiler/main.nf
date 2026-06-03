@@ -83,16 +83,20 @@ process TBPROFILER_PROFILE {
                 tb-profiler profile \\
                     -1 ${fastq_1} \\
                     -p tbdb-${sampleID} \\
+                    --no_trim \\
                     --txt --platform nanopore \\
                     --dir tbprofiler/ \\
-                    --db tbdb/tbdb ${additional_args}
+                    --db "tbdb" \\
+                    ${additional_args}
 
                 tb-profiler profile \\
                     -1 ${fastq_1} \\
                     -p who-${sampleID} \\
+                    --no_trim \\
                     --txt --platform nanopore \\
                     --dir tbprofiler/ \\
-                    --db tbdb/who_v2+ ${additional_args}
+                    --db "who_v2+" \\
+                    ${additional_args}
 
                 # collate the results into a single file
                 mv tbprofiler/results .
@@ -100,7 +104,7 @@ process TBPROFILER_PROFILE {
 
                 # append versions 
                 sed -i '1s/^/versions,/' tbprofiler.csv
-                sed -i "2,\$s/^/\${version_string},/" tbprofiler.csv
+                sed -i "2,\$s|^|\${version_string},|" tbprofiler.csv
 
                 cp results/* tbprofiler/
                 cp tbprofiler.txt tbprofiler/
@@ -111,18 +115,22 @@ process TBPROFILER_PROFILE {
                 tb-profiler profile \\
                     -1 ${fastq_1} \\
                     -2 ${fastq_2} \\
+                    --no-trim \\
                     -p tbdb-${sampleID} \\
                     --txt --platform illumina \\
                     --dir tbprofiler/ \\
-                    --db tbdb/tbdb ${additional_args}
+                    --db "tbdb" \\
+                    ${additional_args}
                 
                 tb-profiler profile \\
                     -1 ${fastq_1} \\
                     -2 ${fastq_2} \\
                     -p who-${sampleID} \\
+                    --no_trim \\
                     --txt --platform illumina \\
                     --dir tbprofiler/ \\
-                    --db tbdb/who_v2+ ${additional_args}
+                    --db "who_v2+" \\
+                    ${additional_args}
 
                 # collate the results into a single file
                 mv tbprofiler/results .
@@ -130,7 +138,7 @@ process TBPROFILER_PROFILE {
 
                 # append versions 
                 sed -i '1s/^/versions,/' tbprofiler.csv
-                sed -i "2,\$s/^/\${version_string},/" tbprofiler.csv
+                sed -i "2,\$s|^|\${version_string},|" tbprofiler.csv
 
                 cp results/* tbprofiler/
                 cp tbprofiler.txt tbprofiler/
