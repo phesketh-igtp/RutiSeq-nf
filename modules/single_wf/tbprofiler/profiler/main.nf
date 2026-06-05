@@ -112,10 +112,6 @@ process TBPROFILER_PROFILE {
                     {print v "," \$0}' tbprofiler.csv \\
                     > tmp && mv tmp tbprofiler.csv
 
-                mkdir tbprofiler/results/
-                mv results/* tbprofiler/results/
-                cp tbprofiler.* tbprofiler/
-
             else
                 echo "Paired-end reads detected,
                 running TB-Profiler TBDB database with paired-end mode."
@@ -147,9 +143,6 @@ process TBPROFILER_PROFILE {
                 awk -v v="\${safe_version}" 'NR==1 {print "versions," \$0; next} \\
                     {print v "," \$0}' tbprofiler.csv \\
                     > tmp && mv tmp tbprofiler.csv
-
-                mv results/ tbprofiler/
-                cp tbprofiler.* tbprofiler/
 
             fi
 
