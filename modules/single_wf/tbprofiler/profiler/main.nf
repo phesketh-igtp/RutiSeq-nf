@@ -30,7 +30,9 @@ process TBPROFILER_PROFILE {
         path(tbprofiler_db)
 
     output:
-        path("tbprofiler/*")
+        // Main outputs
+        path("tbprofiler/tbprofiler.*")
+        path("tbprofiler/results/")
 
         // tuple for updating the sample ch
         tuple val(sampleID), 
@@ -41,8 +43,8 @@ process TBPROFILER_PROFILE {
             path(mtbseq_stats), 
             path(mtbseq_pos), 
             path(mtbseq_vars),  
-            path("tbprofiler/tbdb-${sampleID}.results.txt"), // generated in this module
-            path("tbprofiler/who-${sampleID}.results.txt"), // generated in this module
+            path("tbprofiler/results/tbdb-${sampleID}.results.txt"), // generated in this module
+            path("tbprofiler/results/who-${sampleID}.results.txt"), // generated in this module
             path(snippy_vcf), emit: updated_sample_ch2
 
     script:
@@ -61,17 +63,15 @@ process TBPROFILER_PROFILE {
         ## handles situations when the workflow is re-run and prevent each single-wf steps 
         ## from re-running unnecessarily.
 
-        if [[ -f "${params.outDir}/db/samples/${sampleID}/tbprofiler/tbdb-${sampleID}.results.txt" \\
-                && -f "${params.outDir}/db/samples/${sampleID}/tbprofiler/who-${sampleID}.results.txt" \\
-                && -f "${params.outDir}/db/samples/${sampleID}/tbprofiler/tbprofiler.txt" 
+        if [[ -f "${params.outDir}/db/samples/${sampleID}/tbprofiler/results/tbdb-${sampleID}.results.txt" \\
+                && -f "${params.outDir}/db/samples/${sampleID}/tbprofiler/results/who-${sampleID}.results.txt" \\
+                && -f "${params.outDir}/db/samples/${sampleID}/tbprofiler/tbprofiler.csv" 
                 ]]; then
             
             echo -e "TB-Profiler results already exist for sample ${sampleID}, skipping TB-Profiler profiling step..."
             echo -e ""
             echo -e "Copying over TBDB and WHO results"
-            ln -s ${params.outDir}/db/samples/${sampleID}/tbprofiler/tbdb-${sampleID}.results.txt tbprofiler/
-            ln -s ${params.outDir}/db/samples/${sampleID}/tbprofiler/who-${sampleID}.results.txt tbprofiler/
-            ln -s ${params.outDir}/db/samples/${sampleID}/tbprofiler/tbprofiler.txt  tbprofiler/
+            ln -s ${params.outDir}/db/samples/${sampleID}/tbprofiler/ .
 
         else
 
@@ -110,8 +110,8 @@ process TBPROFILER_PROFILE {
                     {print v "," \$0}' tbprofiler.csv \\
                     > tmp && mv tmp tbprofiler.csv
 
-                cp results/* tbprofiler/
-                cp tbprofiler.txt tbprofiler/
+                mv results/ tbprofiler/
+                cp tbprofiler.* tbprofiler/
 
             else
                 echo "Paired-end reads detected,
@@ -126,7 +126,7 @@ process TBPROFILER_PROFILE {
                     --db "tbdb" \\
                     --threads ${params.cpus} \\
                     ${additional_args}
-                
+
                 tb-profiler profile \\
                     -1 ${fastq_1} \\
                     -2 ${fastq_2} \\
@@ -147,8 +147,8 @@ process TBPROFILER_PROFILE {
                     {print v "," \$0}' tbprofiler.csv \\
                     > tmp && mv tmp tbprofiler.csv
 
-                cp results/* tbprofiler/
-                cp tbprofiler.txt tbprofiler/
+                mv results/ tbprofiler/
+                cp tbprofiler.* tbprofiler/
 
             fi
 
