@@ -53,7 +53,6 @@ process TBPROFILER_PROFILE {
 
         """
         # Create output directories
-        mkdir -p tbprofiler/
         version=\$(tb-profiler --version | sed 's@version @v.@g')
         tbdb_v=\$(tb-profiler list_db | grep 'tbdb' | cut -f2)
         who_v=\$(tb-profiler list_db | grep 'who_v2+' | cut -f2)
@@ -104,7 +103,6 @@ process TBPROFILER_PROFILE {
                     ${additional_args}
 
                 # collate the results into a single file
-                mv tbprofiler/results .
                 tb-profiler collate --format csv
 
                 # Add version value to all rows
@@ -136,7 +134,6 @@ process TBPROFILER_PROFILE {
                     ${additional_args}
 
                 # collate the results into a single file
-                mv tbprofiler/results .
                 tb-profiler collate --format csv
 
                 # Add version value to all rows
