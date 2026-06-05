@@ -11,7 +11,7 @@ process TBPROFILER_PROFILE {
             else return null
         }
         
-    publishDir "${params.outDir}/db/samples/${sampleID}/tbprofiler", 
+    publishDir "${params.outDir}/db/samples/${sampleID}/tbprofiler/", 
         mode: 'copy',
         overwrite: true
 
@@ -31,8 +31,11 @@ process TBPROFILER_PROFILE {
 
     output:
         // Main outputs
-        path("tbprofiler/tbprofiler.*")
-        path("tbprofiler/results/")
+        path("tbprofiler.csv")
+        path("results/tbdb-${sampleID}.results.txt")
+        path("results/tbdb-${sampleID}.results.json")
+        path("results/who-${sampleID}.results.txt")
+        path("results/who-${sampleID}.results.json")
 
         // tuple for updating the sample ch
         tuple val(sampleID), 
@@ -43,8 +46,8 @@ process TBPROFILER_PROFILE {
             path(mtbseq_stats), 
             path(mtbseq_pos), 
             path(mtbseq_vars),  
-            path("tbprofiler/results/tbdb-${sampleID}.results.txt"), // generated in this module
-            path("tbprofiler/results/who-${sampleID}.results.txt"), // generated in this module
+            path("results/tbdb-${sampleID}.results.txt"), // generated in this module
+            path("results/who-${sampleID}.results.txt"), // generated in this module
             path(snippy_vcf), emit: updated_sample_ch2
 
     script:
@@ -63,15 +66,18 @@ process TBPROFILER_PROFILE {
         ## handles situations when the workflow is re-run and prevent each single-wf steps 
         ## from re-running unnecessarily.
 
-        if [[ -f "${params.outDir}/db/samples/${sampleID}/tbprofiler/results/tbdb-${sampleID}.results.txt" \\
-                && -f "${params.outDir}/db/samples/${sampleID}/tbprofiler/results/who-${sampleID}.results.txt" \\
-                && -f "${params.outDir}/db/samples/${sampleID}/tbprofiler/tbprofiler.csv" 
+        if [[ -f "${params.outDir}/db/samples/${sampleID}/tbprofiler/tbprofiler.csv"  \\
+                &&-f "${params.outDir}/db/samples/${sampleID}/tbprofiler/results/tbdb-${sampleID}.results.txt" \\
+                && -f "${params.outDir}/db/samples/${sampleID}/tbprofiler/results/who-${sampleID}.results.txt"
                 ]]; then
             
             echo -e "TB-Profiler results already exist for sample ${sampleID}, skipping TB-Profiler profiling step..."
             echo -e ""
             echo -e "Copying over TBDB and WHO results"
-            ln -s ${params.outDir}/db/samples/${sampleID}/tbprofiler/ .
+            mkdir results/
+            ln -s ${params.outDir}/db/samples/${sampleID}/tbprofiler/tbprofiler.csv .
+            ln -s ${params.outDir}/db/samples/${sampleID}/tbprofiler/results/tbdb-${sampleID}.results.txt results/
+            ln -s ${params.outDir}/db/samples/${sampleID}/tbprofiler/results/who-${sampleID}.results.txt results/
 
         else
 
@@ -86,8 +92,7 @@ process TBPROFILER_PROFILE {
                     -p tbdb-${sampleID} \\
                     --no_trim \\
                     --txt --platform nanopore \\
-                    --dir tbprofiler/ \\
-                    --db "tbdb" \\
+                    --dir . --db "tbdb" \\
                     --threads ${params.cpus} \\
                     ${additional_args}
 
@@ -96,8 +101,7 @@ process TBPROFILER_PROFILE {
                     -p who-${sampleID} \\
                     --no_trim \\
                     --txt --platform nanopore \\
-                    --dir tbprofiler/ \\
-                    --db "who_v2+" \\
+                    --dir . --db "who_v2+" \\
                     --threads ${params.cpus} \\
                     ${additional_args}
 
@@ -110,7 +114,8 @@ process TBPROFILER_PROFILE {
                     {print v "," \$0}' tbprofiler.csv \\
                     > tmp && mv tmp tbprofiler.csv
 
-                mv results/ tbprofiler/
+                mkdir tbprofiler/results/
+                mv results/* tbprofiler/results/
                 cp tbprofiler.* tbprofiler/
 
             else
@@ -122,8 +127,7 @@ process TBPROFILER_PROFILE {
                     --no-trim \\
                     -p tbdb-${sampleID} \\
                     --txt --platform illumina \\
-                    --dir tbprofiler/ \\
-                    --db "tbdb" \\
+                    --dir . --db "tbdb" \\
                     --threads ${params.cpus} \\
                     ${additional_args}
 
@@ -133,8 +137,7 @@ process TBPROFILER_PROFILE {
                     -p who-${sampleID} \\
                     --no_trim \\
                     --txt --platform illumina \\
-                    --dir tbprofiler/ \\
-                    --db "who_v2+" \\
+                    --dir . --db "who_v2+" \\
                     --threads ${params.cpus} \\
                     ${additional_args}
 

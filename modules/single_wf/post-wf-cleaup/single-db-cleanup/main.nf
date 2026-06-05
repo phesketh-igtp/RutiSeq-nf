@@ -11,19 +11,24 @@ process POST_SINGLE_DB_CLEANUP {
 
         """
         # Check and remove files only if they exist
-            rm -f ${params.outDir}/db/sample/${sampleID}/tbprofiler/*.fastq.gz
-            rm -f ${params.outDir}/db/sample/${sampleID}/tbprofiler/bam
+        rm -f ${params.outDir}/db/samples/${sampleID}/*_R*fastq.gz
+        ## TB-Profiler cleanup
+        rm -f ${params.outDir}/db/samples/${sampleID}/tbprofiler/*_R*fastq.gz
+        rm -f ${params.outDir}/db/samples/${sampleID}/tbprofiler/bam/
+        rm -f ${params.outDir}/db/samples/${sampleID}/tbprofiler/vcf/
 
-            rm -f ${params.outDir}/db/sample/${sampleID}/mtbseq/${sampleID}*.fastq.gz
-            rm -f ${params.outDir}/db/sample/${sampleID}/mtbseq/tbdb-${sampleID}.results.txt
-            rm -f ${params.outDir}/db/sample/${sampleID}/mtbseq/who-${sampleID}.results.txt
+        ## MTBSeq cleanup
+        rm -f ${params.outDir}/db/samples/${sampleID}/mtbseq/*_R*fastq.gz
+        rm -f ${params.outDir}/db/samples/${sampleID}/mtbseq/tbdb-${sampleID}.results.txt
+        rm -f ${params.outDir}/db/samples/${sampleID}/mtbseq/who-${sampleID}.results.txt
 
-            rm -f ${params.outDir}/db/sample/${sampleID}/snippy/${sampleID}*fastq.gz
-            rm -f ${params.outDir}/db/sample/${sampleID}/snippy/${sampleID}*gatk_position*
-            rm -f ${params.outDir}/db/sample/${sampleID}/snippy/${sampleID}.Mapping_and_Variant_Statistics.tab
-            rm -f ${params.outDir}/db/sample/${sampleID}/snippy/${sampleID}.Strain_Classification.tab
-            rm -f ${params.outDir}/db/sample/${sampleID}/snippy/tbdb-*
-            rm -f ${params.outDir}/db/sample/${sampleID}/snippy/who-*
+        ## Snippy cleanup
+        rm -f ${params.outDir}/db/samples/${sampleID}/snippy/*_R*fastq.gz
+        rm -f ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}*gatk_position*
+        rm -f ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.Mapping_and_Variant_Statistics.tab
+        rm -f ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.Strain_Classification.tab
+        rm -f ${params.outDir}/db/samples/${sampleID}/snippy/tbdb-*
+        rm -f ${params.outDir}/db/samples/${sampleID}/snippy/who-*
         """
 
 }
