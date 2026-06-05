@@ -32,10 +32,8 @@ process TBPROFILER_PROFILE {
     output:
         // Main outputs
         path("tbprofiler.csv")
-        path("results/tbdb-${sampleID}.results.txt")
-        path("results/tbdb-${sampleID}.results.json")
-        path("results/who-${sampleID}.results.txt")
-        path("results/who-${sampleID}.results.json")
+        path("results/tbdb-${sampleID}.results.*")
+        path("results/who-${sampleID}.results.*")
 
         // tuple for updating the sample ch
         tuple val(sampleID), 
