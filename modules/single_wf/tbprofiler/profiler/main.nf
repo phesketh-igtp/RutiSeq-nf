@@ -106,8 +106,9 @@ process TBPROFILER_PROFILE {
                 tb-profiler collate --format csv
 
                 # Add version value to all rows
-                sed -i '1s/^/versions,/' tbprofiler.csv
-                sed -i "2,\$s|^|\${safe_version},|" tbprofiler.csv
+                awk -v v="\${safe_version}" 'NR==1 {print "versions," \$0; next} \\
+                    {print v "," \$0}' tbprofiler.csv \\
+                    > tmp && mv tmp tbprofiler.csv
 
                 cp results/* tbprofiler/
                 cp tbprofiler.txt tbprofiler/
@@ -142,8 +143,9 @@ process TBPROFILER_PROFILE {
                 tb-profiler collate --format csv
 
                 # Add version value to all rows
-                sed -i '1s/^/versions,/' tbprofiler.csv
-                sed -i "2,\$s|^|\${safe_version},|" tbprofiler.csv
+                awk -v v="\${safe_version}" 'NR==1 {print "versions," \$0; next} \\
+                    {print v "," \$0}' tbprofiler.csv \\
+                    > tmp && mv tmp tbprofiler.csv
 
                 cp results/* tbprofiler/
                 cp tbprofiler.txt tbprofiler/
