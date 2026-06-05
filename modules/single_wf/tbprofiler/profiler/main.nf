@@ -165,4 +165,5 @@ process TBPROFILER_PROFILE {
     v2.2.0-2026-06-03: Moved collate into this module to avoid using TB-Profiler in downstream 
                     (pairwise) summarisation, due to incompatibility between software 
                     and database versions.
+    v2.2.1-2026-06-05: Simplified structure of the module to prevent nested files
 */
