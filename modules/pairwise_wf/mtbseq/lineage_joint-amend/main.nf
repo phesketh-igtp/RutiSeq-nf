@@ -128,7 +128,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
 
         # create lineage csv
         echo '${snp_distances}' > snp_distances
-        for distance in $(cat snp_distances); do
+        for distance in \$(cat snp_distances); do
             echo "${lineage},\${distance},${OUTDIR}/Joint,${OUTDIR}/Amend,${OUTDIR}/${lineage}_samples.txt,${sampleID_count}" >> mtbseq-group.tuple.csv
         done
 
