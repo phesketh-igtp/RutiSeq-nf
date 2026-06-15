@@ -83,7 +83,6 @@ tbprofiler_df = tbprofiler_df.with_columns([
     .then(pl.lit("WHO"))
     .otherwise(None)
     .alias("database"),
-
     # Remove prefixes from sample names
     pl.col("sample")
     .str.replace("^tbdb-|^who-", "")
@@ -103,9 +102,8 @@ dfs = []
 for f in lineage_files:
     sample_id = f.stem.replace(".results", "")
     # Read file as raw lines
-    df = pl.read_csv(
-        f,
-        separator="\n",
+    df = pl.read_csv(f,
+        separator="\\n",
         has_header=False,
         new_columns=["line"]
     )
