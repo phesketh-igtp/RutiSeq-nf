@@ -110,12 +110,6 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
                             1>>.command.out \\
                             2>>.command.err || true # NOTE This is a hack to overcome the exit status 1 thrown by mtbseq
 
-            ## Check that there are AT MINIMUM 4 MILLION positions in the Joint table
-            if [[ \$(cut -f1 "$MTBSEQ_TAB_OUT" | tail -1) -lt 4000000 ]]; then
-                echo -e "$MTBSEQ_TAB_OUT is likely truncated. Revisit individual samples"
-                exit 1
-            fi
-
             ## MTBseq Join using the first SNP distance
                     MTBseq --step TBamend ${additional_args} \\
                         --thread        ${task.cpus} \\
@@ -137,6 +131,12 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
         for distance in \$(cat snp_distances); do
             echo "${lineage},\${distance},${OUTDIR}/Joint,${OUTDIR}/Amend,${OUTDIR}/${lineage}_samples.txt,${sampleID_count}" >> mtbseq-group.tuple.csv
         done
+
+        ## Check that there are AT MINIMUM 4 MILLION positions in the Joint table
+        if [[ \$(cut -f1 "$MTBSEQ_TAB_OUT" | tail -1) -lt 4000000 ]]; then
+            echo -e "$MTBSEQ_TAB_OUT is likely truncated. Revisit individual samples"
+            exit 1
+        fi
 
         # Check the Amend file is it actually has any sequences in the fasta
         sum_len=\$(seqkit stats -T ${MTBSEQ_FASTA_OUT} | sed '1d' | head -1 | cut -f5)
