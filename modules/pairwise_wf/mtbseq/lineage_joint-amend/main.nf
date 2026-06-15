@@ -133,7 +133,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
         done
 
         # Check minimum positions
-        if [[ $(cut -f1 "${MTBSEQ_TAB_OUT}" | tail -1) -lt 4000000 ]]; then
+        if [[ \$(cut -f1 "${MTBSEQ_TAB_OUT}" | tail -1) -lt 4000000 ]]; then
             echo "${MTBSEQ_TAB_OUT} is likely truncated" >&2
             exit 1
         fi
