@@ -41,7 +41,7 @@ process SNIPPY_SINGLE {
             path(who_out), 
             path("${sampleID}.vcf"), emit: updated_sample_ch4
         path("${sampleID}.aligned.fa")
-        path("${sampleID}.consensus.fa.gz")
+        path("${sampleID}.consensus.fa")
         path("${sampleID}.vcf")
         path("${sampleID}.*")
 
@@ -61,14 +61,14 @@ process SNIPPY_SINGLE {
     # Check if Snippy has already been run for this sample by looking for key output files. Handles situations when the workflow is re-run.
     ## and prevent each single-wf steps from re-running unnecessarily.
     if [[ -f "${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.aligned.fa" \\
-        && -f "${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.consensus.fa.gz" \\
+        && -f "${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.consensus.fa" \\
         && -f "${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.vcf" \\
         && -f ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.bam \\
     ]]; then
 
         echo "Snippy results already exist for sample ${sampleID}, skipping Snippy step."
         ln -s ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.aligned.fa .
-        ln -s ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.consensus.fa.gz .
+        ln -s ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.consensus.fa .
         ln -s ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.vcf .
         ln -s ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.bam .
 
@@ -133,7 +133,6 @@ process SNIPPY_SINGLE {
 
         # Compress consensus file
         for f in snps.*; do mv \$f \$(echo \$f | sed "s@snps@${sampleID}@g"); done
-        gzip --best ${sampleID}.consensus.fa
     fi
     """
 }
