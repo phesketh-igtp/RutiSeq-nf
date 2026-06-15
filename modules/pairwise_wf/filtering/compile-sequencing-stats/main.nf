@@ -84,7 +84,9 @@ process COMPILE_SEQUENCING_STATS {
     tbprof.infec <- tbprof |> select(SampleID,infection_type)
 
     lineage.frac <- read.delim("lineages.fractions.txt", header = TRUE) |>
-        filter(Fraction != 'Fraction')
+    filter(fraction != "fraction") |>
+    filter(grepl("^tbdb-", sample)) |>
+    mutate(sample = sub("^tbdb-", "", sample))
 
     # Split 'clonal' and 'clonal'
     # clonal: add fraction of lineage designation
@@ -96,12 +98,12 @@ process COMPILE_SEQUENCING_STATS {
             } else { # Proceed with processing if 'mixed' is not empty
 
             mixed.frac <- left_join(mixed, lineage.frac) |>
-                select(SampleID, main_lineage, sub_lineage, infection_type, Lineage, Fraction)
-            mixed.frac <- mixed.frac |> mutate(across(Fraction, as.numeric))
-            mixed.frac <- mixed.frac |> mutate(Perc = 100 * Fraction)
+                select(SampleID, main_lineage, sub_lineage, infection_type, lineage, fraction)
+            mixed.frac <- mixed.frac |> mutate(across(fraction, as.numeric))
+            mixed.frac <- mixed.frac |> mutate(Perc = 100 * fraction)
 
             mixed.frac.1 <- mixed.frac |>
-                mutate(Lineage_p = paste0(Lineage, " (", Perc, "%)")) |>
+                mutate(Lineage_p = paste0(lineage, " (", Perc, "%)")) |>
                 mutate(Lineage_p = gsub("lineage", "L", Lineage_p))
 
             mixed.frac.2 <- mixed.frac.1 |>
@@ -145,14 +147,15 @@ process COMPILE_SEQUENCING_STATS {
             clonal.frac.3 <- clonal
         } else { 
         # Proceed with processing if 'clonal' is not empty
-        clonal.frac <- left_join(clonal, lineage.frac) |>
+        clonal.frac <- left_join(clonal, lineage.frac,
+                    by = c("SampleID" = "sample"))|>
             select(SampleID, main_lineage, sub_lineage, 
-                    infection_type, Lineage, Fraction)
-        clonal.frac <- clonal.frac |> mutate(across(Fraction, as.numeric))
-        clonal.frac <- clonal.frac |> mutate(Perc = 100 * Fraction)
+                    infection_type, lineage, fraction)
+        clonal.frac <- clonal.frac |> mutate(across(fraction, as.numeric))
+        clonal.frac <- clonal.frac |> mutate(Perc = 100 * fraction)
 
         clonal.frac.1 <- clonal.frac |>
-                                    mutate(Lineage_p = paste0(Lineage, " (", Perc, "%)")) |>
+                                    mutate(Lineage_p = paste0(lineage, " (", Perc, "%)")) |>
                                     mutate(Lineage_p = gsub("lineage", "L", Lineage_p))
 
         clonal.frac.2 <- clonal.frac.1 |>
