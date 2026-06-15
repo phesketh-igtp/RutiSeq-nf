@@ -101,42 +101,52 @@ tbprofiler_who = tbprofiler_df.filter(pl.col("database") == "WHO")
 dfs = []
 
 for f in lineage_files:
-    # Extract ID (mimics basename without suffix)
     sample_id = f.stem.replace(".results", "")
-    # Read as single-column raw text
+    # Read file as raw lines
     df = pl.read_csv(
         f,
         separator="\n",
         has_header=False,
         new_columns=["line"]
     )
-    # Apply equivalent of sed filters
-    df = df.with_columns(
-        pl.col("line").str.replace_all("-", "").alias("line")
-    ).filter(
-        # remove everything before "Lineage report"
-        pl.col("line").cum_count().over(
-            (pl.col("line") == "Lineage report").cum_sum()
-        ) > 0
-    ).filter(
-        # remove everything from "Resistance report" onward
-        (pl.col("line") != "Resistance report").cum_min()
-    ).filter(
+    # Find lineage block boundaries
+    start_idx = df.filter(pl.col("line") == "Lineage report").select(pl.first()).height
+    end_mask = pl.col("line") == "Resistance report"
+    # Create row index
+    df = df.with_row_count("idx")
+    start = df.filter(pl.col("line") == "Lineage report")["idx"][0]
+    end = df.filter(pl.col("line") == "Resistance report")["idx"][0]
+    # slice ONLY lineage table rows
+    # skip:
+    #   Lineage report (start)
+    #   blank line
+    #   header line
+    lineage_block = df.filter(
+        (pl.col("idx") > start + 2) & (pl.col("idx") < end)
+    )
+    # Remove empty lines
+    lineage_block = lineage_block.filter(
         pl.col("line").str.strip_chars() != ""
     )
-    # Add sample ID column (prepend like sed)
-    df = df.with_columns(
-        pl.lit(sample_id).alias("sample")
-    ).select(
-        ["sample", "line"]
-    )
-    dfs.append(df)
+    # Split into columns
+    lineage_block = lineage_block.with_columns(
+        pl.col("line").str.split("\t").alias("cols")
+    ).with_columns([
+        pl.col("cols").list.get(0).alias("lineage"),
+        pl.col("cols").list.get(1).alias("fraction"),
+        pl.col("cols").list.get(2).alias("family"),
+        pl.col("cols").list.get(3).alias("rd"),
+    ]).select([
+        pl.lit(sample_id).alias("sample"),
+        "lineage",
+        "fraction",
+        "family",
+        "rd"
+    ])
+    dfs.append(lineage_block)
 
-# Concatenate all
-lineages_df = pl.concat(dfs)
-
-# sort
-lineages_df = lineages_df.sort(["sample", "line"])
+# Concatenate + sort
+lineages_df = pl.concat(dfs).sort(["sample", "lineage"])
 
 # ------------------------------------------------------------------
 # Write output
