@@ -139,7 +139,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
         fi
 
         # Check FASTA not empty
-        sum_len=$(seqkit stats -T ${MTBSEQ_FASTA_OUT} | sed '1d' | head -1 | cut -f5)
+        sum_len=\$(seqkit stats -T ${MTBSEQ_FASTA_OUT} | sed '1d' | head -1 | cut -f5)
         if [[ \${sum_len} == 0 ]]; then
             echo "Error: empty FASTA ${MTBSEQ_FASTA_OUT}" >&2
             exit 1
