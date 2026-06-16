@@ -89,6 +89,15 @@ process MTBSEQ_SINGLE {
         fi \\
         1>>.command.out \\
         2>>.command.err || true
+
+        # Check the file has enough positions
+        last_pos=$(tail -1 Position_Tables/${sampleID}.gatk_position_table.tab | cut -f1)
+        if [[ \$last_pos -lt 4411532 ]]; then
+            echo -e "MTBSeq can truncate the position table. Issuing a 140 error to force Nextflow to rerun the module. 
+                This will only occur 3 times, and if it continues to fail, it may be the sample causing the issue. 
+                Remove it from the analysis, or MTBSeq could be broken again."
+            exit 140
+        fi
         """
 
 }
