@@ -14,8 +14,8 @@ process POST_SINGLE_DB_CLEANUP {
         rm -f ${params.outDir}/db/samples/${sampleID}/*_R*fastq.gz
         ## TB-Profiler cleanup
         rm -f ${params.outDir}/db/samples/${sampleID}/tbprofiler/*_R*fastq.gz
-        rm -f ${params.outDir}/db/samples/${sampleID}/tbprofiler/bam/
-        rm -f ${params.outDir}/db/samples/${sampleID}/tbprofiler/vcf/
+        rm -rf ${params.outDir}/db/samples/${sampleID}/tbprofiler/bam/
+        rm -rf ${params.outDir}/db/samples/${sampleID}/tbprofiler/vcf/
 
         ## MTBSeq cleanup
         rm -f ${params.outDir}/db/samples/${sampleID}/mtbseq/*_R*fastq.gz
