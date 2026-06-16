@@ -11,7 +11,8 @@ process POST_SINGLE_DB_CLEANUP {
 
         """
         # Check and remove files only if they exist
-        rm -f ${params.outDir}/db/samples/${sampleID}/*_R*fastq.gz
+        rm -f ${params.outDir}/db/samples/${sampleID}/*fastq.gz
+    
         ## TB-Profiler cleanup
         rm -f ${params.outDir}/db/samples/${sampleID}/tbprofiler/*_R*fastq.gz
         rm -rf ${params.outDir}/db/samples/${sampleID}/tbprofiler/bam/
