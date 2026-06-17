@@ -96,6 +96,7 @@ process MTBSEQ_SINGLE {
             echo -e "MTBSeq can truncate the position table. Issuing a 140 error to force Nextflow to rerun the module. 
                 This will only occur 3 times, and if it continues to fail, it may be the sample causing the issue. 
                 Remove it from the analysis, or MTBSeq could be broken again."
+            rm -rf "${params.outDir}/db/samples/${sampleID}/mtbseq/*"
             exit 140
         fi
         """
