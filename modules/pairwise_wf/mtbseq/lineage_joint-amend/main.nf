@@ -102,7 +102,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
                 --unambig       ${params.mtbseq_unambig} \\
                 --window        ${params.mtbseq_window} \\
                 1>>.command.out \\
-                2>>.command.err
+                2>>.command.err || true # MTBSeq hack to prevent it from being annoying
 
             # Run TBamend
             MTBseq --step TBamend ${additional_args} \\
@@ -117,7 +117,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
                 --unambig       ${params.mtbseq_unambig} \\
                 --window        ${params.mtbseq_window} \\
                 1>>.command.out \\
-                2>>.command.err
+                2>>.command.err || true # MTBSeq hack to prevent it from being annoying
         fi
 
         # create lineage csv
