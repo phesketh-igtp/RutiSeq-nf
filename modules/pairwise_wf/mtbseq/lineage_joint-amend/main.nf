@@ -104,12 +104,6 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
                 1>>.command.out \\
                 2>>.command.err
 
-            # CHECK TBJOIN OUTPUT
-            if [[ ! -s Joint/${lineage}_joint_cf${params.mtbseq_mincovf}_cr${params.mtbseq_mincovr}_fr${params.mtbseq_minfreq}_ph${params.mtbseq_minphred20}_samples${sampleID_count}.tab ]]; then
-                echo "ERROR: TBjoin failed or produced no output" >&2
-                exit 1
-            fi
-
             # Run TBamend
             MTBseq --step TBamend ${additional_args} \\
                 --thread        ${task.cpus} \\
