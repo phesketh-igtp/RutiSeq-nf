@@ -51,7 +51,7 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
 
         # Get list of sample names from the old version:
         if [[ -f ${OUTDIR}/${MTBSEQ_FASTA_OUT} ]]; then
-            grep '^>' ${OUTDIR}/${MTBSEQ_FASTA_OUT} | sed 's@>@@@g' > ${lineage}_samples.old.txt
+            grep '^>' ${OUTDIR}/${MTBSEQ_FASTA_OUT} | sed 's@>@@g' > ${lineage}_samples.old.txt
         else
             > ${lineage}_samples.old.txt
         fi
