@@ -72,8 +72,8 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
             echo "Running MTBseq Join and Amend for ${lineage}"
 
             # Clean previous outputs
-            rm -rf ${OUTDIR}/Joint/* \
-                ${OUTDIR}/Amend/* \
+            rm -rf ${OUTDIR}/Joint/* \\
+                ${OUTDIR}/Amend/* \\
                 ${OUTDIR}/Groups/*
 
             # Link input files
@@ -90,18 +90,18 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
             done < samplesID.list
 
             # Run TBjoin
-            MTBseq --step TBjoin ${additional_args} \
-                --thread        ${task.cpus} \
-                --project       ${lineage} \
-                --samples       ${lineage}_samples.txt \
-                --minbqual      ${params.mtbseq_minbqual} \
-                --mincovf       ${params.mtbseq_mincovf} \
-                --mincovr       ${params.mtbseq_mincovr} \
-                --minphred20    ${params.mtbseq_minphred20} \
-                --minfreq       ${params.mtbseq_minfreq} \
-                --unambig       ${params.mtbseq_unambig} \
-                --window        ${params.mtbseq_window} \
-                1>>.command.out \
+            MTBseq --step TBjoin ${additional_args} \\
+                --thread        ${task.cpus} \\
+                --project       ${lineage} \\
+                --samples       ${lineage}_samples.txt \\
+                --minbqual      ${params.mtbseq_minbqual} \\
+                --mincovf       ${params.mtbseq_mincovf} \\
+                --mincovr       ${params.mtbseq_mincovr} \\
+                --minphred20    ${params.mtbseq_minphred20} \\
+                --minfreq       ${params.mtbseq_minfreq} \\
+                --unambig       ${params.mtbseq_unambig} \\
+                --window        ${params.mtbseq_window} \\
+                1>>.command.out \\
                 2>>.command.err
 
             # CHECK TBJOIN OUTPUT
@@ -111,18 +111,18 @@ process MTBSEQ_LINEAGE_JOINT_AMEND {
             fi
 
             # Run TBamend
-            MTBseq --step TBamend ${additional_args} \
-                --thread        ${task.cpus} \
-                --project       ${lineage} \
-                --samples       ${lineage}_samples.txt \
-                --minbqual      ${params.mtbseq_minbqual} \
-                --mincovf       ${params.mtbseq_mincovf} \
-                --mincovr       ${params.mtbseq_mincovr} \
-                --minphred20    ${params.mtbseq_minphred20} \
-                --minfreq       ${params.mtbseq_minfreq} \
-                --unambig       ${params.mtbseq_unambig} \
-                --window        ${params.mtbseq_window} \
-                1>>.command.out \
+            MTBseq --step TBamend ${additional_args} \\
+                --thread        ${task.cpus} \\
+                --project       ${lineage} \\
+                --samples       ${lineage}_samples.txt \\
+                --minbqual      ${params.mtbseq_minbqual} \\
+                --mincovf       ${params.mtbseq_mincovf} \\
+                --mincovr       ${params.mtbseq_mincovr} \\
+                --minphred20    ${params.mtbseq_minphred20} \\
+                --minfreq       ${params.mtbseq_minfreq} \\
+                --unambig       ${params.mtbseq_unambig} \\
+                --window        ${params.mtbseq_window} \\
+                1>>.command.out \\
                 2>>.command.err
         fi
 
