@@ -32,7 +32,7 @@ Use this HTML report to visually inspect clusters—identify non-monophyletic gr
 #| echo: false
 #| warning: false
 packages <- c(
-    "ggtree", "ape", "dplyr", "ggplot2", "plotly", "DT",
+    "ggtree", "ape", "dplyr", "ggplot2", "plotly", "DT"
 )
 
 # Identify missing packages
