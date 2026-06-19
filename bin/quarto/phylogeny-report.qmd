@@ -32,7 +32,7 @@ Use this HTML report to visually inspect clusters—identify non-monophyletic gr
 #| echo: false
 #| warning: false
 packages <- c(
-    "ggtree", "ape", "dplyr", "ggplot2", "plotly", "DT", "MonoPhy"
+    "ggtree", "ape", "dplyr", "ggplot2", "plotly", "DT",
 )
 
 # Identify missing packages
@@ -215,61 +215,6 @@ library(DT)
 # Render interactive table
 datatable(table, options = list(pageLength = 10, autoWidth = TRUE), filter = 'top')
 ```
-
----
-
-## Monophylogeny test
-
-Monophylogeny of the clusters are tested using the R pacakge `MonoPhy` (https://github.com/oschwery/MonoPhy). This will generate a summary of each genome's monophyly-status. This only applies to genomes that are in clusters.
-
-```{r, monophyly_test}
-#| eval: false
-#| echo: true
-#| warning: false
-# create f for monophyly test (sampleID, decreasing SNP threshold clsuterIDs)
-## eg: sampleID t_15  t_10  t_5
-monophyl_df <- tree.clusters |> 
-  select(label = Sample, all_of(t_cols_sorted))
-
-# prune tree to ensure only tree in meta are in tree
-# Get the list of sample labels that should remain
-tips_to_keep <- monophyl_df$label
-# Get all tips currently in the tree
-all_tips <- tree_rooted$tip.label
-# Identify tips NOT in your metadata
-tips_to_drop <- setdiff(all_tips, tips_to_keep)
-# Prune the tree
-tree_pruned <- drop.tip(tree_rooted, tips_to_drop)
-
-# Optional: confirm
-cat("Original tips:", length(all_tips), "\n")
-cat("Kept tips:", length(tree_pruned$tip.label), "\n")
-cat("Dropped tips:", length(tips_to_drop), "\n")
-
-# Run AssessMonophyly
-solution1 <- AssessMonophyly(tree_pruned, monophyl_df)
-
-# Extract TipStates tables from AssessMonophyly result
-tip_status_list <- lapply(names(solution1), function(tcol) {
-  df <- solution1[[tcol]]$TipStates |> 
-    dplyr::select(Tip, Status) |> 
-    dplyr::rename(label = Tip, !!tcol := Status)
-})
-
-# Join all t.X status columns by 'label'
-status_df <- Reduce(function(x, y) dplyr::full_join(x, y, by = "label"), tip_status_list)
-
-# Optional: ensure order matches monophyl_df
-status_df <- monophyl_df |> 
-  dplyr::select(label) |> 
-  dplyr::left_join(status_df, by = "label")
-
-# Print as interative table
-datatable(status_df, 
-  options = list(pageLength = 5, autoWidth = TRUE), 
-  filter = 'top')
-```
-
 
 ```{r, save_data}
 #| eval: true
