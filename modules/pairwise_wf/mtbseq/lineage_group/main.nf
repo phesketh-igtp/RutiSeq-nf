@@ -56,7 +56,8 @@ process MTBSEQ_LINEAGE_GROUP {
         else
 
             # Clean up the last results
-            rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/Groups/*
+            rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/${groups_tab}
+            rm -rf ${params.outDir}/db/comparison/mtbseq/${lineage}/${groups_mat}
 
             ## MTBseq TBgroups using the first SNP distance
             MTBseq --step TBgroups \\
