@@ -97,13 +97,12 @@ process COMPILE_SEQUENCING_STATS {
 
             } else { # Proceed with processing if 'mixed' is not empty
 
-            mixed.frac <- left_join(mixed, lineage.frac) |>
+            mixed.frac <- left_join(mixed, lineage.frac, by = c("SampleID" = "sample"))|>
                 select(SampleID, main_lineage, sub_lineage, infection_type, lineage, fraction)
             mixed.frac <- mixed.frac |> mutate(across(fraction, as.numeric))
-            mixed.frac <- mixed.frac |> mutate(Perc = 100 * fraction)
 
             mixed.frac.1 <- mixed.frac |>
-                mutate(Lineage_p = paste0(lineage, " (", Perc, "%)")) |>
+                mutate(Lineage_p = paste0(lineage, " (", fraction, "%)")) |>
                 mutate(Lineage_p = gsub("lineage", "L", Lineage_p))
 
             mixed.frac.2 <- mixed.frac.1 |>
@@ -130,10 +129,10 @@ process COMPILE_SEQUENCING_STATS {
 
             mixed.frac.4 <- mixed.frac.1 |> 
                                 group_by(SampleID) |>  # Group by SampleID
-                                arrange(desc(Perc), .by_group = TRUE) |>   # Sort by Perc in descending order within each group
+                                arrange(desc(fraction), .by_group = TRUE) |>   # Sort by Perc in descending order within each group
                                 slice(1) |> # Retain only the first row of each group
-                                filter(Perc >= 90) |> # Filter rows where Perc >= 90
-                                mutate(Mixed_90perc = paste0(Lineage, " (", Perc, "%)")) |>  # Create new column
+                                filter(fraction >= 90) |> # Filter rows where Perc >= 90
+                                mutate(Mixed_90perc = paste0(main_lineage, " (", fraction, "%)")) |>  # Create new column
                                 ungroup() # Ungroup after manipulation (optional but recommended)
 
             mixed.frac.5 <- left_join(mixed.frac.3, mixed.frac.4) |>
