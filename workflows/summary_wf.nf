@@ -2,7 +2,6 @@ include { GENERATE_SUMMARY_REPORT }   from '../modules/summary_wf/summary-report
 include { PLOT_MAIN_PHYLOGENY     }   from '../modules/summary_wf/plot-phylogeny/main.nf'
 include { NEXUS_GEN               }   from '../modules/summary_wf/prepare-nexus-paths/main.nf'
 include { POST_SUMMARY_CLEANUP    }   from '../modules/summary_wf/post-summary-cleanup-handover/main.nf'
-include { GENERATE_NEXUS_W_MRCA   }   from '../modules/summary_wf/generate-nexus-with-ancestor/main.nf'
 include { DATA_DELIVERY           }   from '../modules/summary_wf/data-delivery/main.nf'
 
 workflow SUMMARY_WF{

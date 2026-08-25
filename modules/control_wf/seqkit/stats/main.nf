@@ -13,16 +13,17 @@ process READS_STATS {
     path("seqkit_stats.txt"), emit: reads_stats_out
 
     script:
+
     """
     mkdir -p reads/
     
     while IFS=',' read -r identities samples fastq_1 fastq_2 type; do
         if [[ -n \$fastq_1 ]]; then
-            ln -s \$fastq_1 reads/
+            ln -sf \$fastq_1 reads/
         fi
 
         if [[ -n \$fastq_2 ]]; then
-            ln -s \$fastq_2 reads/
+            ln -sf \$fastq_2 reads/
         fi
     done < <(tail -n +2 samplesheet.csv)
 
