@@ -49,7 +49,10 @@ process PROCESS_VCF {
         bcftools filter \\
             --SnpGap "${params.vcf_indel_distance}":indel \\
             --soft-filter SnpGap \\
-            -Oz \\
+            -Ou | \\
+        bcftools reheader \\ 
+            --header "${sampleID}" \\
+            -Oz | \\
             -o ${sampleID}.QC.mask.filt.vcf.gz
 
     tabix -f ${sampleID}.QC.mask.filt.vcf.gz
