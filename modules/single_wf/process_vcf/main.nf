@@ -34,7 +34,7 @@ process PROCESS_VCF {
             "${snippy_vcf}" |
         bcftools norm \\
             -a \\
-            -f "${params.snippy_reference}" \\
+            -f "${params.snippy_reference_fa}" \\
             -m -any \\
             -d exact \\
             -Ou | \\
@@ -74,7 +74,7 @@ process PROCESS_VCF {
 
     #--------------- Concensus  ---------------#
     bcftools consensus \\
-        -f ${params.snippy_reference} \\
+        -f ${params.snippy_reference_fa} \\
         ${sampleID}.QC.mask.filt.snps.vcf.gz \\
         > ${sampleID}.QC.mask.filt.snps.consensus.fa
 
