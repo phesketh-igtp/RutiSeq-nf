@@ -20,6 +20,8 @@ process PLOT_MAIN_PHYLOGENY {
     // Main outputs
         path("${lineage}.ML-phylogeny.Rdata")
         path("${lineage}_ML-phylogeny.html")
+        path("phylogeny-report.qmd")
+        path("${lineage}.quarto.script.sh")
     
     // Timetree channel output
         tuple val(lineage),  
@@ -47,14 +49,12 @@ process PLOT_MAIN_PHYLOGENY {
                 -P runID=${params.runID} \\
                 -P lineage=${lineage} \\
                 --output ${lineage}_ML-phylogeny.html #2>/dev/null
-            cp ${lineage}_ML-phylogeny.html ${params.outDir}/results/${params.runID}/phylogeny/
-            cp ${lineage}.ML-phylogeny.Rdata ${params.outDir}/results/${params.runID}/phylogeny/
 
             echo -e "quarto render phylogeny-report.qmd"
             echo -e "    -P runID=${params.runID} \\
             echo -e "    -P lineage=${lineage} \\
             echo -e "    --output ${lineage}_ML-phylogeny.html #2>/dev/null
-            echo -e "" > ${params.outDir}/results/${params.runID}/phylogeny/${lineage}.quarto.script.sh
+            echo -e "" > ${lineage}.quarto.script.sh
 
         else
             echo "This lineage contains no clusters - plotting phylogeny without cluster heatmap"
