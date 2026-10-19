@@ -40,10 +40,13 @@ process PLOT_MAIN_PHYLOGENY {
         if [[ \$clustered_genomes -gt 0 ]]; then
 
             echo "This lineage contains clusters - plotting phylogeny with cluster heatmap"
+
             # Copy quarto script
-            cp ${params.scriptDir}/quarto/phylogeny-report.qmd \\
-                phylogeny-report.qmd
-            
+            cp ${params.scriptDir}/quarto/phylogeny-report.qmd phylogeny-report.qmd
+            cp ${lineage}.quarto.script.sh ${params.outDir}/results/${params.runID}/phylogeny/
+            cp ${lineage}.ML-phylogeny.Rdata ${params.outDir}/results/${params.runID}/phylogeny/
+            cp phylogeny-report.qmd ${params.outDir}/results/${params.runID}/phylogeny/
+
             # Render script
             quarto render phylogeny-report.qmd \\
                 -P runID=${params.runID} \\
@@ -55,6 +58,7 @@ process PLOT_MAIN_PHYLOGENY {
             echo -e "    -P lineage=${lineage}"
             echo -e "    --output ${lineage}_ML-phylogeny.html"
             echo -e "" > ${lineage}.quarto.script.sh
+
 
         else
             echo "This lineage contains no clusters - plotting phylogeny without cluster heatmap"
