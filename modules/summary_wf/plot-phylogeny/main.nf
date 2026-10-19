@@ -43,7 +43,6 @@ process PLOT_MAIN_PHYLOGENY {
                 phylogeny-report.qmd
             
             # Render script
-            export DENO_V8_FLAGS="--max-old-space-size=16384"
             quarto render phylogeny-report.qmd \\
                 -P runID=${params.runID} \\
                 -P lineage=${lineage} \\
