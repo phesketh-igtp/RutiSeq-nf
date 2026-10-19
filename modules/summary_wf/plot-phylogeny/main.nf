@@ -4,7 +4,7 @@ process PLOT_MAIN_PHYLOGENY {
 
     conda params.r_phylogeny_env
 
-    storeDir "${params.outDir}/results/${params.runID}/phylogeny/", 
+    publishDir "${params.outDir}/results/${params.runID}/phylogeny/", 
                 mode: 'copy',
                 overwrite: true
 
