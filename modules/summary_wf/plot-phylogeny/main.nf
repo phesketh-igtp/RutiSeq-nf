@@ -22,12 +22,6 @@ process PLOT_MAIN_PHYLOGENY {
         path("${lineage}_ML-phylogeny.html")
         path("phylogeny-report.qmd")
         path("${lineage}.quarto.script.sh")
-    
-    // Timetree channel output
-        tuple val(lineage),  
-            path(alignments),
-            path(processed_clusters),
-            path("unprocesses_clusters.tsv"), emit: timetree_ch
 
     script:
         """
