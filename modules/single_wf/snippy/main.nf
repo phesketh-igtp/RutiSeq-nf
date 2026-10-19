@@ -47,9 +47,7 @@ process SNIPPY_SINGLE {
 
         // VarScan2 variant calling
         tuple val(sampleID), 
-            path(fastq_1), 
-            path(fastq_2),  
-            path("${sampleID}.bam"), emit: snippy_bam
+            path("${sampleID}.vcf"), emit: process_vcf
 
     when:
     task.ext.when == null || task.ext.when
@@ -89,11 +87,6 @@ process SNIPPY_SINGLE {
                         --R1 ${fastq_1} \\
                         --R2 ${fastq_2} \\
                         --reference ${params.snippy_reference} \\
-                        --mincov ${params.snippy_mincov} \\
-                        --minfrac ${params.snippy_minfrac} \\
-                        --mapqual ${params.snippy_mapqual} \\
-                        --minqual ${params.snippy_minqual} \\
-                        --basequal ${params.snippy_basequal} \\
                         --cpus ${task.cpus} \\
                         ${additional_args}
 
