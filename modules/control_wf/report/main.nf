@@ -2,7 +2,7 @@ process READ_TAXONOMY_QC_REPORT {
 
     conda params.r_stats_env
 
-    storeDir "${params.outDir}/results/${params.runID}/", 
+    publishDir "${params.outDir}/results/${params.runID}/", 
         mode: 'copy',
         overwrite: true
 
@@ -22,15 +22,18 @@ process READ_TAXONOMY_QC_REPORT {
     script:
     
     """
-    # Create an empty output incase the file is empty
-    > ${params.runID}_warnings.out
-    
-    # Copy the quarto document to the work directory
-    cp ${params.scriptDir}/quarto/reads-controls-report.qmd ${params.runID}_reads-controls-report.qmd
+    if [[ -s "${params.outDir}/results/${params.runID}/${params.runID}_reads-controls-report.qmd" ]]; then
+        cp ${params.outDir}/results/${params.runID}/${params.runID}_reads-controls-report.html .
+    else
+        # Create an empty output incase the file is empty
+        > ${params.runID}_warnings.out
+        
+        # Copy the quarto document to the work directory
+        cp ${params.scriptDir}/quarto/reads-controls-report.qmd ${params.runID}_reads-controls-report.qmd
 
-    # Render the report
-        quarto render ${params.runID}_reads-controls-report.qmd \
-            --to html
+        # Render the report
+        quarto render ${params.runID}_reads-controls-report.qmd --to html
+    fi
     """
 
 }

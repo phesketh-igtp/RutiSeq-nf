@@ -20,42 +20,46 @@ process PLOT_MAIN_PHYLOGENY {
     // Main outputs
         path("${lineage}.ML-phylogeny.Rdata")
         path("${lineage}_ML-phylogeny.html")
-        path("phylogeny-report.qmd")
-        path("${lineage}.quarto.script.sh")
 
     script:
         """
-        # Make output directory
-        mkdir -p ${params.outDir}/results/${params.runID}/phylogeny/
-
-        # How many genomes are clustered in this lineage
-        clustered_genomes=\$(grep '${lineage}' ${unprocessed_clusters} | cut -f4 | sort -u | grep -v '^\$' | wc -l)
-
-        if [[ \$clustered_genomes -gt 0 ]]; then
-
-            echo "This lineage contains clusters - plotting phylogeny with cluster heatmap"
-
-            # Copy quarto script
-            cp ${params.scriptDir}/quarto/phylogeny-report.qmd phylogeny-report.qmd
-            cp ${lineage}.quarto.script.sh ${params.outDir}/results/${params.runID}/phylogeny/
-            cp ${lineage}.ML-phylogeny.Rdata ${params.outDir}/results/${params.runID}/phylogeny/
-            cp phylogeny-report.qmd ${params.outDir}/results/${params.runID}/phylogeny/
-
-            # Render script
-            quarto render phylogeny-report.qmd \\
-                -P runID=${params.runID} \\
-                -P lineage=${lineage} \\
-                --output ${lineage}_ML-phylogeny.html #2>/dev/null
-
-            echo -e "quarto render phylogeny-report.qmd"
-            echo -e "    -P runID=${params.runID}"
-            echo -e "    -P lineage=${lineage}"
-            echo -e "    --output ${lineage}_ML-phylogeny.html"
-            echo -e "" > ${lineage}.quarto.script.sh
-
-
+        if [[ -s "${params.outDir}/results/${params.runID}/phylogeny/${lineage}_ML-phylogeny.html" ]]; then
+            cp ${params.outDir}/results/${params.runID}/phylogeny/${lineage}_ML-phylogeny.html .
+            cp ${params.outDir}/results/${params.runID}/phylogeny/${lineage}_ML-phylogeny.Rdata .
         else
-            echo "This lineage contains no clusters - plotting phylogeny without cluster heatmap"
+
+            # Make output directory
+            mkdir -p ${params.outDir}/results/${params.runID}/phylogeny/
+
+            # How many genomes are clustered in this lineage
+            clustered_genomes=\$(grep '${lineage}' ${unprocessed_clusters} | cut -f4 | sort -u | grep -v '^\$' | wc -l)
+
+            if [[ \$clustered_genomes -gt 0 ]]; then
+
+                echo "This lineage contains clusters - plotting phylogeny with cluster heatmap"
+
+                # Copy quarto script
+                cp ${params.scriptDir}/quarto/phylogeny-report.qmd phylogeny-report.qmd
+                cp ${lineage}.quarto.script.sh ${params.outDir}/results/${params.runID}/phylogeny/
+                cp ${lineage}.ML-phylogeny.Rdata ${params.outDir}/results/${params.runID}/phylogeny/
+                cp phylogeny-report.qmd ${params.outDir}/results/${params.runID}/phylogeny/
+
+                # Render script
+                quarto render phylogeny-report.qmd \\
+                    -P runID=${params.runID} \\
+                    -P lineage=${lineage} \\
+                    --output ${lineage}_ML-phylogeny.html #2>/dev/null
+
+                echo -e "quarto render phylogeny-report.qmd"
+                echo -e "    -P runID=${params.runID}"
+                echo -e "    -P lineage=${lineage}"
+                echo -e "    --output ${lineage}_ML-phylogeny.html"
+                echo -e "" > ${lineage}.quarto.script.sh
+
+            else
+                echo "This lineage contains no clusters - plotting phylogeny without cluster heatmap"
+            fi
+
         fi
         """
 }
