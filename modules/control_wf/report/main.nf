@@ -2,7 +2,7 @@ process READ_TAXONOMY_QC_REPORT {
 
     conda params.r_stats_env
 
-    publishDir "${params.outDir}/db/qc/${params.runID}/", 
+    storeDir "${params.outDir}/results/${params.runID}/", 
         mode: 'copy',
         overwrite: true
 
