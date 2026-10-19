@@ -104,28 +104,18 @@ process SNIPPY_SINGLE {
                         --force \\
                         --se ${fastq_1} \\
                         --reference ${params.snippy_reference} \\
-                        --mincov ${params.snippy_mincov} \\
-                        --minfrac ${params.snippy_minfrac} \\
-                        --mapqual ${params.snippy_mapqual} \\
-                        --minqual ${params.snippy_minqual} \\
-                        --basequal ${params.snippy_basequal} \\
                         --cpus ${task.cpus} \\
                         ${additional_args}
 
                 fi
             else
-                
+
                 echo "Using single-end mode for ${sampleID}"
                 snippy \\
                     --outdir . \\
                     --force \\
                     --se ${fastq_1} \\
                     --reference ${params.snippy_reference} \\
-                    --mincov ${params.snippy_mincov} \\
-                    --minfrac ${params.snippy_minfrac} \\
-                    --mapqual ${params.snippy_mapqual} \\
-                    --minqual ${params.snippy_minqual} \\
-                    --basequal ${params.snippy_basequal} \\
                     --cpus ${task.cpus} \\
                     ${additional_args}
 
