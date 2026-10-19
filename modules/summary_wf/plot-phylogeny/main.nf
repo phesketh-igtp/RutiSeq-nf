@@ -51,9 +51,9 @@ process PLOT_MAIN_PHYLOGENY {
                 --output ${lineage}_ML-phylogeny.html #2>/dev/null
 
             echo -e "quarto render phylogeny-report.qmd"
-            echo -e "    -P runID=${params.runID} \\
-            echo -e "    -P lineage=${lineage} \\
-            echo -e "    --output ${lineage}_ML-phylogeny.html #2>/dev/null
+            echo -e "    -P runID=${params.runID}"
+            echo -e "    -P lineage=${lineage}"
+            echo -e "    --output ${lineage}_ML-phylogeny.html"
             echo -e "" > ${lineage}.quarto.script.sh
 
         else
