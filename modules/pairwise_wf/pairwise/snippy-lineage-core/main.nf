@@ -157,5 +157,5 @@ process SNIPPY_LINEAGE_CORE {
     https://bitsandbugs.org/2019/11/06/two-easy-ways-to-run-iq-tree-with-the-correct-number-of-constant-sites/
 @changelog
     v1.0.0-2026-05-06: Initial version
-    v1.0.1-2026-05-08: Added masking with the ${param.snippy_masking}
+    v1.0.1-2026-05-08: Added masking with the ${param.snippy_masking}zz
 */
