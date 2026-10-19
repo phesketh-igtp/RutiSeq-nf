@@ -38,60 +38,62 @@ process PROCESS_VCF {
     VCF=${1}; PREFIX=${2}; INDEL_DIST=${3:-18}
 
     #--------------- Quality filtering ---------------#
-    bcftools view \
-            -e 'ALT~"^<" || REF~"N"' \
-            -Ou \
+    bcftools view \\
+            -e 'ALT~"^<" || REF~"N"' \\
+            -Ou \\
             "${snippy_vcf}" |
-        bcftools norm \
-            -a \
-            -f "${params.snippy_reference}" \
-            -m -any \
-            -d exact \
-            -Ou | \
+        bcftools norm \\
+            -a \\
+            -f "${params.snippy_reference}" \\
+            -m -any \\
+            -d exact \\
+            -Ou | \\
         bcftools filter \
             -e 'QUAL<100 || INFO/DP<8 || INFO/MQM<30 || INFO/SAF<${params.mtbseq_mincovf} || INFO/SAR<${params.mtbseq_mincovr} || INFO/AO/(INFO/AO+INFO/RO)<0.${params.mtbseq_minfreq}' \
-            --soft-filter low_QUAL \
-            -Ou |
-        bcftools filter \
-            --mask-file "${params.snippy_mask}" \
+            --soft-filter low_QUAL \\
+            -Ou | \\
+        bcftools filter \\
+            --mask-file "${params.snippy_mask}" \\
             --soft-filter masked \
-            -Ou |
-        bcftools filter \
-            --SnpGap "${params.vcf_indel_distance}":indel \
-            --soft-filter SnpGap \
-            -Oz \
+            -Ou | \\
+        bcftools filter \\
+            --SnpGap "${params.vcf_indel_distance}":indel \\
+            --soft-filter SnpGap \\
+            -Oz \\
             -o ${sampleID}.QC.mask.filt.vcf.gz
 
     tabix -f ${sampleID}.QC.mask.filt.vcf.gz
 
     #--------------- Apply only SNPs to consensus genome ---------------#
-    bcftools view \
-        -f PASS \
-        -Oz \
-        -o ${sampleID}.QC.mask.filt.pass.vcf.gz \
+    bcftools view \\
+        -f PASS \\
+        -Oz \\
+        -o ${sampleID}.QC.mask.filt.pass.vcf.gz \\
         ${sampleID}.QC.mask.filt.vcf.gz
 
     tabix -f ${sampleID}.QC.mask.filt.pass.vcf.gz
 
-    bcftools view \
-        -f PASS \
-        -v snps \
-        ${sampleID}.QC.mask.filt.vcf.gz \
-        -Oz \
+    bcftools view \\
+        -f PASS \\
+        -v snps \\
+        ${sampleID}.QC.mask.filt.vcf.gz \\
+        -Oz \\
         -o ${sampleID}.QC.mask.filt.snps.vcf.gz
+
     tabix -f ${sampleID}.QC.mask.filt.snps.vcf.gz
 
     #--------------- Concensus  ---------------#
-    bcftools consensus \
-        -f ${params.snippy_reference} \
-        ${sampleID}.QC.mask.filt.snps.vcf.gz \
+    bcftools consensus \\
+        -f ${params.snippy_reference} \\
+        ${sampleID}.QC.mask.filt.snps.vcf.gz \\
         > ${sampleID}.QC.mask.filt.snps.consensus.fa
 
-    sed -i "s@>NC_000962.3@>${sampleID}@g" \
+    sed -i "s@>NC_000962.3@>${sampleID}@g" \\
         ${sampleID}.QC.mask.filt.snps.consensus.fa
 
     pigz -p 8 --best ${sampleID}.QC.mask.filt.snps.consensus.fa
     """
+
 }
 
 /*
