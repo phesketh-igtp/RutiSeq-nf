@@ -23,20 +23,10 @@ process PROCESS_VCF {
         path("${sampleID}.QC.mask.filt.vcf.gz")
         path("${sampleID}.QC.mask.filt.vcf.gz.tbi")
         path("${sampleID}.processed.pass.vcf.gz")
-        path("${sampleID}.processed.pass.vcf.gz")
-
-    when:
-    task.ext.when == null || task.ext.when
+        path("${sampleID}.processed.pass.vcf.gz.tbi")
 
     script:
-    def additional_args = task.ext.additional_args ?: ''
-
     """
-    MASK=/media/runsminion_temp/fast-TBSEQ_2026-2028/ANALYSIS/mapping/src/TBProfiler_NC_000962.3_mask.bed
-    REF=/home/phesketh/Documents/GitHub/TBSEQ.cat-nf/db/H37Rv/NC_000962.3_2017-12-14.fasta
-    GBK=/home/phesketh/Documents/GitHub/TBSEQ.cat-nf/db/H37Rv/NC_000962.3_2017-12-14.gbk
-    VCF=${1}; PREFIX=${2}; INDEL_DIST=${3:-18}
-
     #--------------- Quality filtering ---------------#
     bcftools view \\
             -e 'ALT~"^<" || REF~"N"' \\
