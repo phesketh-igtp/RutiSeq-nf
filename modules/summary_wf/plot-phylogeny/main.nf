@@ -19,13 +19,13 @@ process PLOT_MAIN_PHYLOGENY {
     output:
     // Main outputs
         path("${lineage}.ML-phylogeny.Rdata")
-        path("${lineage}_ML-phylogeny.html")
+        path("${lineage}.ML-phylogeny.html")
 
     script:
         """
-        if [[ -s "${params.outDir}/results/${params.runID}/phylogeny/${lineage}_ML-phylogeny.html" ]]; then
-            cp ${params.outDir}/results/${params.runID}/phylogeny/${lineage}_ML-phylogeny.html .
-            cp ${params.outDir}/results/${params.runID}/phylogeny/${lineage}_ML-phylogeny.Rdata .
+        if [[ -s "${params.outDir}/results/${params.runID}/phylogeny/${lineage}.ML-phylogeny.html" ]]; then
+            cp ${params.outDir}/results/${params.runID}/phylogeny/${lineage}.ML-phylogeny.html .
+            cp ${params.outDir}/results/${params.runID}/phylogeny/${lineage}.ML-phylogeny.Rdata .
         else
 
             # Make output directory
@@ -48,12 +48,12 @@ process PLOT_MAIN_PHYLOGENY {
                 quarto render phylogeny-report.qmd \\
                     -P runID=${params.runID} \\
                     -P lineage=${lineage} \\
-                    --output ${lineage}_ML-phylogeny.html #2>/dev/null
+                    --output ${lineage}.ML-phylogeny.html #2>/dev/null
 
                 echo -e "quarto render phylogeny-report.qmd"
                 echo -e "    -P runID=${params.runID}"
                 echo -e "    -P lineage=${lineage}"
-                echo -e "    --output ${lineage}_ML-phylogeny.html"
+                echo -e "    --output ${lineage}.ML-phylogeny.html"
                 echo -e "" > ${lineage}.quarto.script.sh
 
             else
