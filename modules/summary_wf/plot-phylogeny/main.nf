@@ -39,17 +39,17 @@ process PLOT_MAIN_PHYLOGENY {
                 echo "This lineage contains clusters - plotting phylogeny with cluster heatmap"
                 echo -e "quarto render phylogeny-report.qmd -P runID=${params.runID} -P lineage=${lineage} --output ${lineage}.ML-phylogeny.html" > ${lineage}.quarto.script.sh
 
-                # Copy quarto script
-                cp ${params.scriptDir}/quarto/phylogeny-report.qmd phylogeny-report.qmd
-                cp ${lineage}.quarto.script.sh ${params.outDir}/results/${params.runID}/phylogeny/
-                cp ${lineage}.ML-phylogeny.Rdata ${params.outDir}/results/${params.runID}/phylogeny/
-                cp phylogeny-report.qmd ${params.outDir}/results/${params.runID}/phylogeny/
-
                 # Render script
                 quarto render phylogeny-report.qmd \\
                     -P runID=${params.runID} \\
                     -P lineage=${lineage} \\
                     --output ${lineage}.ML-phylogeny.html #2>/dev/null
+                
+                # Copy quarto script
+                cp ${params.scriptDir}/quarto/phylogeny-report.qmd phylogeny-report.qmd
+                cp ${lineage}.quarto.script.sh ${params.outDir}/results/${params.runID}/phylogeny/
+                cp ${lineage}.ML-phylogeny.Rdata ${params.outDir}/results/${params.runID}/phylogeny/
+                cp phylogeny-report.qmd ${params.outDir}/results/${params.runID}/phylogeny/
 
 
             else
