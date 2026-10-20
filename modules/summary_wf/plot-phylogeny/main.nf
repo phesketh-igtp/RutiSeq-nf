@@ -48,7 +48,7 @@ process PLOT_MAIN_PHYLOGENY {
                 
                 # Copy quarto script
                 
-                cp ${lineage}.quarto.script.sh ${params.outDir}/results/${params.runID}/phylogeny/
+                cp ${lineage}.ML-phylogeny.html ${params.outDir}/results/${params.runID}/phylogeny/
                 cp ${lineage}.ML-phylogeny.Rdata ${params.outDir}/results/${params.runID}/phylogeny/
                 cp phylogeny-report.qmd ${params.outDir}/results/${params.runID}/phylogeny/
 
