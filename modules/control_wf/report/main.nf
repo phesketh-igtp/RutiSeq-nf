@@ -22,9 +22,8 @@ process READ_TAXONOMY_QC_REPORT {
     script:
     
     """
-    if [[ -s "${params.outDir}/results/${params.runID}/${params.runID}_reads-controls-report.qmd" ]]; then
+    if [[ -s "${params.outDir}/results/${params.runID}/${params.runID}_reads-controls-report.html" ]]; then
         echo -e "Already generated, copying from results file"
-
         cp ${params.outDir}/results/${params.runID}/${params.runID}_reads-controls-report.html .
         echo "Already generated, copying from results file: ${params.outDir}/results/${params.runID}/${params.runID}_reads-controls-report.html" > ${params.runID}_warnings.out
     else
