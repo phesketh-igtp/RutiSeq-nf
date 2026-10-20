@@ -17,11 +17,7 @@ process GENERATE_SUMMARY_REPORT {
         tuple path(sylph_sequence_abundance, stageAs: 'sylph_results.tsv'),
             path(sylph_relative_abundance, stageAs: 'sylph_relative_abundance.tsv'),
             path(sylph_coverage, stageAs: 'sylph_coverage.tsv')
-
-        tuple path(html_report), 
-            path(warnings, stageAs: 'warnings.out')
-        
-
+      
     output:
         path("${params.runID}_RutiSeq-results.xlsx")
         path(html_report)

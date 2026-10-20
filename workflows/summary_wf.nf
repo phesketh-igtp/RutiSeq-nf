@@ -31,8 +31,7 @@ workflow SUMMARY_WF{
                                     analysis_summary,
                                     who_resistance,
                                     tbdb_resistance,
-                                    sylph_results,
-                                    reads_taxonomy_qc_report_out
+                                    sylph_results
                                     )
         // Plot main ML phylogeny
             PLOT_MAIN_PHYLOGENY(
