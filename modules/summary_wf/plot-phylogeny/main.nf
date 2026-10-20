@@ -24,6 +24,7 @@ process PLOT_MAIN_PHYLOGENY {
     script:
         """
         if [[ -s "${params.outDir}/results/${params.runID}/phylogeny/${lineage}.ML-phylogeny.html" ]]; then
+            echo "Results already exists, copying from the results file"
             cp ${params.outDir}/results/${params.runID}/phylogeny/${lineage}.ML-phylogeny.html .
             cp ${params.outDir}/results/${params.runID}/phylogeny/${lineage}.ML-phylogeny.Rdata .
         else

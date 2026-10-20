@@ -23,6 +23,7 @@ process READ_TAXONOMY_QC_REPORT {
     
     """
     if [[ -s "${params.outDir}/results/${params.runID}/${params.runID}_reads-controls-report.qmd" ]]; then
+        echo -e "Already generated, copying from results file"
         cp ${params.outDir}/results/${params.runID}/${params.runID}_reads-controls-report.html .
     else
         # Create an empty output incase the file is empty
