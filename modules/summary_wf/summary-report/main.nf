@@ -20,7 +20,6 @@ process GENERATE_SUMMARY_REPORT {
       
     output:
         path("${params.runID}_RutiSeq-results.xlsx")
-        path(html_report)
 
     script:
 
