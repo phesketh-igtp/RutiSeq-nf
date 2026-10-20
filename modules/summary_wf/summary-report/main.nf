@@ -2,7 +2,7 @@ process GENERATE_SUMMARY_REPORT {
 
     conda params.r_stats_env
 
-    storeDir "${params.outDir}/results/${params.runID}/", 
+    publishDir "${params.outDir}/results/${params.runID}/", 
         mode: 'copy', 
         overwrite: true
 
