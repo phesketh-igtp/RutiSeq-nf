@@ -88,7 +88,6 @@ workflow SINGLE_WF {
         // Run SNP_PROFILING_SINGLE using the mpileup output
             SNIPPY_SINGLE( MTBSEQ_SINGLE.out.updated_sample_ch3 )
             //PROCESS_VCF( SNIPPY_SINGLE.out.process_vcf )
-            //VARSCAN_SINGLE( SNIPPY_SINGLE.out.snippy_bam )
 
             // create updated channel
             branched_channel_with_reads_updated = SNIPPY_SINGLE.out.updated_sample_ch4
@@ -124,4 +123,6 @@ workflow SINGLE_WF {
     v2.0.0-2025-11-13: Restructured workflow to merge TB-Profiler into a single step
                     Changed the channels outputs with the removal of one module.
                     Extended warning message for skipped samples, added path of samples db.
+    v3.0.0-2026-11-13: Removed varscan and updated snippy to snippy-ng, including the addition
+                        of variant filtering.
 */

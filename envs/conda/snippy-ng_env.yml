@@ -1,18 +1,18 @@
 name: snippy-ng_env
-
 channels:
   - conda-forge
   - bioconda
   - defaults
-
 dependencies:
-  - python=3.8
+  - python=3.14.7
+  - freebayes=1.3.10
+  - bcftools=1.24
   - biopython
-  - samtools
-  - fastp
-  - seqkit
+  - samtools=1.23.1
+  - fastp=1.3.7
+  - seqkit=2.13.0
   - minimap2
-  - freebayes=1.3.2
+  - minibwa
   - pip
   - pip:
       - snippy-nextgen

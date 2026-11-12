@@ -39,7 +39,7 @@ process PROCESS_VCF {
             -d exact \\
             -Ou | \\
         bcftools filter \
-            -e 'QUAL<100 || INFO/DP<8 || INFO/MQM<30 || INFO/SAF<${params.mtbseq_mincovf} || INFO/SAR<${params.mtbseq_mincovr} || INFO/AO/(INFO/AO+INFO/RO)<0.${params.mtbseq_minfreq}' \
+            -e 'QUAL<100 || INFO/DP<10 || INFO/MQM<30 || INFO/SAF<${params.mtbseq_mincovf} || INFO/SAR<${params.mtbseq_mincovr} || INFO/AO/(INFO/AO+INFO/RO)<0.${params.mtbseq_minfreq}' \
             --soft-filter low_QUAL \\
             -Ou | \\
         bcftools filter \\

@@ -2,7 +2,7 @@ process SNIPPY_SINGLE {
 
     tag "$sampleID"
 
-    conda params.snippy_env
+    conda params.snippy_ng_env
     
     container { 
         if (workflow.containerEngine == 'singularity') return params.singularity_snp_profiling
@@ -41,6 +41,7 @@ process SNIPPY_SINGLE {
             path(who_out), 
             path("${sampleID}.pass.vcf"), emit: updated_sample_ch4
 
+        path("CITATIONS.txt")
         path("FILES.tsv")
         path("${sampleID}.all.vcf.summary.tsv")
         path("${sampleID}.filtered.cram")
@@ -48,6 +49,7 @@ process SNIPPY_SINGLE {
         path("${sampleID}.qc.tsv")
         path("${sampleID}.tab")
         path("LOG.txt")
+        path("PIPELINE.txt")
 
     when:
     task.ext.when == null || task.ext.when
@@ -62,20 +64,19 @@ process SNIPPY_SINGLE {
         && -f "${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.filtered.cram" \\
         && -f "${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.pass.vcf" \\
         && -f "${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.qc.tsv" \\
-        && -f ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.tab \\
-    ]]; then
+        && -f "${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.tab" \\
 
-        echo "Snippy results already exist for sample ${sampleID}, skipping Snippy step."
-        ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.all.vcf.summary.tsv .
-        ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.filtered.cram .
-        ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.pass.vcf .
-        ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.qc.tsv .
-        ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.tab .
+        ]]; then
+            echo "Snippy results already exist for sample ${sampleID}, skipping Snippy step."
+            ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.all.vcf.summary.tsv .
+            ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.filtered.cram .
+            ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.pass.vcf .
+            ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.qc.tsv .
+            ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.tab .
 
     else
         
-    echo -e "Running Snippy for sample ${sampleID}"
-
+        echo -e "Running Snippy for sample ${sampleID}"
         ## determine if we have paired-end or single-end reads
         # Check if we have paired-end reads
         if [[ -f "${fastq_2}" && -s "${fastq_2}" ]]; then
