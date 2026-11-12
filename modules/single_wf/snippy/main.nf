@@ -40,9 +40,11 @@ process SNIPPY_SINGLE {
             path(tbdb_out),
             path(who_out), 
             path("${sampleID}.vcf"), emit: updated_sample_ch4
+
         path("${sampleID}.aligned.fa")
         path("${sampleID}.consensus.fa")
         path("${sampleID}.vcf")
+        path("${sampleID}.csv")
         path("${sampleID}.*")
 
         // VarScan2 variant calling
