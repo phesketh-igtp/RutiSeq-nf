@@ -39,17 +39,15 @@ process SNIPPY_SINGLE {
             path(mtbseq_vars),  
             path(tbdb_out),
             path(who_out), 
-            path("${sampleID}.vcf"), emit: updated_sample_ch4
+            path("${sampleID}.pass.vcf"), emit: updated_sample_ch4
 
-        path("${sampleID}.aligned.fa")
-        path("${sampleID}.consensus.fa")
-        path("${sampleID}.vcf")
-        path("${sampleID}.csv")
-        path("${sampleID}.*")
-
-        // VarScan2 variant calling
-        tuple val(sampleID), 
-            path("${sampleID}.vcf"), emit: process_vcf
+        path("FILES.tsv")
+        path("${sampleID}.all.vcf.summary.tsv")
+        path("${sampleID}.filtered.cram")
+        path("${sampleID}.pass.vcf")
+        path("${sampleID}.qc.tsv")
+        path("${sampleID}.tab")
+        path("LOG.txt")
 
     when:
     task.ext.when == null || task.ext.when
@@ -60,17 +58,19 @@ process SNIPPY_SINGLE {
     """
     # Check if Snippy has already been run for this sample by looking for key output files. Handles situations when the workflow is re-run.
     ## and prevent each single-wf steps from re-running unnecessarily.
-    if [[ -f "${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.aligned.fa" \\
-        && -f "${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.consensus.fa" \\
-        && -f "${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.vcf" \\
-        && -f ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.bam \\
+    if [[ -f "${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.all.vcf.summary.tsv" \\
+        && -f "${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.filtered.cram" \\
+        && -f "${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.pass.vcf" \\
+        && -f "${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.qc.tsv" \\
+        && -f ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.tab \\
     ]]; then
 
         echo "Snippy results already exist for sample ${sampleID}, skipping Snippy step."
-        ln -s ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.aligned.fa .
-        ln -s ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.consensus.fa .
-        ln -s ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.vcf .
-        ln -s ${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.bam .
+        ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.all.vcf.summary.tsv .
+        ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.filtered.cram .
+        ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.pass.vcf .
+        ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.qc.tsv .
+        ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.tab .
 
     else
         
@@ -79,38 +79,33 @@ process SNIPPY_SINGLE {
         ## determine if we have paired-end or single-end reads
         # Check if we have paired-end reads
         if [[ -f "${fastq_2}" && -s "${fastq_2}" ]]; then
+
             # Check if R2 file has actual sequencing data (more than just empty lines)
                 if [[ \$(zcat ${fastq_2} 2>/dev/null | head -n 4 | wc -l) -eq 4 ]]; then
                     
                     echo "Using paired-end mode for ${sampleID}"
-                    snippy \\
+                    snippy-ng short \\
                         --outdir . \\
                         --force \\
                         --R1 ${fastq_1} \\
                         --R2 ${fastq_2} \\
-                        --reference ${params.snippy_reference} \\
+                        --reference ${params.snippy_reference_gbk} \\
                         --cpus ${task.cpus} \\
                         ${additional_args}
 
                 else
-                    echo "R2 file exists but appears empty, using single-end mode for ${sampleID}"
-                    snippy \\
-                        --outdir . \\
-                        --force \\
-                        --se ${fastq_1} \\
-                        --reference ${params.snippy_reference} \\
-                        --cpus ${task.cpus} \\
-                        ${additional_args}
-
+                    echo "R2 file exists but appears empty: ${sampleID}"
+                    exit 1
                 fi
+
             else
 
                 echo "Using single-end mode for ${sampleID}"
-                snippy \\
+                snippy long \\
                     --outdir . \\
                     --force \\
                     --se ${fastq_1} \\
-                    --reference ${params.snippy_reference} \\
+                    --reference ${params.snippy_reference_gbk} \\
                     --cpus ${task.cpus} \\
                     ${additional_args}
 
