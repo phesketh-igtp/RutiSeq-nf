@@ -1,0 +1,22 @@
+name: snippy-ng
+
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+
+dependencies:
+  - python=3.11
+  - biopython
+  - pip
+
+  # NGS tools
+  - samtools
+  - fastp
+  - seqkit
+  - minimap2
+  - freebayes
+
+  # PyPI package
+  - pip:
+      - snippy-nextgen
