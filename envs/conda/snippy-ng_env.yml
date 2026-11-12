@@ -13,6 +13,7 @@ dependencies:
   - seqkit=2.13.0
   - minimap2
   - minibwa
+  - sracha
   - pip
   - pip:
       - snippy-nextgen
