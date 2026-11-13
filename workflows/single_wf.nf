@@ -3,7 +3,6 @@ include { TBPROFILER_PROFILE }              from '../modules/single_wf/tbprofile
 include { MTBSEQ_SINGLE }                   from '../modules/single_wf/mtbseq/main.nf'
 include { SNIPPY_SINGLE }                   from '../modules/single_wf/snippy/main.nf'
 include { PROCESS_VCF }                     from '../modules/single_wf/process_vcf/main.nf'
-include { VARSCAN_SINGLE }                  from '../modules/single_wf/varscan/main.nf'
 include { POST_SINGLE_DB_CLEANUP }          from '../modules/single_wf/post-wf-cleaup/single-db-cleanup/main.nf'
 
 workflow SINGLE_WF {

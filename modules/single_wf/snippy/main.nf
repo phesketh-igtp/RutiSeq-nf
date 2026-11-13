@@ -10,10 +10,10 @@ process SNIPPY_SINGLE {
         else if (workflow.containerEngine == 'apptainer') return params.apptainer_snp_profiling
         else return null
     }
-    publishDir "${params.outDir}/db/samples/${sampleID}/snippy/", 
+    publishDir "${params.outDir}/db/samples/${sampleID}/snippy-ng/", 
         mode: 'copy',
         overwrite: true,
-        pattern: '*{.txt,.all.vcf.gz,.all.vcf.summary.tsv,.pass.vcf,.tab}'
+        pattern: '{*.tab,*.txt,*.tsv,*.vcf.gz,*.pass.vcf}'
 
     input:
         tuple val(sampleID), 
@@ -78,43 +78,17 @@ process SNIPPY_SINGLE {
     else
         
         echo -e "Running Snippy for sample ${sampleID}"
-        ## determine if we have paired-end or single-end reads
-        # Check if we have paired-end reads
-        if [[ -f "${fastq_2}" && -s "${fastq_2}" ]]; then
+        echo "Using paired-end mode for ${sampleID}"
+            snippy-ng short \\
+                --outdir . \\
+                --force \\
+                --R1 ${fastq_1} \\
+                --R2 ${fastq_2} \\
+                --reference ${params.snippy_reference_gbk} \\
+                --prefix ${sampleID} \\
+                --cpus ${task.cpus} \\
+                ${additional_args}
 
-            # Check if R2 file has actual sequencing data (more than just empty lines)
-                if [[ \$(zcat ${fastq_2} 2>/dev/null | head -n 4 | wc -l) -eq 4 ]]; then
-                    
-                    echo "Using paired-end mode for ${sampleID}"
-                    snippy-ng short \\
-                        --outdir . \\
-                        --force \\
-                        --R1 ${fastq_1} \\
-                        --R2 ${fastq_2} \\
-                        --reference ${params.snippy_reference_gbk} \\
-                        --cpus ${task.cpus} \\
-                        ${additional_args}
-
-                else
-                    echo "R2 file exists but appears empty: ${sampleID}"
-                    exit 1
-                fi
-
-            else
-
-                echo "Using single-end mode for ${sampleID}"
-                snippy long \\
-                    --outdir . \\
-                    --force \\
-                    --se ${fastq_1} \\
-                    --reference ${params.snippy_reference_gbk} \\
-                    --cpus ${task.cpus} \\
-                    ${additional_args}
-
-            fi
-
-        # Compress consensus file
-        for f in snps.*; do mv \$f \$(echo \$f | sed "s@snps@${sampleID}@g"); done
     fi
     """
 }
@@ -133,4 +107,6 @@ process SNIPPY_SINGLE {
                         Added support for single-end reads
                         Extended available parameters for Snippy
     v2.1.0-2026-01-19: Updated to check for existing results to avoid re-running
+    v3.1.0-2026-11-13: Remove single-end read parsing (moved to a seperate module and controlled by channel),
+                        and simplified the script.
 */
