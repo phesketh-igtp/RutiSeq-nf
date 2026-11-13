@@ -12,7 +12,8 @@ process SNIPPY_SINGLE {
     }
     publishDir "${params.outDir}/db/samples/${sampleID}/snippy/", 
         mode: 'copy',
-        overwrite: true
+        overwrite: true,
+        pattern: '*{.txt,.all.vcf.gz,.all.vcf.summary.tsv,.pass.vcf,.tab}'
 
     input:
         tuple val(sampleID), 
@@ -43,8 +44,8 @@ process SNIPPY_SINGLE {
 
         path("CITATIONS.txt")
         path("FILES.tsv")
+        path("${sampleID}.all.vcf.gz")
         path("${sampleID}.all.vcf.summary.tsv")
-        path("${sampleID}.filtered.cram")
         path("${sampleID}.pass.vcf")
         path("${sampleID}.qc.tsv")
         path("${sampleID}.tab")
@@ -61,7 +62,7 @@ process SNIPPY_SINGLE {
     # Check if Snippy has already been run for this sample by looking for key output files. Handles situations when the workflow is re-run.
     ## and prevent each single-wf steps from re-running unnecessarily.
     if [[ -f "${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.all.vcf.summary.tsv" \\
-        && -f "${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.filtered.cram" \\
+        && -f "${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.all.vcf.gz" \\
         && -f "${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.pass.vcf" \\
         && -f "${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.qc.tsv" \\
         && -f "${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.tab" \\
@@ -69,7 +70,7 @@ process SNIPPY_SINGLE {
         ]]; then
             echo "Snippy results already exist for sample ${sampleID}, skipping Snippy step."
             ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.all.vcf.summary.tsv .
-            ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.filtered.cram .
+            ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.all.vcf.gz .
             ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.pass.vcf .
             ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.qc.tsv .
             ln -s ${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.tab .
