@@ -64,4 +64,5 @@ process FILE_CHECK {
     2025-11-12: Restructuring DB format to be sample-first, and results nested by samples
     2025-11-14: Improved error handling, better shell logic, fixed array syntax
     2026-06-03: Update to reflect changes to TBProfiler output data structure
+    2026-11-16: Updated for snippy-ng outputs
 */
