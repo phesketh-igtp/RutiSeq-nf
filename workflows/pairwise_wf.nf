@@ -182,11 +182,12 @@ workflow PAIRWISE_WF {
                                         SNIPPY_PHYLOGENY.out.snippy_core_dated_phylogeny,
                                         params.metadata
                                     )
-        */
+        
 
         } else {
             log.info "${purple}Skipping SNIPPY_CORE and SNIPPY_PHYLOGENY analysis (params.snippy_core = ${params.snippy_core})${no_col}"
         }
+        */
 
 /*
         // Create a channel to emit for the nexus generation
