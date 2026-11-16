@@ -25,7 +25,7 @@ process FILE_CHECK {
         def mtbseq_vars  = "${params.outDir}/db/samples/${sampleID}/mtbseq/Called/${sampleID}.gatk_position_variants_cf4_cr4_fr75_ph4_outmode000.tab"
         def tbdb_out     = "${params.outDir}/db/samples/${sampleID}/tbprofiler/results/tbdb-${sampleID}.results.txt"
         def who_out      = "${params.outDir}/db/samples/${sampleID}/tbprofiler/results/who-${sampleID}.results.txt"
-        def snippy_vcf   = "${params.outDir}/db/samples/${sampleID}/snippy/${sampleID}.vcf"
+        def snippy_vcf   = "${params.outDir}/db/samples/${sampleID}/snippy-ng/${sampleID}.pass.vcf"
 
         """
         #!/bin/bash
