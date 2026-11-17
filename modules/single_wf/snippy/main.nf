@@ -30,16 +30,16 @@ process SNIPPY_SINGLE {
 
     output:
         // tuple for updating the sample ch
-        tuple val(sampleID), 
-            path(fastq_1), 
-            path(fastq_2), 
+        tuple val(sampleID),
+            path(fastq_1),
+            path(fastq_2),
             val(type),
-            path(mtbseq_class), 
-            path(mtbseq_stats), 
-            path(mtbseq_pos), 
-            path(mtbseq_vars),  
+            path(mtbseq_class),
+            path(mtbseq_stats),
+            path(mtbseq_pos),
+            path(mtbseq_vars),
             path(tbdb_out),
-            path(who_out), 
+            path(who_out),
             path("${sampleID}.pass.vcf"), emit: updated_sample_ch4
 
         path("CITATIONS.txt")
