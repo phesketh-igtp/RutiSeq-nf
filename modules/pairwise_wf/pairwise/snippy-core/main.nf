@@ -11,135 +11,113 @@ process SNIPPY_CORE {
         path(analysis_summary) // purely to trigger execution when pairwise analysis is run
 
     output:
-        path("core.snps")
-        path("core.vcf")
-        path("core.aln")
-        path("core.aln.full")
-        path("core.tab")
-        path("core.txt")
-        path("core.masked.distance.mat")
-        path("core.masked.distance.mat.tsv")
-
-        path("core.masked.snps"),       emit: snippy_core_snps
-        path("core.masked.vcf"),        emit: snippy_core_vcf
-        path("core.masked.aln"),        emit: snippy_core_alignment
-        path("core.masked.aln.full"),   emit: snippy_core_alignment_full
-        path("core.masked.distance.mat")
-        path("core.masked.distance.mat.tsv")
-        path("core.masked.tab")
-        path("core.masked.txt")
-
-        tuple path("phylo.variant-sites.aln"),
-            path("phylo.invariant-sites.aln"), emit: snippy_core_phylo_alignment
-
-        path("samples.list")
+        path("gubbins/")
+        path("MTB.QC.mask.filt.snps.consensus.fa.gz")
+        path("MTB.QC.mask.filt.snps.consensus.pdsm.csv")
+        path("MTB.QC.mask.filt.gubbins.snps.consensus.fa.gz"), emit: core_phylo_ch
+        path("MTB.QC.mask.filt.gubbins.snps.consensus.pdsm.csv")
 
     script:
 
     """
-    # Create the sample list of available results
-    ## removing the mixed samples and controls
-    grep -v "Mixed" ${analysis_summary} \\
-        | grep -v 'La1' \\
-        | grep -v 'La2' \\
-        | grep -v 'La3' \\
-        | cut -f1  > samples.list
+    ###############################################################
+    # Link all the VCF files
+    ###############################################################
+    echo "${sampleIDs.join('\n')}" | sort | uniq > samples.list
 
     # Assign the base path
     BASE="${params.outDir}/db/samples"
 
     while read -r f; do
-        src_dir="\$BASE/\$f/snippy"
-        dest_dir="snippyDir_\$f"
 
-        # Check source directory
-        if [[ ! -d "\$src_dir" ]]; then
-            echo "No snippy directory for sample: \$f"
-            continue
-        fi
-
-        # Check for target files
-        vcf_files=("\$src_dir"/*.vcf)
-        fa_files=("\$src_dir"/*.aligned.fa)
-
-        vcf_exists=false
-        fa_exists=false
-
-        [[ -e "\${vcf_files[0]}" ]] && vcf_exists=true
-        [[ -e "\${fa_files[0]}" ]] && fa_exists=true
-
-        # Skip sample entirely if neither file type exists
-        if ! \$vcf_exists && ! \$fa_exists; then
-            echo "No VCF or aligned FASTA files found for \$f — skipping."
-            continue
-        fi
+        src_dir="\$BASE/\$f/snippy-ng/"
+        dest_dir="src/"
 
         # Only create dest directory if needed
-        mkdir -p "\$dest_dir"
-
-        # Link only existing files
-        if \$vcf_exists; then
-            ln -sf "\$src_dir"/*.vcf "\$dest_dir"/
-            echo "Linked VCF files for \$f"
-        fi
-
-        if \$fa_exists; then
-            ln -sf "\$src_dir"/*.aligned.fa "\$dest_dir"/
-            echo "Linked aligned FASTA files for \$f"
-        fi
+        mkdir -p src/
+        ln -sf "\$src_dir"/*.QC.mask.filt.vcf.gz src/
+        ln -sf "\$src_dir"/*.QC.mask.filt.snps.consensus.fa.gz
 
     done < samples.list
 
-    # Create path of directories for snippy core
-    snippy_directories=\$(echo snippyDir_*)
+    ###############################################################
+    # Concatenate the consensus sequences
+    ###############################################################
+    cat *.QC.mask.filt.snps.consensus.fa.gz \\
+        > MTB.QC.mask.filt.snps.consensus.fa.gz
 
-    # The main alignments/core
-        snippy-core --prefix core \\
-            --ref ${params.snippy_reference} \\
-            \$snippy_directories
+    gunzip --keep MTB.QC.mask.filt.snps.consensus.fa.gz
 
-        seqkit seq -w 0 core.full.aln > tmp.core.full.aln
-        mv tmp.core.full.aln core.full.aln
+    ###############################################################
+    # Run gubbins
+    ###############################################################
+    run_gubbins.py \\
+        --extensive-search \\
+        --prefix MTB.gubbins \\
+        --threads ${task.cpus} \\
+        MTB.QC.mask.filt.snps.consensus.fa
 
-    # The main masked alignments/core
-        snippy-core --prefix core.masked \\
-            --ref ${params.snippy_reference} \\
-            --mask ${params.snippy_reference} \\
-            \$snippy_directories
+    gff2bed < MTB.gubbins.recombination_predictions.gff \\
+        > MTB.gubbins.recombination_predictions.bed
 
-        seqkit seq -w 0 core.masked.full.aln > tmp.core.masked.full.aln
-        mv tmp.core.masked.full.aln core.masked.full.aln
-
-    ## Masked
-        snp-dists -j ${task.cpus} core.masked.full.aln > core.masked.distance.mat
-        coresnpfilter -e -c 1.0 core.masked.full.aln > core.masked.full.filt100.variants.aln
-        coresnpfilter -e -c 1.0 core.masked.full.aln --table core.masked.full.filt100.variants.tab
-        coresnpfilter -e -c 0.95 core.masked.full.aln > core.masked.full.filt95.variants.aln
-        coresnpfilter -e -c 1.0 core.masked.full.aln --table core.masked.full.filt100.variants.tab
-        coresnpfilter -C core.masked.full.aln > core.masked.full.invariants.aln
-
-    ## Unmasked
-        snp-dists -j ${task.cpus} core.full.aln > core.distance.mat
-        coresnpfilter -e -c 1.0 core.full.aln > core.full.filt100.variants.aln
-        coresnpfilter -e -c 1.0 core.full.aln --table core.full.filt100.variants.tab
-        coresnpfilter -e -c 0.95 core.full.aln > core.full.filt95.variants.aln
-        coresnpfilter -e -c 1.0 core.full.aln --table core.full.filt100.variants.tab
-        coresnpfilter -C core.full.aln > core.full.invariants.aln
-
-    ## Gubbins
-        run_gubbins.py \\
-            --threads ${task.cpus} \\
-            --prefix gubbins \\
-            --min-window-size 12 \
-            --extensive-search \\
-            core.full.aln
-
+    sed -i 's@SEQUENCE@NC_000962.3@g' \\
+        MTB.gubbins.recombination_predictions.bed
+    
     # Clean up
-        # Remove the prefix
-        sed -i 's@snippyDir_@@g' core.*
-        
-        # remove linked directories
-        rm -rf snippyDir_*
+    mkdir gubbins/; mv MTB.gubbins.* gubbins/
+
+    ###############################################################
+    # Filter VCFs with gubbins masking sites and regen consensus
+    ###############################################################
+    # Mask with gubbins
+    for vcf in *.QC.mask.filt.vcf.gz; do
+
+        sampleid=\$(basename ${vcf} .QC.mask.filt.vcf.gz)
+
+        bcftools filter \\
+            \${vcf} \\
+            --mask-file gubbins/MTB.gubbins.recombination_predictions.gff \\
+            --soft-filter gubbins \
+            -Oz \\
+            -o "\${sampleid}.QC.mask.filt.gubbins.vcf.gz"
+
+        # Apply only SNPs to consensus genome
+        bcftools view \\
+            -f PASS \\
+            -v snps \\
+            "\${sampleid}.QC.mask.filt.gubbins.vcf.gz" \\
+            -Oz \\
+            -o "\${sampleid}.QC.mask.filt.gubbins.snps.vcf.gz"
+        tabix -f "\${sampleid}.QC.mask.filt.gubbins.snps.vcf.gz"
+
+        # Concensus
+        bcftools consensus \
+            -f ${params.snippy_reference_fa} \\
+            "\${sampleid}.QC.mask.filt.gubbins.snps.vcf.gz" \\
+            > "\${sampleid}.QC.mask.filt.gubbins.snps.consensus.fa"
+
+        sed -i "s@>NC_000962.3@>\${sampleid}@g" \\
+           "\${sampleid}.QC.mask.filt.gubbins.snps.consensus.fa"
+
+    done
+
+    ###############################################################
+    # Concatenate the consensus genomes
+    ###############################################################
+    cat *.QC.mask.filt.gubbins.snps.consensus.fa \\
+        > MTB.QC.mask.filt.gubbins.snps.consensus.fa
+    gzip --best MTB.QC.mask.filt.gubbins.snps.consensus.fa
+
+    ###############################################################
+    # Calculate the pairwise distances between the consensus genomes
+    ###############################################################
+    pdsm --threads ${task.cpus} --sort --progress \\
+        MTB.QC.mask.filt.gubbins.snps.consensus.fa.gz \\
+        > MTB.QC.mask.filt.gubbins.snps.consensus.pdsm.csv
+
+    pdsm --threads ${task.cpus} --sort --progress \\
+        gubbins-input.fa \\
+        > MTB.QC.mask.filt.snps.consensus.pdsm.csv
     """
 }
 

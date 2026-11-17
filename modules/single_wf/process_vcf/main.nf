@@ -2,7 +2,7 @@ process PROCESS_VCF {
 
     tag "$sampleID"
 
-    conda params.snippy_env
+    conda params.snippy_ng_env
     
     container { 
         if (workflow.containerEngine == 'singularity') return params.singularity_snp_profiling
@@ -53,38 +53,37 @@ process PROCESS_VCF {
         bcftools reheader \\ 
             --header "${sampleID}" \\
             -Oz | \\
-            -o ${sampleID}.QC.mask.filt.vcf.gz
+            -o "${sampleID}.QC.mask.filt.vcf.gz"
 
-    tabix -f ${sampleID}.QC.mask.filt.vcf.gz
+    tabix -f "${sampleID}.QC.mask.filt.vcf.gz"
 
     #--------------- Apply only SNPs to consensus genome ---------------#
     bcftools view \\
         -f PASS \\
         -Oz \\
-        -o ${sampleID}.QC.mask.filt.pass.vcf.gz \\
-        ${sampleID}.QC.mask.filt.vcf.gz
+        -o "${sampleID}.QC.mask.filt.pass.vcf.gz" \\
+        "${sampleID}.QC.mask.filt.vcf.gz"
 
-    tabix -f ${sampleID}.QC.mask.filt.pass.vcf.gz
+    tabix -f "${sampleID}.QC.mask.filt.pass.vcf.gz"
 
     bcftools view \\
         -f PASS \\
         -v snps \\
-        ${sampleID}.QC.mask.filt.vcf.gz \\
+        "${sampleID}.QC.mask.filt.vcf.gz" \\
         -Oz \\
-        -o ${sampleID}.QC.mask.filt.snps.vcf.gz
+        -o "${sampleID}.QC.mask.filt.snps.vcf.gz"
 
-    tabix -f ${sampleID}.QC.mask.filt.snps.vcf.gz
+    tabix -f "${sampleID}.QC.mask.filt.snps.vcf.gz"
 
     #--------------- Concensus  ---------------#
     bcftools consensus \\
         -f ${params.snippy_reference_fa} \\
-        ${sampleID}.QC.mask.filt.snps.vcf.gz \\
-        > ${sampleID}.QC.mask.filt.snps.consensus.fa
+        "${sampleID}.QC.mask.filt.snps.vcf.gz" \\
+        > "${sampleID}.QC.mask.filt.snps.consensus.fa"
 
     sed -i "s@>NC_000962.3@>${sampleID}@g" \\
-        ${sampleID}.QC.mask.filt.snps.consensus.fa
-
-    pigz -p 8 --best ${sampleID}.QC.mask.filt.snps.consensus.fa
+        "${sampleID}.QC.mask.filt.snps.consensus.fa"
+    pigz -p 8 --best "${sampleID}.QC.mask.filt.snps.consensus.fa"
     """
 
 }

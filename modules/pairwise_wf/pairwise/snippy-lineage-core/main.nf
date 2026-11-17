@@ -2,7 +2,7 @@ process SNIPPY_LINEAGE_CORE {
 
     tag "${lineage}"
 
-    conda params.snippy_env
+    conda params.gubbins_env
     
     publishDir "${params.outDir}/db/comparison/snippy/${lineage}/", 
         mode: 'copy',
@@ -14,135 +14,119 @@ process SNIPPY_LINEAGE_CORE {
             val(sampleID_count)
 
     output:
-    // Snippy
-        path("${lineage}-core.aln")
-        path("${lineage}-core.tab")
-        path("${lineage}-core.full.aln")
-        path("${lineage}-core.txt")
-        path("${lineage}-core.vcf")
-        path("${lineage}-core.mat")
-    // Reference free outputs
-        path("${lineage}-core.nr.vars")
-        path("${lineage}-core.nr.mat")
-    // Masked outputs
-        path("${lineage}.nr.masked.vars")
-        path("${lineage}.nr.masked.mat")
-    // Reference
-        path("${lineage}-core.ref.fa")
-    // Phylogeny output
+        path("gubbins/")
+        path("${lineage}.QC.mask.filt.snps.consensus.fa.gz")
+        path("${lineage}.QC.mask.filt.snps.consensus.pdsm.csv")
+        path("${lineage}.QC.mask.filt.gubbins.snps.consensus.fa.gz")
+        path("${lineage}.QC.mask.filt.gubbins.snps.consensus.pdsm.csv")
+        
         tuple val(lineage),
-            path("${lineage}.nr.full.masked.aln"), 
-            path("${lineage}.nr.masked.vars"), emit: snippy_lin_phylo_ch
-    // Gubbins input
-        tuple val(lineage),
-            path("${lineage}.nr.full.masked.aln"), emit: gubbins_ch
+            path("${lineage}.QC.mask.filt.gubbins.snps.consensus.fa.gz"),
+                emit: snippy_lineage_phylo_ch
 
     script:
+
     """
-    # create the list of the sampleIDs within that lineage
-            echo "${sampleIDs.join('\n')}" | sort | uniq > samples.list
+    ###############################################################
+    # Link all the VCF files
+    ###############################################################
+    echo "${sampleIDs.join('\n')}" | sort | uniq > samples.list
 
     # Assign the base path
     BASE="${params.outDir}/db/samples"
 
     while read -r f; do
+
         src_dir="\$BASE/\$f/snippy-ng/"
-        dest_dir="snippyDir_\$f"
-
-        # Check source directory
-        if [[ ! -d "\$src_dir" ]]; then
-            echo "No snippy directory for sample: \$f"
-            continue
-        fi
-
-        # Check for target files
-        vcf_files=("\$src_dir"/*.vcf)
-        fa_files=("\$src_dir"/*.aligned.fa)
-
-        vcf_exists=false
-        fa_exists=false
-
-        [[ -e "\${vcf_files[0]}" ]] && vcf_exists=true
-        [[ -e "\${fa_files[0]}" ]] && fa_exists=true
-
-        # Skip sample entirely if neither file type exists
-        if ! \$vcf_exists && ! \$fa_exists; then
-            echo "No VCF or aligned FASTA files found for \$f — skipping."
-            continue
-        fi
+        dest_dir="src/"
 
         # Only create dest directory if needed
-        mkdir -p "\$dest_dir"
-
-        # Link only existing files
-        if \$vcf_exists; then
-            ln -sf "\$src_dir"/*.vcf "\$dest_dir"/
-            echo "Linked VCF files for \$f"
-        fi
-
-        if \$fa_exists; then
-            ln -sf "\$src_dir"/*.aligned.fa "\$dest_dir"/
-            echo "Linked aligned FASTA files for \$f"
-        fi
+        mkdir -p src/
+        ln -sf "\$src_dir"/*.QC.mask.filt.vcf.gz src/
+        ln -sf "\$src_dir"/*.QC.mask.filt.snps.consensus.fa.gz
 
     done < samples.list
 
-    # Create path of directories for snippy core
-    snippy_directories=\$(echo snippyDir_*)
+    ###############################################################
+    # Concatenate the consensus sequences
+    ###############################################################
+    cat *.QC.mask.filt.snps.consensus.fa.gz \\
+        > ${lineage}.QC.mask.filt.snps.consensus.fa.gz
 
-    # The main alignments/core
-    snippy-core \\
-        --prefix ${lineage}-core \\
-        --ref ${params.snippy_reference} \\
-        \$snippy_directories
+    gunzip --keep ${lineage}.QC.mask.filt.snps.consensus.fa.gz
 
     ###############################################################
-    # Clean up naming conention and remove the prefix
-    sed -i 's@snippyDir_@@g' ${lineage}-core*
-
-    snp-dists -j ${task.cpus} \\
-        ${lineage}-core.aln \\
-        > ${lineage}-core.mat
-
+    # Run gubbins
     ###############################################################
-    # Remove the reference genome and rerun snp-sites
-    seqkit grep \\
-        --invert-match \\
-        --pattern "Reference" \\
+    run_gubbins.py \\
+        --extensive-search \\
+        --prefix ${lineage}.gubbins \\
         --threads ${task.cpus} \\
-        ${lineage}-core.full.aln \\
-        > ${lineage}-core.nr.full.aln
+        ${lineage}.QC.mask.filt.snps.consensus.fa
 
-    snp-sites -c \\
-        -o ${lineage}-core.nr.vars \\
-        ${lineage}-core.nr.full.aln
+    gff2bed < ${lineage}.gubbins.recombination_predictions.gff \\
+        > ${lineage}.gubbins.recombination_predictions.bed
 
-    snp-dists -j ${task.cpus} \\
-        ${lineage}-core.nr.vars \\
-        > ${lineage}-core.nr.mat
+    sed -i 's@SEQUENCE@NC_000962.3@g' \\
+        ${lineage}.gubbins.recombination_predictions.bed
+    
+    # Clean up
+    mkdir gubbins/; mv ${lineage}.gubbins.* gubbins/
 
     ###############################################################
-    # Masked the position and rerun snp-sites
-    bedtools maskfasta \
-        -fi ${lineage}-core.full.aln \
-        -bed ${params.snippy_mask} \
-        -fo ${lineage}-core.full.masked.aln
-    
-    seqkit grep \\
-        --invert-match \\
-        --pattern "Reference" \\
-        --threads ${task.cpus} \\
-        ${lineage}-core.full.masked.aln \\
-        > ${lineage}.nr.full.masked.aln
+    # Filter VCFs with gubbins masking sites and regen consensus
+    ###############################################################
+    # Mask with gubbins
+    for vcf in *.QC.mask.filt.vcf.gz; do
 
-    snp-sites -c \\
-        -o ${lineage}.nr.masked.vars \\
-        ${lineage}.nr.full.masked.aln
-    
-    snp-dists -j ${task.cpus} \\
-        ${lineage}.nr.masked.vars \\
-        > ${lineage}.nr.masked.mat
+        sampleid=\$(basename ${vcf} .QC.mask.filt.vcf.gz)
+
+        bcftools filter \\
+            \${vcf} \\
+            --mask-file gubbins/${lineage}.gubbins.recombination_predictions.gff \\
+            --soft-filter gubbins \
+            -Oz \\
+            -o "\${sampleid}.QC.mask.filt.gubbins.vcf.gz"
+
+        # Apply only SNPs to consensus genome
+        bcftools view \\
+            -f PASS \\
+            -v snps \\
+            "\${sampleid}.QC.mask.filt.gubbins.vcf.gz" \\
+            -Oz \\
+            -o "\${sampleid}.QC.mask.filt.gubbins.snps.vcf.gz"
+        tabix -f "\${sampleid}.QC.mask.filt.gubbins.snps.vcf.gz"
+
+        # Concensus
+        bcftools consensus \
+            -f ${params.snippy_reference_fa} \\
+            "\${sampleid}.QC.mask.filt.gubbins.snps.vcf.gz" \\
+            > "\${sampleid}.QC.mask.filt.gubbins.snps.consensus.fa"
+
+        sed -i "s@>NC_000962.3@>\${sampleid}@g" \\
+           "\${sampleid}.QC.mask.filt.gubbins.snps.consensus.fa"
+
+    done
+
+    ###############################################################
+    # Concatenate the consensus genomes
+    ###############################################################
+    cat *.QC.mask.filt.gubbins.snps.consensus.fa \\
+        > ${lineage}.QC.mask.filt.gubbins.snps.consensus.fa
+    gzip --best ${lineage}.QC.mask.filt.gubbins.snps.consensus.fa
+
+    ###############################################################
+    # Calculate the pairwise distances between the consensus genomes
+    ###############################################################
+    pdsm --threads ${task.cpus} --sort --progress \\
+        ${lineage}.QC.mask.filt.gubbins.snps.consensus.fa.gz \\
+        > ${lineage}.QC.mask.filt.gubbins.snps.consensus.pdsm.csv
+
+    pdsm --threads ${task.cpus} --sort --progress \\
+        gubbins-input.fa \\
+        > ${lineage}.QC.mask.filt.snps.consensus.pdsm.csv
     """
+
 }
 
 /*

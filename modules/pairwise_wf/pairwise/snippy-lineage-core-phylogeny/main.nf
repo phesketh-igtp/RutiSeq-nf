@@ -10,8 +10,7 @@ process SNIPPY_LINEAGE_CORE_PHYLOGENY {
 
     input:
         tuple val(lineage),
-            path(full_fasta),
-            path(core_aln)
+            path(fasta)
 
     output:
         path("${lineage}.core_ml*")
@@ -20,9 +19,11 @@ process SNIPPY_LINEAGE_CORE_PHYLOGENY {
 
     """
     # Perform phylogeny
+    snp-sites -c ${fasta} > core.fasta
+
     iqtree \\
-        -s ${core_aln}  \\
-        -fconst "\$(snp-sites -C ${full_fasta})" \\
+        -s core.fasta  \\
+        -fconst "\$(snp-sites -C ${fasta})" \\
         -m ${params.iqtree_model} \\
         -ntmax ${task.cpus} -T AUTO \\
         -B ${params.iqtree_bootstraps} \\
