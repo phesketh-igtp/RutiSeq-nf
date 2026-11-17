@@ -46,7 +46,7 @@ process SNIPPY_LINEAGE_CORE {
     BASE="${params.outDir}/db/samples"
 
     while read -r f; do
-        src_dir="\$BASE/\$f/snippy"
+        src_dir="\$BASE/\$f/snippy-ng/"
         dest_dir="snippyDir_\$f"
 
         # Check source directory
