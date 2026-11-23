@@ -4,7 +4,8 @@ process SNIPPY_CORE  {
     
     publishDir "${params.outDir}/db/comparison/snippy/RutiSeq/", 
         mode: 'copy',
-        overwrite: true
+        overwrite: true,
+        pattern: '*{.fa.gz,.csv}'
 
     input:
         path(lineage_sample_tuple)
@@ -16,7 +17,7 @@ process SNIPPY_CORE  {
         path("RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz")
         path("RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.pdsm.csv")
 
-        path("RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz"),
+        path("RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa"),
                 emit: snippy_lineage_phylo_ch
 
     script:
@@ -113,7 +114,7 @@ process SNIPPY_CORE  {
     cat src/*.QC.mask.filt.gubbins.snps.lineage.consensus.fa \\
         > RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa
 
-    gzip --best RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa
+    gzip --best --keep RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa
 
     ###############################################################
     # Calculate the pairwise distances between the consensus genomes
