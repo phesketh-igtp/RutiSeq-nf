@@ -159,13 +159,13 @@ workflow PAIRWISE_WF {
             SNIPPY_LINEAGE_CORE_PHYLOGENY( SNIPPY_LINEAGE_CORE.out.snippy_lineage_phylo_ch )
         // Assemble all the variable region phylogenies
             SNP_PHYLOGENY( MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch )
-            
+
         // SNIPPY_CORE and SNIPPY_PHYLOGENY
             SNIPPY_CORE( 
                         sampleID_list,
                         COMPILE_SEQUENCING_STATS.out.analysis_summary
                         )
-            SNIPPY_PHYLOGENY( SNIPPY_CORE.out.snippy_core_phylo_alignment
+            SNIPPY_PHYLOGENY( SNIPPY_CORE.out.snippy_core_phylo_ch
                             )
 
         // Collect all cluster and matrix outputs

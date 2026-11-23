@@ -14,7 +14,7 @@ process SNIPPY_CORE {
         path("gubbins/")
         path("RutiSeq.QC.mask.filt.snps.consensus.fa.gz")
         path("RutiSeq.QC.mask.filt.snps.consensus.pdsm.csv")
-        path("RutiSeq.QC.mask.filt.gubbins.snps.consensus.fa.gz"), emit: core_phylo_ch
+        path("RutiSeq.QC.mask.filt.gubbins.snps.consensus.fa.gz"), emit: snippy_core_phylo_ch
         path("RutiSeq.QC.mask.filt.gubbins.snps.consensus.pdsm.csv")
 
     script:
