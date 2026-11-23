@@ -8,3 +8,4 @@ dependencies:
   - bioconda::gff2bed
   - bioconda::bedops
   - bioconda::seqkit
+  - bioconda::bcftools
