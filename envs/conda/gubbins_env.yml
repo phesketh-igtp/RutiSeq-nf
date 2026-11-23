@@ -6,3 +6,4 @@ dependencies:
   - bioconda::gubbins=3.4.3
   - bioconda::psdm=0.3.0
   - bioconda::gff2bed
+  - bioconda::bedops
