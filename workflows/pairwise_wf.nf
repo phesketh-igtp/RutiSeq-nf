@@ -130,7 +130,7 @@ workflow PAIRWISE_WF {
                     log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
                         }
             // DEBUG: View the grouped channel
-            //lineage_samples_ch.view()
+            lineage_samples_ch.view()
 
         /*
         // MTBSeq Pairwise analysis
@@ -164,12 +164,12 @@ workflow PAIRWISE_WF {
         /*
         // Merge Snippy-NG outputs (not running sippy-core)
         */
+            SNIPPY_CORE( ASSESS_SAMPLES.out.lineage_sample_tuple )
+            SNIPPY_CORE_PHYLOGENY( SNIPPY_CORE.out.snippy_core_phylo_ch )
+
             SNIPPY_LINEAGE_CORE( lineage_samples_ch )
             SNIPPY_LINEAGE_CORE_PHYLOGENY( SNIPPY_LINEAGE_CORE.out.snippy_lineage_phylo_ch )
 
-        // SNIPPY_CORE and SNIPPY_PHYLOGENY
-            SNIPPY_CORE( ASSESS_SAMPLES.out.lineage_sample_tuple )
-            SNIPPY_CORE_PHYLOGENY( SNIPPY_CORE.out.snippy_core_phylo_ch )
 
     emit:
         processed_clusters    = CONCATENATE_CLUSTERS.out.pairwise_clusters_processed
