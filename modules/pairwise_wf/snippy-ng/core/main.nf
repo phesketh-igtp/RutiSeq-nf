@@ -47,7 +47,7 @@ process SNIPPY_CORE  {
     ###############################################################
     # Concatenate the consensus sequences
     ###############################################################
-    cat *.QC.mask.filt.snps.consensus.fa.gz \\
+    cat src/*.QC.mask.filt.snps.consensus.fa.gz \\
         > RutiSeq.QC.mask.filt.snps.consensus.fa.gz
 
     gunzip --keep RutiSeq.QC.mask.filt.snps.consensus.fa.gz
@@ -104,8 +104,8 @@ process SNIPPY_CORE  {
            src/\${f}.QC.mask.filt.gubbins.snps.consensus.fa
 
         # Copy over new vcfs and consensus files to sample directory
-        cp src/\${f}.QC.mask.filt.gubbins.lineage.vcf.gz \${src_dir}/
-        cp src/\${f}.QC.mask.filt.gubbins.snps.lineage.consensus.fa \${src_dir}/
+        cp src/\${f}.QC.mask.filt.gubbins.core.vcf.gz \${src_dir}/
+        cp src/\${f}.QC.mask.filt.gubbins.snps.core.consensus.fa \${src_dir}/
 
     done < samples.list
 
