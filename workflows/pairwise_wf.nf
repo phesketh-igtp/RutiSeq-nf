@@ -5,7 +5,7 @@ include { COMPILE_SEQUENCING_STATS }   from '../modules/pairwise_wf/filtering/co
 include { ASSESS_SAMPLES }             from '../modules/pairwise_wf/filtering/assess_samples/main.nf'
 
 //SNIPPY
-///include { SNIPPY_CORE }                   from '../modules/pairwise_wf/snippy-ng/core/main.nf'
+//include { SNIPPY_CORE }                   from '../modules/pairwise_wf/snippy-ng/core/main.nf'
 //include { SNIPPY_CORE_PHYLOGENY }         from '../modules/pairwise_wf/snippy-ng/phylogeny/main.nf'
 include { SNIPPY_LINEAGE_CORE }           from '../modules/pairwise_wf/snippy-ng/lineage-core/main.nf'
 include { SNIPPY_LINEAGE_CORE_PHYLOGENY } from '../modules/pairwise_wf/snippy-ng/lineage-core-phylogeny/main.nf'

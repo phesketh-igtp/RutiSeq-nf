@@ -114,7 +114,7 @@ process SNIPPY_CORE  {
             src/\${f}.QC.mask.filt.gubbins.snps.vcf.gz \\
             > src/\${f}.QC.mask.filt.gubbins.snps.lineage.consensus.fa
 
-        sed -i "s@>NC_000962.3@>\${sampleid}@g" \\
+        sed -i "s@>NC_000962.3@>\${f}@g" \\
            src/\${f}.QC.mask.filt.gubbins.snps.consensus.fa
 
         gzip --best --keep src/\${f}.QC.mask.filt.gubbins.snps.consensus.fa
