@@ -37,14 +37,14 @@ process SNIPPY_CORE  {
 
     while read -r f; do
 
-        src_dir="$BASE/$f/snippy-ng/"
+        src_dir="\$BASE/\$f/snippy-ng/"
 
-        for file in "$src_dir"/*.QC.mask.filt.vcf.gz \
-                    "$src_dir"/*.QC.mask.filt.snps.consensus.fa.gz; do
+        for file in "\$src_dir"/*.QC.mask.filt.vcf.gz \
+                    "\$src_dir"/*.QC.mask.filt.snps.consensus.fa.gz; do
 
             # Only create symlink if file exists
-            if [[ -f "$file" ]]; then
-                ln -sf "$file" src/
+            if [[ -f "\$file" ]]; then
+                ln -sf "\$file" src/
             fi
 
         done
