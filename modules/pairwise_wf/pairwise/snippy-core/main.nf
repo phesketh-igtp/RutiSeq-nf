@@ -1,6 +1,6 @@
 process SNIPPY_CORE {
 
-    conda params.snippy_env
+    conda params.gubbins_env
     
     publishDir "${params.outDir}/db/comparison/snippy/core/", 
         mode: 'copy',

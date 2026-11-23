@@ -131,7 +131,12 @@ workflow PAIRWISE_WF {
                         }
             // DEBUG: View the grouped channel
             //lineage_samples_ch.view()
-        // Run the pairwise analysis by lineages
+
+        /*
+        // MTBSeq Pairwise analysis
+        */
+
+            // Run the pairwise analysis by lineages
             MTBSEQ_LINEAGE_JOINT_AMEND( lineage_samples_ch )
 
                 // row[0] lineage, distance, join_dir, amend_dir, samples_txt
@@ -147,8 +152,20 @@ workflow PAIRWISE_WF {
             MTBSEQ_LINEAGE_GROUP( mtbseq_group_ch )
 
 
+        /*
+        // Merge Snippy-NG outputs (not running sippy-core)
+        */
             SNIPPY_LINEAGE_CORE( lineage_samples_ch )
             SNIPPY_LINEAGE_CORE_PHYLOGENY( SNIPPY_LINEAGE_CORE.out.snippy_lineage_phylo_ch )
+        // Assemble all the variable region phylogenies
+            SNP_PHYLOGENY( MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch )
+        // SNIPPY_CORE and SNIPPY_PHYLOGENY
+            SNIPPY_CORE( 
+                        sampleID_list,
+                        COMPILE_SEQUENCING_STATS.out.analysis_summary
+                        )
+            SNIPPY_PHYLOGENY( SNIPPY_CORE.out.snippy_core_phylo_alignment
+                            )
 
         // Collect all cluster and matrix outputs
             PREPROCESS_CLUSTER( MTBSEQ_LINEAGE_GROUP.out.clusters )
@@ -159,18 +176,6 @@ workflow PAIRWISE_WF {
                                 COMPILE_SEQUENCING_STATS.out.analysis_summary
                                 )
 
-        // Assemble all the variable region phylogenies
-            SNP_PHYLOGENY( MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch )
-
-
-        // SNIPPY_CORE and SNIPPY_PHYLOGENY
-            SNIPPY_CORE( 
-                        sampleID_list,
-                        COMPILE_SEQUENCING_STATS.out.analysis_summary
-                        )
-
-            SNIPPY_PHYLOGENY( SNIPPY_CORE.out.snippy_core_phylo_alignment
-                            )
 
     emit:
         processed_clusters    = CONCATENATE_CLUSTERS.out.pairwise_clusters_processed

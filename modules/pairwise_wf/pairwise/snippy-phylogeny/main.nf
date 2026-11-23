@@ -2,17 +2,17 @@ process SNIPPY_PHYLOGENY {
 
     conda params.phylogeny_env
 
-    publishDir "${params.outDir}/db/comparison/snippy/", 
+    publishDir "${params.outDir}/db/comparison/snippy-ng/phylogeny/", 
         mode: 'copy',
         overwrite: true
 
     input:
-        path(core_aln_full)
+        path(fasta)
 
     output:
-        path("core_ml*")
+        path("RutiSeq.iqtree")
         
-        tuple path("core.masked.full.filt98.variants.aln"), 
+        tuple path("variant-sites.fasta"), 
             path("core.masked.full.invariants"),
             path("core_ml.contree"),
             emit: snippy_core_dated_phylogeny
@@ -20,19 +20,18 @@ process SNIPPY_PHYLOGENY {
     script:
 
     """
-    # Extract variant sites for phylogeny
-        coresnpfilter -e -c 0.98 ${core_aln_full} > core.masked.full.filt98.variants.aln
-        coresnpfilter -e -c 0.98 ${core_aln_full} --table core.masked.full.filt98.variants.tab
-        coresnpfilter -C ${core_aln_full} > core.masked.full.invariants
-
     # Perform phylogeny
-        iqtree \\
-            -s          core.masked.full.filt98.variants.aln  \\
-            -fconst     core.masked.full.invariants \\
-            -m          ${params.iqtree_model} \\
-            -ntmax      ${task.cpus} -T AUTO \\
-            -B          ${params.iqtree_bootstraps} \\
-            --prefix    core_ml
+    snp-sites -c ${fasta} > variant-sites.fasta
+    snp-sites -C ${fasta} > invariant-sites.out
+    
+    iqtree3 \\
+        -s variant-sites.fasta \\
+        -fconst "\$(snp-sites -C ${fasta})" \\
+        -m ${params.iqtree_model} \\
+        -ntmax ${task.cpus} \\
+        -T AUTO \\
+        -B ${params.iqtree_bootstraps} \\
+        --prefix "RutiSeq.iqtree"
     """
 }
 

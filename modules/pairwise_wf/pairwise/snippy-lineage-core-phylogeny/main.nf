@@ -4,7 +4,7 @@ process SNIPPY_LINEAGE_CORE_PHYLOGENY {
 
     conda params.phylogeny_env
 
-    publishDir "${params.outDir}/db/comparison/snippy/${lineage}/", 
+    publishDir "${params.outDir}/db/comparison/snippy-ng/${lineage}/phylogeny/", 
         mode: 'copy',
         overwrite: true
 
@@ -13,21 +13,23 @@ process SNIPPY_LINEAGE_CORE_PHYLOGENY {
             path(fasta)
 
     output:
-        path("${lineage}.core_ml*")
+        path("${lineage}.iqtree*")
 
     script:
 
     """
     # Perform phylogeny
-    snp-sites -c ${fasta} > core.fasta
+    # Perform phylogeny
+    snp-sites -c ${fasta} > variant-sites.fasta
+    snp-sites -C ${fasta} > invariant-sites.out
 
-    iqtree \\
-        -s core.fasta  \\
+    iqtree3 \\
+        -s variant-sites.fasta  \\
         -fconst "\$(snp-sites -C ${fasta})" \\
         -m ${params.iqtree_model} \\
         -ntmax ${task.cpus} -T AUTO \\
         -B ${params.iqtree_bootstraps} \\
-        --prefix ${lineage}.core_ml
+        --prefix "${lineage}.iqtree"
     """
 }
 
