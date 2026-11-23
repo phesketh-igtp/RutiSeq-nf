@@ -5,10 +5,10 @@ include { COMPILE_SEQUENCING_STATS }   from '../modules/pairwise_wf/filtering/co
 include { ASSESS_SAMPLES }             from '../modules/pairwise_wf/filtering/assess_samples/main.nf'
 
 //SNIPPY
-include { SNIPPY_LINEAGE_CORE }           from '../modules/pairwise_wf/pairwise/snippy-ng/lineage-core/main.nf'
-include { SNIPPY_LINEAGE_CORE_PHYLOGENY } from '../modules/pairwise_wf/pairwise/snippy-ng/lineage-core-phylogeny/main.nf'
-include { SNIPPY_CORE }                   from '../modules/pairwise_wf/pairwise/snippy-ng/core/main.nf'
-include { SNIPPY_CORE_PHYLOGENY }         from '../modules/pairwise_wf/pairwise/snippy-ng/phylogeny/main.nf'
+include { SNIPPY_LINEAGE_CORE }           from '../modules/pairwise_wf/snippy-ng/lineage-core/main.nf'
+include { SNIPPY_LINEAGE_CORE_PHYLOGENY } from '../modules/pairwise_wf/snippy-ng/lineage-core-phylogeny/main.nf'
+include { SNIPPY_CORE }                   from '../modules/pairwise_wf/snippy-ng/core/main.nf'
+include { SNIPPY_CORE_PHYLOGENY }         from '../modules/pairwise_wf/snippy-ng/phylogeny/main.nf'
 
 // MTBSeq
 include { MTBSEQ_LINEAGE_JOINT_AMEND } from '../modules/pairwise_wf/mtbseq/lineage_joint-amend/main.nf'
@@ -16,8 +16,8 @@ include { MTBSEQ_LINEAGE_GROUP }       from '../modules/pairwise_wf/mtbseq/linea
 include { MTBSEQ_ALIGNMENT_PHYLOGENY } from '../modules/pairwise_wf/mtbseq/alignment_phylogeny/main.nf'
 
 // Process Cluster
-include { PREPROCESS_CLUSTER }         from '../modules/pairwise_wf/pairwise/preprocess_clusters/main.nf'
-include { CONCATENATE_CLUSTERS }       from '../modules/pairwise_wf/pairwise/concatenate-cluster-file/main.nf'
+include { PREPROCESS_CLUSTER }         from '../modules/pairwise_wf/preprocess_clusters/main.nf'
+include { CONCATENATE_CLUSTERS }       from '../modules/pairwise_wf/concatenate-cluster-file/main.nf'
 
 workflow PAIRWISE_WF {
 
