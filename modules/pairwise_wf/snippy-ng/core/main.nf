@@ -72,6 +72,7 @@ process SNIPPY_CORE  {
         --extensive-search \\
         --prefix RutiSeq.gubbins \\
         --threads ${task.cpus} \\
+        --verbose \\
         RutiSeq.QC.mask.filt.snps.consensus.fa
 
     gff2bed < RutiSeq.gubbins.recombination_predictions.gff \\

@@ -74,6 +74,7 @@ process SNIPPY_LINEAGE_CORE {
         --extensive-search \\
         --prefix ${lineage}.gubbins \\
         --threads ${task.cpus} \\
+        --verbose \\
         ${lineage}.QC.mask.filt.snps.consensus.fa
 
     gff2bed < ${lineage}.gubbins.recombination_predictions.gff \\
