@@ -10,6 +10,7 @@ process SNIPPY_CORE  {
 
     input:
         val(sampleIDs)
+        path(final_samples_list)
 
     output:
         path("gubbins/")
@@ -27,7 +28,8 @@ process SNIPPY_CORE  {
     ###############################################################
     # Link all the VCF files
     ###############################################################
-    echo "${sampleIDs.join('\n')}" | sort | uniq > samples.list
+    # Get updated list of samples in DB
+    ls ${params.outDir}/db/samples/ | sort | uniq > samples.list
 
     # Assign the base path
     BASE="${params.outDir}/db/samples"

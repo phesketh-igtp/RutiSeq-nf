@@ -162,7 +162,9 @@ workflow PAIRWISE_WF {
 
 
         // SNIPPY_CORE and SNIPPY_PHYLOGENY
-            SNIPPY_CORE( sampleID_list )
+            SNIPPY_CORE( sampleID_list,
+                            ASSESS_SAMPLES.out.lineage_sample_tuple 
+                        )
             SNIPPY_CORE_PHYLOGENY( SNIPPY_CORE.out.snippy_core_phylo_ch )
 
         // Collect all cluster and matrix outputs
