@@ -12,12 +12,12 @@ process SNIPPY_CORE  {
 
     output:
         path("gubbins/")
-        path("RutiSeq.QC.mask.filt.snps.consensus.fa.gz")
-        path("RutiSeq.QC.mask.filt.snps.consensus.pdsm.csv")
-        path("RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz")
-        path("RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.pdsm.csv")
+        file("RutiSeq.QC.mask.filt.snps.consensus.fa.gz")
+        file("RutiSeq.QC.mask.filt.snps.consensus.pdsm.csv")
+        file("RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz")
+        file("RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.pdsm.csv")
 
-        path("RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa"),
+        file("RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa"),
                 emit: snippy_lineage_phylo_ch
 
     script:
