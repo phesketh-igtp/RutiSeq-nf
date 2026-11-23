@@ -1,4 +1,4 @@
-process SNP_PHYLOGENY {
+process MTBSEQ_ALIGNMENT_PHYLOGENY {
 
 /*
     @author: Poppy J Hesketh Best

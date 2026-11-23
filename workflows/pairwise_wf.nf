@@ -12,9 +12,8 @@ include { SNIPPY_PHYLOGENY }              from '../modules/pairwise_wf/pairwise/
 include { ASSESS_SAMPLES }             from '../modules/pairwise_wf/filtering/assess_samples/main.nf'
 include { MTBSEQ_LINEAGE_JOINT_AMEND } from '../modules/pairwise_wf/mtbseq/lineage_joint-amend/main.nf'
 include { MTBSEQ_LINEAGE_GROUP }       from '../modules/pairwise_wf/mtbseq/lineage_group/main.nf'
+include { MTBSEQ_ALIGNMENT_PHYLOGENY } from '../modules/pairwise_wf/mtbseq/alignment_phylogeny/main.nf'
 
-// Phylogeny
-include { SNP_PHYLOGENY }              from '../modules/pairwise_wf/phylogeny/concatenated_snp_phylogeny/main.nf'
 // Process Cluster
 include { PREPROCESS_CLUSTER }         from '../modules/pairwise_wf/pairwise/preprocess_clusters/main.nf'
 include { CONCATENATE_CLUSTERS }       from '../modules/pairwise_wf/pairwise/concatenate-cluster-file/main.nf'
@@ -150,6 +149,8 @@ workflow PAIRWISE_WF {
                     //mtbseq_group_ch.view()
 
             MTBSEQ_LINEAGE_GROUP( mtbseq_group_ch )
+            // Assemble all the variable region phylogenies
+            MTBSEQ_ALIGNMENT_PHYLOGENY( MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch )
 
 
         /*
@@ -157,14 +158,10 @@ workflow PAIRWISE_WF {
         */
             SNIPPY_LINEAGE_CORE( lineage_samples_ch )
             SNIPPY_LINEAGE_CORE_PHYLOGENY( SNIPPY_LINEAGE_CORE.out.snippy_lineage_phylo_ch )
-        // Assemble all the variable region phylogenies
-            SNP_PHYLOGENY( MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch )
+
 
         // SNIPPY_CORE and SNIPPY_PHYLOGENY
-            SNIPPY_CORE( 
-                        sampleID_list,
-                        COMPILE_SEQUENCING_STATS.out.analysis_summary
-                        )
+            SNIPPY_CORE( sampleID_list )
             SNIPPY_PHYLOGENY( SNIPPY_CORE.out.snippy_core_phylo_ch
                             )
 
@@ -184,7 +181,7 @@ workflow PAIRWISE_WF {
         analysis_summary      = COMPILE_SEQUENCING_STATS.out.analysis_summary
         who_resistance        = COMPILE_SEQUENCING_STATS.out.who_resistance
         tbdb_resistance       = COMPILE_SEQUENCING_STATS.out.tbdb_resistance
-        phylogeny_plotting_ch = SNP_PHYLOGENY.out.main_phylogeny_out
+        phylogeny_plotting_ch = MTBSEQ_ALIGNMENT_PHYLOGENY.out.main_phylogeny_out
         nexus_creation_ch     = PREPROCESS_CLUSTER.out.nexus_ch
 }
 

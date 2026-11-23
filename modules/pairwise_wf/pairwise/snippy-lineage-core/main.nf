@@ -1,4 +1,4 @@
-process SNIPPY_CORE {
+process SNIPPY_LINEAGE_CORE {
 
     tag "${lineage}"
 

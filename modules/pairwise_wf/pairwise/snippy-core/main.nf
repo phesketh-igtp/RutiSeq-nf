@@ -1,4 +1,4 @@
-process SNIPPY_LINEAGE_CORE {
+process SNIPPY_CORE  {
 
     tag "RutiSeq"
 
@@ -9,9 +9,7 @@ process SNIPPY_LINEAGE_CORE {
         overwrite: true
 
     input:
-        tuple val(lineage), 
-            val(sampleIDs), // Collection of VCF files from snippy runs
-            val(sampleID_count)
+        val(sampleIDs)
 
     output:
         path("gubbins/")
