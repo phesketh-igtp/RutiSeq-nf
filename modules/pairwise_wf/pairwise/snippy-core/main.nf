@@ -72,12 +72,12 @@ process SNIPPY_CORE {
     # Mask with gubbins
     for vcf in *.QC.mask.filt.vcf.gz; do
 
-        sampleid=\$(basename ${vcf} .QC.mask.filt.vcf.gz)
+        sampleid=\$(basename \${vcf} .QC.mask.filt.vcf.gz)
 
         bcftools filter \\
             \${vcf} \\
             --mask-file gubbins/MTB.gubbins.recombination_predictions.gff \\
-            --soft-filter gubbins \
+            --soft-filter gubbins \\
             -Oz \\
             -o "\${sampleid}.QC.mask.filt.gubbins.vcf.gz"
 
@@ -88,6 +88,7 @@ process SNIPPY_CORE {
             "\${sampleid}.QC.mask.filt.gubbins.vcf.gz" \\
             -Oz \\
             -o "\${sampleid}.QC.mask.filt.gubbins.snps.vcf.gz"
+
         tabix -f "\${sampleid}.QC.mask.filt.gubbins.snps.vcf.gz"
 
         # Concensus
