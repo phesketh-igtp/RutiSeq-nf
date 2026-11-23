@@ -124,7 +124,7 @@ process SNIPPY_LINEAGE_CORE {
         cp src/\${f}.QC.mask.filt.gubbins.lineage.vcf.gz \${src_dir}/
         cp src/\${f}.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz \${src_dir}/
 
-    done < <(sort -u samples.list)
+    done < <(sort -u samples.list.new)
 
     ###############################################################
     # Concatenate the consensus genomes
