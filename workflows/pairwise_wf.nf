@@ -167,8 +167,8 @@ workflow PAIRWISE_WF {
             SNIPPY_CORE( ASSESS_SAMPLES.out.lineage_sample_tuple )
             SNIPPY_CORE_PHYLOGENY( SNIPPY_CORE.out.snippy_core_phylo_ch )
 
-            SNIPPY_LINEAGE_CORE( lineage_samples_ch )
-            SNIPPY_LINEAGE_CORE_PHYLOGENY( SNIPPY_LINEAGE_CORE.out.snippy_lineage_phylo_ch )
+            //SNIPPY_LINEAGE_CORE( lineage_samples_ch )
+            //SNIPPY_LINEAGE_CORE_PHYLOGENY( SNIPPY_LINEAGE_CORE.out.snippy_lineage_phylo_ch )
 
 
     emit:
