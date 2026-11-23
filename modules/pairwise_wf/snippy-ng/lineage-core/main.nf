@@ -115,9 +115,11 @@ process SNIPPY_LINEAGE_CORE {
         sed -i "s@>NC_000962.3@>\${sampleid}@g" \\
            src/\${f}.QC.mask.filt.gubbins.snps.consensus.fa
 
+        gzip --best --keep src/\${f}.QC.mask.filt.gubbins.snps.consensus.fa
+
         # Copy over new vcfs and consensus files to sample directory
         cp src/\${f}.QC.mask.filt.gubbins.lineage.vcf.gz \${src_dir}/
-        cp src/\${f}.QC.mask.filt.gubbins.snps.lineage.consensus.fa \${src_dir}/
+        cp src/\${f}.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz \${src_dir}/
 
     done < samples.list
 

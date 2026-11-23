@@ -112,9 +112,11 @@ process SNIPPY_CORE  {
         sed -i "s@>NC_000962.3@>\${sampleid}@g" \\
            src/\${f}.QC.mask.filt.gubbins.snps.consensus.fa
 
+        gzip --best --keep src/\${f}.QC.mask.filt.gubbins.snps.consensus.fa
+
         # Copy over new vcfs and consensus files to sample directory
         cp src/\${f}.QC.mask.filt.gubbins.core.vcf.gz \${src_dir}/
-        cp src/\${f}.QC.mask.filt.gubbins.snps.core.consensus.fa \${src_dir}/
+        cp src/\${f}.QC.mask.filt.gubbins.snps.core.consensus.fa.gz \${src_dir}/
 
     done < samples.list
 
@@ -122,7 +124,7 @@ process SNIPPY_CORE  {
     # Concatenate the consensus genomes
     echo "Log: Concatenated gubbins consensus sequence..."
     ###############################################################
-    cat src/*.QC.mask.filt.gubbins.snps.lineage.consensus.fa \\
+    cat src/*.QC.mask.filt.gubbins.snps.consensus.fa \\
         > RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa
 
     gzip --best --keep RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa
