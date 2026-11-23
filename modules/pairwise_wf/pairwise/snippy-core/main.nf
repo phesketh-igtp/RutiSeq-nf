@@ -78,30 +78,30 @@ process SNIPPY_CORE {
             src/\${f}.QC.mask.filt.vcf.gz \\
             --mask-file gubbins/RutiSeq.gubbins.recombination_predictions.gff \\
             --soft-filter "gubbins" \\
-            -Oz -o src/\${f}.QC.mask.filt.gubbins.vcf.gz
+            -Oz -o src/\${f}.QC.mask.filt.gubbins.core.vcf.gz
 
         # Apply only SNPs to consensus genome
         bcftools view \\
             -f PASS \\
             -v snps \\
-            src/\${f}..QC.mask.filt.gubbins.vcf.gz \\
+            src/\${f}.QC.mask.filt.gubbins.core.vcf.gz \\
             -Oz \\
             -o src/\${f}.QC.mask.filt.gubbins.snps.vcf.gz
 
         tabix -f src/\${f}.QC.mask.filt.gubbins.snps.vcf.gz
 
         # Concensus
-        bcftools consensus \
+        bcftools consensus \\
             -f ${params.snippy_reference_fa} \\
             src/\${f}.QC.mask.filt.gubbins.snps.vcf.gz \\
-            > src/\${f}..QC.mask.filt.gubbins.snps.consensus.fa
+            > src/\${f}.QC.mask.filt.gubbins.snps.core.consensus.fa
 
         sed -i "s@>NC_000962.3@>\${sampleid}@g" \\
            src/\${f}.QC.mask.filt.gubbins.snps.consensus.fa
 
         # Copy over new vcfs and consensus files to sample directory
-        cp src/\${f}.QC.mask.filt.gubbins.vcf.gz \${src_dir}
-        cp src/\${f}.QC.mask.filt.gubbins.snps.consensus.fa \${src_dir}
+        cp src/\${f}.QC.mask.filt.gubbins.lineage.vcf.gz \${src_dir}/
+        cp src/\${f}.QC.mask.filt.gubbins.snps.core.consensus.fa \${src_dir}/
 
     done < samples.list
 
