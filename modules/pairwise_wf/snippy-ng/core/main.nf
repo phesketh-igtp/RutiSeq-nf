@@ -36,11 +36,10 @@ process SNIPPY_CORE  {
     mkdir -p src/
 
     while read -r f; do
-
         src_dir="\$BASE/\$f/snippy-ng/"
 
-        for file in "\$src_dir"/*.QC.mask.filt.vcf.gz \
-                    "\$src_dir"/*.QC.mask.filt.snps.consensus.fa.gz; do
+        for file in "\$src_dir"/*.QC.mask.filt.vcf.gz \\
+                "\$src_dir"/*.QC.mask.filt.snps.consensus.fa.gz; do
 
             # Only create symlink if file exists
             if [[ -f "\$file" ]]; then
@@ -49,8 +48,9 @@ process SNIPPY_CORE  {
             fi
 
         done
-
     done < samples.list
+
+    sort samples.list.new | uniq > tmp; mv tmp samples.list.new
 
     ###############################################################
     # Concatenate the consensus sequences
