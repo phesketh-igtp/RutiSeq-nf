@@ -7,8 +7,7 @@ process SNIPPY_CORE  {
         overwrite: true
 
     input:
-        val(sampleIDs)
-        path(final_samples_list)
+        path(lineage_sample_tuple)
 
     output:
         path("gubbins/")
@@ -73,7 +72,6 @@ process SNIPPY_CORE  {
     ###############################################################
     # Filter VCFs with gubbins masking sites and regen consensus
     ###############################################################
-    # Mask with gubbins
     while read -r f; do
 
         src_dir="\${BASE}/\${f}/snippy-ng/"

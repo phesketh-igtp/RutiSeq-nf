@@ -76,7 +76,6 @@ process SNIPPY_LINEAGE_CORE {
     ###############################################################
     # Filter VCFs with gubbins masking sites and regen consensus
     ###############################################################
-    # Mask with gubbins
     while read -r f; do
 
         src_dir="\${BASE}/\${f}/snippy-ng/"
