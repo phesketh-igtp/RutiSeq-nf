@@ -135,8 +135,6 @@ workflow PAIRWISE_WF {
         /*
         // MTBSeq Pairwise analysis
         */
-
-            // Run the pairwise analysis by lineages
             MTBSEQ_LINEAGE_JOINT_AMEND( lineage_samples_ch )
 
                 // row[0] lineage, distance, join_dir, amend_dir, samples_txt
@@ -150,22 +148,11 @@ workflow PAIRWISE_WF {
                     //mtbseq_group_ch.view()
 
             MTBSEQ_LINEAGE_GROUP( mtbseq_group_ch )
+
             // Assemble all the variable region phylogenies
             MTBSEQ_ALIGNMENT_PHYLOGENY( MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch )
 
-
-        /*
-        // Merge Snippy-NG outputs (not running sippy-core)
-        */
-            SNIPPY_LINEAGE_CORE( lineage_samples_ch )
-            SNIPPY_LINEAGE_CORE_PHYLOGENY( SNIPPY_LINEAGE_CORE.out.snippy_lineage_phylo_ch )
-
-
-        // SNIPPY_CORE and SNIPPY_PHYLOGENY
-            SNIPPY_CORE( ASSESS_SAMPLES.out.lineage_sample_tuple )
-            SNIPPY_CORE_PHYLOGENY( SNIPPY_CORE.out.snippy_core_phylo_ch )
-
-        // Collect all cluster and matrix outputs
+            // Collect all cluster and matrix outputs
             PREPROCESS_CLUSTER( MTBSEQ_LINEAGE_GROUP.out.clusters )
             processed_clusters_collected = PREPROCESS_CLUSTER.out.pairwise_clusters_processed.collect()
 
@@ -174,6 +161,15 @@ workflow PAIRWISE_WF {
                                 COMPILE_SEQUENCING_STATS.out.analysis_summary
                                 )
 
+        /*
+        // Merge Snippy-NG outputs (not running sippy-core)
+        */
+            SNIPPY_LINEAGE_CORE( lineage_samples_ch )
+            SNIPPY_LINEAGE_CORE_PHYLOGENY( SNIPPY_LINEAGE_CORE.out.snippy_lineage_phylo_ch )
+
+        // SNIPPY_CORE and SNIPPY_PHYLOGENY
+            SNIPPY_CORE( ASSESS_SAMPLES.out.lineage_sample_tuple )
+            SNIPPY_CORE_PHYLOGENY( SNIPPY_CORE.out.snippy_core_phylo_ch )
 
     emit:
         processed_clusters    = CONCATENATE_CLUSTERS.out.pairwise_clusters_processed
