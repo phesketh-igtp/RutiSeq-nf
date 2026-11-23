@@ -43,7 +43,7 @@ process SNIPPY_LINEAGE_CORE {
         # Only create dest directory if needed
         mkdir -p src/
         ln -sf "\$src_dir"/*.QC.mask.filt.vcf.gz src/
-        ln -sf "\$src_dir"/*.QC.mask.filt.snps.consensus.fa.gz
+        ln -sf "\$src_dir"/*.QC.mask.filt.snps.consensus.fa.gz src/
 
     done < samples.list
 

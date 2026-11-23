@@ -18,8 +18,7 @@ process SNIPPY_CORE  {
         path("RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz")
         path("RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.pdsm.csv")
 
-        tuple val(lineage),
-            path("RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz"),
+        path("RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz"),
                 emit: snippy_lineage_phylo_ch
 
     script:
@@ -41,7 +40,7 @@ process SNIPPY_CORE  {
         # Only create dest directory if needed
         mkdir -p src/
         ln -sf "\$src_dir"/*.QC.mask.filt.vcf.gz src/
-        ln -sf "\$src_dir"/*.QC.mask.filt.snps.consensus.fa.gz
+        ln -sf "\$src_dir"/*.QC.mask.filt.snps.consensus.fa.gz src/
 
     done < samples.list
 
