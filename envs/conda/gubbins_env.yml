@@ -7,3 +7,4 @@ dependencies:
   - bioconda::psdm=0.3.0
   - bioconda::gff2bed
   - bioconda::bedops
+  - bioconda::seqkit
