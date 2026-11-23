@@ -130,7 +130,7 @@ workflow PAIRWISE_WF {
                     log.info "${green}-----------------------------------------------------------------------------------------${no_col}"
                         }
             // DEBUG: View the grouped channel
-            lineage_samples_ch.view()
+            ///// lineage_samples_ch.view()
 
         /*
         // MTBSeq Pairwise analysis
