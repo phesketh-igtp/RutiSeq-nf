@@ -53,7 +53,6 @@ workflow PAIRWISE_WF {
                         sampleID_list
                         )
         // Create tuple and data channel from lineage_samples_paths.csv
-        // Create tuple and data channel from lineage_samples_paths.csv
         lineage_samples_ch = ASSESS_SAMPLES.out.lineage_sample_tuple
             .splitCsv(header: false)
             .map { row -> tuple(row[0], row[1]) }
