@@ -17,11 +17,11 @@ process SNIPPY_LINEAGE_CORE {
         path("gubbins/")
         path("${lineage}.QC.mask.filt.snps.consensus.fa.gz")
         path("${lineage}.QC.mask.filt.snps.consensus.pdsm.csv")
-        path("${lineage}.QC.mask.filt.gubbins.snps.consensus.fa.gz")
-        path("${lineage}.QC.mask.filt.gubbins.snps.consensus.pdsm.csv")
-        
+        path("${lineage}.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz")
+        path("${lineage}.QC.mask.filt.gubbins.snps.lineage.consensus.pdsm.csv")
+
         tuple val(lineage),
-            path("${lineage}.QC.mask.filt.gubbins.snps.consensus.fa.gz"),
+            path("${lineage}.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz"),
                 emit: snippy_lineage_phylo_ch
 
     script:
@@ -115,20 +115,20 @@ process SNIPPY_LINEAGE_CORE {
     ###############################################################
     # Concatenate the consensus genomes
     ###############################################################
-    cat src/*.QC.mask.filt.gubbins.snps.lineage-consensus.fa \\
-        > ${lineage}.QC.mask.filt.gubbins.snps.consensus.fa
+    cat src/*.QC.mask.filt.gubbins.snps.lineage.consensus.fa \\
+        > ${lineage}.QC.mask.filt.gubbins.snps.lineage.consensus.fa
 
-    gzip --best ${lineage}.QC.mask.filt.gubbins.snps.consensus.fa
+    gzip --best ${lineage}.QC.mask.filt.gubbins.snps.lineage.consensus.fa
 
     ###############################################################
     # Calculate the pairwise distances between the consensus genomes
     ###############################################################
     pdsm --threads ${task.cpus} --sort --progress \\
-        ${lineage}.QC.mask.filt.gubbins.snps.consensus.fa.gz \\
-        > ${lineage}.QC.mask.filt.gubbins.snps.consensus.pdsm.csv
+        ${lineage}.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz \\
+        > ${lineage}.QC.mask.filt.gubbins.snps.lineage.consensus.pdsm.csv
 
     pdsm --threads ${task.cpus} --sort --progress \\
-        gubbins-input.fa \\
+        ${lineage}.QC.mask.filt.snps.consensus.fa \\
         > ${lineage}.QC.mask.filt.snps.consensus.pdsm.csv
     """
 

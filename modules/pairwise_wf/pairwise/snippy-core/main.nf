@@ -1,21 +1,28 @@
-process SNIPPY_CORE {
+process SNIPPY_LINEAGE_CORE {
+
+    tag "RutiSeq"
 
     conda params.gubbins_env
     
-    publishDir "${params.outDir}/db/comparison/snippy-ng/core/", 
+    publishDir "${params.outDir}/db/comparison/snippy/RutiSeq/", 
         mode: 'copy',
         overwrite: true
 
     input:
-        val(sampleIDs)  // Collection of VCF files from snippy runs
-        path(analysis_summary) // purely to trigger execution when pairwise analysis is run
+        tuple val(lineage), 
+            val(sampleIDs), // Collection of VCF files from snippy runs
+            val(sampleID_count)
 
     output:
         path("gubbins/")
         path("RutiSeq.QC.mask.filt.snps.consensus.fa.gz")
         path("RutiSeq.QC.mask.filt.snps.consensus.pdsm.csv")
-        path("RutiSeq.QC.mask.filt.gubbins.snps.consensus.fa.gz"), emit: snippy_core_phylo_ch
-        path("RutiSeq.QC.mask.filt.gubbins.snps.consensus.pdsm.csv")
+        path("RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz")
+        path("RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.pdsm.csv")
+
+        tuple val(lineage),
+            path("RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz"),
+                emit: snippy_lineage_phylo_ch
 
     script:
 
@@ -78,13 +85,13 @@ process SNIPPY_CORE {
             src/\${f}.QC.mask.filt.vcf.gz \\
             --mask-file gubbins/RutiSeq.gubbins.recombination_predictions.gff \\
             --soft-filter "gubbins" \\
-            -Oz -o src/\${f}.QC.mask.filt.gubbins.core.vcf.gz
+            -Oz -o src/\${f}.QC.mask.filt.gubbins.lineage.vcf.gz
 
         # Apply only SNPs to consensus genome
         bcftools view \\
             -f PASS \\
             -v snps \\
-            src/\${f}.QC.mask.filt.gubbins.core.vcf.gz \\
+            src/\${f}.QC.mask.filt.gubbins.lineage.vcf.gz \\
             -Oz \\
             -o src/\${f}.QC.mask.filt.gubbins.snps.vcf.gz
 
@@ -94,40 +101,42 @@ process SNIPPY_CORE {
         bcftools consensus \\
             -f ${params.snippy_reference_fa} \\
             src/\${f}.QC.mask.filt.gubbins.snps.vcf.gz \\
-            > src/\${f}.QC.mask.filt.gubbins.snps.core.consensus.fa
+            > src/\${f}.QC.mask.filt.gubbins.snps.lineage.consensus.fa
 
         sed -i "s@>NC_000962.3@>\${sampleid}@g" \\
            src/\${f}.QC.mask.filt.gubbins.snps.consensus.fa
 
         # Copy over new vcfs and consensus files to sample directory
         cp src/\${f}.QC.mask.filt.gubbins.lineage.vcf.gz \${src_dir}/
-        cp src/\${f}.QC.mask.filt.gubbins.snps.core.consensus.fa \${src_dir}/
+        cp src/\${f}.QC.mask.filt.gubbins.snps.lineage.consensus.fa \${src_dir}/
 
     done < samples.list
 
     ###############################################################
     # Concatenate the consensus genomes
     ###############################################################
-    cat *.QC.mask.filt.gubbins.snps.consensus.fa \\
-        > MTB.QC.mask.filt.gubbins.snps.consensus.fa
-    gzip --best MTB.QC.mask.filt.gubbins.snps.consensus.fa
+    cat src/*.QC.mask.filt.gubbins.snps.lineage.consensus.fa \\
+        > RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa
+
+    gzip --best RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa
 
     ###############################################################
     # Calculate the pairwise distances between the consensus genomes
     ###############################################################
     pdsm --threads ${task.cpus} --sort --progress \\
-        MTB.QC.mask.filt.gubbins.snps.consensus.fa.gz \\
-        > MTB.QC.mask.filt.gubbins.snps.consensus.pdsm.csv
+        RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz \\
+        > RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.pdsm.csv
 
     pdsm --threads ${task.cpus} --sort --progress \\
-        gubbins-input.fa \\
-        > MTB.QC.mask.filt.snps.consensus.pdsm.csv
+        RutiSeq.QC.mask.filt.snps.consensus.fa \\
+        > RutiSeq.QC.mask.filt.snps.consensus.pdsm.csv
     """
+
 }
 
 /*
 @author: Poppy J Hesketh Best
-@date: 2025-11-01
+@date: 2026-05-06
 @version: 1.0.1
 @function:
     This process performs the core SNP analysis for multiple samples
@@ -136,6 +145,6 @@ process SNIPPY_CORE {
 @references: 
     https://bitsandbugs.org/2019/11/06/two-easy-ways-to-run-iq-tree-with-the-correct-number-of-constant-sites/
 @changelog
-    v1.0.0-2025-11-01: Initial version
-    v1.0.1-2025-11-27: Updated to output variant and invariant site alignments for phylogeny
+    v1.0.0-2026-05-06: Initial version
+    v1.0.1-2026-05-08: Added masking with the ${param.snippy_masking}zz
 */
