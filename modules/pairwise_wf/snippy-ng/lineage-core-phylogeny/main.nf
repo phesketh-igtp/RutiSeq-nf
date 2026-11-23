@@ -23,7 +23,7 @@ process SNIPPY_LINEAGE_CORE_PHYLOGENY {
     snp-sites -c ${fasta} > variant-sites.fasta
     snp-sites -C ${fasta} > invariant-sites.out
 
-    iqtree3 \\
+    iqtree \\
         -s variant-sites.fasta  \\
         -fconst "\$(snp-sites -C ${fasta})" \\
         -m ${params.iqtree_model} \\
