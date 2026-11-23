@@ -62,7 +62,10 @@ process SNIPPY_LINEAGE_CORE {
         > ${lineage}.QC.mask.filt.snps.consensus.fa.gz
 
     gunzip --keep ${lineage}.QC.mask.filt.snps.consensus.fa.gz
-
+    seqkit rmdup -n ${lineage}.QC.mask.filt.snps.consensus.fa \\
+        >> ${lineage}.QC.mask.filt.snps.consensus.fa.tmp
+    mv ${lineage}.QC.mask.filt.snps.consensus.fa.tmp \\
+        ${lineage}.QC.mask.filt.snps.consensus.fa
     ###############################################################
     # Run gubbins
     echo "Log: Performing gubbins analysis..."
