@@ -1,6 +1,6 @@
 process NEXUS_GEN{
 
-    conda params.snippy_env 
+    conda params.general_env 
 
     tag "${lineage}; t=${distance}"
 
