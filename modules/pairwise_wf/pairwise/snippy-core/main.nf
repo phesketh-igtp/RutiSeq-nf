@@ -23,7 +23,7 @@ process SNIPPY_CORE {
     ###############################################################
     # Link all the VCF files
     ###############################################################
-    echo "${sampleIDs.join('\n')}" | sort | uniq > samples.list
+    echo "${sampleID_list.join('\n')}" | sort | uniq > samples.list
 
     # Assign the base path
     BASE="${params.outDir}/db/samples"
