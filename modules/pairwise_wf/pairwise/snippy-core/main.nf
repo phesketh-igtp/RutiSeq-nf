@@ -70,9 +70,9 @@ process SNIPPY_CORE {
     # Filter VCFs with gubbins masking sites and regen consensus
     ###############################################################
     # Mask with gubbins
-    for vcf in *.QC.mask.filt.vcf.gz; do
+    for vcf in src/*.QC.mask.filt.vcf.gz; do
 
-        sampleid=\$(basename \${vcf} .QC.mask.filt.vcf.gz)
+        sampleid=\$(basename "\${vcf}" .QC.mask.filt.vcf.gz)
         src_dir="\${BASE}/\${sampleid}/snippy-ng/"
 
         bcftools filter \\
