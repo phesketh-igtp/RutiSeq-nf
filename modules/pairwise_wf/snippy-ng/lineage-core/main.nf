@@ -96,7 +96,7 @@ process SNIPPY_LINEAGE_CORE {
 
         bcftools filter \\
             src/\${f}.QC.mask.filt.vcf.gz \\
-            --mask-file gubbins/RutiSeq.gubbins.recombination_predictions.gff \\
+            --mask-file gubbins/${lineage}.gubbins.recombination_predictions.gff \\
             --soft-filter "gubbins" \\
             -Oz -o src/\${f}.QC.mask.filt.gubbins.lineage.vcf.gz
 
