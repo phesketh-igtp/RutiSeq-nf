@@ -1,7 +1,5 @@
 process SNIPPY_CORE  {
 
-    tag "RutiSeq"
-
     conda params.gubbins_env
     
     publishDir "${params.outDir}/db/comparison/snippy/RutiSeq/", 
