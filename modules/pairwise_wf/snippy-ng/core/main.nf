@@ -60,6 +60,10 @@ process SNIPPY_CORE  {
 
     gunzip --keep RutiSeq.QC.mask.filt.snps.consensus.fa.gz
 
+    seqkit rmdup -n RutiSeq.QC.mask.filt.snps.consensus.fa \\
+        >> RutiSeq.QC.mask.filt.snps.consensus.fa.tmp
+    mv RutiSeq.QC.mask.filt.snps.consensus.fa.tmp \\
+        RutiSeq.QC.mask.filt.snps.consensus.fa
     ###############################################################
     # Run gubbins
     echo "Log: Performing gubbins analysis..."
