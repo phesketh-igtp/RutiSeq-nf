@@ -4,7 +4,7 @@ process SNIPPY_LINEAGE_CORE_PHYLOGENY {
 
     conda params.phylogeny_env
 
-    publishDir "${params.outDir}/db/comparison/snippy-ng/${lineage}/phylogeny/", 
+    publishDir "${params.outDir}/db/comparison/snippy-ng/${lineage}/core/", 
         mode: 'copy',
         overwrite: true
 

@@ -7,26 +7,24 @@ process SNIPPY_PHYLOGENY {
         overwrite: true
 
     input:
-        path(fasta)
+        file(fasta_gz)
 
     output:
-        path("RutiSeq.iqtree")
-        
-        tuple path("variant-sites.fasta"), 
-            path("core.masked.full.invariants"),
-            path("core_ml.contree"),
-            emit: snippy_core_dated_phylogeny
+        path("RutiSeq.iqtree*")
+        path("RutiSeq.variant-sites.fasta")
+        path("RutiSeq.invariant-sites.out")
 
     script:
 
     """
     # Perform phylogeny
-    snp-sites -c ${fasta} > variant-sites.fasta
-    snp-sites -C ${fasta} > invariant-sites.out
+    gunzip --keep ${fasta_gz} > RutiSeq.consensus-aln.fasta
+    snp-sites -c consensus-aln.fasta > RutiSeq.variant-sites.fasta
+    snp-sites -C consensus-aln.fasta > RutiSeq.invariant-sites.out
     
     iqtree3 \\
-        -s variant-sites.fasta \\
-        -fconst "\$(snp-sites -C ${fasta})" \\
+        -s RutiSeq.variant-sites.fasta \\
+        -fconst "\$(snp-sites -C consensus-aln.fasta)" \\
         -m ${params.iqtree_model} \\
         -ntmax ${task.cpus} \\
         -T AUTO \\
@@ -61,5 +59,6 @@ process SNIPPY_PHYLOGENY {
                         Updated to use variant and invariant site alignments from Snippy-core,
                             using -fconst in IQ-Tree for better phylogeny accuracy 
                             (just a linear scaling of the branch lengths.)
+        v2.0.0-2026-11-23: Changed to refect the use of snippy-ng ouputs.
                         
 */

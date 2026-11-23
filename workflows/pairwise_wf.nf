@@ -159,6 +159,7 @@ workflow PAIRWISE_WF {
             SNIPPY_LINEAGE_CORE_PHYLOGENY( SNIPPY_LINEAGE_CORE.out.snippy_lineage_phylo_ch )
         // Assemble all the variable region phylogenies
             SNP_PHYLOGENY( MTBSEQ_LINEAGE_JOINT_AMEND.out.snp_phylogeny_ch )
+            
         // SNIPPY_CORE and SNIPPY_PHYLOGENY
             SNIPPY_CORE( 
                         sampleID_list,

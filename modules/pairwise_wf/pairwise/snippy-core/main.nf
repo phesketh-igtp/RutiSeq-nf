@@ -2,7 +2,7 @@ process SNIPPY_CORE {
 
     conda params.gubbins_env
     
-    publishDir "${params.outDir}/db/comparison/snippy/core/", 
+    publishDir "${params.outDir}/db/comparison/snippy-ng/core/", 
         mode: 'copy',
         overwrite: true
 
@@ -12,10 +12,10 @@ process SNIPPY_CORE {
 
     output:
         path("gubbins/")
-        path("MTB.QC.mask.filt.snps.consensus.fa.gz")
-        path("MTB.QC.mask.filt.snps.consensus.pdsm.csv")
-        path("MTB.QC.mask.filt.gubbins.snps.consensus.fa.gz"), emit: core_phylo_ch
-        path("MTB.QC.mask.filt.gubbins.snps.consensus.pdsm.csv")
+        path("RutiSeq.QC.mask.filt.snps.consensus.fa.gz")
+        path("RutiSeq.QC.mask.filt.snps.consensus.pdsm.csv")
+        path("RutiSeq.QC.mask.filt.gubbins.snps.consensus.fa.gz"), emit: core_phylo_ch
+        path("RutiSeq.QC.mask.filt.gubbins.snps.consensus.pdsm.csv")
 
     script:
 
