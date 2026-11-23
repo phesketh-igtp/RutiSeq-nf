@@ -45,6 +45,7 @@ process SNIPPY_CORE  {
             # Only create symlink if file exists
             if [[ -f "\$file" ]]; then
                 ln -sf "\$file" src/
+                echo -e "\$f" >> samples.list.new
             fi
 
         done
@@ -123,7 +124,7 @@ process SNIPPY_CORE  {
         cp src/\${f}.QC.mask.filt.gubbins.core.vcf.gz \${src_dir}/
         cp src/\${f}.QC.mask.filt.gubbins.snps.core.consensus.fa.gz \${src_dir}/
 
-    done < samples.list
+    done < samples.list.new
 
     ###############################################################
     # Concatenate the consensus genomes

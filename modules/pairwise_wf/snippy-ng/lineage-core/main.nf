@@ -48,11 +48,12 @@ process SNIPPY_LINEAGE_CORE {
             # Only create symlink if file exists
             if [[ -f "\$file" ]]; then
                 ln -sf "\$file" src/
+                echo -e "\$f" >> samples.list.new
             fi
 
         done
 
-    done < samples.list
+    done < samples.list.new
 
     ###############################################################
     # Concatenate the consensus sequences
@@ -140,11 +141,17 @@ process SNIPPY_LINEAGE_CORE {
     # Calculate the pairwise distances between the consensus genomes
     echo "Log: Calculating the pairwise distance of all consensus sequences..."
     ###############################################################
-    pdsm --threads ${task.cpus} --sort --progress \\
+    pdsm \\
+        --threads ${task.cpus} \\
+        --sort \\
+        --progress \\
         ${lineage}.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz \\
         > ${lineage}.QC.mask.filt.gubbins.snps.lineage.consensus.pdsm.csv
 
-    pdsm --threads ${task.cpus} --sort --progress \\
+    pdsm \\
+        --threads ${task.cpus} \\
+        --sort \\
+        --progress \\
         ${lineage}.QC.mask.filt.snps.consensus.fa \\
         > ${lineage}.QC.mask.filt.snps.consensus.pdsm.csv
     """
