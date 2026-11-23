@@ -139,14 +139,14 @@ process SNIPPY_LINEAGE_CORE {
     # Calculate the pairwise distances between the consensus genomes
     echo "Log: Calculating the pairwise distance of all consensus sequences..."
     ###############################################################
-    pdsm \\
+    psdm \\
         --threads ${task.cpus} \\
         --sort \\
         --progress \\
         ${lineage}.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz \\
         > ${lineage}.QC.mask.filt.gubbins.snps.lineage.consensus.pdsm.csv
 
-    pdsm \\
+    psdm \\
         --threads ${task.cpus} \\
         --sort \\
         --progress \\
