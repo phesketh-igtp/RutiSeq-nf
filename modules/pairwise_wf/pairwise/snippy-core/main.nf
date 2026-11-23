@@ -44,27 +44,27 @@ process SNIPPY_CORE {
     # Concatenate the consensus sequences
     ###############################################################
     cat *.QC.mask.filt.snps.consensus.fa.gz \\
-        > MTB.QC.mask.filt.snps.consensus.fa.gz
+        > RutiSeq.QC.mask.filt.snps.consensus.fa.gz
 
-    gunzip --keep MTB.QC.mask.filt.snps.consensus.fa.gz
+    gunzip --keep RutiSeq.QC.mask.filt.snps.consensus.fa.gz
 
     ###############################################################
     # Run gubbins
     ###############################################################
     run_gubbins.py \\
         --extensive-search \\
-        --prefix MTB.gubbins \\
+        --prefix RutiSeq.gubbins \\
         --threads ${task.cpus} \\
-        MTB.QC.mask.filt.snps.consensus.fa
+        RutiSeq.QC.mask.filt.snps.consensus.fa
 
-    gff2bed < MTB.gubbins.recombination_predictions.gff \\
-        > MTB.gubbins.recombination_predictions.bed
+    gff2bed < RutiSeq.gubbins.recombination_predictions.gff \\
+        > RutiSeq.gubbins.recombination_predictions.bed
 
     sed -i 's@SEQUENCE@NC_000962.3@g' \\
-        MTB.gubbins.recombination_predictions.bed
+        RutiSeq.gubbins.recombination_predictions.bed
     
     # Clean up
-    mkdir gubbins/; mv MTB.gubbins.* gubbins/
+    mkdir gubbins/; mv RutiSeq.gubbins.* gubbins/
 
     ###############################################################
     # Filter VCFs with gubbins masking sites and regen consensus
@@ -73,11 +73,12 @@ process SNIPPY_CORE {
     for vcf in *.QC.mask.filt.vcf.gz; do
 
         sampleid=\$(basename \${vcf} .QC.mask.filt.vcf.gz)
+        src_dir="\${BASE}/\${sampleid}/snippy-ng/"
 
         bcftools filter \\
             \${vcf} \\
-            --mask-file gubbins/MTB.gubbins.recombination_predictions.gff \\
-            --soft-filter gubbins \\
+            --mask-file gubbins/RutiSeq.gubbins.recombination_predictions.gff \\
+            --soft-filter "gubbins" \\
             -Oz \\
             -o "\${sampleid}.QC.mask.filt.gubbins.vcf.gz"
 
@@ -99,6 +100,10 @@ process SNIPPY_CORE {
 
         sed -i "s@>NC_000962.3@>\${sampleid}@g" \\
            "\${sampleid}.QC.mask.filt.gubbins.snps.consensus.fa"
+
+        # Copy over new vcfs and consensus files to sample directory
+        cp "\${sampleid}.QC.mask.filt.gubbins.vcf.gz" \${src_dir}
+        cp "\${sampleid}.QC.mask.filt.gubbins.snps.consensus.fa" \${src_dir}
 
     done
 
