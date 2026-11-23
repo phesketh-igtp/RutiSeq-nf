@@ -51,7 +51,7 @@ process SNIPPY_LINEAGE_CORE {
             fi
 
         done
-    done < \$(sort samples.list | uniq)
+    done < <(sort -u samples.list)
 
     ###############################################################
     # Concatenate the consensus sequences
