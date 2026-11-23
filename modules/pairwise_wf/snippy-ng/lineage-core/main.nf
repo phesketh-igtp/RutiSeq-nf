@@ -36,15 +36,21 @@ process SNIPPY_LINEAGE_CORE {
     # Assign the base path
     BASE="${params.outDir}/db/samples"
 
+    mkdir -p src/
+
     while read -r f; do
 
         src_dir="\$BASE/\$f/snippy-ng/"
-        dest_dir="src/"
 
-        # Only create dest directory if needed
-        mkdir -p src/
-        ln -sf "\$src_dir"/*.QC.mask.filt.vcf.gz src/
-        ln -sf "\$src_dir"/*.QC.mask.filt.snps.consensus.fa.gz src/
+        for file in "\$src_dir"/*.QC.mask.filt.vcf.gz \
+                    "\$src_dir"/*.QC.mask.filt.snps.consensus.fa.gz; do
+
+            # Only create symlink if file exists
+            if [[ -f "\$file" ]]; then
+                ln -sf "\$file" src/
+            fi
+
+        done
 
     done < samples.list
 
