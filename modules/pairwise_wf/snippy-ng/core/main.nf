@@ -122,7 +122,7 @@ process SNIPPY_CORE  {
 
     ###############################################################
     # Concatenate the consensus genomes
-    echo "Log: Concatenated gubbins consensus sequence..."
+    echo "Log: Concatenate gubbins consensus sequence..."
     ###############################################################
     cat src/*.QC.mask.filt.gubbins.snps.consensus.fa \\
         > RutiSeq.QC.mask.filt.gubbins.snps.lineage.consensus.fa

@@ -58,7 +58,7 @@ process SNIPPY_LINEAGE_CORE {
     # Concatenate the consensus sequences
     echo "Log: Concatenating consensus sequence..."
     ###############################################################
-    cat *.QC.mask.filt.snps.consensus.fa.gz \\
+    cat src/*.QC.mask.filt.snps.consensus.fa.gz \\
         > ${lineage}.QC.mask.filt.snps.consensus.fa.gz
 
     gunzip --keep ${lineage}.QC.mask.filt.snps.consensus.fa.gz
@@ -125,7 +125,7 @@ process SNIPPY_LINEAGE_CORE {
 
     ###############################################################
     # Concatenate the consensus genomes
-    echo "Log: Concatenated gubbins consensus sequence..."
+    echo "Log: Concatenate gubbins consensus sequence..."
     ###############################################################
     cat src/*.QC.mask.filt.gubbins.snps.lineage.consensus.fa \\
         > ${lineage}.QC.mask.filt.gubbins.snps.lineage.consensus.fa
