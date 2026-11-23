@@ -29,6 +29,7 @@ process SNIPPY_LINEAGE_CORE {
     """
     ###############################################################
     # Link all the VCF files
+    echo "Log: Collecting all VCF files..."
     ###############################################################
     echo "${sampleIDs.join('\n')}" | sort | uniq > samples.list
 
@@ -49,6 +50,7 @@ process SNIPPY_LINEAGE_CORE {
 
     ###############################################################
     # Concatenate the consensus sequences
+    echo "Log: Concatenating consensus sequence..."
     ###############################################################
     cat *.QC.mask.filt.snps.consensus.fa.gz \\
         > ${lineage}.QC.mask.filt.snps.consensus.fa.gz
@@ -57,6 +59,7 @@ process SNIPPY_LINEAGE_CORE {
 
     ###############################################################
     # Run gubbins
+    echo "Log: Performing gubbins analysis..."
     ###############################################################
     run_gubbins.py \\
         --extensive-search \\
@@ -75,6 +78,7 @@ process SNIPPY_LINEAGE_CORE {
 
     ###############################################################
     # Filter VCFs with gubbins masking sites and regen consensus
+    echo "Log: Generating gubbins filtering VCF file..."
     ###############################################################
     while read -r f; do
 
@@ -113,6 +117,7 @@ process SNIPPY_LINEAGE_CORE {
 
     ###############################################################
     # Concatenate the consensus genomes
+    echo "Log: Concatenated gubbins consensus sequence..."
     ###############################################################
     cat src/*.QC.mask.filt.gubbins.snps.lineage.consensus.fa \\
         > ${lineage}.QC.mask.filt.gubbins.snps.lineage.consensus.fa
@@ -121,6 +126,7 @@ process SNIPPY_LINEAGE_CORE {
 
     ###############################################################
     # Calculate the pairwise distances between the consensus genomes
+    echo "Log: Calculating the pairwise distance of all consensus sequences..."
     ###############################################################
     pdsm --threads ${task.cpus} --sort --progress \\
         ${lineage}.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz \\
