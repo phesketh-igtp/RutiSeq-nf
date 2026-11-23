@@ -7,7 +7,7 @@ process SNIPPY_CORE {
         overwrite: true
 
     input:
-        val(sampleID_list)  // Collection of VCF files from snippy runs
+        val(sampleIDs)  // Collection of VCF files from snippy runs
         path(analysis_summary) // purely to trigger execution when pairwise analysis is run
 
     output:
@@ -23,7 +23,7 @@ process SNIPPY_CORE {
     ###############################################################
     # Link all the VCF files
     ###############################################################
-    echo "${sampleID_list.join('\n')}" | sort | uniq > samples.list
+    echo "${sampleIDs.join('\n')}" | sort | uniq > samples.list
 
     # Assign the base path
     BASE="${params.outDir}/db/samples"
