@@ -51,9 +51,7 @@ process SNIPPY_LINEAGE_CORE {
             fi
 
         done
-    done < samples.list
-
-    sort samples.list.new | uniq > tmp; mv tmp samples.list.new
+    done < \$(sort samples.list | uniq)
 
     ###############################################################
     # Concatenate the consensus sequences
@@ -126,7 +124,7 @@ process SNIPPY_LINEAGE_CORE {
         cp src/\${f}.QC.mask.filt.gubbins.lineage.vcf.gz \${src_dir}/
         cp src/\${f}.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz \${src_dir}/
 
-    done < samples.list
+    done < \$(sort samples.list | uniq)
 
     ###############################################################
     # Concatenate the consensus genomes
