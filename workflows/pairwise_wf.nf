@@ -2,14 +2,15 @@
 include { TBPROFILER_COMPILE }         from '../modules/pairwise_wf/tbprofiler/compile/main.nf'
 include { MTBSEQ_STATS_COMPILE }       from '../modules/pairwise_wf/mtbseq/stats-compile/main.nf'
 include { COMPILE_SEQUENCING_STATS }   from '../modules/pairwise_wf/filtering/compile-sequencing-stats/main.nf'
+include { ASSESS_SAMPLES }             from '../modules/pairwise_wf/filtering/assess_samples/main.nf'
+
 //SNIPPY
-include { SNIPPY_LINEAGE_CORE }           from '../modules/pairwise_wf/pairwise/snippy-lineage-core/main.nf'
-include { SNIPPY_LINEAGE_CORE_PHYLOGENY } from '../modules/pairwise_wf/pairwise/snippy-lineage-core-phylogeny/main.nf'
-include { SNIPPY_CORE }                   from '../modules/pairwise_wf/pairwise/snippy-core/main.nf'
-include { SNIPPY_PHYLOGENY }              from '../modules/pairwise_wf/pairwise/snippy-phylogeny/main.nf'
+include { SNIPPY_LINEAGE_CORE }           from '../modules/pairwise_wf/pairwise/snippy-ng/lineage-core/main.nf'
+include { SNIPPY_LINEAGE_CORE_PHYLOGENY } from '../modules/pairwise_wf/pairwise/snippy-ng/lineage-core-phylogeny/main.nf'
+include { SNIPPY_CORE }                   from '../modules/pairwise_wf/pairwise/snippy-ng/core/main.nf'
+include { SNIPPY_CORE_PHYLOGENY }         from '../modules/pairwise_wf/pairwise/snippy-ng/phylogeny/main.nf'
 
 // MTBSeq
-include { ASSESS_SAMPLES }             from '../modules/pairwise_wf/filtering/assess_samples/main.nf'
 include { MTBSEQ_LINEAGE_JOINT_AMEND } from '../modules/pairwise_wf/mtbseq/lineage_joint-amend/main.nf'
 include { MTBSEQ_LINEAGE_GROUP }       from '../modules/pairwise_wf/mtbseq/lineage_group/main.nf'
 include { MTBSEQ_ALIGNMENT_PHYLOGENY } from '../modules/pairwise_wf/mtbseq/alignment_phylogeny/main.nf'
@@ -162,8 +163,7 @@ workflow PAIRWISE_WF {
 
         // SNIPPY_CORE and SNIPPY_PHYLOGENY
             SNIPPY_CORE( sampleID_list )
-            SNIPPY_PHYLOGENY( SNIPPY_CORE.out.snippy_core_phylo_ch
-                            )
+            SNIPPY_CORE_PHYLOGENY( SNIPPY_CORE.out.snippy_core_phylo_ch )
 
         // Collect all cluster and matrix outputs
             PREPROCESS_CLUSTER( MTBSEQ_LINEAGE_GROUP.out.clusters )
