@@ -48,9 +48,7 @@ process SNIPPY_CORE  {
             fi
 
         done
-    done < samples.list
-
-    sort samples.list.new | uniq > tmp; mv tmp samples.list.new
+    done < <(sort -u samples.list)
 
     ###############################################################
     # Concatenate the consensus sequences
@@ -124,7 +122,7 @@ process SNIPPY_CORE  {
         cp src/\${f}.QC.mask.filt.gubbins.core.vcf.gz \${src_dir}/
         cp src/\${f}.QC.mask.filt.gubbins.snps.core.consensus.fa.gz \${src_dir}/
 
-    done < samples.list.new
+    done < <(sort -u samples.list.new)
 
     ###############################################################
     # Concatenate the consensus genomes
