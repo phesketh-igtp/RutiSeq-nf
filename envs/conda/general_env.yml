@@ -1,8 +1,13 @@
 name: general_env
 channels:
-  - conda-forge
   - bioconda
+  - conda-forge
 dependencies:
-  - conda-forge::seqkit
-  - conda-forge::sra-tools
-  - bioconda::mtbseq=1.1.0
+  - python=3.11
+  - pip
+  - seqkit
+  - sra-tools
+  - pip:
+      - polars
+      - pandas
+      - numpy
