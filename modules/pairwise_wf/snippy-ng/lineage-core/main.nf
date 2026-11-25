@@ -89,40 +89,42 @@ process SNIPPY_LINEAGE_CORE {
     # Filter VCFs with gubbins masking sites and regen consensus
     echo "Log: Generating gubbins filtering VCF file..."
     ###############################################################
-    while read -r f; do
+    
+    for file in src_dir/*.QC.mask.filt.vcf.gz; do
 
-        src_dir="\${BASE}/\${f}/snippy-ng/"
-
+        i=\$(basename \$file .QC.mask.filt.vcf.gz)
+        src_dir="\$BASE/\$i/snippy-ng/"
+    
         bcftools filter \\
-            src/\${f}.QC.mask.filt.vcf.gz \\
+            \$file \\
             --mask-file gubbins/${lineage}.gubbins.recombination_predictions.bed \\
             --soft-filter "gubbins" \\
-            -Oz -o src/\${f}.QC.mask.filt.gubbins.lineage.vcf.gz
+            -Oz -o src/\${i}.QC.mask.filt.gubbins.lineage.vcf.gz
 
         # Apply only SNPs to consensus genome
         bcftools view \\
             -f PASS \\
             -v snps \\
-            src/\${f}.QC.mask.filt.gubbins.lineage.vcf.gz \\
+            src/\${i}.QC.mask.filt.gubbins.lineage.vcf.gz \\
             -Oz \\
-            -o src/\${f}.QC.mask.filt.gubbins.snps.vcf.gz
+            -o src/\${i}.QC.mask.filt.gubbins.snps.vcf.gz
 
-        tabix -f src/\${f}.QC.mask.filt.gubbins.snps.vcf.gz
+        tabix -f src/\${i}.QC.mask.filt.gubbins.snps.vcf.gz
 
         # Concensus
         bcftools consensus \\
             -f ${params.snippy_reference_fa} \\
-            src/\${f}.QC.mask.filt.gubbins.snps.vcf.gz \\
-            > src/\${f}.QC.mask.filt.gubbins.snps.lineage.consensus.fa
+            src/\${i}.QC.mask.filt.gubbins.snps.vcf.gz \\
+            > src/\${i}.QC.mask.filt.gubbins.snps.lineage.consensus.fa
 
         sed -i "s@>NC_000962.3@>\${f}@g" \\
-           src/\${f}.QC.mask.filt.gubbins.snps.lineage.consensus.fa
+           src/\${i}.QC.mask.filt.gubbins.snps.lineage.consensus.fa
 
         gzip --best --keep src/\${f}.QC.mask.filt.gubbins.snps.lineage.consensus.fa
 
         # Copy over new vcfs and consensus files to sample directory
-        cp src/\${f}.QC.mask.filt.gubbins.lineage.vcf.gz \${src_dir}/
-        cp src/\${f}.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz \${src_dir}/
+        cp src/\${i}.QC.mask.filt.gubbins.lineage.vcf.gz \${src_dir}/
+        cp src/\${i}.QC.mask.filt.gubbins.snps.lineage.consensus.fa.gz \${src_dir}/
 
     done < <(sort -u samples.list.new)
 
