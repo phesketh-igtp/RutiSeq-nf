@@ -7,8 +7,8 @@ include { ASSESS_SAMPLES }             from '../modules/pairwise_wf/filtering/as
 //SNIPPY
 //include { SNIPPY_CORE }                   from '../modules/pairwise_wf/snippy-ng/core/main.nf'
 //include { SNIPPY_CORE_PHYLOGENY }         from '../modules/pairwise_wf/snippy-ng/phylogeny/main.nf'
-include { SNIPPY_LINEAGE_CORE }           from '../modules/pairwise_wf/snippy-ng/lineage-core/main.nf'
-include { SNIPPY_LINEAGE_CORE_PHYLOGENY } from '../modules/pairwise_wf/snippy-ng/lineage-core-phylogeny/main.nf'
+//include { SNIPPY_LINEAGE_CORE }           from '../modules/pairwise_wf/snippy-ng/lineage-core/main.nf'
+//include { SNIPPY_LINEAGE_CORE_PHYLOGENY } from '../modules/pairwise_wf/snippy-ng/lineage-core-phylogeny/main.nf'
 
 // MTBSeq
 include { MTBSEQ_LINEAGE_JOINT_AMEND } from '../modules/pairwise_wf/mtbseq/lineage_joint-amend/main.nf'
@@ -166,8 +166,8 @@ workflow PAIRWISE_WF {
             //SNIPPY_CORE( ASSESS_SAMPLES.out.lineage_sample_tuple )
             //SNIPPY_CORE_PHYLOGENY( SNIPPY_CORE.out.snippy_core_phylo_ch )
 
-            SNIPPY_LINEAGE_CORE( lineage_samples_ch )
-            SNIPPY_LINEAGE_CORE_PHYLOGENY( SNIPPY_LINEAGE_CORE.out.snippy_lineage_phylo_ch )
+            //SNIPPY_LINEAGE_CORE( lineage_samples_ch )
+            //SNIPPY_LINEAGE_CORE_PHYLOGENY( SNIPPY_LINEAGE_CORE.out.snippy_lineage_phylo_ch )
 
 
     emit:
